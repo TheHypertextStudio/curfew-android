@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "checks": [
+    {
+      "id": "android-alarm-plain",
+      "modes": ["alarm"],
+      "argv": ["./gradlew", "testPlainDebugUnitTest", "--tests", "studio.hypertext.curfew.alarm.*", "--tests", "studio.hypertext.curfew.platform.*", "--no-configuration-cache"],
+      "timeoutSeconds": 900
+    },
+    {
+      "id": "android-alarm-gms",
+      "modes": ["alarm"],
+      "argv": ["./gradlew", "testGmsDebugUnitTest", "--tests", "studio.hypertext.curfew.alarm.*", "--tests", "studio.hypertext.curfew.platform.*", "--no-configuration-cache"],
+      "timeoutSeconds": 900
+    },
+    {
+      "id": "android-wake-proof",
+      "modes": ["wake-proof"],
+      "argv": ["./gradlew", "testPlainDebugUnitTest", "--tests", "studio.hypertext.curfew.callback.*", "--tests", "studio.hypertext.curfew.sync.*", "--tests", "studio.hypertext.curfew.alarm.AlarmRecoveryPlannerTest", "--no-configuration-cache"],
+      "timeoutSeconds": 900
+    }
+  ]
+}

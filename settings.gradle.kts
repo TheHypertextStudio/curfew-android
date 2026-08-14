@@ -21,3 +21,12 @@ dependencyResolutionManagement {
 
 rootProject.name = "Curfew"
 include(":app")
+
+providers.environmentVariable("CURFEW_PROTOCOLS_CHECKOUT").orNull?.let { checkout ->
+    includeBuild(checkout) {
+        dependencySubstitution {
+            substitute(module("studio.hypertext.curfew:curfew-protocols"))
+                .using(project(":generated:kotlin"))
+        }
+    }
+}

@@ -1,0 +1,9 @@
+{
+  "allowedLicenses": [
+    { "moduleLicense": ".*Apache.*2\\.0.*" },
+    { "moduleLicense": ".*MIT.*" },
+    { "moduleLicense": ".*BSD.*" },
+    { "moduleLicense": ".*Eclipse Public License.*2\\.0.*" },
+    { "moduleLicense": ".*CDDL.*1\\.[01].*" }
+  ]
+}

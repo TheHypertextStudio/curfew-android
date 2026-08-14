@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">Curfew</string>
+    <string name="alarm_channel_name">Perpetual alarms</string>
+    <string name="alarm_channel_description">Audible wake campaigns that end only after a configured terminal condition</string>
+    <string name="status_channel_name">Wake status</string>
+    <string name="alarm_notification_title">Curfew wake campaign</string>
+    <string name="alarm_notification_body">Attempt %1$d is ringing. Open Curfew to view condition status.</string>
+    <string name="missed_wake_title">Wake campaign ended</string>
+    <string name="missed_wake_body">The condition was not met after %1$d attempts. Connected devices have been released.</string>
 </resources>
