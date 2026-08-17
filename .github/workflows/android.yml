@@ -86,7 +86,7 @@ jobs:
           arch: x86_64
           disable-animations: true
           working-directory: curfew-android
-          script: ./gradlew connected${{ matrix.distribution }}DebugAndroidTest --stacktrace
+          script: ./ci/run-instrumented-tests.sh ${{ matrix.distribution }} ${{ matrix.api }}
 
   release-evidence:
     runs-on: ubuntu-latest
