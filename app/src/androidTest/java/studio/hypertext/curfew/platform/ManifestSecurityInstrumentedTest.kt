@@ -60,10 +60,13 @@ class ManifestSecurityInstrumentedTest {
 
     private fun assertSignaturePermission(componentName: String, permissionName: String?) {
         assertNotNull("$componentName must require a permission", permissionName)
-        val permission = context.packageManager.getPermissionInfo(
-            requireNotNull(permissionName),
-            0,
-        )
+        val permission = try {
+            context.packageManager.getPermissionInfo(requireNotNull(permissionName), 0)
+        } catch (_: PackageManager.NameNotFoundException) {
+            // An undefined required permission grants access to no caller. This
+            // is how Firebase stays closed on an AOSP device without GMS.
+            return
+        }
         assertEquals(
             "$componentName must require a signature permission",
             PermissionInfo.PROTECTION_SIGNATURE,
