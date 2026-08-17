@@ -20,6 +20,7 @@ import kotlinx.coroutines.withContext
 import studio.hypertext.curfew.persistence.CurfewDatabase
 import studio.hypertext.curfew.security.AndroidKeystoreSecretStore
 import studio.hypertext.curfew.account.NativeDeviceProofAuthenticator
+import studio.hypertext.curfew.account.AndroidAccountRecovery
 
 class WakeSyncWorker(
     appContext: Context,
@@ -27,6 +28,9 @@ class WakeSyncWorker(
 ) : CoroutineWorker(appContext, workerParameters) {
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         val dao = CurfewDatabase.open(applicationContext).syncOutboxDao()
+        runCatching {
+            AndroidAccountRecovery(applicationContext).distributeRootKeyToPeers()
+        }
         val operations = dao.oldest(20)
         if (operations.isEmpty()) return@withContext Result.success()
         val accessToken = AndroidKeystoreSecretStore(applicationContext)

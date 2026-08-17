@@ -7,16 +7,27 @@ import studio.hypertext.curfew.security.AndroidDeviceEncryptionKey
 
 class AndroidAccountRecovery(context: Context) {
     private val keyStore = AccountKeyMaterialStore(context)
+    private val transport = NativeAccountRecoveryTransport(context)
     private val coordinator = AccountRecoveryCoordinator(
-        transport = NativeAccountRecoveryTransport(context),
+        transport = transport,
         keySink = keyStore,
         rootEnvelopeOpener = AndroidDeviceEncryptionKey()::open,
     )
+    private val distributor = PeerRootKeyDistributor(
+        transport = transport,
+        rootKeyProvider = keyStore::accountRootKey,
+    )
 
-    fun resumeAfterEnrollment(): AccountRecoveryState = coordinator.resumeAfterEnrollment()
+    fun resumeAfterEnrollment(): AccountRecoveryState = coordinator.resumeAfterEnrollment().also {
+        if (it == AccountRecoveryState.Ready) distributor.distribute()
+    }
 
     fun restore(encodedRecoveryKey: String): AccountRecoveryState =
-        coordinator.restore(encodedRecoveryKey.trim())
+        coordinator.restore(encodedRecoveryKey.trim()).also {
+            if (it == AccountRecoveryState.Ready) distributor.distribute()
+        }
+
+    fun distributeRootKeyToPeers(): Int = distributor.distribute()
 
     fun acknowledgeSavedRecoveryKey() = coordinator.acknowledgeSavedRecoveryKey()
 
