@@ -43,6 +43,14 @@ jobs:
           lint${{ matrix.distribution }}Debug
           assemble${{ matrix.distribution }}Debug
           --stacktrace
+      # The release build is the only one R8 minifies, and the app resolves
+      # kotlinx.serialization serializers reflectively. Assembling only the debug
+      # variant meant a keep-rule regression reached a device before it reached
+      # CI. Unsigned here: release signing secrets are injected downstream, and
+      # the point of this step is that R8 completes, not that the APK ships.
+      - name: Assemble minified release
+        working-directory: curfew-android
+        run: ./gradlew assemble${{ matrix.distribution }}Release --stacktrace
       - name: Enforce plain dependency isolation
         if: matrix.distribution == 'Plain'
         working-directory: curfew-android
