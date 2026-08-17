@@ -1,6 +1,6 @@
 # Product and interface design
 
-The Android companion uses a restrained Material 3 Expressive vocabulary: strong state hierarchy, warm wake accents, generous shapes, and no ornamental motion. Dynamic color is used when the user enables system support; the Curfew palette remains the fallback.
+The Android companion uses stock Material 3 components with a restrained visual vocabulary: strong state hierarchy, warm wake accents, and no ornamental motion. Dynamic color is used when the user enables system support; the Curfew palette remains the fallback. It does not yet adopt the Material 3 Expressive APIs — there is no `MaterialExpressiveTheme`, and no expressive shape or motion scheme — so treat the expressive shape and motion work as outstanding rather than shipped.
 
 ## Wake flow
 

@@ -12,7 +12,9 @@ Curfew treats wake controls and callback credentials as security-sensitive.
 
 ## Callback authentication
 
-Callbacks use the generated protocol v2 definitions. Curfew derives independent request and response keys with HKDF-SHA256, authenticates RFC 8785 canonical JSON with HMAC-SHA256, and binds every receipt to one campaign and one random nonce. It rejects redirects, malformed bodies, invalid MACs, replayed nonces, mismatched campaigns, future observations, stale observations, and expired receipts. Network failures stay pending.
+Callbacks use the generated protocol v2 definitions. Curfew derives independent request and response keys with HKDF-SHA256 and authenticates each message with HMAC-SHA256 over a canonical serialization: keys sorted, string values only, no whitespace. That agrees with RFC 8785 for the flat all-string field sets these two messages define, and `canonicalObject` accepts nothing else, so a future schema change that introduces a number or a nested object must revisit it rather than silently diverge. Golden vectors shared with `curfew-protocols` pin the bytes across the Kotlin, Swift, and TypeScript implementations.
+
+Every receipt is bound to one campaign and one nonce. The nonce is 128 bits of fresh randomness per poll and is checked within the request that issued it; there is no durable cross-poll replay ledger, so the security rests on that freshness plus the receipt lifetime ceiling rather than on persistent bookkeeping. Curfew rejects redirects, non-HTTPS endpoints, malformed bodies, invalid MACs, mismatched campaigns, future observations, stale observations, and expired receipts. Network failures stay pending.
 
 The default poll interval is 15 seconds, the request timeout is 5 seconds, and transport backoff is capped at 60 seconds.
 
