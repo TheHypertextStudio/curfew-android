@@ -1,9 +1,10 @@
 package studio.hypertext.curfew.ui
 
 import androidx.compose.ui.test.assertHeightIsAtLeast
-import androidx.compose.ui.test.assertDoesNotExist
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.dp
 import org.junit.Rule
@@ -30,8 +31,8 @@ class AlarmRingingScreenInstrumentedTest {
 
         compose.onNodeWithText("Attempt 1 of 3").assertIsDisplayed()
         compose.onNodeWithText("Checking Start the day").assertIsDisplayed()
-        compose.onNodeWithText("Dismiss").assertDoesNotExist()
-        compose.onNodeWithText("Snooze").assertDoesNotExist()
+        compose.onAllNodesWithText("Dismiss").assertCountEquals(0)
+        compose.onAllNodesWithText("Snooze").assertCountEquals(0)
         compose.onNodeWithText("Open work surface")
             .assertIsDisplayed()
             .assertHeightIsAtLeast(48.dp)
