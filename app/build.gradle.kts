@@ -139,6 +139,9 @@ tasks.register("verifyPlainRuntimeIsolation") {
 tasks.register("generateCurfewSbom") {
     group = "distribution"
     description = "Writes a CycloneDX-compatible component inventory for both release variants."
+    notCompatibleWithConfigurationCache(
+        "The report resolves two release dependency graphs during execution.",
+    )
     val output = layout.buildDirectory.file("reports/sbom/curfew-android.cdx.json")
     outputs.file(output)
     doLast {
@@ -156,7 +159,8 @@ tasks.register("generateCurfewSbom") {
         output.get().asFile.apply {
             parentFile.mkdirs()
             writeText(
-                """{"bomFormat":"CycloneDX","specVersion":"1.6","version":1,"metadata":{"component":{"type":"application","group":"studio.hypertext.curfew","name":"curfew-android","version":"${android.defaultConfig.versionName}"}},"components":[\n$componentJson\n]}\n""",
+                """{"bomFormat":"CycloneDX","specVersion":"1.6","version":1,"metadata":{"component":{"type":"application","group":"studio.hypertext.curfew","name":"curfew-android","version":"${android.defaultConfig.versionName}"}},"components":[$componentJson]}""" +
+                    "\n",
             )
         }
     }
@@ -165,6 +169,9 @@ tasks.register("generateCurfewSbom") {
 tasks.register("writeReleaseChecksums") {
     group = "distribution"
     description = "Writes SHA-256 checksums for signed APKs and bundles."
+    notCompatibleWithConfigurationCache(
+        "The report discovers release artifacts after its dependent builds finish.",
+    )
     dependsOn("assemblePlainRelease", "assembleGmsRelease", "bundleGmsRelease")
     val output = layout.buildDirectory.file("reports/checksums/SHA256SUMS")
     outputs.file(output)
@@ -188,14 +195,19 @@ tasks.register("writeReleaseChecksums") {
 tasks.register("writeBuildProvenance") {
     group = "distribution"
     description = "Records reproducible build inputs without embedding secrets."
+    notCompatibleWithConfigurationCache(
+        "The report reads the CI source revision at execution time.",
+    )
     val output = layout.buildDirectory.file("reports/provenance/curfew-android.json")
+    val versionName = android.defaultConfig.versionName ?: "unknown"
     outputs.file(output)
     doLast {
         val sourceRevision = providers.environmentVariable("GITHUB_SHA").orNull ?: "local"
         output.get().asFile.apply {
             parentFile.mkdirs()
             writeText(
-                """{"schemaVersion":1,"applicationId":"studio.hypertext.curfew","versionName":"${android.defaultConfig.versionName}","sourceRevision":"$sourceRevision","protocolRevision":"1f7d8f60d1bbe21e5ec352456ecb19aca23f4dee","compileSdk":37,"targetSdk":36,"variants":["plainRelease","gmsRelease"]}\n""",
+                """{"schemaVersion":1,"applicationId":"studio.hypertext.curfew","versionName":"$versionName","sourceRevision":"$sourceRevision","protocolRevision":"bddd7c266f3df1b048ef37d83c3270bf24f7cc12","compileSdk":37,"targetSdk":36,"variants":["plainRelease","gmsRelease"]}""" +
+                    "\n",
             )
         }
     }

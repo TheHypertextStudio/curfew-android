@@ -17,7 +17,7 @@ Correctness never depends on FCM. Both distributions use visible exact alarms, a
 
 Set `CURFEW_PROTOCOLS_CHECKOUT` to a `curfew-protocols` checkout while developing locally. Its generated `:generated:kotlin` build substitutes the published `studio.hypertext.curfew:curfew-protocols:0.2.3` artifact. Standalone builds read that artifact from GitHub Packages and require `GITHUB_ACTOR` plus a `GITHUB_TOKEN` with `read:packages`, or matching `gpr.user` and `gpr.key` Gradle properties.
 
-The initial interoperable Android release is verified against immutable protocol revision `1f7d8f60d1bbe21e5ec352456ecb19aca23f4dee`.
+The initial interoperable Android release is verified against immutable protocol revision `bddd7c266f3df1b048ef37d83c3270bf24f7cc12`, which carries the published `0.2.3` artifacts.
 
 ```sh
 export CURFEW_PROTOCOLS_CHECKOUT=/path/to/curfew-protocols
