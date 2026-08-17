@@ -59,13 +59,13 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            signingConfig = if (hasReleaseSigning) {
-                signingConfigs.getByName("curfewRelease")
-            } else {
-                // Local/CI release artifacts remain installable while production injects the
-                // single protected Curfew signing lineage shared by both distributions.
-                signingConfigs.getByName("debug")
-            }
+            // Production injects the single protected Curfew signing lineage shared by
+            // both distributions. Without it the release stays UNSIGNED rather than
+            // falling back to the debug key: a debug-signed release installs and runs
+            // like a real build, so the mistake only surfaces when an update refuses to
+            // install over it against the wrong lineage. Unsigned fails immediately and
+            // unmistakably, and still lets CI assemble the variant to exercise R8.
+            signingConfig = signingConfigs.getByName("curfewRelease").takeIf { hasReleaseSigning }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
