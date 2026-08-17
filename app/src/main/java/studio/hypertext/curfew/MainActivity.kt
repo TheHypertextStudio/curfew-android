@@ -18,6 +18,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -33,6 +34,8 @@ import studio.hypertext.curfew.alarm.AlarmRecurrencePolicy
 import studio.hypertext.curfew.alarm.WakeScheduleResolver
 import studio.hypertext.curfew.callback.CallbackConfigurationRepository
 import studio.hypertext.curfew.account.BrowserOAuthEnrollment
+import studio.hypertext.curfew.account.AccountRecoveryState
+import studio.hypertext.curfew.account.AndroidAccountRecovery
 import studio.hypertext.curfew.account.NativeDeviceProofAuthenticator
 import studio.hypertext.curfew.account.OAuthTokenExchange
 import studio.hypertext.curfew.persistence.CurfewPreferenceState
@@ -54,6 +57,7 @@ import studio.hypertext.curfew.sync.WakeStatusPublisher
 class MainActivity : ComponentActivity() {
     private lateinit var preferences: CurfewPreferences
     private var capabilityEpoch by mutableIntStateOf(0)
+    private var accountRecoveryState by mutableStateOf<AccountRecoveryState?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,6 +65,7 @@ class MainActivity : ComponentActivity() {
         PerpetualAlarmService.ensureChannels(this)
         WakeSyncScheduler.install(this)
         preferences = CurfewPreferences(this)
+        accountRecoveryState = AndroidAccountRecovery(this).pendingState()
         if (handleOAuthCallback(intent)) {
             setIntent(Intent(this, MainActivity::class.java))
         }
@@ -106,6 +111,7 @@ class MainActivity : ComponentActivity() {
                         readiness = readiness,
                         accountEnrolled = preferenceState.accountEnrolled,
                         accountSignedIn = preferenceState.accountSignedIn,
+                        accountRecoveryState = accountRecoveryState,
                         onGrantExactAlarm = ::requestExactAlarmAccess,
                         onGrantNotifications = ::requestNotifications,
                         onRepairAlarmChannel = ::openAlarmChannelSettings,
@@ -132,6 +138,32 @@ class MainActivity : ComponentActivity() {
                                         Toast.LENGTH_LONG,
                                     ).show()
                                 }
+                            }
+                        },
+                        onRestoreRecoveryKey = { encodedKey ->
+                            lifecycleScope.launch {
+                                runCatching {
+                                    kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                                        AndroidAccountRecovery(this@MainActivity).restore(encodedKey)
+                                    }
+                                }.onSuccess { state ->
+                                    accountRecoveryState = state
+                                    preferences.setAccountEnrolled(true)
+                                }.onFailure {
+                                    Toast.makeText(
+                                        this@MainActivity,
+                                        "That Recovery Key could not decrypt this account.",
+                                        Toast.LENGTH_LONG,
+                                    ).show()
+                                }
+                            }
+                        },
+                        onAcknowledgeRecoveryKey = {
+                            lifecycleScope.launch {
+                                AndroidAccountRecovery(this@MainActivity)
+                                    .acknowledgeSavedRecoveryKey()
+                                accountRecoveryState = AccountRecoveryState.Ready
+                                preferences.setAccountEnrolled(true)
                             }
                         },
                         onSaveCallback = { label, endpoint, actionUrl ->
@@ -186,11 +218,21 @@ class MainActivity : ComponentActivity() {
         }
         lifecycleScope.launch {
             runCatching { OAuthTokenExchange(this@MainActivity).exchange(callback) }
-                .onSuccess {
+                .onSuccess { state ->
+                    accountRecoveryState = state
+                    if (state == AccountRecoveryState.Ready) {
+                        preferences.setAccountEnrolled(true)
+                    }
                     capabilityEpoch += 1
                     Toast.makeText(
                         this@MainActivity,
-                        "Signed in. Finish encryption enrollment before sync begins.",
+                        when (state) {
+                            AccountRecoveryState.Ready -> "Signed in. Encrypted sync is ready."
+                            AccountRecoveryState.EnterRecoveryKey ->
+                                "Signed in. Enter your Curfew Recovery Key to restore sync."
+                            is AccountRecoveryState.SaveRecoveryKey ->
+                                "Signed in. Save your Curfew Recovery Key before sync begins."
+                        },
                         Toast.LENGTH_LONG,
                     ).show()
                 }

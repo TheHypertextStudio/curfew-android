@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -37,6 +38,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import java.time.LocalTime
@@ -44,12 +46,14 @@ import java.time.format.DateTimeFormatter
 import studio.hypertext.curfew.readiness.AlarmReadiness
 import studio.hypertext.curfew.readiness.ReadinessAction
 import studio.hypertext.curfew.readiness.ReadinessDisclosure
+import studio.hypertext.curfew.account.AccountRecoveryState
 
 @Composable
 fun CurfewApp(
     readiness: AlarmReadiness,
     accountEnrolled: Boolean,
     accountSignedIn: Boolean,
+    accountRecoveryState: AccountRecoveryState?,
     onGrantExactAlarm: () -> Unit,
     onGrantNotifications: () -> Unit,
     onRepairAlarmChannel: () -> Unit,
@@ -57,6 +61,8 @@ fun CurfewApp(
     onAcknowledgeLimitations: () -> Unit,
     onOpenAccount: () -> Unit,
     onEnrollAccount: () -> Unit,
+    onRestoreRecoveryKey: (String) -> Unit,
+    onAcknowledgeRecoveryKey: () -> Unit,
     onSaveCallback: (String, String, String?) -> Unit,
     onArm: (LocalTime, Int, Int, Int) -> Unit,
 ) {
@@ -116,7 +122,15 @@ fun CurfewApp(
                     Spacer(Modifier.height(16.dp))
                     CallbackCard(onSaveCallback)
                     Spacer(Modifier.height(16.dp))
-                    AccountCard(accountEnrolled, accountSignedIn, onOpenAccount, onEnrollAccount)
+                    AccountCard(
+                        accountEnrolled,
+                        accountSignedIn,
+                        accountRecoveryState,
+                        onOpenAccount,
+                        onEnrollAccount,
+                        onRestoreRecoveryKey,
+                        onAcknowledgeRecoveryKey,
+                    )
                 } else {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -156,8 +170,11 @@ fun CurfewApp(
                             AccountCard(
                                 accountEnrolled,
                                 accountSignedIn,
+                                accountRecoveryState,
                                 onOpenAccount,
                                 onEnrollAccount,
+                                onRestoreRecoveryKey,
+                                onAcknowledgeRecoveryKey,
                             )
                         }
                     }
@@ -404,9 +421,13 @@ private fun CallbackCard(onSaveCallback: (String, String, String?) -> Unit) {
 private fun AccountCard(
     accountEnrolled: Boolean,
     accountSignedIn: Boolean,
+    recoveryState: AccountRecoveryState?,
     onOpenAccount: () -> Unit,
     onEnrollAccount: () -> Unit,
+    onRestoreRecoveryKey: (String) -> Unit,
+    onAcknowledgeRecoveryKey: () -> Unit,
 ) {
+    var recoveryKeyInput by rememberSaveable { mutableStateOf("") }
     CurfewCard("Account sync") {
         Text(
             when {
@@ -431,6 +452,52 @@ private fun AccountCard(
                     .heightIn(min = 48.dp),
             ) { Text("Sign in and enroll device") }
             Spacer(Modifier.height(8.dp))
+        }
+        when (recoveryState) {
+            AccountRecoveryState.EnterRecoveryKey -> {
+                OutlinedTextField(
+                    value = recoveryKeyInput,
+                    onValueChange = { recoveryKeyInput = it.trim() },
+                    label = { Text("Curfew Recovery Key") },
+                    supportingText = { Text("The key stays on this device and never goes to Curfew.") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                )
+                Spacer(Modifier.height(8.dp))
+                Button(
+                    onClick = { onRestoreRecoveryKey(recoveryKeyInput) },
+                    enabled = recoveryKeyInput.isNotBlank(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 48.dp),
+                ) { Text("Restore encrypted account") }
+                Spacer(Modifier.height(8.dp))
+            }
+            is AccountRecoveryState.SaveRecoveryKey -> {
+                Text(
+                    "Save this key outside Curfew. Better Auth backup codes cannot recover encrypted Curfew data.",
+                    color = MaterialTheme.colorScheme.error,
+                )
+                Spacer(Modifier.height(8.dp))
+                SelectionContainer {
+                    Text(
+                        recoveryState.encodedRecoveryKey,
+                        style = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
+                        modifier = Modifier.semantics {
+                            contentDescription = "Curfew Recovery Key"
+                        },
+                    )
+                }
+                Spacer(Modifier.height(12.dp))
+                Button(
+                    onClick = onAcknowledgeRecoveryKey,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 48.dp),
+                ) { Text("I saved the Recovery Key") }
+                Spacer(Modifier.height(8.dp))
+            }
+            AccountRecoveryState.Ready, null -> Unit
         }
         OutlinedButton(
             onClick = onOpenAccount,

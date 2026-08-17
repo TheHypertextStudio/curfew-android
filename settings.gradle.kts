@@ -16,6 +16,19 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven {
+            name = "CurfewProtocolPackages"
+            url = uri("https://maven.pkg.github.com/TheHypertextStudio/curfew-protocols")
+            credentials {
+                username = providers.environmentVariable("GITHUB_ACTOR")
+                    .orElse(providers.gradleProperty("gpr.user"))
+                    .getOrElse("")
+                password = providers.environmentVariable("GITHUB_TOKEN")
+                    .orElse(providers.gradleProperty("gpr.key"))
+                    .getOrElse("")
+            }
+            content { includeGroup("studio.hypertext.curfew") }
+        }
     }
 }
 
