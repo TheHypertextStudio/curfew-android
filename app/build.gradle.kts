@@ -10,7 +10,7 @@ plugins {
 
 android {
     namespace = "studio.hypertext.curfew"
-    compileSdk = 37
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "studio.hypertext.curfew"
@@ -206,7 +206,7 @@ tasks.register("writeBuildProvenance") {
         output.get().asFile.apply {
             parentFile.mkdirs()
             writeText(
-                """{"schemaVersion":1,"applicationId":"studio.hypertext.curfew","versionName":"$versionName","sourceRevision":"$sourceRevision","protocolRevision":"bddd7c266f3df1b048ef37d83c3270bf24f7cc12","compileSdk":37,"targetSdk":36,"variants":["plainRelease","gmsRelease"]}""" +
+                """{"schemaVersion":1,"applicationId":"studio.hypertext.curfew","versionName":"$versionName","sourceRevision":"$sourceRevision","protocolRevision":"bddd7c266f3df1b048ef37d83c3270bf24f7cc12","compileSdk":36,"targetSdk":36,"variants":["plainRelease","gmsRelease"]}""" +
                     "\n",
             )
         }
