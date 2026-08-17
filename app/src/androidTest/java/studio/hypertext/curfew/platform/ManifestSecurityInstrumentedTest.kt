@@ -3,9 +3,12 @@ package studio.hypertext.curfew.platform
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.content.pm.PermissionInfo
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -15,7 +18,7 @@ class ManifestSecurityInstrumentedTest {
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
     @Test
-    fun privilegedComponentsAreExplicitlyNonExported() {
+    fun privilegedComponentsArePrivateOrSignaturePermissionProtected() {
         val packageInfo = context.packageManager.getPackageInfo(
             context.packageName,
             PackageManager.PackageInfoFlags.of(
@@ -24,10 +27,21 @@ class ManifestSecurityInstrumentedTest {
         )
 
         packageInfo.receivers.orEmpty()
-            .filterNot { it.name.endsWith("MainActivity") }
-            .forEach { assertFalse("${it.name} must not be exported", it.exported) }
+            .forEach { receiver ->
+                if (receiver.name.startsWith(context.packageName)) {
+                    assertFalse("${receiver.name} must not be exported", receiver.exported)
+                } else if (receiver.exported) {
+                    assertSignaturePermission(receiver.name, receiver.permission)
+                }
+            }
         packageInfo.services.orEmpty()
-            .forEach { assertFalse("${it.name} must not be exported", it.exported) }
+            .forEach { service ->
+                if (service.name.startsWith(context.packageName)) {
+                    assertFalse("${service.name} must not be exported", service.exported)
+                } else if (service.exported) {
+                    assertSignaturePermission(service.name, service.permission)
+                }
+            }
     }
 
     @Test
@@ -42,5 +56,18 @@ class ManifestSecurityInstrumentedTest {
         assertTrue(permissions.contains(Manifest.permission.POST_NOTIFICATIONS))
         assertTrue(permissions.contains(Manifest.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK))
         assertTrue(permissions.contains(Manifest.permission.INTERNET))
+    }
+
+    private fun assertSignaturePermission(componentName: String, permissionName: String?) {
+        assertNotNull("$componentName must require a permission", permissionName)
+        val permission = context.packageManager.getPermissionInfo(
+            requireNotNull(permissionName),
+            0,
+        )
+        assertEquals(
+            "$componentName must require a signature permission",
+            PermissionInfo.PROTECTION_SIGNATURE,
+            permission.protection,
+        )
     }
 }
