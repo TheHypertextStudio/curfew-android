@@ -8,6 +8,8 @@ plugins {
     id("com.github.jk1.dependency-license-report")
 }
 
+group = "studio.hypertext.curfew"
+
 android {
     namespace = "studio.hypertext.curfew"
     compileSdk = 36
