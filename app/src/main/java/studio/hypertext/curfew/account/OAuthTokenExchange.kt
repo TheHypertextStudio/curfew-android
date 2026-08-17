@@ -17,7 +17,7 @@ import studio.hypertext.curfew.persistence.CurfewPreferences
 import studio.hypertext.curfew.security.AndroidKeystoreSecretStore
 
 class OAuthTokenExchange(private val activity: Activity) {
-    suspend fun exchange(callback: Uri) = withContext(Dispatchers.IO) {
+    suspend fun exchange(callback: Uri): AccountRecoveryState = withContext(Dispatchers.IO) {
         require(callback.scheme == "studio.hypertext.curfew")
         require(callback.host == "oauth" && callback.path == "/callback")
         val state = callback.getQueryParameter("state")?.takeIf(String::isNotBlank)
@@ -75,6 +75,7 @@ class OAuthTokenExchange(private val activity: Activity) {
             )
             NativeDeviceEnrollmentClient(activity).enroll(accessToken, pkceChallenge, state)
             CurfewPreferences(activity).setAccountSignedIn(true)
+            AndroidAccountRecovery(activity).resumeAfterEnrollment()
         } finally {
             connection.disconnect()
         }

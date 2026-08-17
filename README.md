@@ -15,7 +15,7 @@ Both distributions use application ID `studio.hypertext.curfew`, the same versio
 
 Correctness never depends on FCM. Both distributions use visible exact alarms, an active foreground WebSocket, bounded polling, and a WorkManager outbox. Apple and Google sign-in use OAuth 2.1 Authorization Code + PKCE in the system browser, so the plain distribution can sign in without Play Services.
 
-Set `CURFEW_PROTOCOLS_CHECKOUT` to a `curfew-protocols` checkout while developing locally. Its generated `:generated:kotlin` build substitutes the published `studio.hypertext.curfew:curfew-protocols:0.2.0` artifact.
+Set `CURFEW_PROTOCOLS_CHECKOUT` to a `curfew-protocols` checkout while developing locally. Its generated `:generated:kotlin` build substitutes the published `studio.hypertext.curfew:curfew-protocols:0.2.3` artifact. Standalone builds read that artifact from GitHub Packages and require `GITHUB_ACTOR` plus a `GITHUB_TOKEN` with `read:packages`, or matching `gpr.user` and `gpr.key` Gradle properties.
 
 The initial interoperable Android release is verified against immutable protocol revision `1f7d8f60d1bbe21e5ec352456ecb19aca23f4dee`.
 
@@ -39,7 +39,7 @@ Without them, local release builds use the Android debug key and are not product
 
 ## Project boundaries
 
-- Shared wire types come only from `curfew-protocols` v2. Android does not maintain parallel callback or wake DTOs.
+- Shared wire types come only from the pre-1.0 `curfew-protocols` 0.2 release line. Android does not maintain parallel callback or wake DTOs.
 - The callback is deliberately generic: label, HTTPS endpoint, random secret, poll policy, and optional opaque action URL.
 - Encrypted settings are synchronized through `curfew-sync.hypertext.studio`; FCM never carries decrypted settings or authoritative state.
 - Android cannot defeat OS-level force-stop, uninstall, power-off, permission revocation, or every manufacturer battery policy. Readiness discloses those limits before arming.

@@ -11,6 +11,7 @@ import java.security.interfaces.ECPublicKey
 import studio.hypertext.curfew.protocols.Crv
 import studio.hypertext.curfew.protocols.DevicePublicKeyJWK
 import studio.hypertext.curfew.protocols.Kty
+import studio.hypertext.curfew.protocols.RootKeyEnvelope
 
 class AndroidDeviceSigner(
     private val keyAlias: String = "curfew-device-signing-v2",
@@ -71,6 +72,15 @@ class AndroidDeviceEncryptionKey(
             x = base64Url(unsignedFixed(publicKey.w.affineX, 32)),
             y = base64Url(unsignedFixed(publicKey.w.affineY, 32)),
         )
+    }
+
+    fun open(envelope: RootKeyEnvelope): ByteArray {
+        privateKey()
+        val publicKey = requireNotNull(keyStore().getCertificate(keyAlias)).publicKey as ECPublicKey
+        val rawPublicKey = byteArrayOf(4) +
+            unsignedFixed(publicKey.w.affineX, 32) +
+            unsignedFixed(publicKey.w.affineY, 32)
+        return AccountRootKeyRecovery.openRootEnvelope(envelope, privateKey(), rawPublicKey)
     }
 
     private fun privateKey(): java.security.PrivateKey {

@@ -96,7 +96,7 @@ dependencies {
     implementation(libs.androidx.work.runtime)
     implementation(libs.androidx.browser)
     implementation(libs.okhttp)
-    implementation("studio.hypertext.curfew:curfew-protocols:0.2.0")
+    implementation("studio.hypertext.curfew:curfew-protocols:0.2.3")
     ksp(libs.androidx.room.compiler)
     "gmsImplementation"(libs.firebase.messaging)
     testImplementation(libs.junit)
