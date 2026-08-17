@@ -21,28 +21,22 @@ case "$expected_api" in
         ;;
 esac
 
-# Building while the emulator boots can starve adb on GitHub's two-core
-# runners. Build both APKs first, then prove that the device is healthy before
-# Android Gradle Plugin performs device discovery.
-./gradlew \
-    "assemble${distribution}Debug" \
-    "assemble${distribution}DebugAndroidTest" \
-    --max-workers=2 \
-    --no-daemon
-
 actual_api=""
 package_service=""
 activity_service=""
+user_unlocked=""
 for attempt in {1..6}; do
     if timeout 20 adb wait-for-device; then
         actual_api=$(timeout 10 adb shell getprop ro.build.version.sdk 2>/dev/null | tr -d '\r' || true)
         package_service=$(timeout 10 adb shell service check package 2>/dev/null | tr -d '\r' || true)
         activity_service=$(timeout 10 adb shell service check activity 2>/dev/null | tr -d '\r' || true)
+        user_unlocked=$(timeout 10 adb shell cmd user is-user-unlocked 0 2>/dev/null | tr -d '\r' || true)
     fi
 
     if [[ "$actual_api" == "$expected_api" ]] &&
         [[ "$package_service" == *"found"* ]] &&
-        [[ "$activity_service" == *"found"* ]]; then
+        [[ "$activity_service" == *"found"* ]] &&
+        [[ "$user_unlocked" == "true" ]]; then
         break
     fi
 
@@ -54,8 +48,9 @@ done
 
 if [[ "$actual_api" != "$expected_api" ]] ||
     [[ "$package_service" != *"found"* ]] ||
-    [[ "$activity_service" != *"found"* ]]; then
-    echo "The emulator did not expose healthy API, package, and activity services for API $expected_api." >&2
+    [[ "$activity_service" != *"found"* ]] ||
+    [[ "$user_unlocked" != "true" ]]; then
+    echo "The emulator did not expose a healthy unlocked user and required services for API $expected_api." >&2
     exit 1
 fi
 
@@ -66,9 +61,8 @@ test_apk="app/build/outputs/apk/androidTest/$distribution_path/debug/app-$distri
 test -f "$application_apk"
 test -f "$test_apk"
 
-# A second Gradle configuration can starve newer emulator images until
-# system_server restarts. Install the APKs that the first build produced and
-# invoke the standard AndroidJUnitRunner without another JVM competing for CPU.
+# The workflow builds before starting the emulator. Device startup and test
+# execution therefore never compete with a Gradle JVM on the two-core runner.
 timeout 180 adb install --no-streaming -r -t "$application_apk"
 timeout 180 adb install --no-streaming -r -t "$test_apk"
 adb logcat -c
