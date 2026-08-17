@@ -24,19 +24,16 @@ esac
 actual_api=""
 package_service=""
 activity_service=""
-user_unlocked=""
 for attempt in {1..6}; do
     if timeout 20 adb wait-for-device; then
         actual_api=$(timeout 10 adb shell getprop ro.build.version.sdk 2>/dev/null | tr -d '\r' || true)
         package_service=$(timeout 10 adb shell service check package 2>/dev/null | tr -d '\r' || true)
         activity_service=$(timeout 10 adb shell service check activity 2>/dev/null | tr -d '\r' || true)
-        user_unlocked=$(timeout 10 adb shell cmd user is-user-unlocked 0 2>/dev/null | tr -d '\r' || true)
     fi
 
     if [[ "$actual_api" == "$expected_api" ]] &&
         [[ "$package_service" == *"found"* ]] &&
-        [[ "$activity_service" == *"found"* ]] &&
-        [[ "$user_unlocked" == "true" ]]; then
+        [[ "$activity_service" == *"found"* ]]; then
         break
     fi
 
@@ -48,11 +45,14 @@ done
 
 if [[ "$actual_api" != "$expected_api" ]] ||
     [[ "$package_service" != *"found"* ]] ||
-    [[ "$activity_service" != *"found"* ]] ||
-    [[ "$user_unlocked" != "true" ]]; then
-    echo "The emulator did not expose a healthy unlocked user and required services for API $expected_api." >&2
+    [[ "$activity_service" != *"found"* ]]; then
+    echo "The emulator did not expose healthy package and activity services for API $expected_api." >&2
     exit 1
 fi
+
+# sys.boot_completed can precede the final startup broadcasts on API 35 and
+# API 36. Give those services a quiet window before installing the app.
+sleep 20
 
 distribution_path=${distribution,,}
 application_apk="app/build/outputs/apk/$distribution_path/debug/app-$distribution_path-debug.apk"
