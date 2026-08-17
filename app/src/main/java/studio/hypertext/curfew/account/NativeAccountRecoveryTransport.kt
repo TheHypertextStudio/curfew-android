@@ -8,9 +8,12 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import studio.hypertext.curfew.protocols.RecoveryKeyEnvelope
 import studio.hypertext.curfew.protocols.RootKeyEnvelope
+import studio.hypertext.curfew.protocols.AccountDeviceEnrollment
 import studio.hypertext.curfew.security.AndroidKeystoreSecretStore
 
-class NativeAccountRecoveryTransport(context: Context) : AccountRecoveryTransport {
+class NativeAccountRecoveryTransport(context: Context) :
+    AccountRecoveryTransport,
+    PeerRootEnvelopeTransport {
     private val secrets = AndroidKeystoreSecretStore(context)
     private val authenticator = NativeDeviceProofAuthenticator(context)
     private val json = Json { ignoreUnknownKeys = false }
@@ -39,6 +42,28 @@ class NativeAccountRecoveryTransport(context: Context) : AccountRecoveryTranspor
                 in 300..399 -> error("recovery envelope redirects are rejected")
                 else -> error("recovery envelope upload returned HTTP $status")
             }
+        } finally {
+            connection.disconnect()
+        }
+    }
+
+    override fun currentDeviceId(): String = authenticator.deviceId()
+
+    override fun listDevices(): List<AccountDeviceEnrollment> = get(
+        URI("$SYNC_ORIGIN/sync/devices"),
+        authenticator.deviceId(),
+    ) ?: emptyList()
+
+    override fun putRootEnvelope(envelope: RootKeyEnvelope) {
+        val endpoint = URI(
+            "$SYNC_ORIGIN/sync/devices/${envelope.recipientDeviceId}/root-key-envelope",
+        )
+        val body = json.encodeToString(envelope)
+        val connection = openAuthenticated(endpoint, "PUT", body)
+        try {
+            val status = connection.responseCode
+            check(status !in 300..399) { "root envelope redirects are rejected" }
+            check(status in 200..299) { "root envelope upload returned HTTP $status" }
         } finally {
             connection.disconnect()
         }

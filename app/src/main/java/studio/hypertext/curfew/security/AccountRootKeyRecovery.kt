@@ -4,9 +4,11 @@ import java.math.BigInteger
 import java.nio.charset.StandardCharsets
 import java.security.AlgorithmParameters
 import java.security.KeyFactory
+import java.security.KeyPairGenerator
 import java.security.PrivateKey
 import java.security.PublicKey
 import java.security.SecureRandom
+import java.security.interfaces.ECPublicKey
 import java.security.spec.ECGenParameterSpec
 import java.security.spec.ECParameterSpec
 import java.security.spec.ECPoint
@@ -24,8 +26,85 @@ import studio.hypertext.curfew.protocols.RootKeyEnvelope
 import studio.hypertext.curfew.protocols.CipherSuite
 import studio.hypertext.curfew.protocols.Kdf
 import studio.hypertext.curfew.protocols.RecoveryEnvelopeInfo
+import studio.hypertext.curfew.protocols.AccountPublicKeyJWK
+import studio.hypertext.curfew.protocols.Kem
+import studio.hypertext.curfew.protocols.RootKeyEnvelopeInfo
 
 object AccountRootKeyRecovery {
+    fun createRootEnvelope(
+        rootKey: ByteArray,
+        recipientDeviceId: String,
+        recipientPublicKey: AccountPublicKeyJWK,
+        keyEpoch: Long,
+        createdAt: String,
+        ephemeralPrivateKey: PrivateKey? = null,
+        encapsulatedPublicKey: ByteArray? = null,
+    ): RootKeyEnvelope {
+        require(rootKey.size == ROOT_KEY_BYTES) { "account root key must contain 256 bits" }
+        require(keyEpoch >= 1)
+        require((ephemeralPrivateKey == null) == (encapsulatedPublicKey == null)) {
+            "test HPKE key material must supply both private and public values"
+        }
+        val recipient = byteArrayOf(4) + decode(recipientPublicKey.x) + decode(recipientPublicKey.y)
+        require(recipient.size == P256_PUBLIC_KEY_BYTES)
+        val generated = if (ephemeralPrivateKey == null || encapsulatedPublicKey == null) {
+            KeyPairGenerator.getInstance("EC").run {
+                initialize(ECGenParameterSpec("secp256r1"), SecureRandom())
+                generateKeyPair()
+            }
+        } else {
+            null
+        }
+        val privateKey = ephemeralPrivateKey ?: requireNotNull(generated).private
+        val encapsulated = encapsulatedPublicKey ?: rawPublicKey(
+            requireNotNull(generated).public as ECPublicKey,
+        )
+        require(encapsulated.size == P256_PUBLIC_KEY_BYTES)
+        val dh = KeyAgreement.getInstance("ECDH").run {
+            init(privateKey)
+            doPhase(ecPublicKey(recipient), true)
+            generateSecret()
+        }
+        val kemSuite = "KEM".bytes() + i2osp(P256_KEM_ID, 2)
+        val hpkeSuite = "HPKE".bytes() +
+            i2osp(P256_KEM_ID, 2) +
+            i2osp(HKDF_SHA256_ID, 2) +
+            i2osp(AES_256_GCM_ID, 2)
+        val eaePrk = labeledExtract(kemSuite, byteArrayOf(), "eae_prk", dh)
+        val sharedSecret = labeledExpand(
+            kemSuite,
+            eaePrk,
+            "shared_secret",
+            encapsulated + recipient,
+            ROOT_KEY_BYTES,
+        )
+        val pskIdHash = labeledExtract(hpkeSuite, byteArrayOf(), "psk_id_hash", byteArrayOf())
+        val info = RootKeyEnvelopeInfo.CurfewRootKeyEnvelopeV2
+        val infoHash = labeledExtract(hpkeSuite, byteArrayOf(), "info_hash", info.value.bytes())
+        val context = byteArrayOf(HPKE_BASE_MODE) + pskIdHash + infoHash
+        val secret = labeledExtract(hpkeSuite, sharedSecret, "secret", byteArrayOf())
+        val key = labeledExpand(hpkeSuite, secret, "key", context, ROOT_KEY_BYTES)
+        val nonce = labeledExpand(hpkeSuite, secret, "base_nonce", context, GCM_NONCE_BYTES)
+        val aad = canonicalJsonElement(
+            buildJsonObject {
+                put("createdAt", createdAt)
+                put("keyEpoch", keyEpoch)
+                put("recipientDeviceId", recipientDeviceId)
+            },
+        ).bytes()
+        return RootKeyEnvelope(
+            aead = CipherSuite.AES256Gcm,
+            ciphertext = encode(aesGcmSeal(key, nonce, aad, rootKey)),
+            createdAt = createdAt,
+            encapsulatedKey = encode(encapsulated),
+            info = info,
+            kdf = Kdf.HkdfSha256,
+            kem = Kem.DhkemP256HkdfSha256,
+            keyEpoch = keyEpoch,
+            recipientDeviceId = recipientDeviceId,
+        )
+    }
+
     fun createRecoveryEnvelope(
         rootKey: ByteArray,
         recoveryKey: ByteArray,
@@ -211,6 +290,15 @@ object AccountRootKeyRecovery {
             BigInteger(1, raw.copyOfRange(33, 65)),
         )
         return KeyFactory.getInstance("EC").generatePublic(ECPublicKeySpec(point, p256Parameters))
+    }
+
+    private fun rawPublicKey(key: ECPublicKey): ByteArray =
+        byteArrayOf(4) + unsignedFixed(key.w.affineX, 32) + unsignedFixed(key.w.affineY, 32)
+
+    private fun unsignedFixed(value: BigInteger, size: Int): ByteArray {
+        val bytes = value.toByteArray().dropWhile { it == 0.toByte() }.toByteArray()
+        require(bytes.size <= size)
+        return ByteArray(size - bytes.size) + bytes
     }
 
     private fun i2osp(value: Int, length: Int): ByteArray =

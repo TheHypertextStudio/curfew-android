@@ -16,6 +16,9 @@ import studio.hypertext.curfew.protocols.RecoveryEnvelopeInfo
 import studio.hypertext.curfew.protocols.RecoveryKeyEnvelope
 import studio.hypertext.curfew.protocols.RootKeyEnvelope
 import studio.hypertext.curfew.protocols.RootKeyEnvelopeInfo
+import studio.hypertext.curfew.protocols.Crv
+import studio.hypertext.curfew.protocols.AccountPublicKeyJWK
+import studio.hypertext.curfew.protocols.Kty
 
 class AccountRootKeyRecoveryTest {
     private val expectedRootKey = decode("ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8")
@@ -50,6 +53,37 @@ class AccountRootKeyRecoveryTest {
         )
 
         assertArrayEquals(expectedRootKey, opened)
+    }
+
+    @Test
+    fun createsProtocolHpkeRootEnvelopeForAnEnrolledPeer() {
+        val privateKey = KeyFactory.getInstance("EC").generatePrivate(
+            ECPrivateKeySpec(BigInteger(1, decode("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM")), parameters()),
+        )
+        val recipient = decode(
+            "BHzyexiNA09-ilI4AwS1GsPAiWnid_IbNaYLSPxHZpl4B3dVENuO0EApPZrGn3Qw27p9reY86YIpngS3nSJ4c9E",
+        )
+        val envelope = AccountRootKeyRecovery.createRootEnvelope(
+            rootKey = expectedRootKey,
+            recipientDeviceId = "018f4f45-a055-7502-8b0c-7276bfe16c8f",
+            recipientPublicKey = AccountPublicKeyJWK(
+                crv = Crv.P256,
+                kty = Kty.Ec,
+                x = encode(recipient.copyOfRange(1, 33)),
+                y = encode(recipient.copyOfRange(33, 65)),
+            ),
+            keyEpoch = 1,
+            createdAt = "2026-08-10T14:00:00Z",
+            ephemeralPrivateKey = privateKey,
+            encapsulatedPublicKey = decode(
+                "BF7L5NGmMwpEyPfvlR1L8WXmxrch762phftBZhvG5_1shzRkDEmY_343SwbOGmSi7NgqsDY4T7g9mnmxJ6J9UDI",
+            ),
+        )
+
+        assertArrayEquals(
+            decode("zR1Y5Z8iG09FOfMi_3cmndteDPYsKv7_03STWS4C8yvY5ZGpGoYkTqHTjy-lXrpD"),
+            decode(envelope.ciphertext),
+        )
     }
 
     @Test
@@ -95,4 +129,12 @@ class AccountRootKeyRecoveryTest {
     }
 
     private fun decode(value: String): ByteArray = Base64.getUrlDecoder().decode(value)
+
+    private fun encode(value: ByteArray): String =
+        Base64.getUrlEncoder().withoutPadding().encodeToString(value)
+
+    private fun parameters(): ECParameterSpec = AlgorithmParameters.getInstance("EC").run {
+        init(ECGenParameterSpec("secp256r1"))
+        getParameterSpec(ECParameterSpec::class.java)
+    }
 }
