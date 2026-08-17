@@ -46,7 +46,7 @@ jobs:
       - name: Enforce plain dependency isolation
         if: matrix.distribution == 'Plain'
         working-directory: curfew-android
-        run: ./gradlew verifyPlainRuntimeIsolation
+        run: ./gradlew verifyPlainRuntimeIsolation --no-configuration-cache
       - name: Check dependency licenses
         if: matrix.distribution == 'Plain'
         working-directory: curfew-android

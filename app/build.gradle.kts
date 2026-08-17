@@ -124,6 +124,9 @@ licenseReport {
 tasks.register("verifyPlainRuntimeIsolation") {
     group = "verification"
     description = "Rejects Google Play Services and Firebase from the plain runtime graph."
+    notCompatibleWithConfigurationCache(
+        "The verification resolves the plain release dependency graph during execution.",
+    )
     doLast {
         val forbiddenPrefixes = listOf("com.google.android.gms", "com.google.firebase")
         val forbidden = configurations.getByName("plainReleaseRuntimeClasspath")
