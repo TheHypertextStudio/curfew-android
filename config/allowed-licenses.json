@@ -4,6 +4,7 @@
     { "moduleLicense": ".*MIT.*" },
     { "moduleLicense": ".*BSD.*" },
     { "moduleLicense": ".*Eclipse Public License.*2\\.0.*" },
-    { "moduleLicense": ".*CDDL.*1\\.[01].*" }
+    { "moduleLicense": ".*CDDL.*1\\.[01].*" },
+    { "moduleLicense": "Android Software Development Kit License" }
   ]
 }
