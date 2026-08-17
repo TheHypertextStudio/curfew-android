@@ -2,6 +2,7 @@ package studio.hypertext.curfew
 
 import android.Manifest
 import android.app.AlarmManager
+import android.app.KeyguardManager
 import android.app.NotificationManager
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -10,6 +11,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -61,6 +63,9 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (intent.getBooleanExtra(EXTRA_SHOW_ALARM, false)) {
+            presentOverKeyguard()
+        }
         enableEdgeToEdge()
         PerpetualAlarmService.ensureChannels(this)
         WakeSyncScheduler.install(this)
@@ -205,6 +210,22 @@ class MainActivity : ComponentActivity() {
             setIntent(intent)
             recreate()
         }
+    }
+
+    /**
+     * A campaign fires while the phone is face-down, locked, and asleep. Without
+     * these the full-screen intent degrades to a heads-up notification behind the
+     * keyguard on most OEM builds, so the alarm rings with nothing on screen and
+     * no way to reach the wake condition. Set dynamically rather than in the
+     * manifest because MainActivity is also the launcher entry point, which must
+     * not bypass the keyguard.
+     */
+    private fun presentOverKeyguard() {
+        setShowWhenLocked(true)
+        setTurnScreenOn(true)
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        ContextCompat.getSystemService(this, KeyguardManager::class.java)
+            ?.requestDismissKeyguard(this, null)
     }
 
     private fun handleOAuthCallback(callbackIntent: Intent): Boolean {

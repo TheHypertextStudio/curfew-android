@@ -47,11 +47,28 @@ class PerpetualAlarmService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val campaignId = intent?.getStringExtra(EXTRA_CAMPAIGN_ID) ?: "active-campaign"
-        val attempt = intent?.getIntExtra(EXTRA_ATTEMPT, 1) ?: 1
-        val maximumAttempts = intent?.getIntExtra(EXTRA_MAXIMUM_ATTEMPTS, 3) ?: 3
-        val conditionLabel = intent?.getStringExtra(EXTRA_CONDITION_LABEL)
-        val actionUrl = intent?.getStringExtra(EXTRA_ACTION_URL)
+        // A sticky redelivery after process death arrives with a null intent.
+        // Fabricating a campaign here rang with invented parameters — attempt 1
+        // of 3 against a campaign id that matches no row — until the next real
+        // transition corrected it. AlarmTransitionReceiver is the only
+        // authoritative driver, and its AlarmManager alarm outlives the process,
+        // so declining is both safe and recoverable. Foreground state is still
+        // entered first: the framework requires it even on the path that stops.
+        if (intent == null) {
+            ServiceCompat.startForeground(
+                this,
+                ALARM_NOTIFICATION_ID,
+                ringingNotification(this, "", 0, 0, null, null),
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK,
+            )
+            stopSelf(startId)
+            return START_NOT_STICKY
+        }
+        val campaignId = intent.getStringExtra(EXTRA_CAMPAIGN_ID) ?: "active-campaign"
+        val attempt = intent.getIntExtra(EXTRA_ATTEMPT, 1)
+        val maximumAttempts = intent.getIntExtra(EXTRA_MAXIMUM_ATTEMPTS, 3)
+        val conditionLabel = intent.getStringExtra(EXTRA_CONDITION_LABEL)
+        val actionUrl = intent.getStringExtra(EXTRA_ACTION_URL)
         ServiceCompat.startForeground(
             this,
             ALARM_NOTIFICATION_ID,
