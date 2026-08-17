@@ -31,12 +31,18 @@ esac
     --no-daemon
 
 actual_api=""
+package_service=""
+activity_service=""
 for attempt in {1..6}; do
     if timeout 20 adb wait-for-device; then
         actual_api=$(timeout 10 adb shell getprop ro.build.version.sdk 2>/dev/null | tr -d '\r' || true)
+        package_service=$(timeout 10 adb shell service check package 2>/dev/null | tr -d '\r' || true)
+        activity_service=$(timeout 10 adb shell service check activity 2>/dev/null | tr -d '\r' || true)
     fi
 
-    if [[ "$actual_api" == "$expected_api" ]]; then
+    if [[ "$actual_api" == "$expected_api" ]] &&
+        [[ "$package_service" == *"found"* ]] &&
+        [[ "$activity_service" == *"found"* ]]; then
         break
     fi
 
@@ -46,12 +52,34 @@ for attempt in {1..6}; do
     sleep 5
 done
 
-if [[ "$actual_api" != "$expected_api" ]]; then
-    echo "The emulator did not become healthy for API $expected_api." >&2
+if [[ "$actual_api" != "$expected_api" ]] ||
+    [[ "$package_service" != *"found"* ]] ||
+    [[ "$activity_service" != *"found"* ]]; then
+    echo "The emulator did not expose healthy API, package, and activity services for API $expected_api." >&2
     exit 1
 fi
 
-./gradlew \
-    "connected${distribution}DebugAndroidTest" \
-    --max-workers=1 \
-    --no-daemon
+distribution_path=${distribution,,}
+application_apk="app/build/outputs/apk/$distribution_path/debug/app-$distribution_path-debug.apk"
+test_apk="app/build/outputs/apk/androidTest/$distribution_path/debug/app-$distribution_path-debug-androidTest.apk"
+
+test -f "$application_apk"
+test -f "$test_apk"
+
+# A second Gradle configuration can starve newer emulator images until
+# system_server restarts. Install the APKs that the first build produced and
+# invoke the standard AndroidJUnitRunner without another JVM competing for CPU.
+timeout 180 adb install --no-streaming -r -t "$application_apk"
+timeout 180 adb install --no-streaming -r -t "$test_apk"
+
+instrumentation_output=$(
+    timeout 300 adb shell am instrument -w -r \
+        studio.hypertext.curfew.test/androidx.test.runner.AndroidJUnitRunner |
+        tr -d '\r'
+)
+printf '%s\n' "$instrumentation_output"
+
+if ! grep -Eq '^OK \([1-9][0-9]* tests?\)$' <<<"$instrumentation_output"; then
+    echo "AndroidJUnitRunner did not report a successful non-empty test run." >&2
+    exit 1
+fi
