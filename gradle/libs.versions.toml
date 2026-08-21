@@ -16,7 +16,7 @@ datastore = "1.2.1"
 work = "2.11.2"
 browser = "1.10.0"
 firebaseMessaging = "25.1.1"
-okhttp = "5.2.3"
+okhttp = "5.5.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
