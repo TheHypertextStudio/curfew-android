@@ -32,7 +32,7 @@ jobs:
           distribution: temurin
           java-version: "21"
           cache: gradle
-      - uses: android-actions/setup-android@v3
+      - uses: android-actions/setup-android@v4
       - name: Install compile SDK
         run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
       - name: Test, lint, and assemble
@@ -88,7 +88,7 @@ jobs:
           distribution: temurin
           java-version: "21"
           cache: gradle
-      - uses: android-actions/setup-android@v3
+      - uses: android-actions/setup-android@v4
       - name: Install compile SDK
         run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
       - name: Enable KVM acceleration
@@ -130,7 +130,7 @@ jobs:
           distribution: temurin
           java-version: "21"
           cache: gradle
-      - uses: android-actions/setup-android@v3
+      - uses: android-actions/setup-android@v4
       - name: Produce local signed evidence
         working-directory: curfew-android
         run: ./gradlew writeReleaseChecksums generateCurfewSbom writeBuildProvenance
