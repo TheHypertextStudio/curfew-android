@@ -64,18 +64,15 @@ fun CurfewApp(
     onRestoreRecoveryKey: (String) -> Unit,
     onAcknowledgeRecoveryKey: () -> Unit,
     onSaveCallback: (String, String, String?) -> Unit,
-    onArm: (LocalTime, Int, Int, Int) -> Unit,
+    onArm: (LocalTime, Int, Int) -> Unit,
 ) {
     var wakeTimeText by rememberSaveable { mutableStateOf("07:00") }
-    var maximumAttempts by rememberSaveable { mutableIntStateOf(3) }
     var ringMinutes by rememberSaveable { mutableIntStateOf(2) }
-    var quietMinutes by rememberSaveable { mutableIntStateOf(5) }
+    var quietMinutes by rememberSaveable { mutableIntStateOf(1) }
     val wakeTime = runCatching {
         LocalTime.parse(wakeTimeText, DateTimeFormatter.ofPattern("HH:mm"))
     }.getOrNull()
-    val totalMinutes = maximumAttempts * ringMinutes +
-        (maximumAttempts - 1).coerceAtLeast(0) * quietMinutes
-    val validCampaign = wakeTime != null && totalMinutes <= 120
+    val validCampaign = wakeTime != null
 
     Scaffold { innerPadding ->
         BoxWithConstraints(
@@ -98,17 +95,14 @@ fun CurfewApp(
                 if (layoutMode == CurfewLayoutMode.COMPACT) {
                     AlarmConfigurationCard(
                         wakeTimeText,
-                        maximumAttempts,
                         ringMinutes,
                         quietMinutes,
-                        totalMinutes,
                         validCampaign,
                         readiness.canArm,
                         onWakeTimeChanged = { wakeTimeText = it.take(5) },
-                        onAttemptsChanged = { maximumAttempts = it.coerceIn(1, 24) },
                         onRingChanged = { ringMinutes = it.coerceIn(1, 120) },
                         onQuietChanged = { quietMinutes = it.coerceIn(0, 120) },
-                        onArm = { onArm(requireNotNull(wakeTime), maximumAttempts, ringMinutes, quietMinutes) },
+                        onArm = { onArm(requireNotNull(wakeTime), ringMinutes, quietMinutes) },
                     )
                     Spacer(Modifier.height(16.dp))
                     ReadinessCard(
@@ -140,18 +134,15 @@ fun CurfewApp(
                         Column(Modifier.weight(1.15f)) {
                             AlarmConfigurationCard(
                                 wakeTimeText,
-                                maximumAttempts,
                                 ringMinutes,
                                 quietMinutes,
-                                totalMinutes,
                                 validCampaign,
                                 readiness.canArm,
                                 onWakeTimeChanged = { wakeTimeText = it.take(5) },
-                                onAttemptsChanged = { maximumAttempts = it.coerceIn(1, 24) },
                                 onRingChanged = { ringMinutes = it.coerceIn(1, 120) },
                                 onQuietChanged = { quietMinutes = it.coerceIn(0, 120) },
                                 onArm = {
-                                    onArm(requireNotNull(wakeTime), maximumAttempts, ringMinutes, quietMinutes)
+                                    onArm(requireNotNull(wakeTime), ringMinutes, quietMinutes)
                                 },
                             )
                             Spacer(Modifier.height(20.dp))
@@ -220,21 +211,18 @@ private fun Header(ready: Boolean) {
 @Composable
 private fun AlarmConfigurationCard(
     wakeTimeText: String,
-    maximumAttempts: Int,
     ringMinutes: Int,
     quietMinutes: Int,
-    totalMinutes: Int,
     validCampaign: Boolean,
     ready: Boolean,
     onWakeTimeChanged: (String) -> Unit,
-    onAttemptsChanged: (Int) -> Unit,
     onRingChanged: (Int) -> Unit,
     onQuietChanged: (Int) -> Unit,
     onArm: () -> Unit,
 ) {
     CurfewCard("Next wake campaign") {
         Text(
-            "Three focused attempts are the default: two minutes of alarm, then five quiet minutes between attempts.",
+            "Curfew rings for two minutes, stays quiet for one minute, and repeats until a verified release or authorized override arrives.",
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Spacer(Modifier.height(20.dp))
@@ -248,19 +236,14 @@ private fun AlarmConfigurationCard(
             modifier = Modifier.fillMaxWidth(),
         )
         Spacer(Modifier.height(16.dp))
-        CounterRow("Attempts", maximumAttempts, 1, 24, onAttemptsChanged)
         CounterRow("Ring minutes", ringMinutes, 1, 120, onRingChanged)
         CounterRow("Quiet minutes", quietMinutes, 0, 120, onQuietChanged)
         HorizontalDivider(Modifier.padding(vertical = 16.dp))
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("Deterministic deadline", style = MaterialTheme.typography.labelLarge)
+            Text("Release", style = MaterialTheme.typography.labelLarge)
             Text(
-                "$totalMinutes minutes",
-                color = if (totalMinutes <= 120) {
-                    MaterialTheme.colorScheme.primary
-                } else {
-                    MaterialTheme.colorScheme.error
-                },
+                "Verified callback or override",
+                color = MaterialTheme.colorScheme.primary,
             )
         }
         Spacer(Modifier.height(20.dp))

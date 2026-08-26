@@ -58,7 +58,7 @@ class PerpetualAlarmService : Service() {
             ServiceCompat.startForeground(
                 this,
                 ALARM_NOTIFICATION_ID,
-                ringingNotification(this, "", 0, 0, null, null),
+                ringingNotification(this, "", 0, null, null),
                 ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK,
             )
             stopSelf(startId)
@@ -66,7 +66,6 @@ class PerpetualAlarmService : Service() {
         }
         val campaignId = intent.getStringExtra(EXTRA_CAMPAIGN_ID) ?: "active-campaign"
         val attempt = intent.getIntExtra(EXTRA_ATTEMPT, 1)
-        val maximumAttempts = intent.getIntExtra(EXTRA_MAXIMUM_ATTEMPTS, 3)
         val conditionLabel = intent.getStringExtra(EXTRA_CONDITION_LABEL)
         val actionUrl = intent.getStringExtra(EXTRA_ACTION_URL)
         ServiceCompat.startForeground(
@@ -76,7 +75,6 @@ class PerpetualAlarmService : Service() {
                 this,
                 campaignId,
                 attempt,
-                maximumAttempts,
                 conditionLabel,
                 actionUrl,
             ),
@@ -191,20 +189,17 @@ class PerpetualAlarmService : Service() {
         const val EXTRA_CONDITION_LABEL = "condition_label"
         const val EXTRA_ACTION_URL = "action_url"
         const val EXTRA_ATTEMPT_NUMBER = "attempt"
-        const val EXTRA_MAXIMUM_ATTEMPTS = "maximum_attempts"
 
         fun startIntent(
             context: Context,
             campaignId: String,
             attempt: Int,
-            maximumAttempts: Int = 3,
             conditionLabel: String? = null,
             actionUrl: String? = null,
         ): Intent =
             Intent(context, PerpetualAlarmService::class.java)
                 .putExtra(EXTRA_CAMPAIGN_ID, campaignId)
                 .putExtra(EXTRA_ATTEMPT, attempt)
-                .putExtra(EXTRA_MAXIMUM_ATTEMPTS, maximumAttempts)
                 .putExtra(EXTRA_CONDITION_LABEL, conditionLabel)
                 .putExtra(EXTRA_ACTION_URL, actionUrl)
 
@@ -250,32 +245,10 @@ class PerpetualAlarmService : Service() {
                 channel.sound != null
         }
 
-        fun showMissedWakeNotice(
-            context: Context,
-            state: AlarmCampaignState.Exhausted,
-        ) {
-            ensureChannels(context)
-            val notification = NotificationCompat.Builder(context, STATUS_CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setContentTitle(context.getString(R.string.missed_wake_title))
-                .setContentText(
-                    context.getString(
-                        R.string.missed_wake_body,
-                        state.policy.maximumAttempts,
-                    ),
-                )
-                .setAutoCancel(true)
-                .setCategory(NotificationCompat.CATEGORY_STATUS)
-                .build()
-            context.getSystemService(NotificationManager::class.java)
-                .notify(MISSED_NOTIFICATION_ID, notification)
-        }
-
         private fun ringingNotification(
             context: Context,
             campaignId: String,
             attempt: Int,
-            maximumAttempts: Int,
             conditionLabel: String?,
             actionUrl: String?,
         ): Notification {
@@ -284,7 +257,6 @@ class PerpetualAlarmService : Service() {
                 .putExtra(MainActivity.EXTRA_SHOW_ALARM, true)
                 .putExtra(AndroidAlarmClockGateway.EXTRA_CAMPAIGN_ID, campaignId)
                 .putExtra(EXTRA_ATTEMPT_NUMBER, attempt)
-                .putExtra(EXTRA_MAXIMUM_ATTEMPTS, maximumAttempts)
                 .putExtra(EXTRA_CONDITION_LABEL, conditionLabel)
                 .putExtra(EXTRA_ACTION_URL, actionUrl)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)

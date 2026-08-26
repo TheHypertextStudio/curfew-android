@@ -84,10 +84,6 @@ class MainActivity : ComponentActivity() {
                             PerpetualAlarmService.EXTRA_ATTEMPT_NUMBER,
                             1,
                         ),
-                        maximumAttempts = intent.getIntExtra(
-                            PerpetualAlarmService.EXTRA_MAXIMUM_ATTEMPTS,
-                            3,
-                        ),
                         conditionLabel = intent.getStringExtra(
                             PerpetualAlarmService.EXTRA_CONDITION_LABEL,
                         ) ?: "your wake condition",
@@ -323,21 +319,19 @@ class MainActivity : ComponentActivity() {
 
     private fun armAlarm(
         wakeTime: LocalTime,
-        maximumAttempts: Int,
         ringMinutes: Int,
         quietMinutes: Int,
     ) {
         lifecycleScope.launch {
             val policy = runCatching {
                 AlarmRecurrencePolicy(
-                    maximumAttempts = maximumAttempts,
                     ringDuration = Duration.ofMinutes(ringMinutes.toLong()),
                     quietDuration = Duration.ofMinutes(quietMinutes.toLong()),
                 )
             }.getOrElse {
                 Toast.makeText(
                     this@MainActivity,
-                    "That campaign would exceed Curfew’s two-hour limit.",
+                    "Alarm timing is invalid.",
                     Toast.LENGTH_LONG,
                 ).show()
                 return@launch

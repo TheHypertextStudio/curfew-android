@@ -3,7 +3,6 @@ package studio.hypertext.curfew.sync
 import java.time.Instant
 import studio.hypertext.curfew.alarm.AlarmCampaignEngine
 import studio.hypertext.curfew.alarm.AlarmCampaignState
-import studio.hypertext.curfew.alarm.campaignStartedAt
 import studio.hypertext.curfew.protocols.OverrideStatus
 import studio.hypertext.curfew.protocols.RemoteOverride
 import studio.hypertext.curfew.protocols.Result
@@ -30,11 +29,6 @@ class WakeConvergenceReducer(
         require(remote.selectedDeviceIds.toSet() == local.selectedDeviceIds) {
             "selected devices do not match"
         }
-        require(remote.maximumAttempts.toInt() == local.policy.maximumAttempts)
-        val campaignStart = local.campaignStartedAt()
-        require(
-            Instant.parse(remote.finalDeadlineAt) == local.policy.deadlineFrom(campaignStart),
-        ) { "campaign deadline does not match" }
         require(remote.state == WakeCampaignState.Satisfied) {
             "only a satisfied remote campaign can release the wake gate"
         }

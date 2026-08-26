@@ -45,7 +45,6 @@ class AlarmRecoveryReceiver : BroadcastReceiver() {
                 // A user-visible alarm-clock transition immediately re-enters the normal path.
                 is AlarmCampaignState.Ringing -> Instant.now().plusSeconds(1)
                 is AlarmCampaignState.Quiet -> state.nextAttemptAt
-                is AlarmCampaignState.Exhausted,
                 is AlarmCampaignState.Overridden,
                 is AlarmCampaignState.Satisfied,
                 -> null

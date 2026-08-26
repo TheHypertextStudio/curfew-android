@@ -66,6 +66,7 @@ class PeerRootKeyDistributorTest {
         signingPublicKeyJwk = publicKey(),
         keyEpoch = 1,
         enrolledAt = CREATED_AT,
+        protocolVersion = "0.3",
     )
 
     private fun publicKey() = AccountPublicKeyJWK(

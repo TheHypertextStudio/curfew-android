@@ -13,10 +13,6 @@ import studio.hypertext.curfew.alarm.AlarmCampaignEngine
 import studio.hypertext.curfew.alarm.AlarmCampaignState
 import studio.hypertext.curfew.callback.CallbackConfigurationRepository
 import studio.hypertext.curfew.callback.CallbackPollScheduler
-import studio.hypertext.curfew.account.NativeDeviceProofAuthenticator
-import studio.hypertext.curfew.protocols.Result as ProtocolResult
-import studio.hypertext.curfew.protocols.WakeOutcome as ProtocolWakeOutcome
-import studio.hypertext.curfew.sync.WakeOutboxPublisher
 import studio.hypertext.curfew.sync.WakeStatusPublisher
 import studio.hypertext.curfew.sync.WakeSyncScheduler
 
@@ -53,7 +49,6 @@ class AlarmTransitionReceiver : BroadcastReceiver() {
                         context,
                         current.campaignId,
                         current.attempt,
-                        current.policy.maximumAttempts,
                         definition?.displayLabel,
                         definition?.actionUrl,
                     ),
@@ -64,24 +59,6 @@ class AlarmTransitionReceiver : BroadcastReceiver() {
             is AlarmCampaignState.Quiet -> {
                 context.stopService(PerpetualAlarmService.stopIntent(context, campaignId))
                 gateway.setAlarmClock(campaignId, current.nextAttemptAt)
-            }
-            is AlarmCampaignState.Exhausted -> {
-                context.stopService(PerpetualAlarmService.stopIntent(context, campaignId))
-                gateway.cancel(campaignId)
-                CallbackPollScheduler.cancel(context, campaignId)
-                val deviceId = NativeDeviceProofAuthenticator(context).deviceId()
-                WakeOutboxPublisher(context).publish(
-                    ProtocolWakeOutcome(
-                        attemptsCompleted = current.policy.maximumAttempts.toLong(),
-                        campaignId = current.campaignId,
-                        releasedAt = current.exhaustedAt.toString(),
-                        result = ProtocolResult.Exhausted,
-                    ),
-                    writerDeviceId = deviceId,
-                    version = 1,
-                )
-                WakeSyncScheduler.accelerate(context)
-                PerpetualAlarmService.showMissedWakeNotice(context, current)
             }
             is AlarmCampaignState.Overridden,
             is AlarmCampaignState.Satisfied,
@@ -98,7 +75,6 @@ class AlarmTransitionReceiver : BroadcastReceiver() {
         is AlarmCampaignState.Ringing -> state.ringStartedAt
         is AlarmCampaignState.Quiet -> state.nextAttemptAt.minus(state.policy.quietDuration)
         is AlarmCampaignState.Satisfied -> state.satisfiedAt
-        is AlarmCampaignState.Exhausted -> state.exhaustedAt
         is AlarmCampaignState.Overridden -> state.overriddenAt
     }
 }

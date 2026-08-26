@@ -21,7 +21,6 @@ class AlarmRingingScreenInstrumentedTest {
             CurfewTheme(dynamicColor = false) {
                 AlarmRingingScreen(
                     attempt = 1,
-                    maximumAttempts = 3,
                     conditionLabel = "Start the day",
                     actionLabel = "Open work surface",
                     onOpenAction = {},
@@ -29,7 +28,7 @@ class AlarmRingingScreenInstrumentedTest {
             }
         }
 
-        compose.onNodeWithText("Attempt 1 of 3").assertIsDisplayed()
+        compose.onNodeWithText("Wake attempt 1").assertIsDisplayed()
         compose.onNodeWithText("Checking Start the day").assertIsDisplayed()
         compose.onAllNodesWithText("Dismiss").assertCountEquals(0)
         compose.onAllNodesWithText("Snooze").assertCountEquals(0)

@@ -51,7 +51,7 @@ interface AlarmCampaignDao {
     @Query("SELECT * FROM alarm_campaigns WHERE campaignId = :campaignId LIMIT 1")
     suspend fun find(campaignId: String): AlarmCampaignEntity?
 
-    @Query("SELECT * FROM alarm_campaigns WHERE state NOT IN ('satisfied', 'exhausted', 'overridden') ORDER BY finalDeadlineAt")
+    @Query("SELECT * FROM alarm_campaigns WHERE state NOT IN ('satisfied', 'overridden') ORDER BY persistedAtWall")
     suspend fun pending(): List<AlarmCampaignEntity>
 
     @Query("DELETE FROM alarm_campaigns WHERE campaignId = :campaignId")

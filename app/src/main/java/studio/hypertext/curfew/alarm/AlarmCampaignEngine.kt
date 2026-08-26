@@ -5,52 +5,30 @@ import java.time.Instant
 import studio.hypertext.curfew.protocols.Result
 import studio.hypertext.curfew.protocols.AlarmConfiguration
 
-private val MAXIMUM_CAMPAIGN_DURATION: Duration = Duration.ofHours(2)
 private val MINIMUM_RING_DURATION: Duration = Duration.ofSeconds(30)
-private const val MAXIMUM_ATTEMPTS = 24
 
 data class AlarmRecurrencePolicy(
-    val maximumAttempts: Int,
     val ringDuration: Duration,
     val quietDuration: Duration,
 ) {
     init {
-        require(maximumAttempts > 0) { "maximumAttempts must be positive" }
-        require(maximumAttempts <= MAXIMUM_ATTEMPTS) {
-            "maximumAttempts cannot exceed 24"
-        }
         require(ringDuration >= MINIMUM_RING_DURATION) {
             "ringDuration must be at least 30 seconds"
         }
         require(!quietDuration.isNegative) { "quietDuration cannot be negative" }
-        require(totalDuration <= MAXIMUM_CAMPAIGN_DURATION) {
-            "alarm campaign cannot exceed two hours"
-        }
     }
-
-    val totalDuration: Duration
-        get() = ringDuration.multipliedBy(maximumAttempts.toLong())
-            .plus(quietDuration.multipliedBy((maximumAttempts - 1).toLong()))
-
-    fun deadlineFrom(start: Instant): Instant = start.plus(totalDuration)
 
     companion object {
         fun default(): AlarmRecurrencePolicy = AlarmRecurrencePolicy(
-            maximumAttempts = 3,
             ringDuration = Duration.ofMinutes(2),
-            quietDuration = Duration.ofMinutes(5),
+            quietDuration = Duration.ofMinutes(1),
         )
 
         fun fromProtocol(configuration: AlarmConfiguration): AlarmRecurrencePolicy {
             val policy = AlarmRecurrencePolicy(
-                maximumAttempts = configuration.maximumAttempts.toInt(),
                 ringDuration = Duration.ofSeconds(configuration.ringDurationSeconds),
                 quietDuration = Duration.ofSeconds(configuration.quietIntervalSeconds),
             )
-            require(configuration.maximumAttempts == policy.maximumAttempts.toLong())
-            require(configuration.campaignDurationSeconds == policy.totalDuration.seconds) {
-                "protocol campaign duration must match the recurrence exactly"
-            }
             require(configuration.selectedDeviceIds.isNotEmpty())
             return policy
         }
@@ -102,15 +80,6 @@ sealed interface AlarmCampaignState {
         override val selectedDeviceIds: Set<String>,
     ) : AlarmCampaignState
 
-    data class Exhausted(
-        override val campaignId: String,
-        val exhaustedAt: Instant,
-        val outcome: Result = Result.Exhausted,
-        val releasesWakeGate: Boolean = true,
-        override val policy: AlarmRecurrencePolicy,
-        override val selectedDeviceIds: Set<String>,
-    ) : AlarmCampaignState
-
     data class Overridden(
         override val campaignId: String,
         val overriddenAt: Instant,
@@ -136,13 +105,6 @@ class AlarmCampaignEngine {
         is AlarmCampaignState.Ringing -> {
             if (now < state.ringEndsAt) {
                 state
-            } else if (state.attempt >= state.policy.maximumAttempts) {
-                AlarmCampaignState.Exhausted(
-                    campaignId = state.campaignId,
-                    exhaustedAt = state.ringEndsAt,
-                    policy = state.policy,
-                    selectedDeviceIds = state.selectedDeviceIds,
-                )
             } else {
                 AlarmCampaignState.Quiet(
                     campaignId = state.campaignId,
@@ -166,7 +128,6 @@ class AlarmCampaignEngine {
             }
         }
 
-        is AlarmCampaignState.Exhausted,
         is AlarmCampaignState.Overridden,
         is AlarmCampaignState.Satisfied,
         -> state
@@ -237,9 +198,6 @@ class AlarmCampaignEngine {
     private fun validateObservationTime(state: AlarmCampaignState, at: Instant) {
         val campaignStartsAt = state.campaignStartedAt()
         require(at >= campaignStartsAt) { "observation predates campaign" }
-        require(at < state.policy.deadlineFrom(campaignStartsAt)) {
-            "observation is at or after campaign deadline"
-        }
     }
 }
 
@@ -258,7 +216,6 @@ fun AlarmCampaignState.campaignStartedAt(): Instant = when (this) {
         policy.ringDuration.plus(policy.quietDuration)
             .multipliedBy(completedAttempt.toLong()),
     )
-    is AlarmCampaignState.Exhausted,
     is AlarmCampaignState.Overridden,
     is AlarmCampaignState.Satisfied,
     -> error("terminal campaigns do not accept observations")

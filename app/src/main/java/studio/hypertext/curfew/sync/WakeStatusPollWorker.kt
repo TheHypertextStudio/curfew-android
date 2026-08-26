@@ -113,10 +113,6 @@ class WakeStatusPollWorker(
                         startsAt.plusSeconds(override.durationMinutes * 60),
                     )
                 }
-                WakeCampaignState.Exhausted -> AlarmCampaignEngine().advanceTo(
-                    local,
-                    Instant.parse(status.finalDeadlineAt),
-                )
                 WakeCampaignState.QuietInterval,
                 WakeCampaignState.RingingAttempt,
                 WakeCampaignState.Scheduled,

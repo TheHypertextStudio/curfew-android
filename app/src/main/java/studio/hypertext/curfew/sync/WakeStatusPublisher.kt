@@ -20,7 +20,6 @@ import studio.hypertext.curfew.security.AndroidKeystoreSecretStore
 object WakeStatusFactory {
     fun create(
         state: AlarmCampaignState,
-        finalDeadlineAt: Instant,
         statusVersion: Long,
         updatedAt: Instant,
     ): WakeStatus {
@@ -30,14 +29,12 @@ object WakeStatusFactory {
             is AlarmCampaignState.Ringing -> WakeCampaignState.RingingAttempt
             is AlarmCampaignState.Quiet -> WakeCampaignState.QuietInterval
             is AlarmCampaignState.Satisfied -> WakeCampaignState.Satisfied
-            is AlarmCampaignState.Exhausted -> WakeCampaignState.Exhausted
             is AlarmCampaignState.Overridden -> WakeCampaignState.Overridden
         }
         val attemptNumber = when (state) {
             is AlarmCampaignState.Scheduled -> 0
             is AlarmCampaignState.Ringing -> state.attempt
             is AlarmCampaignState.Quiet -> state.completedAttempt
-            is AlarmCampaignState.Exhausted -> state.policy.maximumAttempts
             is AlarmCampaignState.Satisfied,
             is AlarmCampaignState.Overridden,
             -> 0
@@ -45,8 +42,6 @@ object WakeStatusFactory {
         return WakeStatus(
             attemptNumber = attemptNumber.toLong(),
             campaignId = state.campaignId,
-            finalDeadlineAt = finalDeadlineAt.toString(),
-            maximumAttempts = state.policy.maximumAttempts.toLong(),
             selectedDeviceIds = state.selectedDeviceIds.sorted(),
             state = campaignState,
             statusVersion = statusVersion,
@@ -67,13 +62,11 @@ class WakeStatusPublisher(context: Context) {
             ?.toString(Charsets.UTF_8)
             ?: return@withContext false
         val repository = AlarmRuntimeRepository(appContext)
-        val finalDeadlineAt = repository.finalDeadlineAt(state.campaignId)
-            ?: return@withContext false
         var nextVersion = repository.statusVersion(state.campaignId) + 1
         val endpoint = URI("https://curfew-sync.hypertext.studio/sync/wake/status")
         val proofAuthenticator = NativeDeviceProofAuthenticator(appContext)
         repeat(2) {
-            val status = WakeStatusFactory.create(state, finalDeadlineAt, nextVersion, updatedAt)
+            val status = WakeStatusFactory.create(state, nextVersion, updatedAt)
             val jsonBody = Json.encodeToString(status)
             val connection = endpoint.toURL().openConnection() as HttpURLConnection
             try {
@@ -112,11 +105,8 @@ class WakeStatusPublisher(context: Context) {
                 }.getOrNull() ?: return@withContext false
                 if (
                     current.campaignId != state.campaignId ||
-                    current.finalDeadlineAt != finalDeadlineAt.toString() ||
-                    current.maximumAttempts != state.policy.maximumAttempts.toLong() ||
                     current.selectedDeviceIds.toSet() != state.selectedDeviceIds ||
                     current.state == WakeCampaignState.Satisfied ||
-                    current.state == WakeCampaignState.Exhausted ||
                     current.state == WakeCampaignState.Overridden
                 ) return@withContext false
                 nextVersion = current.statusVersion + 1

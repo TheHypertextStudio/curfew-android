@@ -4,13 +4,13 @@ The Android companion uses stock Material 3 components with a restrained visual 
 
 ## Wake flow
 
-1. Configure a local wake time, finite recurrence, selected devices, and optional generic callback.
+1. Configure a local wake time, selected devices, and optional generic callback.
 2. Complete readiness: exact-alarm access, notifications or lock-screen fallback, an audible alarm channel, a real test sound, and limitation acknowledgement.
 3. Arm a visible alarm-clock schedule.
 4. During ringing, show attempt and condition status plus only the callback-provided opaque action. There is no dismiss or snooze control.
-5. On success, release selected devices immediately. On exhaustion, silence, release, record a missed wake, and show factual subdued status.
+5. On a verified release or a fresh authorized override, release only the named devices immediately. Failed and unavailable checks leave the campaign active.
 
-Campaign duration is exact: `attempts × ring + (attempts − 1) × quiet`, capped at two hours. Attempts are capped at 24 and every ring is at least 30 seconds. Devices can independently derive the same deadline for offline release.
+The pilot cadence is two minutes ringing and one minute quiet. Attempts are unbounded and every ring is at least 30 seconds. Offline, socket, network, process, and reboot failures preserve the active campaign rather than inventing a release.
 
 ## Adaptive and accessible behavior
 

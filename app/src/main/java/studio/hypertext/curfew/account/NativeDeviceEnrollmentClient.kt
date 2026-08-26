@@ -31,6 +31,7 @@ class NativeDeviceEnrollmentClient(context: Context) {
             put("encryptionPublicKeyJwk", Json.parseToJsonElement(Json.encodeToString(encryptionJwk)))
             put("enrolledAt", enrolledAt)
             put("keyEpoch", 1)
+            put("protocolVersion", "0.3")
             put("pkceChallenge", pkceChallenge)
             put("signingPublicKeyJwk", Json.parseToJsonElement(Json.encodeToString(signingJwk)))
             put("state", state)
@@ -50,6 +51,7 @@ class NativeDeviceEnrollmentClient(context: Context) {
             encryptionPublicKeyJwk = encryptionJwk,
             enrolledAt = enrolledAt,
             keyEpoch = 1,
+            protocolVersion = "0.3",
             pkceChallenge = pkceChallenge,
             signingPublicKeyJwk = signingJwk,
             state = state,

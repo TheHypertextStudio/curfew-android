@@ -27,7 +27,6 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun AlarmRingingScreen(
     attempt: Int,
-    maximumAttempts: Int,
     conditionLabel: String,
     actionLabel: String?,
     onOpenAction: () -> Unit,
@@ -57,7 +56,7 @@ fun AlarmRingingScreen(
             }
             Spacer(Modifier.height(28.dp))
             Text(
-                text = "Attempt $attempt of $maximumAttempts",
+                text = "Wake attempt $attempt",
                 style = MaterialTheme.typography.headlineLarge,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.semantics { heading() },
@@ -71,7 +70,7 @@ fun AlarmRingingScreen(
             )
             Spacer(Modifier.height(32.dp))
             Text(
-                text = "The alarm stops when the condition succeeds, the finite campaign ends, or an authorized override arrives.",
+                text = "The alarm stops only when the condition succeeds or an authorized override arrives.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,

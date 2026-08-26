@@ -47,15 +47,15 @@ class AlarmRuntimeRepository(context: Context) {
     ) =
         withContext(Dispatchers.IO) {
             val existing = dao.find(state.campaignId)
-            val finalDeadlineAt = existing?.finalDeadlineAt
-                ?: state.policy.deadlineFrom(state.campaignStart()).toEpochMilli()
             val existingCallbackId = callbackId ?: existing?.callbackId
             dao.upsert(
                 AlarmCampaignEntity(
                     campaignId = state.campaignId,
                     protocolJson = encode(state).toString(),
                     state = state.storageName(),
-                    finalDeadlineAt = finalDeadlineAt,
+                    // This legacy Room column remains only to read databases created by 0.2.
+                    // Long.MAX_VALUE means that persisted state has no release deadline.
+                    finalDeadlineAt = Long.MAX_VALUE,
                     persistedAtWall = System.currentTimeMillis(),
                     persistedAtElapsed = SystemClock.elapsedRealtime(),
                     bootId = bootId(),
@@ -90,14 +90,9 @@ class AlarmRuntimeRepository(context: Context) {
         dao.find(campaignId)?.writerCounter ?: 0L
     }
 
-    suspend fun finalDeadlineAt(campaignId: String): Instant? = withContext(Dispatchers.IO) {
-        dao.find(campaignId)?.let { Instant.ofEpochMilli(it.finalDeadlineAt) }
-    }
-
     private fun encode(state: AlarmCampaignState): JSONObject = JSONObject().apply {
         put("campaignId", state.campaignId)
         put("kind", state.storageName())
-        put("attempts", state.policy.maximumAttempts)
         put("ringMillis", state.policy.ringDuration.toMillis())
         put("quietMillis", state.policy.quietDuration.toMillis())
         put("devices", JSONArray(state.selectedDeviceIds.toList()))
@@ -116,7 +111,6 @@ class AlarmRuntimeRepository(context: Context) {
                 put("satisfiedAt", state.satisfiedAt.toString())
                 put("conditionLabel", state.conditionLabel)
             }
-            is AlarmCampaignState.Exhausted -> put("exhaustedAt", state.exhaustedAt.toString())
             is AlarmCampaignState.Overridden -> {
                 put("overriddenAt", state.overriddenAt.toString())
                 put("overrideId", state.overrideId)
@@ -128,7 +122,6 @@ class AlarmRuntimeRepository(context: Context) {
     private fun decode(entity: AlarmCampaignEntity): AlarmCampaignState {
         val json = JSONObject(entity.protocolJson)
         val policy = AlarmRecurrencePolicy(
-            maximumAttempts = json.getInt("attempts"),
             ringDuration = Duration.ofMillis(json.getLong("ringMillis")),
             quietDuration = Duration.ofMillis(json.getLong("quietMillis")),
         )
@@ -163,12 +156,6 @@ class AlarmRuntimeRepository(context: Context) {
                 policy = policy,
                 selectedDeviceIds = devices,
             )
-            "exhausted" -> AlarmCampaignState.Exhausted(
-                id,
-                Instant.parse(json.getString("exhaustedAt")),
-                policy = policy,
-                selectedDeviceIds = devices,
-            )
             "overridden" -> AlarmCampaignState.Overridden(
                 id,
                 Instant.parse(json.getString("overriddenAt")),
@@ -186,7 +173,6 @@ class AlarmRuntimeRepository(context: Context) {
         is AlarmCampaignState.Ringing -> "ringing"
         is AlarmCampaignState.Quiet -> "quiet"
         is AlarmCampaignState.Satisfied -> "satisfied"
-        is AlarmCampaignState.Exhausted -> "exhausted"
         is AlarmCampaignState.Overridden -> "overridden"
     }
 
@@ -199,7 +185,6 @@ class AlarmRuntimeRepository(context: Context) {
             policy.ringDuration.plus(policy.quietDuration).multipliedBy(completedAttempt.toLong()),
         )
         is AlarmCampaignState.Satisfied -> satisfiedAt
-        is AlarmCampaignState.Exhausted -> exhaustedAt.minus(policy.totalDuration)
         is AlarmCampaignState.Overridden -> overriddenAt
     }
 

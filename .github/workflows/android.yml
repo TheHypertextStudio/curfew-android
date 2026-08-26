@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           repository: TheHypertextStudio/curfew-protocols
-          ref: v0.2.3
+          ref: v0.3.0
           path: curfew-protocols
       - uses: actions/setup-java@v5
         with:
@@ -81,7 +81,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           repository: TheHypertextStudio/curfew-protocols
-          ref: v0.2.3
+          ref: v0.3.0
           path: curfew-protocols
       - uses: actions/setup-java@v5
         with:
@@ -123,7 +123,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           repository: TheHypertextStudio/curfew-protocols
-          ref: v0.2.3
+          ref: v0.3.0
           path: curfew-protocols
       - uses: actions/setup-java@v5
         with:

@@ -17,22 +17,19 @@ Curfew requests full-screen intent access only for an actively ringing, time-sen
 ## Why the ringing screen has no dismiss or snooze
 
 Expect a reviewer to ask, because every other alarm app has one. The alarm ends
-when the wake condition the user configured reports satisfied, when the attempt
-budget is spent, or when the campaign deadline passes — whichever comes first.
+when the wake condition the user configured reports a verified release or when
+a fresh account-authorized override targets the device.
 It does not end because the user tapped a button while still in bed, which is
 the failure this product exists to remove.
 
-The three points that make this a bounded, user-controlled feature rather than a
-trap, and the ones worth putting in front of a reviewer:
+The review submission must describe the release-only behavior without claiming
+that every campaign terminates on its own:
 
-- **It always terminates without user action.** `AlarmConfiguration` derives
-  `campaignDurationSeconds` from the attempt count, ring duration, and quiet
-  interval, and the schema caps it at 7200 seconds. Every terminal outcome,
-  including exhaustion, releases. `WakeOutcome` records exhaustion as a fact; it
-  never strands a device.
-- **The user chose the terms in advance.** Attempt count, ring length, quiet
-  interval, and the wake condition are all configured by the user before the
-  alarm is armed, on a device they hold.
+- **The user chooses the wake condition in advance.** Curfew shows the ring and
+  quiet cadence and the verified release path before arming.
+- **The app states its limits before arming.** Power-off, force-stop,
+  uninstall, revoked permissions, and some manufacturer battery policies can
+  prevent delivery. Curfew does not claim to defeat them.
 - **The system controls remain available.** Curfew never changes device volume
   (`AlarmReadiness.mayChangeSystemVolume` is hardwired false and tested), holds
   no device-admin role, and does not prevent the user from silencing the device,
