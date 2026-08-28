@@ -27,7 +27,7 @@ jobs:
           repository: TheHypertextStudio/curfew-protocols
           ref: v0.3.0
           path: curfew-protocols
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: "21"
@@ -83,7 +83,7 @@ jobs:
           repository: TheHypertextStudio/curfew-protocols
           ref: v0.3.0
           path: curfew-protocols
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: "21"
@@ -125,7 +125,7 @@ jobs:
           repository: TheHypertextStudio/curfew-protocols
           ref: v0.3.0
           path: curfew-protocols
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: "21"
