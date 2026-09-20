@@ -45,3 +45,19 @@ Without them, local release builds use the Android debug key and are not product
 - Android cannot defeat OS-level force-stop, uninstall, power-off, permission revocation, or every manufacturer battery policy. Readiness discloses those limits before arming.
 
 See [Security](docs/SECURITY.md), [Privacy](docs/PRIVACY.md), [Design](docs/DESIGN.md), [Play policy](docs/PLAY_POLICY.md), and [Testing](docs/TESTING.md).
+
+## Worktree setup
+
+Run `./bootstrap worktree prepare` after creating a checkout. Codex runs this
+command through the checked-in local environment. The pinned Studio engine
+reuses native dependency caches and keeps installed dependencies and mutable
+build outputs inside this checkout. Setup does not build applications or start
+services. The first engine download requires GitHub CLI authentication with
+access to the private `TheHypertextStudio/bootstrap` repository.
+
+Run `./bootstrap worktree plan --json` to inspect proposed actions or
+`./bootstrap worktree check` to inspect readiness. Use `--no-install` to configure
+cache reuse without resolving dependencies. Use `--offline` only when the engine
+and dependency artifacts already exist locally; missing artifacts are reported.
+Preserve shared caches when cleaning a checkout. Continue using the repository's
+existing build and test commands.
