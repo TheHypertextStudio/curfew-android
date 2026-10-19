@@ -1,18 +1,18 @@
 package studio.hypertext.curfew
 
 import android.Manifest
-import android.app.AlarmManager
 import android.app.KeyguardManager
-import android.app.NotificationManager
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.media.RingtoneManager
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.WindowManager
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import studio.hypertext.curfew.callback.AndroidWakeConditionSetup
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -22,18 +22,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import java.time.Duration
-import java.time.Instant
-import java.time.LocalDate
-import java.time.LocalTime
-import java.time.ZoneId
-import java.util.UUID
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import studio.hypertext.curfew.alarm.AlarmRecurrencePolicy
-import studio.hypertext.curfew.alarm.WakeScheduleResolver
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import studio.hypertext.curfew.callback.CallbackConfigurationRepository
 import studio.hypertext.curfew.account.BrowserOAuthEnrollment
 import studio.hypertext.curfew.account.AccountRecoveryState
@@ -43,33 +44,86 @@ import studio.hypertext.curfew.account.OAuthTokenExchange
 import studio.hypertext.curfew.persistence.CurfewPreferenceState
 import studio.hypertext.curfew.persistence.CurfewPreferences
 import studio.hypertext.curfew.platform.AlarmRuntimeRepository
-import studio.hypertext.curfew.platform.AlarmSchedulingCoordinator
 import studio.hypertext.curfew.platform.AndroidAlarmClockGateway
 import studio.hypertext.curfew.platform.PerpetualAlarmService
-import studio.hypertext.curfew.readiness.AlarmCapabilities
 import studio.hypertext.curfew.readiness.AlarmReadiness
-import studio.hypertext.curfew.readiness.AlarmReadinessEvaluator
 import studio.hypertext.curfew.ui.AlarmRingingScreen
 import studio.hypertext.curfew.ui.CurfewApp
 import studio.hypertext.curfew.ui.theme.CurfewTheme
 import studio.hypertext.curfew.sync.WakeSyncScheduler
-import studio.hypertext.curfew.sync.WakeStatusPollScheduler
-import studio.hypertext.curfew.sync.WakeStatusPublisher
+import studio.hypertext.curfew.alarm.AlarmCampaignState
+import studio.hypertext.curfew.alarm.SunriseSchedule
+import studio.hypertext.curfew.platform.SunriseScheduler
+import studio.hypertext.curfew.protocols.CallbackDefinition
 
 class MainActivity : ComponentActivity() {
     private lateinit var preferences: CurfewPreferences
     private var capabilityEpoch by mutableIntStateOf(0)
     private var accountRecoveryState by mutableStateOf<AccountRecoveryState?>(null)
+    private val sunrise by lazy { SunriseScheduler(this) }
+    private var sunriseSaving by mutableStateOf(false)
+    private var sunriseError by mutableStateOf<String?>(null)
+    private var sunriseReadFailed by mutableStateOf(false)
+    private var requestedAlarmState by mutableStateOf<AlarmCampaignState?>(null)
+    private var requestedAlarmLoaded by mutableStateOf(false)
+    private val sunriseState by lazy {
+        sunrise.state.catch {
+            sunriseReadFailed = true
+            sunriseError = "Sunrise settings could not be read. Restart before changing the alarm."
+            emit(null)
+        }
+    }
+
+    private val wakeConditionSetup by lazy { AndroidWakeConditionSetup(this) }
+    private var conditionBusy by mutableStateOf(false)
+    private var conditionMessage by mutableStateOf<String?>(null)
+    private var pendingVerifierExport: CallbackDefinition? = null
+    private val exportVerifier = registerForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+        val definition = pendingVerifierExport
+        pendingVerifierExport = null
+        if (uri == null || definition == null) {
+            conditionMessage = "Export cancelled. The wake condition has not changed."
+        } else {
+            conditionBusy = true
+            lifecycleScope.launch {
+                try {
+                    withContext(Dispatchers.IO) {
+                        requireNotNull(contentResolver.openOutputStream(uri, "wt")).bufferedWriter().use {
+                            it.write(Json.encodeToString(definition))
+                        }
+                    }
+                    conditionMessage = "Private verifier setup exported. Install it on your verifier, then test the connection."
+                } catch (failure: Exception) {
+                    conditionMessage = "The setup file could not be exported. Choose a writable location and retry."
+                } finally {
+                    conditionBusy = false
+                }
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (intent.getBooleanExtra(EXTRA_SHOW_ALARM, false)) {
-            presentOverKeyguard()
-        }
         enableEdgeToEdge()
         PerpetualAlarmService.ensureChannels(this)
         WakeSyncScheduler.install(this)
         preferences = CurfewPreferences(this)
+        val requestedId = intent.getStringExtra(AndroidAlarmClockGateway.EXTRA_CAMPAIGN_ID)
+        if (intent.getBooleanExtra(EXTRA_SHOW_ALARM, false) && requestedId != null) {
+            lifecycleScope.launch {
+                requestedAlarmState = runCatching {
+                    AlarmRuntimeRepository(this@MainActivity).load(requestedId)
+                }.getOrNull()
+                requestedAlarmLoaded = true
+                if (requestedAlarmState is AlarmCampaignState.Ringing ||
+                    requestedAlarmState is AlarmCampaignState.Quiet
+                ) {
+                    presentOverKeyguard()
+                }
+            }
+        } else {
+            requestedAlarmLoaded = true
+        }
         accountRecoveryState = AndroidAccountRecovery(this).pendingState()
         if (handleOAuthCallback(intent)) {
             setIntent(Intent(this, MainActivity::class.java))
@@ -77,22 +131,58 @@ class MainActivity : ComponentActivity() {
         setContent {
             @Suppress("UNUSED_EXPRESSION")
             capabilityEpoch
+            val savedAlarm = sunriseState.collectAsStateWithLifecycle(initialValue = null).value
+            val campaignId = intent.getStringExtra(AndroidAlarmClockGateway.EXTRA_CAMPAIGN_ID)
+                ?: savedAlarm?.occurrence?.campaignId
+            val campaignFlow = remember(campaignId) {
+                campaignId?.let { AlarmRuntimeRepository(this).observe(it) }
+                    ?.catch {
+                        sunriseError = "The current Sunrise could not be read."
+                        emit(null)
+                    } ?: flowOf(null)
+            }
+            val campaignSnapshot = remember(campaignFlow) { campaignFlow.map { true to it } }
+                .collectAsStateWithLifecycle(initialValue = false to null).value
+            val campaign = if (campaignSnapshot.first) campaignSnapshot.second else requestedAlarmState
+            val showAlarm = campaign is AlarmCampaignState.Ringing || campaign is AlarmCampaignState.Quiet
+            var ringingCondition by remember(campaignId) { mutableStateOf<CallbackDefinition?>(null) }
+            LaunchedEffect(campaignId) {
+                ringingCondition = campaignId?.let { id ->
+                    withContext(Dispatchers.IO) {
+                        AlarmRuntimeRepository(this@MainActivity).callbackId(id)?.let {
+                            CallbackConfigurationRepository(this@MainActivity).find(it)
+                        }
+                    }
+                }
+            }
+            LaunchedEffect(showAlarm) {
+                if (showAlarm) {
+                    presentOverKeyguard()
+                } else {
+                    setShowWhenLocked(false)
+                    setTurnScreenOn(false)
+                    window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                }
+            }
             CurfewTheme {
-                if (intent.getBooleanExtra(EXTRA_SHOW_ALARM, false)) {
+                if (!requestedAlarmLoaded) {
+                    Surface { Text("Loading Sunrise…") }
+                } else if (showAlarm) {
                     AlarmRingingScreen(
-                        attempt = intent.getIntExtra(
-                            PerpetualAlarmService.EXTRA_ATTEMPT_NUMBER,
-                            1,
-                        ),
-                        conditionLabel = intent.getStringExtra(
-                            PerpetualAlarmService.EXTRA_CONDITION_LABEL,
-                        ) ?: "your wake condition",
-                        actionLabel = intent.getStringExtra(
-                            PerpetualAlarmService.EXTRA_ACTION_URL,
-                        )?.let { "Open work surface" },
+                        attempt = (campaign as? AlarmCampaignState.Ringing)?.attempt
+                            ?: (campaign as? AlarmCampaignState.Quiet)?.completedAttempt ?: 1,
+                        conditionLabel = ringingCondition?.displayLabel ?: "your saved wake condition",
+                        actionLabel = ringingCondition?.actionUrl?.let { "Open wake condition" },
                         onOpenAction = {
-                            intent.getStringExtra(PerpetualAlarmService.EXTRA_ACTION_URL)?.let {
-                                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it)))
+                            ringingCondition?.actionUrl?.let {
+                                runCatching { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it))) }
+                                    .onFailure {
+                                        Toast.makeText(
+                                            this@MainActivity,
+                                            "No app could open this wake condition. Sunrise remains active.",
+                                            Toast.LENGTH_LONG,
+                                        ).show()
+                                    }
                             }
                         },
                     )
@@ -108,6 +198,14 @@ class MainActivity : ComponentActivity() {
                         ),
                     ).value
                     val readiness = currentReadiness(preferenceState)
+                    var conditionLabel by remember(preferenceState.selectedCallbackId) {
+                        mutableStateOf<String?>(null)
+                    }
+                    LaunchedEffect(preferenceState.selectedCallbackId) {
+                        conditionLabel = preferenceState.selectedCallbackId?.let {
+                            CallbackConfigurationRepository(this@MainActivity).find(it)?.displayLabel
+                        }
+                    }
                     CurfewApp(
                         readiness = readiness,
                         accountEnrolled = preferenceState.accountEnrolled,
@@ -116,6 +214,7 @@ class MainActivity : ComponentActivity() {
                         onGrantExactAlarm = ::requestExactAlarmAccess,
                         onGrantNotifications = ::requestNotifications,
                         onRepairAlarmChannel = ::openAlarmChannelSettings,
+                        onRaiseAlarmVolume = { startActivity(Intent(Settings.ACTION_SOUND_SETTINGS)) },
                         onPlayTestSound = ::playTestSound,
                         onAcknowledgeLimitations = {
                             lifecycleScope.launch { preferences.acknowledgeLimitations() }
@@ -168,25 +267,64 @@ class MainActivity : ComponentActivity() {
                             }
                         },
                         onSaveCallback = { label, endpoint, actionUrl ->
+                            conditionBusy = true
+                            conditionMessage = null
                             lifecycleScope.launch {
-                                runCatching {
-                                    CallbackConfigurationRepository(this@MainActivity).save(
-                                        label,
-                                        endpoint,
-                                        actionUrl,
-                                    )
-                                }.onSuccess { definition ->
-                                    preferences.selectCallback(definition.callbackId)
-                                }.onFailure {
-                                    Toast.makeText(
-                                        this@MainActivity,
-                                        "The callback must use a valid HTTPS endpoint.",
-                                        Toast.LENGTH_LONG,
-                                    ).show()
+                                try {
+                                    wakeConditionSetup.save(label, endpoint, actionUrl)
+                                    conditionMessage = "Saved on this device. Export the verifier setup and test its connection before enabling Sunrise."
+                                } catch (failure: Exception) {
+                                    conditionMessage = "The condition could not be saved. Check the name and HTTPS endpoint, then retry."
+                                } finally {
+                                    conditionBusy = false
                                 }
                             }
                         },
-                        onArm = ::armAlarm,
+                        conditionVerified = preferenceState.selectedCallbackId?.let {
+                            preferenceState.isCallbackReady(it)
+                        } ?: false,
+                        conditionBusy = conditionBusy,
+                        conditionMessage = conditionMessage,
+                        onExportCondition = {
+                            val id = preferenceState.selectedCallbackId
+                            if (id != null && !conditionBusy) lifecycleScope.launch {
+                                conditionBusy = true
+                                try {
+                                    pendingVerifierExport = wakeConditionSetup.provision(id)
+                                    exportVerifier.launch("curfew-verifier.json")
+                                } catch (failure: Exception) {
+                                    pendingVerifierExport = null
+                                    conditionMessage = "The saved condition could not be read. Save it again before exporting."
+                                } finally {
+                                    conditionBusy = false
+                                }
+                            }
+                        },
+                        onVerifyCondition = {
+                            val id = preferenceState.selectedCallbackId
+                            if (id != null && !conditionBusy) lifecycleScope.launch {
+                                conditionBusy = true
+                                conditionMessage = "Testing the verifier’s authenticated response…"
+                                try {
+                                    conditionMessage = if (wakeConditionSetup.verify(id)) {
+                                        "Connection verified. Sunrise can use this wake condition."
+                                    } else {
+                                        "The selected condition changed. Test the current condition again."
+                                    }
+                                } catch (failure: Exception) {
+                                    conditionMessage = "No valid signed response arrived. Check the verifier setup and connection, then retry."
+                                } finally {
+                                    conditionBusy = false
+                                }
+                            }
+                        },
+                        sunriseAlarm = savedAlarm,
+                        callbackId = preferenceState.selectedCallbackId,
+                        conditionLabel = if (sunriseReadFailed) null else conditionLabel,
+                        alarmBusy = sunriseSaving,
+                        alarmError = sunriseError,
+                        onSaveAlarm = ::saveSunrise,
+                        onToggleAlarm = { enabled -> changeSunrise(enabled = enabled) },
                     )
                 }
             }
@@ -196,6 +334,11 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         capabilityEpoch += 1
+        lifecycleScope.launch {
+            runCatching { sunrise.restore() }.onFailure {
+                sunriseError = "Sunrise needs attention. Check alarm access, sound, and the wake condition."
+            }
+        }
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -265,23 +408,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun currentReadiness(preferenceState: CurfewPreferenceState): AlarmReadiness {
-        val notificationManager = getSystemService(NotificationManager::class.java)
-        val notificationsGranted = Build.VERSION.SDK_INT < 33 ||
-            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) ==
-            PackageManager.PERMISSION_GRANTED
-        val fullScreenAllowed = Build.VERSION.SDK_INT < 34 ||
-            notificationManager.canUseFullScreenIntent()
-        return AlarmReadinessEvaluator().evaluate(
-            AlarmCapabilities(
-                canScheduleExactAlarms = getSystemService(AlarmManager::class.java)
-                    .canScheduleExactAlarms(),
-                notificationsGranted = notificationsGranted,
-                fullScreenIntentAllowed = fullScreenAllowed,
-                alarmChannelAudible = PerpetualAlarmService.alarmChannelIsAudible(this),
-                testSoundCompleted = preferenceState.testSoundCompleted,
-                limitationsAcknowledged = preferenceState.readinessAcknowledged,
-            ),
-        )
+        return studio.hypertext.curfew.platform.AndroidAlarmReadiness(this).evaluate(preferenceState)
     }
 
     private fun requestExactAlarmAccess() {
@@ -317,66 +444,26 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch { preferences.recordTestSound() }
     }
 
-    private fun armAlarm(
-        wakeTime: LocalTime,
-        ringMinutes: Int,
-        quietMinutes: Int,
-    ) {
+    private fun saveSunrise(schedule: SunriseSchedule) {
+        changeSunrise(schedule = schedule)
+    }
+
+    private fun changeSunrise(schedule: SunriseSchedule? = null, enabled: Boolean? = null) {
+        if (sunriseSaving || sunriseReadFailed) return
+        sunriseSaving = true
+        sunriseError = null
         lifecycleScope.launch {
-            val policy = runCatching {
-                AlarmRecurrencePolicy(
-                    ringDuration = Duration.ofMinutes(ringMinutes.toLong()),
-                    quietDuration = Duration.ofMinutes(quietMinutes.toLong()),
-                )
-            }.getOrElse {
-                Toast.makeText(
-                    this@MainActivity,
-                    "Alarm timing is invalid.",
-                    Toast.LENGTH_LONG,
-                ).show()
-                return@launch
-            }
-            val now = Instant.now()
-            val zone = ZoneId.systemDefault()
-            var day = LocalDate.now(zone)
-            var start = WakeScheduleResolver().resolve(day, wakeTime, zone).toInstant()
-            if (!start.isAfter(now)) {
-                day = day.plusDays(1)
-                start = WakeScheduleResolver().resolve(day, wakeTime, zone).toInstant()
-            }
-            val campaignId = UUID.randomUUID().toString()
-            val deviceId = NativeDeviceProofAuthenticator(this@MainActivity).deviceId()
-            val repository = AlarmRuntimeRepository(this@MainActivity)
-            val prefs = preferences.state.first()
-            val campaign = repository.create(
-                campaignId,
-                start,
-                policy,
-                setOf(deviceId),
-                callbackId = prefs.selectedCallbackId,
-            )
-            val readiness = currentReadiness(prefs)
-            runCatching {
-                AlarmSchedulingCoordinator(AndroidAlarmClockGateway(this@MainActivity)).arm(
-                    campaignId,
-                    start,
-                    readiness,
-                )
-            }.onSuccess {
-                preferences.setPrimaryAlarmDevice(deviceId)
-                WakeStatusPublisher(this@MainActivity).publish(campaign, Instant.now())
-                WakeStatusPollScheduler.schedule(this@MainActivity, campaignId)
-                Toast.makeText(
-                    this@MainActivity,
-                    "Wake campaign armed for $wakeTime.",
-                    Toast.LENGTH_LONG,
-                ).show()
-            }.onFailure {
-                Toast.makeText(
-                    this@MainActivity,
-                    "Finish alarm readiness before arming.",
-                    Toast.LENGTH_LONG,
-                ).show()
+            try {
+                val desired = schedule ?: sunrise.state.first()?.schedule?.copy(
+                    enabled = requireNotNull(enabled),
+                ) ?: return@launch
+                sunrise.save(desired)
+            } catch (failure: IllegalArgumentException) {
+                sunriseError = failure.message ?: "Choose a future date and time for Sunrise."
+            } catch (failure: Exception) {
+                sunriseError = "Sunrise could not be saved. Check alarm access, sound, and the wake condition."
+            } finally {
+                sunriseSaving = false
             }
         }
     }

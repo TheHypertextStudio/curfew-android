@@ -24,10 +24,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.withContext
+import android.os.SystemClock
+import java.time.Instant
 import studio.hypertext.curfew.MainActivity
 import studio.hypertext.curfew.R
 import studio.hypertext.curfew.account.NativeDeviceProofAuthenticator
 import studio.hypertext.curfew.alarm.AlarmCampaignState
+import studio.hypertext.curfew.alarm.AlarmPlaybackPlanner
+import studio.hypertext.curfew.callback.CallbackConfigurationRepository
 import studio.hypertext.curfew.callback.CallbackPollScheduler
 import studio.hypertext.curfew.security.AndroidKeystoreSecretStore
 import studio.hypertext.curfew.sync.ForegroundWakeSocket
@@ -40,6 +46,9 @@ class PerpetualAlarmService : Service() {
     private var pollRunnable: Runnable? = null
     private var wakeSocket: ForegroundWakeSocket? = null
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private var playbackJob: Job? = null
+    private var playbackGeneration = 0
+    private var syncCampaignId: String? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -47,41 +56,81 @@ class PerpetualAlarmService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        // A sticky redelivery after process death arrives with a null intent.
-        // Fabricating a campaign here rang with invented parameters — attempt 1
-        // of 3 against a campaign id that matches no row — until the next real
-        // transition corrected it. AlarmTransitionReceiver is the only
-        // authoritative driver, and its AlarmManager alarm outlives the process,
-        // so declining is both safe and recoverable. Foreground state is still
-        // entered first: the framework requires it even on the path that stops.
-        if (intent == null) {
-            ServiceCompat.startForeground(
-                this,
-                ALARM_NOTIFICATION_ID,
-                ringingNotification(this, "", 0, null, null),
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK,
-            )
-            stopSelf(startId)
-            return START_NOT_STICKY
-        }
-        val campaignId = intent.getStringExtra(EXTRA_CAMPAIGN_ID) ?: "active-campaign"
-        val attempt = intent.getIntExtra(EXTRA_ATTEMPT, 1)
-        val conditionLabel = intent.getStringExtra(EXTRA_CONDITION_LABEL)
-        val actionUrl = intent.getStringExtra(EXTRA_ACTION_URL)
+        val generation = ++playbackGeneration
+        playbackJob?.cancel()
+        // Android requires foreground entry before disk recovery can complete.
         ServiceCompat.startForeground(
             this,
             ALARM_NOTIFICATION_ID,
-            ringingNotification(
-                this,
-                campaignId,
-                attempt,
-                conditionLabel,
-                actionUrl,
-            ),
+            NotificationCompat.Builder(this, STATUS_CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setContentTitle("Restoring Sunrise")
+                .setContentText("Checking the saved alarm")
+                .setSilent(true)
+                .setOngoing(true)
+                .build(),
             ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK,
         )
-        beginAlarmSound()
-        beginActiveSync(campaignId)
+        playbackJob = serviceScope.launch {
+            try {
+                val repository = AlarmRuntimeRepository(this@PerpetualAlarmService)
+                val state = SunriseScheduler.serialized {
+                    AlarmPlaybackPlanner().restore(
+                        intent?.getStringExtra(EXTRA_CAMPAIGN_ID),
+                        repository.pendingSnapshots(),
+                        Instant.now(),
+                        SystemClock.elapsedRealtime(),
+                        repository.currentBootId(),
+                    )?.also { repository.save(it) }
+                }
+                val gateway = AndroidAlarmClockGateway(this@PerpetualAlarmService)
+                val boundary = when (state) {
+                    is AlarmCampaignState.Scheduled -> state.startsAt
+                    is AlarmCampaignState.Ringing -> state.ringEndsAt
+                    is AlarmCampaignState.Quiet -> state.nextAttemptAt
+                    else -> null
+                }
+                if (state != null && boundary != null) {
+                    runCatching { gateway.setAlarmClock(state.campaignId, boundary) }
+                        .onFailure { android.util.Log.w("SunrisePlayback", "Next transition needs exact alarm access") }
+                }
+                if (state !is AlarmCampaignState.Ringing) {
+                    withContext(Dispatchers.Main) {
+                        if (generation == playbackGeneration) stopSelf(startId)
+                    }
+                    return@launch
+                }
+                val definition = repository.callbackId(state.campaignId)?.let {
+                    CallbackConfigurationRepository(this@PerpetualAlarmService).find(it)
+                }
+                repository.observe(state.campaignId).collect { current ->
+                    withContext(Dispatchers.Main) {
+                        if (generation == playbackGeneration) {
+                            if (current is AlarmCampaignState.Ringing) {
+                                getSystemService(NotificationManager::class.java).notify(
+                                    ALARM_NOTIFICATION_ID,
+                                    ringingNotification(
+                                        this@PerpetualAlarmService, current.campaignId,
+                                        current.attempt, definition?.displayLabel, definition?.actionUrl,
+                                    ),
+                                )
+                                beginAlarmSound()
+                                if (syncCampaignId != current.campaignId) beginActiveSync(current.campaignId)
+                            } else {
+                                stopSelf(startId)
+                            }
+                        }
+                    }
+                }
+            } catch (failure: kotlinx.coroutines.CancellationException) {
+                throw failure
+            } catch (failure: Exception) {
+                android.util.Log.e("SunrisePlayback", "Could not restore the saved alarm")
+                withContext(Dispatchers.Main) {
+                    if (generation == playbackGeneration) stopSelf(startId)
+                }
+            }
+        }
         return START_STICKY
     }
 
@@ -133,6 +182,7 @@ class PerpetualAlarmService : Service() {
     }
 
     private fun beginActiveSync(campaignId: String) {
+        syncCampaignId = campaignId
         wakeSocket?.close()
         wakeSocket = null
         pollRunnable?.let(mainHandler::removeCallbacks)

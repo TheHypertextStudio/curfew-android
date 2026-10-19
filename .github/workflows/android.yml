@@ -33,6 +33,8 @@ jobs:
           java-version: "21"
           cache: gradle
       - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
       - name: Install compile SDK
         run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
       - name: Test, lint, and assemble
@@ -89,6 +91,8 @@ jobs:
           java-version: "21"
           cache: gradle
       - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
       - name: Install compile SDK
         run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
       - name: Enable KVM acceleration
@@ -131,6 +135,8 @@ jobs:
           java-version: "21"
           cache: gradle
       - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
       - name: Produce local signed evidence
         working-directory: curfew-android
         run: ./gradlew writeReleaseChecksums generateCurfewSbom writeBuildProvenance

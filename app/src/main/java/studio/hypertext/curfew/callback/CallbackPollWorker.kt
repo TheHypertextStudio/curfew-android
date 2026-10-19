@@ -17,6 +17,7 @@ import studio.hypertext.curfew.account.NativeDeviceProofAuthenticator
 import studio.hypertext.curfew.platform.AlarmRuntimeRepository
 import studio.hypertext.curfew.platform.AndroidAlarmClockGateway
 import studio.hypertext.curfew.platform.PerpetualAlarmService
+import studio.hypertext.curfew.platform.SunriseScheduler
 import studio.hypertext.curfew.protocols.ReceiptStatus
 import studio.hypertext.curfew.protocols.Result as ProtocolResult
 import studio.hypertext.curfew.protocols.WakeOutcome as ProtocolWakeOutcome
@@ -70,6 +71,14 @@ class CallbackPollWorker(
                 definition.displayLabel,
             )
             runtime.save(terminal)
+            applicationContext.stopService(
+                PerpetualAlarmService.stopIntent(applicationContext, campaignId),
+            )
+            AndroidAlarmClockGateway(applicationContext).cancel(campaignId)
+            val sunrise = SunriseScheduler(applicationContext)
+            sunrise.consume(campaignId)
+            runCatching { sunrise.restore() }
+                .onFailure { android.util.Log.w("SunriseRelease", "Next alarm needs attention") }
             WakeStatusPublisher(applicationContext).publish(terminal, observedAt)
             val deviceId = NativeDeviceProofAuthenticator(applicationContext).deviceId()
             WakeOutboxPublisher(applicationContext).publish(
@@ -82,10 +91,6 @@ class CallbackPollWorker(
                 writerDeviceId = deviceId,
                 version = 1,
             )
-            applicationContext.stopService(
-                PerpetualAlarmService.stopIntent(applicationContext, campaignId),
-            )
-            AndroidAlarmClockGateway(applicationContext).cancel(campaignId)
             WakeSyncScheduler.accelerate(applicationContext)
             return Result.success()
         }

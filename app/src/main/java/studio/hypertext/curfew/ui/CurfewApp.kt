@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.SelectionContainer
@@ -19,7 +18,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -28,7 +26,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -41,12 +38,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import java.time.LocalTime
-import java.time.format.DateTimeFormatter
 import studio.hypertext.curfew.readiness.AlarmReadiness
 import studio.hypertext.curfew.readiness.ReadinessAction
 import studio.hypertext.curfew.readiness.ReadinessDisclosure
 import studio.hypertext.curfew.account.AccountRecoveryState
+import studio.hypertext.curfew.alarm.SavedSunriseAlarm
+import studio.hypertext.curfew.alarm.SunriseSchedule
 
 @Composable
 fun CurfewApp(
@@ -64,16 +61,20 @@ fun CurfewApp(
     onRestoreRecoveryKey: (String) -> Unit,
     onAcknowledgeRecoveryKey: () -> Unit,
     onSaveCallback: (String, String, String?) -> Unit,
-    onArm: (LocalTime, Int, Int) -> Unit,
+    sunriseAlarm: SavedSunriseAlarm?,
+    callbackId: String?,
+    conditionLabel: String?,
+    alarmBusy: Boolean,
+    alarmError: String?,
+    onSaveAlarm: (SunriseSchedule) -> Unit,
+    onToggleAlarm: (Boolean) -> Unit,
+    onRaiseAlarmVolume: () -> Unit = onRepairAlarmChannel,
+    conditionVerified: Boolean = false,
+    conditionBusy: Boolean = false,
+    conditionMessage: String? = null,
+    onExportCondition: () -> Unit = {},
+    onVerifyCondition: () -> Unit = {},
 ) {
-    var wakeTimeText by rememberSaveable { mutableStateOf("07:00") }
-    var ringMinutes by rememberSaveable { mutableIntStateOf(2) }
-    var quietMinutes by rememberSaveable { mutableIntStateOf(1) }
-    val wakeTime = runCatching {
-        LocalTime.parse(wakeTimeText, DateTimeFormatter.ofPattern("HH:mm"))
-    }.getOrNull()
-    val validCampaign = wakeTime != null
-
     Scaffold { innerPadding ->
         BoxWithConstraints(
             modifier = Modifier
@@ -92,17 +93,15 @@ fun CurfewApp(
             ) {
                 Header(readiness.canArm)
                 Spacer(Modifier.height(24.dp))
+                alarmError?.let {
+                    Text(it, color = MaterialTheme.colorScheme.error)
+                    Spacer(Modifier.height(12.dp))
+                }
                 if (layoutMode == CurfewLayoutMode.COMPACT) {
-                    AlarmConfigurationCard(
-                        wakeTimeText,
-                        ringMinutes,
-                        quietMinutes,
-                        validCampaign,
-                        readiness.canArm,
-                        onWakeTimeChanged = { wakeTimeText = it.take(5) },
-                        onRingChanged = { ringMinutes = it.coerceIn(1, 120) },
-                        onQuietChanged = { quietMinutes = it.coerceIn(0, 120) },
-                        onArm = { onArm(requireNotNull(wakeTime), ringMinutes, quietMinutes) },
+                    SunriseAlarmCard(
+                        sunriseAlarm, callbackId, conditionLabel,
+                        readiness.canArm && conditionLabel != null && conditionVerified,
+                        alarmBusy, onSaveAlarm, onToggleAlarm,
                     )
                     Spacer(Modifier.height(16.dp))
                     ReadinessCard(
@@ -112,9 +111,10 @@ fun CurfewApp(
                         onRepairAlarmChannel,
                         onPlayTestSound,
                         onAcknowledgeLimitations,
+                        onRaiseAlarmVolume,
                     )
                     Spacer(Modifier.height(16.dp))
-                    CallbackCard(onSaveCallback)
+                    WakeConditionCard(conditionLabel, conditionVerified, conditionBusy, conditionMessage, onSaveCallback, onExportCondition, onVerifyCondition)
                     Spacer(Modifier.height(16.dp))
                     AccountCard(
                         accountEnrolled,
@@ -132,21 +132,13 @@ fun CurfewApp(
                         verticalAlignment = Alignment.Top,
                     ) {
                         Column(Modifier.weight(1.15f)) {
-                            AlarmConfigurationCard(
-                                wakeTimeText,
-                                ringMinutes,
-                                quietMinutes,
-                                validCampaign,
-                                readiness.canArm,
-                                onWakeTimeChanged = { wakeTimeText = it.take(5) },
-                                onRingChanged = { ringMinutes = it.coerceIn(1, 120) },
-                                onQuietChanged = { quietMinutes = it.coerceIn(0, 120) },
-                                onArm = {
-                                    onArm(requireNotNull(wakeTime), ringMinutes, quietMinutes)
-                                },
+                            SunriseAlarmCard(
+                                sunriseAlarm, callbackId, conditionLabel,
+                                readiness.canArm && conditionLabel != null && conditionVerified,
+                                alarmBusy, onSaveAlarm, onToggleAlarm,
                             )
                             Spacer(Modifier.height(20.dp))
-                            CallbackCard(onSaveCallback)
+                            WakeConditionCard(conditionLabel, conditionVerified, conditionBusy, conditionMessage, onSaveCallback, onExportCondition, onVerifyCondition)
                         }
                         Column(Modifier.weight(0.85f)) {
                             ReadinessCard(
@@ -156,6 +148,7 @@ fun CurfewApp(
                                 onRepairAlarmChannel,
                                 onPlayTestSound,
                                 onAcknowledgeLimitations,
+                                onRaiseAlarmVolume,
                             )
                             Spacer(Modifier.height(20.dp))
                             AccountCard(
@@ -185,116 +178,27 @@ fun CurfewApp(
 @Composable
 private fun Header(ready: Boolean) {
     Text(
-        text = "CURFEW / WAKE",
+        text = "CURFEW / SUNRISE",
         style = MaterialTheme.typography.labelLarge,
         color = MaterialTheme.colorScheme.primary,
         fontWeight = FontWeight.Bold,
     )
     Spacer(Modifier.height(8.dp))
     Text(
-        text = "Wake without negotiating with yourself.",
+        text = "Start the day you planned.",
         style = MaterialTheme.typography.displaySmall,
         modifier = Modifier.semantics { heading() },
     )
     Spacer(Modifier.height(10.dp))
     Text(
         text = if (ready) {
-            "This device is ready to run a finite Perpetual Alarm campaign."
+            "Alarm permissions and sound checks are ready."
         } else {
-            "Finish readiness once, then Curfew can reliably hold the morning boundary."
+            "Finish the sound and permission checks before turning Sunrise on."
         },
         style = MaterialTheme.typography.bodyLarge,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
-}
-
-@Composable
-private fun AlarmConfigurationCard(
-    wakeTimeText: String,
-    ringMinutes: Int,
-    quietMinutes: Int,
-    validCampaign: Boolean,
-    ready: Boolean,
-    onWakeTimeChanged: (String) -> Unit,
-    onRingChanged: (Int) -> Unit,
-    onQuietChanged: (Int) -> Unit,
-    onArm: () -> Unit,
-) {
-    CurfewCard("Next wake campaign") {
-        Text(
-            "Curfew rings for two minutes, stays quiet for one minute, and repeats until a verified release or authorized override arrives.",
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Spacer(Modifier.height(20.dp))
-        OutlinedTextField(
-            value = wakeTimeText,
-            onValueChange = onWakeTimeChanged,
-            label = { Text("Wake time (24-hour)") },
-            singleLine = true,
-            isError = !validCampaign,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth(),
-        )
-        Spacer(Modifier.height(16.dp))
-        CounterRow("Ring minutes", ringMinutes, 1, 120, onRingChanged)
-        CounterRow("Quiet minutes", quietMinutes, 0, 120, onQuietChanged)
-        HorizontalDivider(Modifier.padding(vertical = 16.dp))
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("Release", style = MaterialTheme.typography.labelLarge)
-            Text(
-                "Verified callback or override",
-                color = MaterialTheme.colorScheme.primary,
-            )
-        }
-        Spacer(Modifier.height(20.dp))
-        Button(
-            onClick = onArm,
-            enabled = ready && validCampaign,
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(min = 52.dp),
-        ) {
-            Text(if (ready) "Arm wake campaign" else "Finish readiness to arm")
-        }
-    }
-}
-
-@Composable
-private fun CounterRow(
-    label: String,
-    value: Int,
-    minimum: Int,
-    maximum: Int,
-    onChange: (Int) -> Unit,
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 6.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(label, Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
-        OutlinedButton(
-            onClick = { onChange(value - 1) },
-            enabled = value > minimum,
-            modifier = Modifier
-                .heightIn(min = 48.dp)
-                .semantics { contentDescription = "Decrease $label" },
-        ) { Text("−") }
-        Text(
-            value.toString(),
-            modifier = Modifier.width(48.dp),
-            style = MaterialTheme.typography.titleMedium,
-            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-        )
-        OutlinedButton(
-            onClick = { onChange(value + 1) },
-            enabled = value < maximum,
-            modifier = Modifier
-                .heightIn(min = 48.dp)
-                .semantics { contentDescription = "Increase $label" },
-        ) { Text("+") }
-    }
 }
 
 @Composable
@@ -305,6 +209,7 @@ private fun ReadinessCard(
     onRepairAlarmChannel: () -> Unit,
     onPlayTestSound: () -> Unit,
     onAcknowledgeLimitations: () -> Unit,
+    onRaiseAlarmVolume: () -> Unit,
 ) {
     CurfewCard("Alarm readiness") {
         Text(
@@ -318,6 +223,7 @@ private fun ReadinessCard(
                 ReadinessAction.GRANT_EXACT_ALARM_ACCESS -> "Allow exact alarms" to onGrantExactAlarm
                 ReadinessAction.GRANT_NOTIFICATIONS -> "Allow notifications" to onGrantNotifications
                 ReadinessAction.REPAIR_ALARM_CHANNEL -> "Make alarm channel audible" to onRepairAlarmChannel
+                ReadinessAction.RAISE_ALARM_VOLUME -> "Turn up alarm volume" to onRaiseAlarmVolume
                 ReadinessAction.PLAY_TEST_SOUND -> "Play a real test sound" to onPlayTestSound
                 ReadinessAction.ACKNOWLEDGE_LIMITATIONS -> "Acknowledge device limits" to onAcknowledgeLimitations
             }
@@ -343,60 +249,6 @@ private fun ReadinessCard(
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-    }
-}
-
-@Composable
-private fun CallbackCard(onSaveCallback: (String, String, String?) -> Unit) {
-    var label by rememberSaveable { mutableStateOf("") }
-    var endpoint by rememberSaveable { mutableStateOf("") }
-    var actionUrl by rememberSaveable { mutableStateOf("") }
-    var saved by rememberSaveable { mutableStateOf(false) }
-    val endpointValid = endpoint.isBlank() || endpoint.startsWith("https://")
-    CurfewCard("Wake condition") {
-        Text(
-            "Optional and generic. Curfew polls a signed HTTPS callback; transport failures stay pending.",
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Spacer(Modifier.height(16.dp))
-        OutlinedTextField(
-            value = label,
-            onValueChange = { label = it; saved = false },
-            label = { Text("Display label") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-        )
-        Spacer(Modifier.height(10.dp))
-        OutlinedTextField(
-            value = endpoint,
-            onValueChange = { endpoint = it; saved = false },
-            label = { Text("HTTPS callback endpoint") },
-            isError = !endpointValid,
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-        )
-        Spacer(Modifier.height(10.dp))
-        OutlinedTextField(
-            value = actionUrl,
-            onValueChange = { actionUrl = it; saved = false },
-            label = { Text("Optional action URL") },
-            supportingText = { Text("Opened as an opaque link while the campaign runs") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-        )
-        if (endpoint.isNotBlank()) {
-            Spacer(Modifier.height(12.dp))
-            OutlinedButton(
-                onClick = {
-                    onSaveCallback(label, endpoint, actionUrl.takeIf(String::isNotBlank))
-                    saved = true
-                },
-                enabled = label.isNotBlank() && endpointValid,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 48.dp),
-            ) { Text(if (saved) "Saved on this device" else "Save condition") }
-        }
     }
 }
 
@@ -500,7 +352,7 @@ private fun AccountCard(
 }
 
 @Composable
-private fun CurfewCard(title: String, content: @Composable () -> Unit) {
+internal fun CurfewCard(title: String, content: @Composable () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(

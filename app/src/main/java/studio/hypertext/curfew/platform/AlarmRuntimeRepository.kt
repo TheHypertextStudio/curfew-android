@@ -7,6 +7,9 @@ import java.time.Duration
 import java.time.Instant
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.distinctUntilChanged
 import org.json.JSONArray
 import org.json.JSONObject
 import studio.hypertext.curfew.alarm.AlarmCampaignState
@@ -39,6 +42,9 @@ class AlarmRuntimeRepository(context: Context) {
     suspend fun load(campaignId: String): AlarmCampaignState? = withContext(Dispatchers.IO) {
         dao.find(campaignId)?.let(::decode)
     }
+
+    fun observe(campaignId: String): Flow<AlarmCampaignState?> =
+        dao.observe(campaignId).map { it?.let(::decode) }.distinctUntilChanged()
 
     suspend fun save(
         state: AlarmCampaignState,

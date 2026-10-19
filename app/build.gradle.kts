@@ -82,6 +82,11 @@ android {
 }
 
 dependencies {
+    constraints {
+        add("gmsImplementation", libs.androidx.fragment.get()) {
+            because("Firebase's legacy Fragment dependency cannot dispatch activity-result callbacks safely")
+        }
+    }
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)

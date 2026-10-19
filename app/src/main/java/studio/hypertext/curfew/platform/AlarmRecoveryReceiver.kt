@@ -29,6 +29,9 @@ class AlarmRecoveryReceiver : BroadcastReceiver() {
     }
 
     private suspend fun restorePending(context: Context) {
+        // Readiness failure for tomorrow must not prevent recovery of today's active alarm.
+        runCatching { SunriseScheduler(context).restore() }
+            .onFailure { android.util.Log.w("SunriseRecovery", "Saved schedule needs attention") }
         val gateway = AndroidAlarmClockGateway(context)
         if (!gateway.canScheduleExactAlarms()) return
         val repository = AlarmRuntimeRepository(context)

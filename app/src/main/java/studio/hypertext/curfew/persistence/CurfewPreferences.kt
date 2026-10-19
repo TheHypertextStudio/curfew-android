@@ -18,16 +18,23 @@ data class CurfewPreferenceState(
     val accountEnrolled: Boolean,
     val selectedCallbackId: String?,
     val accountSignedIn: Boolean,
-)
+    val verifiedCallbackId: String? = null,
+) {
+    fun isCallbackReady(callbackId: String): Boolean =
+        selectedCallbackId == callbackId && verifiedCallbackId == callbackId
+}
 
 class CurfewPreferences(private val context: Context) {
+    private val callbackSelection = CallbackSelectionPreferences(context.curfewPreferences)
+
     val state: Flow<CurfewPreferenceState> = context.curfewPreferences.data.map { preferences ->
         CurfewPreferenceState(
             primaryAlarmDeviceId = preferences[PRIMARY_DEVICE],
             readinessAcknowledged = preferences[READINESS_ACKNOWLEDGED] ?: false,
             testSoundCompleted = preferences[TEST_SOUND_COMPLETED] ?: false,
             accountEnrolled = preferences[ACCOUNT_ENROLLED] ?: false,
-            selectedCallbackId = preferences[SELECTED_CALLBACK],
+            selectedCallbackId = CallbackSelectionPreferences.decode(preferences).selectedCallbackId,
+            verifiedCallbackId = CallbackSelectionPreferences.decode(preferences).verifiedCallbackId,
             accountSignedIn = preferences[ACCOUNT_SIGNED_IN] ?: false,
         )
     }
@@ -53,10 +60,10 @@ class CurfewPreferences(private val context: Context) {
         context.curfewPreferences.edit { it[ACCOUNT_SIGNED_IN] = signedIn }
     }
 
-    suspend fun selectCallback(callbackId: String) {
-        require(callbackId.isNotBlank())
-        context.curfewPreferences.edit { it[SELECTED_CALLBACK] = callbackId }
-    }
+    suspend fun selectCallback(callbackId: String) = callbackSelection.select(callbackId)
+
+    suspend fun markCallbackVerifiedIfSelected(callbackId: String): Boolean =
+        callbackSelection.markVerifiedIfSelected(callbackId)
 
     suspend fun nextWriterCounter(): Long {
         var next = 0L
@@ -72,7 +79,6 @@ class CurfewPreferences(private val context: Context) {
         val READINESS_ACKNOWLEDGED = booleanPreferencesKey("readiness_acknowledged")
         val TEST_SOUND_COMPLETED = booleanPreferencesKey("test_sound_completed")
         val ACCOUNT_ENROLLED = booleanPreferencesKey("account_enrolled")
-        val SELECTED_CALLBACK = stringPreferencesKey("selected_callback")
         val WRITER_COUNTER = longPreferencesKey("device_writer_counter")
         val ACCOUNT_SIGNED_IN = booleanPreferencesKey("account_signed_in")
     }

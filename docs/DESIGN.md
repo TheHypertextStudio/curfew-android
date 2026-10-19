@@ -4,9 +4,9 @@ The Android companion uses stock Material 3 components with a restrained visual 
 
 ## Wake flow
 
-1. Configure a local wake time, selected devices, and optional generic callback.
+1. Choose one night or repeating weekdays and a local wake time. Save a trusted verifier condition, export its private setup, and verify its signed response before enabling Sunrise. Accounts and other devices are not required for P1.
 2. Complete readiness: exact-alarm access, notifications or lock-screen fallback, an audible alarm channel, a real test sound, and limitation acknowledgement.
-3. Arm a visible alarm-clock schedule.
+3. Save the schedule and show its next actual date and local time. Changes to future mornings do not dismiss an active occurrence.
 4. During ringing, show attempt and condition status plus only the callback-provided opaque action. There is no dismiss or snooze control.
 5. On a verified release or a fresh authorized override, release only the named devices immediately. Failed and unavailable checks leave the campaign active.
 

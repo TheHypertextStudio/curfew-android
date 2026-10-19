@@ -64,6 +64,16 @@ class AlarmReadinessEvaluatorTest {
         assertTrue(result.disclosures.contains(ReadinessDisclosure.OS_POWER_CONTROLS))
     }
 
+    @Test
+    fun `muted alarm volume requires a volume action instead of a channel repair`() {
+        val result = evaluator.evaluate(readyCapabilities().copy(alarmVolumeAudible = false))
+
+        assertFalse(result.canArm)
+        assertTrue(result.requiredActions.contains(ReadinessAction.RAISE_ALARM_VOLUME))
+        assertFalse(result.requiredActions.contains(ReadinessAction.REPAIR_ALARM_CHANNEL))
+        assertFalse(result.mayChangeSystemVolume)
+    }
+
     private fun readyCapabilities() = AlarmCapabilities(
         canScheduleExactAlarms = true,
         notificationsGranted = true,

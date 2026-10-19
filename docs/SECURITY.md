@@ -16,6 +16,8 @@ Callbacks use the generated protocol v2 definitions. Curfew derives independent 
 
 Every receipt is bound to one campaign and one nonce. The nonce is 128 bits of fresh randomness per poll and is checked within the request that issued it; there is no durable cross-poll replay ledger, so the security rests on that freshness plus the receipt lifetime ceiling rather than on persistent bookkeeping. Curfew rejects redirects, non-HTTPS endpoints, malformed bodies, invalid MACs, mismatched campaigns, future observations, stale observations, and expired receipts. Network failures stay pending.
 
+The owner can explicitly export the selected generated `CallbackDefinition` through Android’s document picker to provision a trusted verifier. That file contains the shared secret and must remain private. It is not exported automatically, logged, or copied to the clipboard. Saving a new condition clears its persisted verification marker. A signed setup exchange with a fresh non-persisted campaign UUID establishes readiness without releasing an alarm. The export and setup test do not require a Curfew account.
+
 The default poll interval is 15 seconds, the request timeout is 5 seconds, and transport backoff is capped at 60 seconds.
 
 ## Account encryption

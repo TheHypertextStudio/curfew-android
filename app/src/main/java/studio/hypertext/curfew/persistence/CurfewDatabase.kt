@@ -9,6 +9,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import kotlinx.coroutines.flow.Flow
 
 @Entity(tableName = "alarm_campaigns", primaryKeys = ["campaignId"])
 data class AlarmCampaignEntity(
@@ -51,11 +52,17 @@ interface AlarmCampaignDao {
     @Query("SELECT * FROM alarm_campaigns WHERE campaignId = :campaignId LIMIT 1")
     suspend fun find(campaignId: String): AlarmCampaignEntity?
 
+    @Query("SELECT * FROM alarm_campaigns WHERE campaignId = :campaignId LIMIT 1")
+    fun observe(campaignId: String): Flow<AlarmCampaignEntity?>
+
     @Query("SELECT * FROM alarm_campaigns WHERE state NOT IN ('satisfied', 'overridden') ORDER BY persistedAtWall")
     suspend fun pending(): List<AlarmCampaignEntity>
 
     @Query("DELETE FROM alarm_campaigns WHERE campaignId = :campaignId")
     suspend fun delete(campaignId: String)
+
+    @Query("DELETE FROM alarm_campaigns WHERE campaignId = :campaignId AND state = 'scheduled'")
+    suspend fun deleteScheduled(campaignId: String)
 }
 
 @Dao
