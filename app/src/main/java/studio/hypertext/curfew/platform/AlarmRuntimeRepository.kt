@@ -3,6 +3,7 @@ package studio.hypertext.curfew.platform
 import android.content.Context
 import android.os.SystemClock
 import android.provider.Settings
+import androidx.room.withTransaction
 import java.time.Duration
 import java.time.Instant
 import kotlinx.coroutines.Dispatchers
@@ -20,7 +21,8 @@ import studio.hypertext.curfew.persistence.CurfewDatabase
 
 class AlarmRuntimeRepository(context: Context) {
     private val appContext = context.applicationContext
-    private val dao = CurfewDatabase.open(appContext).alarmCampaignDao()
+    private val database = CurfewDatabase.open(appContext)
+    private val dao = database.alarmCampaignDao()
 
     suspend fun create(
         campaignId: String,
@@ -50,26 +52,36 @@ class AlarmRuntimeRepository(context: Context) {
         state: AlarmCampaignState,
         writerCounter: Long? = null,
         callbackId: String? = null,
-    ) =
-        withContext(Dispatchers.IO) {
+    ): AlarmCampaignState = withContext(Dispatchers.IO) {
+        database.withTransaction {
             val existing = dao.find(state.campaignId)
-            val existingCallbackId = callbackId ?: existing?.callbackId
+            val stored = existing?.let(::decode)
+            // Late network and lifecycle writes must not undo release or replay an earlier interval.
+            if (stored is AlarmCampaignState.Satisfied || stored is AlarmCampaignState.Overridden ||
+                (stored != null && state.progress() < stored.progress())
+            ) {
+                if (writerCounter != null && writerCounter > requireNotNull(existing).writerCounter) {
+                    dao.upsert(existing.copy(writerCounter = writerCounter))
+                }
+                return@withTransaction stored
+            }
             dao.upsert(
                 AlarmCampaignEntity(
                     campaignId = state.campaignId,
                     protocolJson = encode(state).toString(),
                     state = state.storageName(),
-                    // This legacy Room column remains only to read databases created by 0.2.
-                    // Long.MAX_VALUE means that persisted state has no release deadline.
+                    // This legacy column has no release-deadline authority in persistent campaigns.
                     finalDeadlineAt = Long.MAX_VALUE,
                     persistedAtWall = System.currentTimeMillis(),
                     persistedAtElapsed = SystemClock.elapsedRealtime(),
                     bootId = bootId(),
-                    writerCounter = writerCounter ?: existing?.writerCounter ?: 0,
-                    callbackId = existingCallbackId,
+                    writerCounter = maxOf(writerCounter ?: 0, existing?.writerCounter ?: 0),
+                    callbackId = callbackId ?: existing?.callbackId,
                 ),
             )
+            state
         }
+    }
 
     suspend fun pending(): List<AlarmCampaignState> = withContext(Dispatchers.IO) {
         dao.pending().map(::decode)
@@ -182,16 +194,11 @@ class AlarmRuntimeRepository(context: Context) {
         is AlarmCampaignState.Overridden -> "overridden"
     }
 
-    private fun AlarmCampaignState.campaignStart(): Instant = when (this) {
-        is AlarmCampaignState.Scheduled -> startsAt
-        is AlarmCampaignState.Ringing -> ringStartedAt.minus(
-            policy.ringDuration.plus(policy.quietDuration).multipliedBy((attempt - 1).toLong()),
-        )
-        is AlarmCampaignState.Quiet -> nextAttemptAt.minus(
-            policy.ringDuration.plus(policy.quietDuration).multipliedBy(completedAttempt.toLong()),
-        )
-        is AlarmCampaignState.Satisfied -> satisfiedAt
-        is AlarmCampaignState.Overridden -> overriddenAt
+    private fun AlarmCampaignState.progress(): Long = when (this) {
+        is AlarmCampaignState.Scheduled -> 0L
+        is AlarmCampaignState.Ringing -> attempt.toLong() * 2 - 1
+        is AlarmCampaignState.Quiet -> completedAttempt.toLong() * 2
+        is AlarmCampaignState.Satisfied, is AlarmCampaignState.Overridden -> Long.MAX_VALUE
     }
 
     private fun bootId(): String = "boot-${Settings.Global.getInt(

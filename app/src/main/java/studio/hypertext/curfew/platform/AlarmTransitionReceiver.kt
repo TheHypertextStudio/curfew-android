@@ -33,8 +33,7 @@ class AlarmTransitionReceiver : BroadcastReceiver() {
     private suspend fun transition(context: Context, campaignId: String) {
         val repository = AlarmRuntimeRepository(context)
         val previous = repository.load(campaignId) ?: return
-        val current = AlarmCampaignEngine().advanceTo(previous, Instant.now())
-        repository.save(current)
+        val current = repository.save(AlarmCampaignEngine().advanceTo(previous, Instant.now()))
         WakeStatusPublisher(context).publish(current, transitionInstant(current))
         val gateway = AndroidAlarmClockGateway(context)
         when (current) {
@@ -57,13 +56,11 @@ class AlarmTransitionReceiver : BroadcastReceiver() {
                 gateway.setAlarmClock(campaignId, current.ringEndsAt)
             }
             is AlarmCampaignState.Quiet -> {
-                context.stopService(PerpetualAlarmService.stopIntent(context, campaignId))
                 gateway.setAlarmClock(campaignId, current.nextAttemptAt)
             }
             is AlarmCampaignState.Overridden,
             is AlarmCampaignState.Satisfied,
             -> {
-                context.stopService(PerpetualAlarmService.stopIntent(context, campaignId))
                 gateway.cancel(campaignId)
                 CallbackPollScheduler.cancel(context, campaignId)
             }

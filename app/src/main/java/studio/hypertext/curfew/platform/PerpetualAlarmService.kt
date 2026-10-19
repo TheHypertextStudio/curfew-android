@@ -81,7 +81,7 @@ class PerpetualAlarmService : Service() {
                         Instant.now(),
                         SystemClock.elapsedRealtime(),
                         repository.currentBootId(),
-                    )?.also { repository.save(it) }
+                    )?.let { repository.save(it) }
                 }
                 val gateway = AndroidAlarmClockGateway(this@PerpetualAlarmService)
                 val boundary = when (state) {

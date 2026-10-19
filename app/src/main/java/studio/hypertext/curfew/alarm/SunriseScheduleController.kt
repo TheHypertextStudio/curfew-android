@@ -64,8 +64,13 @@ class SunriseScheduleController(
             // A committed occurrence with missing runtime must be reconstructed, not skipped.
             runtime.phase(it.campaignId) ?: SunriseOccurrencePhase.SCHEDULED
         }
+        val sameAlarm = previous?.schedule?.id == schedule.id
+        val previousOccurrence = previous?.occurrence?.takeUnless {
+            !sameAlarm && phase == SunriseOccurrencePhase.FINISHED
+        }
         val plan = SunriseSchedulePlanner().plan(
-            schedule, now, zone, previous?.occurrence, phase, previous?.completedThrough,
+            schedule, now, zone, previousOccurrence, phase,
+            previous?.completedThrough?.takeIf { sameAlarm },
         )
         val next = SavedSunriseAlarm(schedule, plan.occurrence, plan.completedThrough)
         if (requireOccurrence && schedule.enabled) {

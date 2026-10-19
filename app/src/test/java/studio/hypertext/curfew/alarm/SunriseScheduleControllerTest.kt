@@ -194,6 +194,32 @@ class SunriseScheduleControllerTest {
         assertEquals(previous, store.value)
     }
 
+    @Test
+    fun `a different alarm does not inherit a completed alarms date`() = runBlocking {
+        val once = schedule.copy(onceDate = occurrence.localDate, weekdays = emptySet())
+        store.value = SavedSunriseAlarm(once, null, completedThrough = occurrence.localDate)
+        val replacement = once.copy(id = "alarm-2", wakeTime = LocalTime.of(8, 0))
+
+        val saved = controller.save(replacement, now, zone)
+
+        assertEquals(occurrence.localDate, saved.occurrence?.localDate)
+        assertNull(saved.completedThrough)
+        assertEquals(replacement.nextOccurrence(now, zone), saved.occurrence)
+    }
+
+    @Test
+    fun `a different alarm ignores an unconsumed finished occurrence`() = runBlocking {
+        val once = schedule.copy(onceDate = occurrence.localDate, weekdays = emptySet())
+        store.value = SavedSunriseAlarm(once, occurrence)
+        runtime.phases[occurrence.campaignId] = SunriseOccurrencePhase.FINISHED
+        val replacement = once.copy(id = "alarm-2", wakeTime = LocalTime.of(8, 0))
+
+        val saved = controller.save(replacement, now, zone)
+
+        assertEquals(replacement.nextOccurrence(now, zone), saved.occurrence)
+        assertNull(saved.completedThrough)
+    }
+
     private fun initial(): SavedSunriseAlarm {
         val value = SavedSunriseAlarm(schedule, occurrence)
         store.value = value

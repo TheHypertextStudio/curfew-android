@@ -40,8 +40,7 @@ class AlarmRecoveryReceiver : BroadcastReceiver() {
         val nowElapsed = SystemClock.elapsedRealtime()
         val bootId = repository.currentBootId()
         repository.pendingSnapshots().forEach { snapshot ->
-            val state = planner.recover(snapshot, nowWall, nowElapsed, bootId)
-            repository.save(state)
+            val state = repository.save(planner.recover(snapshot, nowWall, nowElapsed, bootId))
             val next = when (state) {
                 is AlarmCampaignState.Scheduled -> state.startsAt
                 // BOOT_COMPLETED cannot directly launch a media-playback FGS on Android 15+.
