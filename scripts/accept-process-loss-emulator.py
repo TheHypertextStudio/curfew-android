@@ -56,13 +56,21 @@ def wait_for(description, predicate, timeout=45):
 
 
 def main():
-    global ALARM_UID
-    require(b"Sunrise_API36" in call("emu", "avd", "name"), "The owned AVD is required")
+    global ALARM_UID, OUTPUT
+    require(sys.argv[1:] in [[], ["--api33"]], "Supported option: --api33")
+    api = 33 if sys.argv[1:] else 36
+    cadence.SERIAL = "emulator-5558" if api == 33 else "emulator-5554"
+    if api == 33:
+        OUTPUT = Path("build/sunrise-evidence/process-loss-api33")
+    require(call("emu", "avd", "name").decode().splitlines()[0].strip() == f"Sunrise_API{api}", "The matching owned AVD is required")
     require(call("shell", "getprop", "ro.kernel.qemu").strip() == b"1", "A disposable emulator is required")
     ALARM_UID = call("shell", "run-as", PACKAGE, "id", "-u").decode().strip()
     require(ALARM_UID.isdigit(), "Expected the installed application UID")
     OUTPUT.mkdir(parents=True, exist_ok=True)
     (OUTPUT / "result.json").unlink(missing_ok=True)
+    apk_path = call("shell", "pm", "path", PACKAGE).decode().strip().removeprefix("package:")
+    require(apk_path.startswith("/data/app/") and apk_path.endswith("/base.apk"), "Expected one installed APK")
+    (OUTPUT / "installed-apk.txt").write_bytes(call("shell", "sha256sum", apk_path))
     prepared = False
     try:
         print("Step 1: Save an actual alarm and let instrumentation finish before delivery.", flush=True)
@@ -79,8 +87,13 @@ def main():
         boundary = datetime.fromisoformat(before["ringEndsAt"].replace("Z", "+00:00"))
         require((boundary - datetime.now(timezone.utc)).total_seconds() > 60, "Too little time remains to prove sticky recovery")
         print("Step 2: Kill the actual playback PID " + old_pid + ".", flush=True)
+        process_status = call("shell", "cat", "/proc/" + old_pid + "/status").decode()
+        require(re.search(r"^Uid:\s+" + ALARM_UID + r"\s", process_status, re.MULTILINE) is not None,
+                "The target PID must still belong to Curfew")
         killed_at = time.monotonic()
-        call("shell", "run-as", PACKAGE, "kill", "-9", old_pid)
+        # API33 denies runas_app signals to the app. Root is confined to the guarded AVD.
+        signal_context = ("su", "0") if api == 33 else ("run-as", PACKAGE)
+        call("shell", *signal_context, "kill", "-9", old_pid)
         wait_for("a replacement process and active alarm audio", lambda: pid() != old_pid and audio_active())
         new_pid = pid()
         after = snapshot(fixture["campaignId"])

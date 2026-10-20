@@ -22,6 +22,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -29,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.time.DayOfWeek
 import java.time.LocalTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.time.format.TextStyle
@@ -121,7 +123,12 @@ internal fun SunriseDailyScreen(
                     Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         Box(Modifier.weight(1f).heightIn(min = 48.dp).clickable(role = Role.Button, onClick = onEdit)
-                            .semantics { contentDescription = "Edit Sunrise" }) {
+                            .semantics {
+                                contentDescription = "Edit Sunrise"
+                                alarm.occurrence?.startsAt?.atZone(ZoneId.systemDefault())?.let { occurrence ->
+                                    stateDescription = "${occurrence.toLocalDate().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale))}, ${timeLabel(occurrence.toLocalTime(), context, locale)}"
+                                }
+                            }) {
                             DailyAlarmTime(saved.wakeTime, DateFormat.is24HourFormat(context), locale, Modifier.fillMaxWidth())
                         }
                         if (!complete) Switch(

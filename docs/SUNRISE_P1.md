@@ -7,6 +7,10 @@ Status: Local implementation and acceptance testing continue. No P1 task is acce
 
 ## Current acceptance boundary
 
+Use [the requirement-by-requirement acceptance record](P1_ACCEPTANCE.md)
+to assess the four feature tasks. The chronological entries below retain
+historical failures and their candidate boundaries.
+
 The four P1 tasks remain unaccepted. The application candidate is `204cfbf`.
 Both distributions pass 181 host tests, app/test APK builds, and Android lint.
 The corrected plain API33 suite passes 115 reported cases in 163.046s; the
@@ -29,13 +33,11 @@ below retains its exact candidate boundary. The 65-minute Doze observation
 on runtime `843ac01` completed with first-attempt audio and successful cleanup;
 it is not a still-running job or physical speaker evidence.
 
-CI run `39434561792` for `204cfbf` is terminal. Both verification jobs,
-release evidence, and API35 instrumentation passed. API33, API34, and API36
-exhausted the five-minute suite limit at cases 104, 111, and 103 of 115,
-respectively. Their partial output reported no assertion failures. CI now
-allows ten minutes for the complete expanded suite; a fresh run must still
-pass. The earlier `9ec905b` timeout remains failed, and the previous
-`c83bb57` matrix passed all four APIs.
+CI runs `39436437575` (`21f3c9e`) and `39437430362` (`07ceb3f`) now pass
+every job, including both verification variants, release evidence, and
+API33/34/35/36 instrumentation. Earlier five-minute timeouts remain failed
+historical results. The new accessibility change requires its own final
+verification; the final-runtime standby observation is still live.
 
 Physical Pixel/non-Pixel acceptance, actual speaker hearing, manufacturer
 behavior, and Docket publication remain open. October 20 local and

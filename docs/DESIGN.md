@@ -88,6 +88,12 @@ survives the editor's saved state and does not add another visible control.
 Ordinary form actions follow their fields. The ringing screen keeps its
 separate action area. The review page has no empty notes column.
 
+The editable daily time exposes the stored occurrence's local date and time
+as its accessibility state. Use the occurrence instant rather than the
+editable schedule time because an active occurrence or a DST adjustment can
+differ from future settings. The weekly surface keeps its visual day markers;
+this accessibility value adds no visible date label or extra row.
+
 
 The device-limit acknowledgement tells the owner to unlock the phone after
 restarting. This is an observed alarm availability limit, not explanatory

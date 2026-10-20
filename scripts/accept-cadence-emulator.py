@@ -4,6 +4,7 @@ from pathlib import Path
 import json
 import shutil
 import subprocess
+import sys
 import time
 
 ADB = shutil.which("adb") or str(Path.home() / "Library/Android/sdk/platform-tools/adb")
@@ -41,12 +42,21 @@ def require(condition, message):
 
 
 def main():
-    require(b"Sunrise_API36" in call("emu", "avd", "name"), "The owned AVD is required")
+    global SERIAL, OUTPUT
+    require(sys.argv[1:] in [[], ["--api33"]], "Supported option: --api33")
+    api = 33 if sys.argv[1:] else 36
+    SERIAL = "emulator-5558" if api == 33 else "emulator-5554"
+    if api == 33:
+        OUTPUT = Path("build/sunrise-evidence/cadence-offline-api33")
+    require(call("emu", "avd", "name").decode().splitlines()[0].strip() == f"Sunrise_API{api}", "The matching owned AVD is required")
     require(call("shell", "getprop", "ro.kernel.qemu").strip() == b"1", "A disposable emulator is required")
     original = {name: call("shell", "settings", "get", "global", name).decode().strip()
                 for name in ["airplane_mode_on", "wifi_on", "mobile_data"]}
     OUTPUT.mkdir(parents=True, exist_ok=True)
     (OUTPUT / "original-network.json").write_text(json.dumps(original, indent=2))
+    apk_path = call("shell", "pm", "path", PACKAGE).decode().strip().removeprefix("package:")
+    require(apk_path.startswith("/data/app/") and apk_path.endswith("/base.apk"), "Expected one installed APK")
+    (OUTPUT / "installed-apk.txt").write_bytes(call("shell", "sha256sum", apk_path))
     try:
         print("Step 1: Disconnect the owned emulator.", flush=True)
         call("shell", "cmd", "connectivity", "airplane-mode", "enable")

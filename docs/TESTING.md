@@ -462,3 +462,38 @@ journey passed on the owned API33 emulator in 6.004s for Plain and 6.036s
 for GMS. The driver restored the Plain app and test APK afterward. These
 observations do not replace physical hearing or current-platform lifecycle
 acceptance. The final-runtime Doze driver on API36 remained untouched.
+
+## Exact occurrence information for assistive technology
+
+`SunriseDailyLayoutInstrumentedTest#editableTimeExposesTheActualOccurrenceWithoutAnotherVisibleDateLabel`
+first failed because the editable time had no occurrence accessibility state.
+It now exposes the stored occurrence's local date and time on that same
+control. The test intentionally gives future settings and the stored
+occurrence different times, then requires the stored value and no extra
+visible date label. This covers an edited future schedule or a DST-adjusted
+occurrence without adding another row. The focused installed test passes
+in 1.362s. Both distributions pass 181 host tests, app/test builds, and lint.
+
+`scripts/accept-process-loss-emulator.py --api33` uses only the owned API33
+AVD at `emulator-5558` and records its installed APK digest. API33's run-as
+security context denied the signal, so that preset uses the disposable AVD's
+existing root shell after checking the exact target PID and app UID. This
+does not add a production permission or change SELinux. The observed kill
+of PID4993 restored playback in PID5092 in 1.632s with unchanged occurrence,
+attempt, and ringing bounds. Android logged the crashed-service restart;
+active audio and scoped cleanup passed. The default API36 preset retains
+its original signal path. The API36 standby observation remained untouched.
+
+The complete API33 Plain suite after the accessibility change passed 117
+reported cases in 163.524s. The captured light/normal and dark/large daily
+screens retain the compact composition without an extra date row.
+
+`scripts/accept-cadence-emulator.py --api33` then passed the real offline
+cadence on the corrected notification runtime in 185.338s. The first ring
+began at 14:28:36.884839 UTC; quiet began at the original two-minute boundary;
+the second attempt began at 14:31:36.884839 with the same occurrence ID.
+Actual alarm-track states were on/off/on and no active default network was
+available throughout. The driver removed the scoped fixture and restored
+airplane mode off, Wi-Fi on, and mobile data on. It records the installed
+APK digest. The default API36 driver remains available, and its live
+standby observation was not modified by this API33 run.

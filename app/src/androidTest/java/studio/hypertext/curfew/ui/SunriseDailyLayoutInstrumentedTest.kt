@@ -12,6 +12,9 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -24,6 +27,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.test.platform.app.InstrumentationRegistry
 import java.time.DayOfWeek
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
@@ -47,7 +51,7 @@ class SunriseDailyLayoutInstrumentedTest {
     private val locale = context.resources.configuration.locales[0]
     private val wakeTime = LocalTime.of(7, 0)
 
-    private fun show(fontScale: Float, nextDate: LocalDate? = null, onceDate: LocalDate? = null, width: Int = 320, height: Int? = null, canArm: Boolean = true) {
+    private fun show(fontScale: Float, nextDate: LocalDate? = null, onceDate: LocalDate? = null, width: Int = 320, height: Int? = null, canArm: Boolean = true, occurrenceAt: Instant? = null) {
         scale.floatValue = fontScale
         compose.setContent {
             val density = LocalDensity.current
@@ -56,7 +60,7 @@ class SunriseDailyLayoutInstrumentedTest {
                     Box(Modifier.testTag("daily-fixture").width(width.dp).then(if (height == null) Modifier.fillMaxHeight() else Modifier.height(height.dp))) {
                         SunriseDailyScreen(
                             alarm = SavedSunriseAlarm(SunriseSchedule("layout-alarm", wakeTime, onceDate, if (onceDate == null) DayOfWeek.entries.take(5).toSet() else emptySet(), true, "check-in"),
-                                nextDate?.let { SunriseOccurrence("layout-occurrence", it, it.atTime(wakeTime).atZone(ZoneId.systemDefault()).toInstant()) }),
+                                nextDate?.let { SunriseOccurrence("layout-occurrence", it, occurrenceAt ?: it.atTime(wakeTime).atZone(ZoneId.systemDefault()).toInstant()) }),
                             conditionLabel = "Morning check-in", conditionVerified = true,
                             canArm = canArm, busy = false, error = null,
                             onEdit = {}, onCheckIn = {}, onSetup = {}, onToggle = {},
@@ -65,6 +69,17 @@ class SunriseDailyLayoutInstrumentedTest {
                 }
             }
         }
+    }
+
+    @Test fun editableTimeExposesTheActualOccurrenceWithoutAnotherVisibleDateLabel() {
+        val date = LocalDate.now(ZoneId.systemDefault()).plusDays(3)
+        val actualTime = LocalTime.of(8, 15)
+        show(1f, nextDate = date, occurrenceAt = date.atTime(actualTime).atZone(ZoneId.systemDefault()).toInstant())
+        val formattedDate = date.format(DateTimeFormatter.ofLocalizedDate(java.time.format.FormatStyle.MEDIUM).withLocale(locale))
+        compose.onNodeWithContentDescription("Edit Sunrise").assert(SemanticsMatcher.expectValue(
+            SemanticsProperties.StateDescription, "$formattedDate, ${timeLabel(actualTime, context, locale)}",
+        ))
+        compose.onNodeWithText(formattedDate).assertDoesNotExist()
     }
 
     @Test fun enabledAlarmReportsAttentionWhenReadinessIsLost() {
