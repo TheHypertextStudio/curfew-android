@@ -42,7 +42,9 @@ class SunriseReleaseJourneyInstrumentedTest {
             if (condition()) return
             Thread.sleep(100)
         }
-        error("Timed out: $description")
+        error("Timed out: $description; pending=${runtime.pending()}; " +
+            "notification=${ringingNotification()}; alarmAudio=${alarmAudioIsActive()}; " +
+            "exactAccess=${AndroidAlarmClockGateway(context).canScheduleExactAlarms()}")
     }
 
     private fun ringingNotification() = context.getSystemService(NotificationManager::class.java)

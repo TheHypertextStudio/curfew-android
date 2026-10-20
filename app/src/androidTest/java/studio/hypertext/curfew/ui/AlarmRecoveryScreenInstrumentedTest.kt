@@ -10,6 +10,10 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.input.InputModeManager
+import androidx.compose.ui.platform.LocalInputModeManager
+import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -28,6 +32,7 @@ import studio.hypertext.curfew.ui.theme.CurfewTheme
 class AlarmRecoveryScreenInstrumentedTest {
     @get:Rule val compose = createComposeRule()
     private lateinit var activity: Activity
+    private lateinit var inputMode: InputModeManager
     private val startedAt = AtomicLong()
     private val confirmedAt = AtomicLong()
     private val starts = AtomicInteger()
@@ -38,6 +43,7 @@ class AlarmRecoveryScreenInstrumentedTest {
     private fun show(credentialAvailable: Boolean = true, owner: LifecycleOwner? = null) {
         compose.setContent {
             activity = requireNotNull(LocalActivity.current)
+            inputMode = LocalInputModeManager.current
             CompositionLocalProvider(LocalLifecycleOwner provides (owner ?: LocalLifecycleOwner.current)) {
             CurfewTheme {
                 AlarmRecoveryScreen(
@@ -113,7 +119,14 @@ class AlarmRecoveryScreenInstrumentedTest {
     fun aHeldKeyboardKeyCannotRestartConfirmationThroughAutoRepeat() {
         show()
         compose.onNodeWithText("What happened?").performTextInput(reason)
-        compose.onNodeWithText("Hold for 3 seconds").performSemanticsAction(SemanticsActions.RequestFocus) { it() }
+        compose.runOnUiThread {
+            inputMode.requestInputMode(InputMode.Touch)
+            assertTrue("The keyboard fixture must leave touch mode", inputMode.requestInputMode(InputMode.Keyboard))
+        }
+        compose.onNodeWithText("Hold for 3 seconds").performSemanticsAction(SemanticsActions.RequestFocus) {
+            assertTrue("The confirmation button must accept keyboard focus", it())
+        }
+        compose.onNodeWithText("Hold for 3 seconds").assertIsFocused()
         compose.waitForIdle()
         val downAt = SystemClock.uptimeMillis()
         try {

@@ -304,3 +304,42 @@ the plain instrumentation APK pass (`density-green-build.txt`, 52s).
 The change affects presentation only; rollback restores the previous sizing.
 The full CI rerun at `66f6490` completed with failure. This focused local
 spacing verification does not resolve those failures or establish P1 acceptance.
+
+
+## October 20 real process loss
+
+The complete default installed plain suite passes on the owned API36 emulator
+(86 reported cases, 105.854s, `current-full-installed.txt`). Opt-in physical-keyguard
+and long-cadence cases remain skipped in that run; their dedicated evidence is
+separate. The remote full-image matrix at `66f6490` still fails. API34/35 fail the
+held-key fixture, while API33/36 also fail the combined alarm-delivery predicate.
+API33 reports delayed transition and completion fixtures. Local success does
+not close those CI failures.
+
+A separate external driver now kills the actual foreground playback process
+with SIGKILL after instrumentation has ended and Android has delivered the saved
+alarm. The first accepted observation replaces PID 15247 with 15352 in 5.639s.
+The same occurrence keeps attempt 1 and the exact 08:41:52.253336–08:43:52.253336
+UTC ringing interval on October 20. Android reports the process death, crashed
+service restart, and replacement service process. Alarm audio is active again
+before the original boundary. A second observation also passes with fresh PIDs.
+This proves actual process-loss recovery rather than an injected restart.
+It does not establish physical speaker output, reboot, or force-stop recovery.
+
+The driver and native fixture add acceptance evidence only. No production code
+changes for this check. Both instrumentation APKs and both Android lint variants
+pass (`process-loss-checks.txt`, 24s). Native prepare and scoped cleanup each
+pass. [Testing instructions](TESTING.md#actual-process-loss-acceptance) describe
+the device guard, state comparison, and cleanup. Rollback removes the opt-in
+fixture and driver without changing saved production behavior.
+
+
+Final process-loss tooling verification passes with PID 16329 replaced by
+16394 in 1.772s. Both test APKs and both Android lint variants pass again after
+the fixture corrections (`recovery-fixture-checks.txt`, 24s). Recovery, real
+HTTPS release, late-transition isolation, and completion continuation pass
+again in ten installed cases (`recovery-fixture-installed.txt`, 25.796s).
+The keyboard fixture now requires keyboard input mode and verifies focus;
+its remote effect is unproven. Delivery timeouts report their component states.
+Read-only ADB inventories on the local host and WillieStudio show emulators
+only. No physical Pixel or non-Pixel result is inferred from that inventory.

@@ -53,3 +53,36 @@ The daily density regression first fails with the previous time sizing at
 This is a visual grouping constraint, not a limit on enlarged-text height.
 Run the whole `SunriseDailyLayoutInstrumentedTest` class and
 `CurfewDesignCaptureInstrumentedTest#captureDaily` after changing its spacing.
+
+
+## Actual process-loss acceptance
+
+Run `python3 -B scripts/accept-process-loss-emulator.py` only after installing
+the plain debug application and instrumentation APK on the owned `Sunrise_API36`
+AVD at `emulator-5554`. The driver refuses other AVDs and real devices.
+The opt-in native fixture refuses existing pending or upcoming alarms, validates
+its loopback verifier, closes that verifier, and saves a one-night alarm ten
+seconds ahead. Instrumentation ends before Android delivers the alarm.
+
+The external driver observes the application's active alarm audio, reads the
+stored occurrence through a temporary Room database snapshot, and sends SIGKILL
+to that exact application PID. It requires a different process, foreground
+playback, active alarm audio, and Android's crashed-service restart record.
+The occurrence ID, attempt, and ringing boundaries must remain unchanged.
+Recovery must happen before the original two-minute boundary. Native cleanup
+removes only the controlled occurrence and callback. The script does not use
+force-stop, shorten the cadence, or grant a new production capability.
+
+Evidence lives in `build/sunrise-evidence/process-loss/`. This establishes an
+installed emulator observation, not a manufacturer's battery policy or physical
+speaker acceptance. The default suite skips this opt-in fixture.
+
+
+The held-key recovery fixture explicitly requests keyboard input mode and
+asserts focus before dispatching Enter. A semantic focus request from touch mode
+is not evidence of a physical keyboard path. The initial key, repeat, release,
+and three-second checks remain unchanged. The release journey's timeout now
+reports pending state, notification presence, observed alarm audio, and exact
+alarm access separately so a compound predicate does not hide the failed stage.
+The corrected recovery and delivery fixtures pass locally in ten cases
+(25.796s). Their remote result still requires CI.

@@ -142,6 +142,38 @@ class PersistentCadenceJourneyInstrumentedTest {
         }
     }
 
+    @Test fun prepareProcessLossFixture(): Unit = runBlocking {
+        requireOptIn()
+        assertTrue("The fixture must not replace a pending alarm", runtime.pending().isEmpty())
+        val previous = scheduler.state.first()
+        assertTrue("The fixture must not replace a saved upcoming alarm", previous?.occurrence == null || !previous.schedule.enabled)
+        shell("pm grant ${context.packageName} android.permission.POST_NOTIFICATIONS")
+        shell("appops set ${context.packageName} SCHEDULE_EXACT_ALARM allow")
+        CurfewPreferences(context).apply { acknowledgeLimitations(); setTestSoundConfirmed(true) }
+        val setup = AndroidWakeConditionSetup(context)
+        var callbackId: String? = null
+        var campaignId: String? = null
+        try {
+            val definition = LocalHttpsVerifier().use { verifier ->
+                setup.save("Process recovery fixture", verifier.endpoint, null).also {
+                    callbackId = it.callbackId
+                    verifier.definition = it
+                    assertTrue(setup.verify(it.callbackId))
+                }
+            }
+            val start = Instant.now().plusSeconds(10).atZone(ZoneOffset.UTC)
+            val scheduleId = "cadence-process-loss-${UUID.randomUUID()}"
+            val saved = scheduler.save(SunriseSchedule(scheduleId, start.toLocalTime(), start.toLocalDate(), emptySet(), true, definition.callbackId), zone = ZoneOffset.UTC)
+            campaignId = requireNotNull(saved.occurrence).campaignId
+            marker.writeText(JSONObject().put("scheduleId", scheduleId).put("campaignId", campaignId)
+                .put("callbackId", definition.callbackId).put("startsAt", start.toInstant().toString()).toString())
+            // Return before delivery so the external driver can kill the real service process.
+        } catch (failure: Throwable) {
+            cleanup(campaignId, callbackId)
+            throw failure
+        }
+    }
+
     @Test fun cleanupInterruptedFixture(): Unit = runBlocking {
         requireOptIn()
         if (!marker.exists()) return@runBlocking
