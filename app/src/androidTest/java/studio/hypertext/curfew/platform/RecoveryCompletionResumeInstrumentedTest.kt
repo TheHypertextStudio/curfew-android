@@ -38,7 +38,7 @@ class RecoveryCompletionResumeInstrumentedTest {
     fun terminalAlarmTransitionFinishesInterruptedRecoveryAndSchedulesTheNextMorning() = runBlocking {
         shell("pm grant ${context.packageName} android.permission.POST_NOTIFICATIONS")
         shell("appops set ${context.packageName} SCHEDULE_EXACT_ALARM allow")
-        CurfewPreferences(context).apply { acknowledgeLimitations(); recordTestSound() }
+        CurfewPreferences(context).apply { acknowledgeLimitations(); setTestSoundConfirmed(true) }
         LocalHttpsVerifier().use { verifier ->
             val setup = AndroidWakeConditionSetup(context)
             val definition = setup.save("Recovery continuation fixture", verifier.endpoint, null)

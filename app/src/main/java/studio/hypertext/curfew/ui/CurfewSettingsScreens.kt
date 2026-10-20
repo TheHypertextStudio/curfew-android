@@ -82,6 +82,9 @@ internal fun AlarmReadinessScreen(
             null -> "Done" to onDone
         }
         Button(onClick = callback, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text(label) }
+        if (ReadinessAction.PLAY_TEST_SOUND !in readiness.requiredActions) {
+            TextButton(onClick = onPlayTestSound, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Test alarm sound") }
+        }
     }
 }
 

@@ -2,7 +2,6 @@ package studio.hypertext.curfew
 
 import android.Manifest
 import android.content.Intent
-import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
@@ -33,6 +32,10 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
+import studio.hypertext.curfew.platform.AndroidAlarmSoundPreview
+import studio.hypertext.curfew.readiness.AlarmSoundCheck
+import studio.hypertext.curfew.ui.AlarmSoundCheckDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import studio.hypertext.curfew.callback.CallbackConfigurationRepository
@@ -62,6 +65,11 @@ import studio.hypertext.curfew.protocols.CallbackDefinition
 
 class MainActivity : ComponentActivity() {
     private lateinit var preferences: CurfewPreferences
+    private val soundPreview by lazy { AndroidAlarmSoundPreview(this) }
+    private val soundCheck by lazy {
+        AlarmSoundCheck(soundPreview::play, soundPreview::stop) { preferences.setTestSoundConfirmed(true) }
+    }
+    private var testSoundJob: Job? = null
     private var capabilityEpoch by mutableIntStateOf(0)
     private var accountRecoveryState by mutableStateOf<AccountRecoveryState?>(null)
     private val sunrise by lazy { SunriseScheduler(this) }
@@ -193,6 +201,12 @@ class MainActivity : ComponentActivity() {
                 }
             }
             CurfewTheme {
+                val soundCheckState = soundCheck.state.collectAsStateWithLifecycle().value
+                AlarmSoundCheckDialog(soundCheckState,
+                    onConfirm = { lifecycleScope.launch { soundCheck.confirm() } },
+                    onReplay = ::playTestSound,
+                    onCancel = ::cancelTestSound,
+                )
                 if (!requestedAlarmLoaded) {
                     Surface { Text("Loading Sunrise…") }
                 } else if (showAlarm && recoveryVisible) {
@@ -375,6 +389,11 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onStop() {
+        cancelTestSound()
+        super.onStop()
+    }
+
     override fun onDestroy() {
         if (ownerRecoveryDelegate.isInitialized()) ownerRecovery.close()
         super.onDestroy()
@@ -482,11 +501,14 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun playTestSound() {
-        val uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
-        val ringtone = RingtoneManager.getRingtone(this, uri)
-        ringtone.play()
-        window.decorView.postDelayed({ ringtone.stop() }, 2_000)
-        lifecycleScope.launch { preferences.recordTestSound() }
+        testSoundJob?.cancel()
+        testSoundJob = lifecycleScope.launch { soundCheck.play() }
+    }
+
+    private fun cancelTestSound() {
+        testSoundJob?.cancel()
+        testSoundJob = null
+        soundCheck.close()
     }
 
     private fun saveSunrise(schedule: SunriseSchedule) {

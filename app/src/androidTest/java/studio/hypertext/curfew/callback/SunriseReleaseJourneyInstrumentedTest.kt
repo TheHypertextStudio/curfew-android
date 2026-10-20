@@ -58,7 +58,7 @@ class SunriseReleaseJourneyInstrumentedTest {
         val preferences = CurfewPreferences(context)
         // These fixtures satisfy stored readiness only; this emulator test cannot establish physical sound.
         preferences.acknowledgeLimitations()
-        preferences.recordTestSound()
+        preferences.setTestSoundConfirmed(true)
         val setup = AndroidWakeConditionSetup(context)
         var campaignId: String? = null
         var callbackId: String? = null

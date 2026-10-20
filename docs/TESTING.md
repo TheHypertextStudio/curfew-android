@@ -24,9 +24,7 @@ Compose light/dark roles rather than inspecting token source alone.
 `AlarmRecoveryScreenInstrumentedTest` measures accessible confirmation with
 elapsed time. Waiting for Compose idle can itself exceed three seconds, so
 an assertion after that wait cannot prove that confirmation was immediate.
-Foreground cancellation, physical key repeat, and the native credential
-handoff remain acceptance gaps. The screen is not connected to alarm release
-until those authorization and lifecycle paths are implemented and verified.
+Native credential success and cancellation now have separate controlled-emulator evidence below. Physical key repeat and physical-device acceptance remain open. The recovery screen is connected to the authenticated local release path.
 
 
 The consumer destinations use `CurfewAppNavigationInstrumentedTest.destinationsExposeTheirNamesToAssistiveTechnology` to check pane titles and heading semantics without duplicate visible headings. Its installed red run found the missing Sunrise pane title. Navigation, form retry, draft handling, and seven recovery input cases passed in that run. Capture fixtures cover the native light/dark, narrow-width, enlarged-text, and keyboard layouts; their images require visual review rather than an automatic design-quality claim.
@@ -40,3 +38,7 @@ The consumer destinations use `CurfewAppNavigationInstrumentedTest.destinationsE
 The real credential fixture now passes both cases on the controlled API36 emulator in `credential-journey-back-navigation.txt`: authenticated override/audit/audio stop and native cancellation with continuing audio/no audit. This is native emulator evidence, not physical speaker or device acceptance. The script clears its PIN and cycles the screen before dismissing the keyguard so subsequent ordinary UI tests start unlocked. The installed notification and interrupted-recovery continuation cases pass in `daily-notification-resume-green.txt`; only the then-current text-layout cases failed in that run.
 
 `SunriseDailyLayoutInstrumentedTest` covers narrow large-text day separation, text allocation, clock formatting, omission of redundant recurring dates, preservation of a one-night date, and proximity between the schedule and check-in. `CurfewDesignCaptureInstrumentedTest#captureDaily` supplies eight native light/dark, 320/390dp, 100/200% fixtures for visual review.
+
+`AlarmSoundCheckTest` covers the six sound-confirmation rules. `SoundConfirmationPreferencesInstrumentedTest` checks that an old automatic playback flag cannot satisfy hearing confirmation. `AlarmSoundCheckJourneyInstrumentedTest` uses the real activity and alarm audio stream to verify explicit confirmation, replay, cancellation, and background cleanup. `AlarmSoundCheckDialogInstrumentedTest` checks text allocation and captures both themes at 100/200% text for confirmation, playback failure, and storage failure. See [SOUND_CHECK.md](SOUND_CHECK.md).
+
+Sound-dialog captures assert `TextLayoutResult.layoutInput.density.fontScale` against the device configuration. Run them under actual normal and narrow/enlarged-text device profiles; a local density wrapper does not establish dialog scale coverage. `setupHeaderStaysWithinOneToolbarLine` catches a long task title painting into setup content. The real activity fixture grants its own exact-alarm and notification preconditions, then recreates the activity, so it does not depend on earlier tests granting access.

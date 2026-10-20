@@ -9,6 +9,7 @@ import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
@@ -97,7 +98,7 @@ fun CurfewApp(
                     if (destination == "daily") Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         CurfewHorizonMark()
                         Text(title, style = MaterialTheme.typography.headlineSmall)
-                    } else Text(title, modifier = Modifier.semantics { heading() })
+                    } else Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.semantics { heading() })
                 },
                 navigationIcon = {
                     if (destination != "daily") IconButton(onClick = { back() }) {
