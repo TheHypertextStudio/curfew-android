@@ -114,6 +114,60 @@ battery reporting, and the awake screen, then removes the controlled fixture.
 This is emulator acceptance; physical sleep, speaker output, and manufacturer
 policy remain separate.
 
+## Secure lock-screen presentation
+
+Run `python3 -B scripts/accept-presentation-emulator.py` only on the owned
+`Sunrise_API33` AVD at `emulator-5558`. The driver requires an awake,
+credential-free emulator, installs a temporary fixture PIN, saves an alarm
+90 seconds ahead, ends instrumentation, and sleeps the display. It requires
+actual alarm-track activity, automatic display wake, Curfew window focus,
+the rendered ringing controls, and unchanged occurrence boundaries. Cleanup
+clears the fixture PIN and deletes only the scoped alarm even after failure.
+Failure diagnostics are captured before cleanup changes the lock state.
+
+The first two observations on `9ec905b` failed at automatic display wake.
+The second captured a high-importance, unsuppressed alarm notification with
+a full-screen intent while the display stayed asleep. Android 13's
+[notification activity starter](https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-13.0.0_r1/packages/SystemUI/src/com/android/systemui/statusbar/phone/StatusBarNotificationActivityStarter.java)
+evaluates full-screen launch on entry addition. Curfew had updated the
+silent foreground-start entry. The correction gives the startup and ringing
+notifications distinct identities, promotes the ringing notification to the
+foreground, and cancels the startup entry. A fresh installed observation must
+pass before accepting this correction. No new permission or direct activity
+launch bypass is introduced.
+
+The corrected plain APK passed the external driver on October 20 at
+13:46:27.860787 UTC. Alarm audio was active, the display woke automatically,
+Curfew gained window focus, and the ringing controls rendered over the
+secure keyguard. The same occurrence kept its original first-attempt bounds.
+The driver captured a screenshot and verified PIN and scoped-alarm cleanup
+before writing `locked-presentation-api33/result.json`. This is API33
+emulator evidence; physical speaker output and newer-platform full-screen
+permission behavior require separate acceptance.
+
+The corrected GMS APK passed all 115 reported API36 installed cases locally
+in 262.452s. These include the normal HTTPS-release, service-isolation, and
+UI cases; opt-in lifecycle cases still require their separate drivers.
+The earlier `9ec905b` API36 CI suite timed out without printing its partial
+test output. `python3 -B ci/test-instrumentation-output.py` first reproduced
+that lost-output failure, then passed after guarding the shell command's
+exit. CI now retains partial runner output and collects error logcat when
+instrumentation times out or fails. This improves diagnosis; it does not
+turn the earlier timeout into a passing result or increase its time limit.
+
+The first API33 suite after the secure-lock driver could not find Compose
+hierarchies because credential-free keyguard still covered its test activity.
+The PIN had cleared, but that did not dismiss keyguard. The driver cleanup
+now explicitly dismisses it after clearing the fixture credential and
+requires `showing=false`. The interrupted suite is preserved separately;
+its failed UI cases do not establish an app regression or a passing run.
+After restoring the unlocked test screen, the complete corrected Plain API33
+suite passed all 115 reported cases in 163.046s. The raw first run and the
+fresh complete result remain separate files.
+The final driver rerun passed at 13:54:28.816287 UTC with automatic
+presentation and active audio again. Cleanup passed and a subsequent
+read-back confirmed both `secure=false` and `showing=false`.
+
 
 ## Local transition and optional publication
 

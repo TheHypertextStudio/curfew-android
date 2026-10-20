@@ -797,4 +797,33 @@ Its actual native XML names the missing access without repeating the status.
 The same occurrence then produced first-attempt audio at the original chosen
 boundary. Cleanup restored alarm access and removed the fixture. Final
 whitespace checks and acceptance-driver parsing pass. The 65-minute current
-Doze observation remains live and unaccepted until its result is recorded.
+Doze observation completed with first-attempt audio and successful cleanup.
+
+The October 20 Doze driver entered deep idle at 12:28:04.826319 UTC.
+Android left deep idle before the saved 13:33:03.159902 alarm, as expected
+for an alarm-clock event. The driver observed active alarm audio at
+13:33:07.987309, within its five-second polling window. The occurrence and
+first ringing bounds remained unchanged. Cleanup removed the fixture,
+restored battery reporting, and confirmed active idle state and an awake
+screen. This GMS APK uses runtime head `843ac01`; the subsequent `9ec905b`
+changes affect UI and tests, with no alarm engine or platform source diff.
+This evidence does not prove physical speaker output.
+
+The `9ec905b` plain APK passed the complete installed API33 suite with 115
+reported cases in 169.463s. Opt-in lifecycle cases still require their own
+drivers. A separate secure-lock presentation driver then observed audio
+without automatic display wake. The failure came from updating the silent
+foreground-start notification rather than adding the ringing notification.
+The correction separates those identities and removes the startup entry
+after promoting the actual alarm. The external driver then observed active
+audio, automatic display wake, Curfew window focus, and rendered ringing
+controls over secure keyguard at 13:46:27.860787 UTC. Occurrence identity
+and first-attempt bounds stayed unchanged. This accepts the API33 emulator
+presentation case, not physical devices or newer-platform permission cases.
+The driver clears its temporary PIN and removes
+only its scoped alarm in cleanup, including after a failed assertion.
+
+CI for `9ec905b` passed both verification jobs, release evidence, and
+API33/34/35 instrumentation. API36 reached its five-minute instrumentation
+timeout without a final result. The previous `c83bb57` matrix passed all
+four APIs. Current local results do not resolve that CI timeout.

@@ -73,7 +73,7 @@ class PerpetualAlarmService : Service() {
             if (!foregroundEntered) {
                 ServiceCompat.startForeground(
                     this,
-                    ALARM_NOTIFICATION_ID,
+                    STARTUP_NOTIFICATION_ID,
                     NotificationCompat.Builder(this, STATUS_CHANNEL_ID)
                         .setSmallIcon(R.drawable.ic_launcher_foreground)
                         .setContentTitle(getString(R.string.app_name))
@@ -123,13 +123,18 @@ class PerpetualAlarmService : Service() {
                     withContext(Dispatchers.Main) {
                         if (generation == playbackGeneration) {
                             if (current is AlarmCampaignState.Ringing) {
-                                getSystemService(NotificationManager::class.java).notify(
+                                // Full-screen launch is evaluated when a notification is added.
+                                // Updating the silent startup entry does not present the alarm.
+                                ServiceCompat.startForeground(
+                                    this@PerpetualAlarmService,
                                     ALARM_NOTIFICATION_ID,
                                     ringingNotification(
                                         this@PerpetualAlarmService, current.campaignId,
                                         current.attempt, definition?.displayLabel, definition?.actionUrl,
                                     ),
+                                    ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK,
                                 )
+                                getSystemService(NotificationManager::class.java).cancel(STARTUP_NOTIFICATION_ID)
                                 requestedCampaignIds.add(current.campaignId)
                                 stickyRecoveryRequested = false
                                 beginAlarmSound()
@@ -253,6 +258,7 @@ class PerpetualAlarmService : Service() {
         private const val STATUS_CHANNEL_ID = "curfew_wake_status"
         private const val ALARM_NOTIFICATION_ID = 4100
         private const val MISSED_NOTIFICATION_ID = 4101
+        private const val STARTUP_NOTIFICATION_ID = 4102
         private const val EXTRA_CAMPAIGN_ID = "campaign_id"
         private const val EXTRA_ATTEMPT = "attempt"
         const val EXTRA_CONDITION_LABEL = "condition_label"
