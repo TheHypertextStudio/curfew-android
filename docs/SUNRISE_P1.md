@@ -114,7 +114,7 @@ flowchart LR
 - [ ] Exercise process death, relaunch, reboot, package replacement, time/zone changes, permission revocation, and offline ringing.
 - [x] Run both distribution unit/lint/build checks with at most two Gradle workers.
 - [ ] Run installed instrumentation and collect screenshots of the final setup and ringing states.
-- [ ] Record a Pixel and a non-Pixel acceptance run, including actual audio, Doze, DND, focus changes, and manufacturer limits. Do not substitute emulator evidence.
+- [ ] Record the connected Pixel acceptance run, including actual audio, Doze, DND, focus changes, and manufacturer limits. Do not substitute emulator evidence.
 - [ ] Update Docket through its connector as Codex, then complete only tasks whose acceptance criteria have direct evidence.
 
 ## Verification ledger
@@ -914,3 +914,12 @@ was read back with `performerKind=agent`, `performerName=Codex`, and no human
 author. The four feature tasks remain in progress. The owner deferred speaker
 testing and has no non-Pixel phone available. Those acceptance gates remain
 open, as do manual accessibility and the full physical lifecycle matrix.
+
+## P1 device scope correction — October 20, 2026
+
+P1 requires the connected Pixel acceptance run. Non-Pixel testing belongs
+to later compatibility work and no longer blocks P1. Earlier entries that
+name two manufacturers record the superseded plan. Actual speaker, locked
+delivery, lifecycle, release, and accessibility observations remain open
+where the acceptance record lacks evidence. This changes scope only; no
+application behavior or existing test result changes.

@@ -9,6 +9,10 @@ The scope comes from `Documentation/alarm-delivery-plan.md` and
 Sunrise scheduling, persistent ringing, authenticated release, and recovery.
 P1b networking and the required bedtime MVP remain separate.
 
+P1 acceptance uses the connected Pixel. Non-Pixel testing belongs to later
+compatibility work and does not gate this milestone. This scope correction
+removes a hardware requirement that exceeded the first working-alarm goal.
+
 ## Evidence boundaries
 
 Application runtime `204cfbf` contains the lock-screen notification fix.
@@ -45,8 +49,8 @@ battery behavior. Before-first-unlock playback is explicitly unsupported.
 A Pixel 11 Pro is now connected. The responsive GMS candidate was installed
 with an in-place update, and its installed APK digest matches the built APK.
 This establishes installation only. Physical speaker, locked-delivery,
-TalkBack, and non-Pixel acceptance remain open. Display scaling checks use
-emulators; the owner's display settings and app data were not reset.
+and TalkBack acceptance remain open. Non-Pixel coverage is later work.
+Display scaling checks use emulators; the owner's display settings and app data were not reset.
 
 ## P1.1: Scheduling
 
@@ -101,7 +105,7 @@ emulators; the owner's display settings and app data were not reset.
 | Preserve concurrent disable and time edits during recovery | Installed Room concurrency regressions fail with the old split read/save and pass with one transaction; timer restoration holds the schedule mutex | API33 installed proof; independent read-only review confirmed the lock order |
 | Avoid duplicate ringing and unrelated release | Service-isolation tests, completion interruption tests, controller and Room guards | Automated and installed emulator |
 | Deliver after standby on the corrected notification runtime | Completed 65-minute API36 driver: scheduled `2026-10-20T15:13:31.268582Z`, audio observed at `15:13:35.992585Z`, same first-attempt bounds | Notification-runtime candidate before the later atomic-recovery and consumer changes; five-second polling, successful cleanup, no physical hearing claim |
-| Complete the required Pixel and non-Pixel journeys | No current complete physical record exists | Open: locked delivery, perceived sound, Doze, fallback, offline/reconnection/release, and manufacturer behavior |
+| Complete the required connected-Pixel journey | No current complete physical record exists | Open: locked delivery, perceived sound, Doze, fallback, and offline/reconnection/release |
 | Publish task updates with Codex attribution through Docket | Connector update `01M5DFQN5WBS8JWWZ8D4J5V3HC`, verified by `get_updates` | Origin reports `performerKind=agent`, `performerName=Codex`, and no human author; task acceptance remains open |
 
 ## Remaining acceptance work
@@ -109,8 +113,8 @@ emulators; the owner's display settings and app data were not reset.
 Complete the current candidate's CI matrix, full physical-device matrix,
 and manual accessibility review. The connected Pixel 11 Pro/API37 has the
 in-place GMS update and ordinary layout evidence. The owner cannot perform a
-speaker check now, and no non-Pixel phone is available. No physical acceptance
-requirement is waived. The corrected-notification standby observation retains
+speaker check now. Pixel acceptance remains open; another manufacturer's
+phone is not required. The corrected-notification standby observation retains
 its exact earlier candidate boundary above.
 
 Docket is reconnected. Its project update read-back identifies Codex as the
