@@ -153,7 +153,15 @@ test output. `python3 -B ci/test-instrumentation-output.py` first reproduced
 that lost-output failure, then passed after guarding the shell command's
 exit. CI now retains partial runner output and collects error logcat when
 instrumentation times out or fails. This improves diagnosis; it does not
-turn the earlier timeout into a passing result or increase its time limit.
+turn the earlier timeout into a passing result.
+
+Run `39434561792` then exhausted the five-minute limit on API34 after
+reaching case 111 of 115 and on API36 after reaching case 103. Neither log
+reported an assertion failure before timeout. The complete local API36 run
+takes 262.452s. CI now permits ten minutes for the expanded full suite on
+its two-core emulator. It retains all cases, requires the final nonempty
+success result, and still fails and collects diagnostics after timeout.
+The failed runs remain failed until a fresh full matrix passes.
 
 The first API33 suite after the secure-lock driver could not find Compose
 hierarchies because credential-free keyguard still covered its test activity.
@@ -167,6 +175,47 @@ fresh complete result remain separate files.
 The final driver rerun passed at 13:54:28.816287 UTC with automatic
 presentation and active audio again. Cleanup passed and a subsequent
 read-back confirmed both `secure=false` and `showing=false`.
+
+Run the same presentation driver with `--api 36` on the owned API36 AVD
+at `emulator-5554`. It temporarily allows full-screen access, records the
+original app-op, and restores that exact mode in cleanup. The October 20
+fixture at 13:57:53.323938 UTC passed automatic display wake,
+foreground focus, rendered ringing controls, active audio, and unchanged
+occurrence bounds. Cleanup restored the original `default` access mode and
+the unlocked, credential-free screen. The timestamp in `result.json` is
+authoritative; local emulator status-bar time uses its configured timezone.
+
+Use `--api 36 --full-screen deny` to test the fallback. The October 20
+fixture at 14:02:59.375979 UTC passed: active audio, a real alarm notification
+with a content intent and no full-screen intent, no automatic Curfew focus,
+and entry to the unchanged ringing screen through a notification tap and
+Android's PIN prompt. The driver waits for that actual prompt before typing
+its fixture PIN. An earlier attempt typed before the prompt appeared and
+did not establish fallback failure in the app. The final driver records
+`automaticForegroundPresentation=false` and `notificationTapPresentation=true`.
+Cleanup restores access and removes the fixture even if another cleanup
+step fails; it reports every cleanup failure rather than skipping later steps.
+The original `default` access mode and unlocked, credential-free state were
+verified after the passing run. Physical-device fallback remains open.
+
+## Do Not Disturb and actual readiness
+
+Run `python3 -B scripts/accept-dnd-emulator.py` on the owned API33 AVD.
+The driver requires the original DND-off state. It tests no interruptions,
+alarms only, and off through the real notification service, then restores
+the original off state in `finally`. It records the installed app digest,
+audio-service dumps, native test output, and cleanup evidence.
+
+`AlarmDndReadinessInstrumentedTest` requires this driver's opt-in argument.
+Its installed assertions passed for all three modes on October 20. No
+interruptions reports effective alarm volume zero and Curfew requires sound
+repair and refuses readiness. Alarms-only and off report nonzero effective
+alarm volume and do not require volume repair. The test supplies completed
+hearing/acknowledgement preferences in memory; it does not overwrite saved
+preferences or claim that a person heard sound. The driver changes no volume
+setting and requests no notification-policy permission for the app. Both
+distribution instrumentation builds and lint checks passed after adding
+this observational test. Physical DND and manufacturer behavior remain open.
 
 
 ## Local transition and optional publication

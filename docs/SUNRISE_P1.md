@@ -2,47 +2,47 @@
 
 Reader: The Android maintainer implementing Docket project `01M5AXW727EJSE5FM2H8WXJRWS`.
 Action: Complete the local Sunrise journey and collect evidence against all four feature tasks before accepting P1.
-Date: October 19, 2026.
-Status: Implementation started. No feature or device acceptance is claimed.
+Date: October 20, 2026.
+Status: Local implementation and acceptance testing continue. No P1 task is accepted.
 
 ## Current acceptance boundary
 
-The four P1 tasks remain unaccepted. The local implementation has separate
-installed evidence for schedule-to-audio-to-authenticated-release, persistent
-offline cadence, deliberate credential recovery, process death, package
-replacement, reboot after first unlock, wall-clock changes, and a future
-timezone round trip. Older observations below retain their exact candidate
-boundary; they are not current physical-device acceptance.
+The four P1 tasks remain unaccepted. The application candidate is `204cfbf`.
+Both distributions pass 181 host tests, app/test APK builds, and Android lint.
+The corrected plain API33 suite passes 115 reported cases in 163.046s; the
+GMS API36 suite passes 115 in 262.452s. Six opt-in lifecycle cases require
+separate drivers. A new DND observation adds one opt-in instrumentation case;
+its three actual system-policy runs pass independently from those suites.
 
-The active-clock candidate passes both 181-case host suites, both app/test
-builds, and both Android lint variants. Its API35 plain suite passed 97
-reported cases before the later daily layout change. Its API36 GMS suite
-passed 97 reported cases after the sound-test fixture correction and before
-the new foreground-relaunch correction. Five opt-in cases require separate
-drivers; an ordinary suite does not establish those journeys.
+The secure-lock alarm now has observed automatic presentation on API33 and
+API36. API36 denial also passes the notification fallback: audio remains
+active, a real notification opens Android's PIN prompt, and authentication
+opens the unchanged ringing occurrence. The drivers restore original access,
+clear the temporary PIN, remove the scoped alarm, and restore the unlocked
+screen. [Testing instructions](TESTING.md) record the exact runs and limits.
 
-The owned API33 emulator delivered the saved alarm and actual first-attempt
-audio. Force-stop then reopening preserved Ringing state but failed to resume
-audio. The foreground restoration fix now passes that same driver with a new
-process and unchanged first-attempt boundaries. The full API36 GMS suite
-then passes 99 reported cases in 212.668s. The actual API33 permission-restoration journey also passes with the same
-occurrence and chosen boundary. The final API33 plain suite passes 101 reported cases in 172.13s, including
-the corrected status. Six opt-in cases still require their separate drivers.
-Forward and backward five-minute wall-clock changes now both preserve the
-original first attempt and its real two-minute boundary. Secure reboot
-coverage still supports ringing only after first unlock.
+The local implementation also has separate installed evidence for actual
+HTTPS release, persistent offline cadence, deliberate credential recovery,
+process death, app relaunch, package replacement, reboot after first unlock,
+wall-clock changes, and a future timezone round trip. Each historical entry
+below retains its exact candidate boundary. The 65-minute Doze observation
+on runtime `843ac01` completed with first-attempt audio and successful cleanup;
+it is not a still-running job or physical speaker evidence.
 
-CI at `c83bb57` passes both verification jobs, release evidence, and all
-API33/34/35/36 instrumentation jobs. Its late-transition isolation test
-requires actual alarm audio before and after the stale broadcast. That
-result follows the notification-only startup failure at `843ac01`.
-The 65-minute Doze observation for runtime `843ac01` remains live with a
-13:33:03 UTC target on October 20. The older result at `789e0cd` does not
-establish current-runtime acceptance.
-Physical Pixel/non-Pixel checks,
-manufacturer/DND behavior, remaining design review, and Docket publication
-remain open. Docket exposes no callable connector tools, and plugin discovery
-returned no matching Docket plugin on October 20.
+CI run `39434561792` for `204cfbf` is terminal. Both verification jobs,
+release evidence, and API35 instrumentation passed. API33, API34, and API36
+exhausted the five-minute suite limit at cases 104, 111, and 103 of 115,
+respectively. Their partial output reported no assertion failures. CI now
+allows ten minutes for the complete expanded suite; a fresh run must still
+pass. The earlier `9ec905b` timeout remains failed, and the previous
+`c83bb57` matrix passed all four APIs.
+
+Physical Pixel/non-Pixel acceptance, actual speaker hearing, manufacturer
+behavior, and Docket publication remain open. October 20 local and
+WillieStudio ADB inventories contain only emulators. Docket exposes no
+callable connector tools, and plugin discovery returned no matching plugin.
+No P1 task or Android MVP acceptance follows from the automated results.
+The older progress entries below are historical evidence, not current status.
 
 ## Decision
 

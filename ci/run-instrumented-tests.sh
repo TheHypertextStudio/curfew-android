@@ -69,7 +69,7 @@ adb logcat -c
 
 instrumentation_status=0
 instrumentation_output=$(
-    timeout 300 adb shell am instrument -w -r \
+    timeout 600 adb shell am instrument -w -r \
         studio.hypertext.curfew.test/androidx.test.runner.AndroidJUnitRunner |
         tr -d '\r'
 ) || instrumentation_status=$?
