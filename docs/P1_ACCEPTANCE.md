@@ -122,3 +122,23 @@ agent performer. The four feature tasks remain in progress and unaccepted.
 A fresh isolated install then exposed concurrent encrypted-key and device-ID
 creation races. The new native regressions failed before correction. The
 reliability follow-up and its installed results are recorded in TESTING.md.
+
+## Short Pixel release journey — October 20, 2026
+
+The owner authorized a brief audible run while in Starbucks. The prepared
+isolated GMS application and test APKs used the `.acceptance` application ID.
+`SunriseReleaseJourneyInstrumentedTest` passed on the Pixel 11 Pro/API37 in
+6.936s. The driver completed in 7.973s. A separate 12-second force-stop
+cutoff was armed and did not trigger. The test scheduled an occurrence,
+observed alarm audio and its notification, rejected invalid approvals,
+and verified that a valid current TLS approval stopped playback.
+
+The driver force-stopped and uninstalled both isolated packages afterward.
+The ordinary Curfew package and its saved settings were preserved. The log
+is `build/sunrise-evidence/physical/starbucks-short-test/instrumentation.txt`.
+This establishes an instrumented physical-device release journey. The
+owner's hearing confirmation is pending. It does not establish delivery
+while locked, Doze, lifecycle recovery, or manual accessibility acceptance.
+
+CI run `39495696389` passed all seven jobs on documentation commit
+`25a1742`. The installed application runtime remains `514370d`.
