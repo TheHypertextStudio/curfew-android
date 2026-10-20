@@ -12,6 +12,7 @@ import androidx.work.Data
 import androidx.work.testing.TestListenableWorkerBuilder
 import java.time.Duration
 import java.time.Instant
+import java.time.ZoneId
 import java.time.ZoneOffset
 import java.util.UUID
 import kotlinx.coroutines.flow.first
@@ -163,13 +164,13 @@ class PersistentCadenceJourneyInstrumentedTest {
             }
             val delaySeconds = InstrumentationRegistry.getArguments().getString("fixtureDelaySeconds")?.toLong() ?: 10L
             require(delaySeconds in 10L..7_200L)
-            val start = Instant.now().plusSeconds(delaySeconds).atZone(ZoneOffset.UTC)
+            val start = Instant.now().plusSeconds(delaySeconds).atZone(ZoneId.systemDefault())
             val scheduleId = "cadence-process-loss-${UUID.randomUUID()}"
-            val saved = scheduler.save(SunriseSchedule(scheduleId, start.toLocalTime(), start.toLocalDate(), emptySet(), true, definition.callbackId), zone = ZoneOffset.UTC)
+            val saved = scheduler.save(SunriseSchedule(scheduleId, start.toLocalTime(), start.toLocalDate(), emptySet(), true, definition.callbackId), zone = start.zone)
             campaignId = requireNotNull(saved.occurrence).campaignId
             marker.writeText(JSONObject().put("scheduleId", scheduleId).put("campaignId", campaignId)
                 .put("callbackId", definition.callbackId).put("startsAt", start.toInstant().toString()).toString())
-            // Return before delivery so the external driver can kill the real service process.
+            // Keeping instrumentation alive would hide Android's normal process lifecycle.
         } catch (failure: Throwable) {
             cleanup(campaignId, callbackId)
             throw failure

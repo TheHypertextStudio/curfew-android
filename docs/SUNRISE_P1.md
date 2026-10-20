@@ -24,9 +24,10 @@ passes 94 reported installed cases. Secure API 36 reboot recovery and seven
 focused GMS audio/isolation/release cases pass. See the dated records below
 for exact candidate and copy-only follow-up boundaries.
 
-Before-first-unlock ringing is unsupported. Replacement, clock/zone, access
-revocation, physical Pixel/non-Pixel acceptance, design review, and Docket
-publication still need current evidence.
+Before-first-unlock ringing is unsupported. Current-runtime offline cadence
+and API 35 package replacement now pass. Clock/zone, access revocation,
+physical Pixel/non-Pixel acceptance, design review, and Docket publication
+still need current evidence.
 The Docket connector exposes no callable tools in this session.
 
 ## Decision
@@ -596,3 +597,29 @@ that the acknowledgement action remains visible after scrolling the restart
 instruction into view; that focused case passed. Both test APK builds and
 lint variants passed again after that fixture change (24s). The native
 screenshot was reviewed with the full acknowledgement button visible.
+
+
+### October 20: Replacement-runtime offline cadence and package update
+
+The GMS APK built from 14d3fa8 passed the real offline default-cadence
+journey (186.407s). The same occurrence produced audio for attempt 1,
+entered its one-minute quiet phase without audio, and produced audio for
+attempt 2. Every observed phase had no active default network. The original
+120/60-second boundaries remained unchanged. Scoped cleanup passed and
+restored airplane mode off, Wi-Fi on, and mobile data on.
+
+The API 35 plain APK also survived a real PackageManager replacement before
+its saved wake time. The same occurrence rang at 10:44:27.912509 UTC with
+attempt 1 and the original ringing boundary. The app was not resident before
+replacement; Android started process 11313 for delivery. The driver therefore
+does not invent a before/after process comparison when instrumentation already
+ended the original process. Install success, occurrence identity, actual audio,
+and boundary preservation remain required.
+
+The first driver stopped before replacement because it incorrectly required
+a resident process. Its fixture cleanup passed. The corrected fixture saves
+local time in the phone's actual zone so package recovery does not reinterpret
+a UTC clock time as local time. Both test APKs and lint variants pass after
+that fixture correction (27s). No production alarm code changed in this
+acceptance follow-up. These results do not prove physical speaker output,
+manufacturer behavior, or current-runtime Doze acceptance.

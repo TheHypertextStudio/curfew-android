@@ -198,3 +198,16 @@ and the shorter observation rather than overwriting them with a green result.
 The setup disclosure case fails if the first-unlock instruction is absent
 from the required device-limit acknowledgement. It also captures the native
 readiness screen for visual review.
+
+
+Run `python3 -B scripts/accept-package-replacement-emulator.py` after building
+the plain app and test APKs and installing both on the owned Sunrise_UI_API35
+AVD at emulator-5556. This driver refuses other AVDs and real devices. It saves
+a local one-night alarm 45 seconds ahead, replaces the APK through
+PackageManager before the chosen time, and requires the same occurrence's
+first audio attempt at the original boundary outside instrumentation. Its
+finally block removes the controlled fixture. A missing original app process
+is valid background behavior, not a failed process-restart assertion.
+The shared external-lifecycle fixture uses the actual device timezone because
+recovery resolves saved local times again. This does not alter production
+schedule resolution or the default offline cadence fixture.
