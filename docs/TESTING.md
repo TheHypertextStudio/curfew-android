@@ -30,3 +30,13 @@ until those authorization and lifecycle paths are implemented and verified.
 
 
 The consumer destinations use `CurfewAppNavigationInstrumentedTest.destinationsExposeTheirNamesToAssistiveTechnology` to check pane titles and heading semantics without duplicate visible headings. Its installed red run found the missing Sunrise pane title. Navigation, form retry, draft handling, and seven recovery input cases passed in that run. Capture fixtures cover the native light/dark, narrow-width, enlarged-text, and keyboard layouts; their images require visual review rather than an automatic design-quality claim.
+
+
+`OwnerRecoveryJourneyInstrumentedTest` exercises the real Android credential UI, audio, terminal outcome, and audit. It runs only with an explicit fixture PIN on an emulator. `scripts/accept-owner-recovery-emulator.py` guards the owned Sunrise_API36 AVD, refuses an existing credential, installs a known temporary PIN, saves diagnostic captures, and clears the PIN in a finally block. The normal test suite skips these two opt-in cases; a skipped run is not acceptance. Its first two runs were red at alarm entry, first due to the stale System UI ANR and then the automatic PIN prompt caused by keyguard dismissal.
+
+`RecoveryCompletionResumeInstrumentedTest` models process loss after the atomic recovery commit but before cleanup. Its first installed run failed because the next morning was never scheduled. `SunriseOccurrenceCompletionTest` checks that neither old repair trigger is canceled before consume and next-schedule persistence succeed. `AlarmNotificationInstrumentedTest` first failed on the posted wake-campaign title; its accepted presentation names the saved check-in instead of the internal attempt counter. Current green results remain pending.
+
+
+The real credential fixture now passes both cases on the controlled API36 emulator in `credential-journey-back-navigation.txt`: authenticated override/audit/audio stop and native cancellation with continuing audio/no audit. This is native emulator evidence, not physical speaker or device acceptance. The script clears its PIN and cycles the screen before dismissing the keyguard so subsequent ordinary UI tests start unlocked. The installed notification and interrupted-recovery continuation cases pass in `daily-notification-resume-green.txt`; only the then-current text-layout cases failed in that run.
+
+`SunriseDailyLayoutInstrumentedTest` covers narrow large-text day separation, text allocation, clock formatting, omission of redundant recurring dates, preservation of a one-night date, and proximity between the schedule and check-in. `CurfewDesignCaptureInstrumentedTest#captureDaily` supplies eight native light/dark, 320/390dp, 100/200% fixtures for visual review.

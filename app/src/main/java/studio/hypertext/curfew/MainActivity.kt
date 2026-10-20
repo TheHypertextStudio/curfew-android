@@ -1,7 +1,6 @@
 package studio.hypertext.curfew
 
 import android.Manifest
-import android.app.KeyguardManager
 import android.content.Intent
 import android.media.RingtoneManager
 import android.net.Uri
@@ -402,19 +401,15 @@ class MainActivity : ComponentActivity() {
     }
 
     /**
-     * A campaign fires while the phone is face-down, locked, and asleep. Without
-     * these the full-screen intent degrades to a heads-up notification behind the
-     * keyguard on most OEM builds, so the alarm rings with nothing on screen and
-     * no way to reach the wake condition. Set dynamically rather than in the
-     * manifest because MainActivity is also the launcher entry point, which must
-     * not bypass the keyguard.
+     * Present only the active alarm over the keyguard. Requesting keyguard
+     * dismissal here opens a credential prompt before the owner can reach the
+     * alarm's actions. Recovery requests its own fresh confirmation separately.
+     * Launcher entry must keep normal lock-screen behavior.
      */
     private fun presentOverKeyguard() {
         setShowWhenLocked(true)
         setTurnScreenOn(true)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        ContextCompat.getSystemService(this, KeyguardManager::class.java)
-            ?.requestDismissKeyguard(this, null)
     }
 
     private fun handleOAuthCallback(callbackIntent: Intent): Boolean {

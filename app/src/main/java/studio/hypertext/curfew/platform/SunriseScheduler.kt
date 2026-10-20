@@ -15,6 +15,7 @@ import studio.hypertext.curfew.alarm.SavedSunriseAlarm
 import studio.hypertext.curfew.alarm.SunriseOccurrencePhase
 import studio.hypertext.curfew.alarm.SunriseSchedule
 import studio.hypertext.curfew.alarm.SunriseScheduleController
+import studio.hypertext.curfew.alarm.SunriseOccurrenceCompletion
 import studio.hypertext.curfew.callback.CallbackConfigurationRepository
 import studio.hypertext.curfew.callback.CallbackPollScheduler
 import studio.hypertext.curfew.persistence.CurfewDatabase
@@ -72,6 +73,15 @@ class SunriseScheduler(context: Context) {
 
     suspend fun consume(campaignId: String): SavedSunriseAlarm? =
         withContext(Dispatchers.IO) { controller.consume(campaignId) }
+
+    suspend fun completeOccurrence(campaignId: String) = withContext(Dispatchers.IO) {
+        SunriseOccurrenceCompletion(
+            consume = { consume(it) },
+            scheduleNext = { restore() },
+            cancelTransition = { AndroidAlarmClockGateway(context).cancel(it) },
+            cancelPolling = { CallbackPollScheduler.cancel(context, it) },
+        ).complete(campaignId)
+    }
 
     suspend fun currentPhase(): SunriseOccurrencePhase? = withContext(Dispatchers.IO) {
         preferences.read()?.occurrence?.let { runtime.phase(it.campaignId) }

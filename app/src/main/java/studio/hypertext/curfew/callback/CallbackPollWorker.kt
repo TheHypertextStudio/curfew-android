@@ -16,7 +16,6 @@ import studio.hypertext.curfew.alarm.AlarmCampaignState
 import studio.hypertext.curfew.alarm.campaignStartedAt
 import studio.hypertext.curfew.account.NativeDeviceProofAuthenticator
 import studio.hypertext.curfew.platform.AlarmRuntimeRepository
-import studio.hypertext.curfew.platform.AndroidAlarmClockGateway
 import studio.hypertext.curfew.platform.SunriseScheduler
 import studio.hypertext.curfew.protocols.ReceiptStatus
 import studio.hypertext.curfew.protocols.Result as ProtocolResult
@@ -40,7 +39,8 @@ class CallbackPollWorker(
             state !is AlarmCampaignState.Ringing &&
             state !is AlarmCampaignState.Quiet
         ) {
-            return Result.success()
+            return runCatching { SunriseScheduler(applicationContext).completeOccurrence(campaignId) }
+                .fold(onSuccess = { Result.success() }, onFailure = { Result.retry() })
         }
         val callbackId = runtime.callbackId(campaignId) ?: return Result.success()
         val definition = CallbackConfigurationRepository(applicationContext).find(callbackId)
@@ -71,10 +71,8 @@ class CallbackPollWorker(
             )
             val committed = runtime.save(terminal)
             if (committed != terminal) return Result.success()
-            AndroidAlarmClockGateway(applicationContext).cancel(campaignId)
             val sunrise = SunriseScheduler(applicationContext)
-            sunrise.consume(campaignId)
-            runCatching { sunrise.restore() }
+            val completion = runCatching { sunrise.completeOccurrence(campaignId) }
                 .onFailure { android.util.Log.w("SunriseRelease", "Next alarm needs attention") }
             WakeStatusPublisher(applicationContext).publish(terminal, observedAt)
             val deviceId = NativeDeviceProofAuthenticator(applicationContext).deviceId()
@@ -89,7 +87,7 @@ class CallbackPollWorker(
                 version = 1,
             )
             WakeSyncScheduler.accelerate(applicationContext)
-            return Result.success()
+            return if (completion.isSuccess) Result.success() else Result.retry()
         }
 
         CallbackPollScheduler.continuePolling(

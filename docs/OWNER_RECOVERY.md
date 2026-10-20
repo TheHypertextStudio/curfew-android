@@ -3,7 +3,7 @@
 Reader: The Android maintainer delivering Sunrise P1.
 Action: Implement and verify the complete recovery path before accepting P1.
 Date: October 19, 2026.
-Status: Authorization, persistence, migration, and isolated native screen checks passed. The ringing-to-credential integration and whole-app acceptance remain incomplete.
+Status: Authorization, persistence, migration, native input, and real Android credential success/cancellation passed on the controlled API36 emulator. Physical-device and whole-app acceptance remain incomplete.
 
 Recovery stops the current phone's alarm without claiming that its check-in succeeded. It requires a trimmed reason of at least 50 characters, a three-second confirmation, and fresh Android screen-lock authentication. Curfew records an Overridden outcome and the reason in one local transaction. It does not send a wake-success receipt or release another device.
 
@@ -37,7 +37,7 @@ The audit stays in app-private local Room storage. It contains the request ID, o
 
 ## Verification and release impact
 
-Ten host tests cover the hold, reason, cancellation, expiry, callback identity, and single-use authority. Five completion tests preserve storage-before-cleanup ordering, accurate rescheduling failure, and cancellation handling. Installed tests cover the terminal outcome, audit, race with verified waking, rejection of future alarms, and transaction rollback. A migration test must prove that schema 1 alarms and callback definitions survive schema 2's new audit table. Native credential confirmation, accessibility, keyboard behavior, and rendered layouts need separate installed evidence.
+Ten host tests cover the hold, reason, cancellation, expiry, callback identity, and single-use authority. Six owner-completion tests preserve storage-before-cleanup ordering, accurate rescheduling failure, and cancellation handling. Three occurrence-completion tests preserve the old repair triggers until the next schedule is durable. Installed tests cover the terminal outcome, audit, race with verified waking, rejection of future alarms, and transaction rollback. A migration test must prove that schema 1 alarms and callback definitions survive schema 2's new audit table. Native credential confirmation, accessibility, keyboard behavior, and rendered layouts need separate installed evidence.
 
 Schema 2 adds a local audit table through an additive Room auto-migration. It changes no wire format. A schema 1 APK cannot open the upgraded database. Rollback therefore needs a compatible build; do not delete the owner's schedules or downgrade destructively. Reject an implementation that permits unauthenticated recovery or stops playback before the audit commits.
 
@@ -67,14 +67,7 @@ prompt permission is declared. The platform adapter allows DEVICE_CREDENTIAL
 only and checks the reported authentication type. Those negative checks do
 not prove a successful Android credential interaction.
 
-The isolated recovery screen passed all four original cases after its timer
-changed to elapsed time. New tests now require foreground cancellation and
-hide the reason field until a screen lock exists. Those two tests have not
-run yet. The ringing screen now has a separate recovery action and displays
-the actual alarm time rather than an attempt counter; its installed rerun
-is pending. A UI compilation was interrupted by missing destination components
-while the design subagent was replacing the old all-in-one page. That was an
-incomplete source snapshot, not installed acceptance evidence.
+The isolated recovery screen passes seven installed input cases, including foreground cancellation, keyboard auto-repeat, and hiding the reason field until a screen lock exists. The native credential journey adds real OS confirmation and cancellation checks on an explicitly provisioned disposable emulator. Its initial attempts exposed a stale System UI ANR and then an automatic keyguard-dismissal prompt that blocked access to alarm recovery. Those runs do not establish successful credential acceptance.
 
 Once Android has confirmed the owner, completion protects the local commit
 and matching-occurrence cleanup from Activity cancellation. Closing the
@@ -83,3 +76,41 @@ Closing or recreating the Activity before confirmation still invalidates the
 pending request. The cancellation regression cancels the outer Activity job,
 not the protected transaction itself. Process termination remains a separate
 installed lifecycle gate; coroutine cancellation protection cannot prove it.
+
+
+## Interrupted completion
+
+A terminal outcome is durable before the schedule cleanup begins. Canceling its clock transition first could remove the last trigger that repairs an interrupted completion. The occurrence coordinator therefore consumes the finished occurrence, restores and saves the next schedule, then cancels the completed occurrence's polling and clock triggers. A later transition or callback for an already finished occurrence repeats that cleanup instead of returning early.
+
+This sequence diagram shows the four app components involved in recovery completion.
+
+```mermaid
+sequenceDiagram
+    participant Recovery as Recovery coordinator
+    participant Outcome as Outcome repository
+    participant Schedule as Schedule controller
+    participant Clock as Alarm gateway
+    Recovery->>Outcome: Commit override and audit together
+    Outcome-->>Recovery: Saved terminal outcome
+    Recovery->>Schedule: Consume matching occurrence
+    Recovery->>Schedule: Restore the next schedule
+    Schedule->>Clock: Install next occurrence
+    Schedule->>Schedule: Persist next occurrence
+    Schedule-->>Recovery: Next schedule is durable
+    Recovery->>Clock: Cancel completed occurrence trigger
+```
+
+The installed regression first failed because a terminal transition left the saved schedule pointing at its recovered occurrence. The completion-order host tests first failed to compile against the absent coordinator. Green verification is pending. Coroutine protection still does not substitute for an actual process-loss acceptance journey.
+
+## Locked entry
+
+The active alarm uses show-when-locked and turn-screen-on presentation. It does not request keyguard dismissal on entry. The real credential fixture reached the phone's PIN screen before the recovery action under the previous behavior. Fresh authentication belongs after the reason and hold, when the owner chooses recovery. Other apps opened by a check-in keep Android's normal lock-screen restrictions.
+
+
+## Credential acceptance evidence
+
+The October 20 controlled API36 run passes both real credential journeys (`credential-journey-back-navigation.txt`, 39.741 seconds). The successful case presents the native prompt after the reason and hold, enters the fixture PIN through Android input, records one Overridden outcome with the exact reason, and observes alarm audio stop. The cancellation case uses native Back navigation, observes the cancellation state, and verifies that audio and the active occurrence remain with no audit entry. The script verifies removal of its temporary credential afterward.
+
+The fixture follows clickable accessibility ancestors, identifies the platform prompt by its actual title and credential field, and accounts for Back first hiding the platform keyboard. An outside-prompt click was not a valid cancellation action in this Android image. Earlier locator failures are retained as diagnostics rather than counted as application failures or acceptance. Screenshots of the secure platform prompt are black by Android policy; the test does not bypass that protection.
+
+Both variants pass 142 host tests after the completion-order change. The installed notification and interrupted-completion tests also pass. The interruption test models durable state after a lost callback; an actual process-kill journey remains separate evidence.

@@ -64,8 +64,7 @@ class PerpetualAlarmService : Service() {
             ALARM_NOTIFICATION_ID,
             NotificationCompat.Builder(this, STATUS_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setContentTitle("Restoring Sunrise")
-                .setContentText("Checking the saved alarm")
+                .setContentTitle(getString(R.string.app_name))
                 .setSilent(true)
                 .setOngoing(true)
                 .build(),
@@ -319,7 +318,8 @@ class PerpetualAlarmService : Service() {
             val builder = NotificationCompat.Builder(context, ALARM_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setContentTitle(context.getString(R.string.alarm_notification_title))
-                .setContentText(context.getString(R.string.alarm_notification_body, attempt))
+                .setContentText(if (conditionLabel == null) context.getString(R.string.alarm_notification_body)
+                    else context.getString(R.string.alarm_notification_named_check_in, conditionLabel))
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)

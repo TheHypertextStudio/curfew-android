@@ -16,7 +16,6 @@ import kotlinx.coroutines.launch
 import studio.hypertext.curfew.alarm.OwnerRecoveryAuthorization
 import studio.hypertext.curfew.alarm.OwnerRecoveryCompletion
 import studio.hypertext.curfew.alarm.OwnerRecoveryResult
-import studio.hypertext.curfew.callback.CallbackPollScheduler
 
 class AndroidOwnerRecovery(
     private val activity: ComponentActivity,
@@ -36,13 +35,7 @@ class AndroidOwnerRecovery(
     private var saving: Job? = null
     private val completion = OwnerRecoveryCompletion(
         save = { AlarmOwnerRecoveryRepository(activity).recover(it) },
-        finishOccurrence = { id ->
-            AndroidAlarmClockGateway(activity).cancel(id)
-            CallbackPollScheduler.cancel(activity, id)
-            val scheduler = SunriseScheduler(activity)
-            scheduler.consume(id)
-            scheduler.restore()
-        },
+        finishOccurrence = { SunriseScheduler(activity).completeOccurrence(it) },
     )
 
     fun beginHold(campaignId: String, reason: String) {

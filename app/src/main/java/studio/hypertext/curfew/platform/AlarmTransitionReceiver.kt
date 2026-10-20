@@ -61,8 +61,8 @@ class AlarmTransitionReceiver : BroadcastReceiver() {
             is AlarmCampaignState.Overridden,
             is AlarmCampaignState.Satisfied,
             -> {
-                gateway.cancel(campaignId)
-                CallbackPollScheduler.cancel(context, campaignId)
+                runCatching { SunriseScheduler(context).completeOccurrence(campaignId) }
+                    .onFailure { android.util.Log.w("SunriseCompletion", "Next alarm needs attention") }
             }
         }
     }
