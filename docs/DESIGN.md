@@ -41,7 +41,13 @@ Sources: [Material 3 Compose releases](https://developer.android.com/jetpack/and
 
 ## Remaining native review findings
 
-The October 19 native daily captures at 320dp and 200% text exposed touching weekday markers and a time label that shrank with AM/PM. The daily layout now gives weekday markers a fixed gap and lets their height grow around enlarged labels. It measures the numeric time separately and places the smaller localized period below when width or text scale requires it. The brand app bar remains; the redundant large Sunrise heading is removed. Recurring alarms show the repeat-day markers without a second Today, Tomorrow, or calendar line. The selected days already communicate the recurring schedule. One-night alarms retain an explicit localized date. The saved check-in name identifies its own daily action; only an unresolved connection needs supporting status. The initial six layout tests and eight native captures passed. The follow-up density review found excessive internal gaps despite legible content. The daily card now targets 16dp vertical padding, 8dp internal gaps, and a 12dp separation from check-in. The final nine layout tests and eight native captures pass. AM/PM shares the numeric baseline whenever measured widths preserve the numeric hierarchy; it no longer stacks merely because a phone is narrow or text scale exceeds a fixed threshold. Review covers the saved weekly state in both themes at 320/390dp and 100/200% text. It does not close the remaining state and picker review.
+The daily time measures the numeric value and localized AM/PM separately.
+They share a baseline when both fit without reducing the time's hierarchy.
+The period moves below when width or text size requires it. Weekday markers
+keep a visible gap and grow around enlarged labels. Recurring alarms show
+only their selected days. One-night alarms keep their chosen date. The saved
+check-in name needs supporting status only when its connection is unresolved.
+
 
 The platform time-picker capture shows an unbranded teal dialog beneath a System UI ANR. The overlay invalidates that capture as visual acceptance evidence. The picker still needs a valid full-display capture and a brand-aligned native component. The current Compose theme does not style an Android framework dialog.
 
@@ -50,18 +56,26 @@ The sound test uses one confirmation dialog after playback starts. It asks “Di
 Compact task app bars keep one title line and use an ellipsis when enlarged text cannot fit. The full task name remains available to accessibility. Titles must not paint over content below the app bar. Dialog visual fixtures use the actual device's font scale because a local density override outside the separate dialog window is ineffective.
 
 
-## Daily screen density
+## Daily screen composition
 
-Keep the daily alarm compact at ordinary text sizes. The numeric time uses a
-72sp ceiling, with measured fitting on narrow windows. The alarm surface uses
-12dp vertical padding and keeps its 8dp internal gaps. The check-in follows
-12dp below the surface. Keep unused space below this group rather than adding
-instructions, duplicate headings, or stretching the controls to fill the phone.
-Larger text can grow the group; readability takes precedence over the ordinary
-size target. The 390dp fixture checks that the check-in label starts within
-220dp of the task content top. Narrow, enlarged-text fixtures still check time
-hierarchy and weekday separation.
+Keep the alarm and its check-in together below the app bar, with a 12dp gap
+between their surfaces. Do not center this short group in the whole viewport.
+The centered capture separated the alarm from the brand and only moved the
+empty area above it. Do not stretch controls or add copy to fill the phone.
+Limit the daily column to 420dp on expanded windows. Other tasks keep their
+640dp limit.
 
+Give the chosen time visual priority. Its numeric size can reach 100sp when
+width permits. Fit the time and localized period by measurement; narrow windows
+and enlarged text must retain readable values without clipping. The alarm
+surface uses 16dp vertical padding and 12dp gaps. Setting rows have a 64dp
+minimum and grow around their content. Keep top-aligned scrolling on short
+windows, during setup, and with enlarged text.
+
+The layout tests check time hierarchy, top alignment on short and enlarged-text
+screens, weekday separation, one-night dates, and proximity between the alarm
+and check-in. Review native captures at 320/390dp and 100/200% text in both
+themes. A geometry check alone does not establish visual quality.
 
 An explicitly selected one-night date stays fixed when the time changes.
 An inferred date continues to follow the next occurrence until the owner picks
@@ -69,13 +83,8 @@ a date. A saved one-night alarm loads as an explicit choice. This draft marker
 survives the editor's saved state and does not add another visible control.
 
 
-The October 20 density pass removes the empty notes column from the HTML
-review and keeps ordinary form actions directly after their fields. The
-ringing screen retains its separate bottom action area. The native daily
-card uses 8dp vertical padding and 4dp internal gaps. The time remains the
-largest element, and switches retain their Material touch targets. Setting
-rows have a 64dp minimum and grow around larger content. Remaining unused
-screen height does not justify extra content or stretched controls.
+Ordinary form actions follow their fields. The ringing screen keeps its
+separate action area. The review page has no empty notes column.
 
 
 The device-limit acknowledgement tells the owner to unlock the phone after

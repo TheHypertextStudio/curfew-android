@@ -127,7 +127,7 @@ fun CurfewApp(
                     }
                 }
                 Box(Modifier.weight(1f).fillMaxHeight(), contentAlignment = Alignment.TopCenter) {
-                    Box(Modifier.widthIn(max = 640.dp).fillMaxSize()) {
+                    Box(Modifier.widthIn(max = if (destination == "daily") 420.dp else 640.dp).fillMaxSize()) {
                         stateHolder.SaveableStateProvider(destination) {
                             when (destination) {
                                 "edit" -> SunriseScheduleEditor(

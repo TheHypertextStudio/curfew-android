@@ -55,3 +55,18 @@ Sources: [Material 3 in Compose](https://developer.android.com/develop/ui/compos
 ## Pass 6: Copy restraint
 
 The October 19 copy pass removes repeated setup headings, instructions that restate scan/file actions, the recovery heading that repeats its navigation title, the reason placeholder that repeats its label, and decorative account/appearance headings. The check-in action now has one label. Consequences, connection state, prerequisites, and recovery requirements remain visible where they affect a decision. Native screens follow the same rule in `docs/DESIGN.md`.
+
+## Current daily composition
+
+The October 20 review rejects centering the short alarm group in the phone.
+That change moved the empty area above the alarm and separated it from the
+brand. Keep the group below the app bar and give the chosen time more visual
+priority. The native clock can reach 100sp when measured width permits.
+Narrow screens and enlarged text keep the measured fitting behavior. The
+daily column has a 420dp maximum on expanded windows.
+
+The PNG files in `renders/` are historical browser proposals. They contain
+superseded headings and copy and must not be used to assess the current UI.
+Use the live HTML for the current proposal and `native/` for the latest
+installed daily fixtures. Native fixtures cover 320/390dp, 100/200% text,
+and both themes. They establish rendered layout, not alarm delivery.

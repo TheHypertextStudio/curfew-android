@@ -3,6 +3,7 @@ package studio.hypertext.curfew.ui
 import android.text.format.DateFormat
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableFloatStateOf
@@ -44,13 +45,13 @@ class SunriseDailyLayoutInstrumentedTest {
     private val locale = context.resources.configuration.locales[0]
     private val wakeTime = LocalTime.of(7, 0)
 
-    private fun show(fontScale: Float, nextDate: LocalDate? = null, onceDate: LocalDate? = null, width: Int = 320) {
+    private fun show(fontScale: Float, nextDate: LocalDate? = null, onceDate: LocalDate? = null, width: Int = 320, height: Int? = null) {
         scale.floatValue = fontScale
         compose.setContent {
             val density = LocalDensity.current
             CompositionLocalProvider(LocalDensity provides Density(density.density, scale.floatValue)) {
                 CurfewTheme(dynamicColor = false) {
-                    Box(Modifier.width(width.dp).fillMaxHeight()) {
+                    Box(Modifier.width(width.dp).then(if (height == null) Modifier.fillMaxHeight() else Modifier.height(height.dp))) {
                         SunriseDailyScreen(
                             alarm = SavedSunriseAlarm(SunriseSchedule("layout-alarm", wakeTime, onceDate, if (onceDate == null) DayOfWeek.entries.take(5).toSet() else emptySet(), true, "check-in"),
                                 nextDate?.let { SunriseOccurrence("layout-occurrence", it, it.atTime(wakeTime).atZone(ZoneId.systemDefault()).toInstant()) }),
@@ -64,11 +65,27 @@ class SunriseDailyLayoutInstrumentedTest {
         }
     }
 
-    @Test fun ordinaryPhoneKeepsTheAlarmAndCheckInCompact() {
+    @Test fun ordinaryPhoneGivesTheWakeTimeVisualPriority() {
         show(1f, width = 390)
-        val checkIn = compose.onNodeWithText("Morning check-in").fetchSemanticsNode().boundsInRoot
+        val numeric = wakeTime.format(DateTimeFormatter.ofPattern(if (DateFormat.is24HourFormat(context)) "HH:mm" else "h:mm", locale))
+        val time = compose.onNodeWithText(numeric, useUnmergedTree = true).textLayout()
+        val status = compose.onNodeWithText("Alarm on", useUnmergedTree = true).textLayout()
+        assertTrue("The chosen time must lead the single-alarm screen",
+            time.layoutInput.style.fontSize.value >= 5f * status.layoutInput.style.fontSize.value)
+    }
+
+    @Test fun enlargedTextKeepsTheDailyGroupAtTheTop() {
+        show(2f)
+        val start = compose.onNodeWithText("Alarm on").fetchSemanticsNode().boundsInRoot
         val density = context.resources.displayMetrics.density
-        assertTrue("The check-in label must begin within 220dp of the content top: ${checkIn.top / density}", checkIn.top <= 220f * density)
+        assertTrue("Enlarged text must start near the top instead of centering a long task", start.top <= 40f * density)
+    }
+
+    @Test fun shortPhoneKeepsTheDailyGroupAtTheTop() {
+        show(1f, width = 390, height = 360)
+        val start = compose.onNodeWithText("Alarm on").fetchSemanticsNode().boundsInRoot
+        assertTrue("The status must fit within the initial 56dp of the short task: $start",
+            start.top <= 56f * context.resources.displayMetrics.density)
     }
 
     @Test fun weekdaysRemainSeparatedAtNarrowWidthAndLargeText() {
