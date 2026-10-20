@@ -138,3 +138,12 @@ The test preserves the original alarm-stream volume. It changes no default URI
 or other global sound setting. `AlarmAudioProbeInstrumentedTest` retains the
 known-PCM probe and observes Curfew's actual preferred-or-fallback playback.
 The HTTPS journey retains its audio-start and audio-stop requirements.
+
+
+`SunriseScheduleEditorInstrumentedTest.changingTimeKeepsAnExplicitOneNightDate`
+opens the actual date picker, chooses fourteen days ahead, changes the actual
+time picker to 08:15, and saves the editor draft. It checks the chosen date and
+time independently. The original editor resets a new alarm's date when its time
+changes; native failing-first evidence is still pending. Both test APKs and both
+lint variants compile this regression. A missing widget or failed interaction
+would be a fixture failure, not proof of the date-reset defect.

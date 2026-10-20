@@ -413,3 +413,21 @@ app APKs and both test APKs build, and both Android lint variants pass
 uncompressed PCM resource. These results do not establish installed decoder,
 service, focus, or physical speaker behavior for the replacement. The current
 Doze process remains live on its earlier runtime and has not passed yet.
+
+
+## Native fallback evidence and one-night editor regression
+
+The complete API35 plain instrumentation job at `f57d1b9` passes with 89 reported
+cases. Its logs explicitly include both native fallback tests: unreadable
+preferred sound to bundled audio, and the shared bounded rehearsal. This is
+fresh CI-emulator evidence, not physical speaker acceptance. Other jobs in that
+matrix are still pending at this observation. Evidence is
+`fallback-api35-passed.txt` from job 118550592430.
+
+The new one-night editor regression selects a date fourteen days ahead, changes
+the time to 08:15 through the actual framework pickers, and checks both values
+on Save. Code inspection found that the new-alarm callback resets the chosen
+date when time changes. Both test APKs and lint compile the case. A native red
+assertion is still required before changing that production behavior. The owned
+AVD remains reserved for its live Doze observation; the regression will run in
+CI without interrupting it. This test does not arm a real occurrence.
