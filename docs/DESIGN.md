@@ -49,7 +49,7 @@ only their selected days. One-night alarms keep their chosen date. The saved
 check-in name needs supporting status only when its connection is unresolved.
 
 
-The platform time-picker capture shows an unbranded teal dialog beneath a System UI ANR. The overlay invalidates that capture as visual acceptance evidence. The picker still needs a valid full-display capture and a brand-aligned native component. The current Compose theme does not style an Android framework dialog.
+The schedule editor uses Material time/date controls inside a bounded Curfew modal. Normal time selection uses the dial and official keyboard toggle. Keyboard entry uses the same standard numeric fields and localized AM/PM choices at every width, so resizing preserves raw input. An invalid value disables Done and the dial toggle. Date input replaces the calendar when it cannot fit. The date component owns its body inset; the modal does not double it. The mode action sits with Cancel and Done instead of consuming an empty calendar header. The body scrolls independently of Cancel and Done, and the window respects the keyboard. Cancel, Back, and a backdrop tap discard picker changes. Done changes only the editor draft; Save persists the schedule. Date-picker milliseconds represent UTC calendar days, independent of the phone timezone. [Picker verification](TESTING.md) records actual device-profile evidence.
 
 The sound test uses one confirmation dialog after playback starts. It asks “Did you hear the alarm?” and offers “I heard it,” “Play again,” and “Not now.” Failed playback cannot offer hearing confirmation. The sound action remains available after setup. [Sound-check behavior](SOUND_CHECK.md) defines cancellation and the old-flag correction.
 

@@ -1,8 +1,5 @@
 package studio.hypertext.curfew.ui
 
-import android.app.DatePickerDialog
-import android.app.TimePickerDialog
-import android.text.format.DateFormat
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -45,18 +42,14 @@ internal fun SunriseScheduleEditor(
     var dateText by rememberSaveable { mutableStateOf((saved?.onceDate ?: nextSunriseDate(LocalTime.parse(timeText))).toString()) }
     var dateExplicitlyChosen by rememberSaveable { mutableStateOf(saved?.onceDate != null) }
     var weekdays by rememberSaveable { mutableIntStateOf(saved?.weekdays?.takeIf { it.isNotEmpty() }?.fold(0) { mask, day -> mask or (1 shl day.ordinal) } ?: 127) }
+    var choosingTime by rememberSaveable { mutableStateOf(false) }
+    var choosingDate by rememberSaveable { mutableStateOf(false) }
     val canSave = !busy && (callbackId ?: saved?.callbackId) != null && (canArm || saved?.enabled == false) && (!weekly || weekdays != 0)
     TaskContent {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text("Wake time", style = MaterialTheme.typography.labelLarge)
             FilledTonalButton(
-                onClick = {
-                    val time = LocalTime.parse(timeText)
-                    TimePickerDialog(context, { _, hour, minute ->
-                        timeText = LocalTime.of(hour, minute).toString()
-                        if (!dateExplicitlyChosen) dateText = nextSunriseDate(LocalTime.parse(timeText)).toString()
-                    }, time.hour, time.minute, DateFormat.is24HourFormat(context)).show()
-                }, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 88.dp),
+                onClick = { choosingTime = true }, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 88.dp),
             ) { Text(timeLabel(LocalTime.parse(timeText), context, locale), style = MaterialTheme.typography.headlineLarge.copy(fontFamily = MaterialTheme.typography.bodyLarge.fontFamily)) }
         }
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -81,13 +74,7 @@ internal fun SunriseScheduleEditor(
                 if (weekdays == 0) TaskMessage("Choose at least one day.", error = true)
             } else {
                 OutlinedButton(
-                    onClick = {
-                        val date = LocalDate.parse(dateText)
-                        DatePickerDialog(context, { _, year, month, day ->
-                            dateText = LocalDate.of(year, month + 1, day).toString()
-                            dateExplicitlyChosen = true
-                        }, date.year, date.monthValue - 1, date.dayOfMonth).show()
-                    }, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
+                    onClick = { choosingDate = true }, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
                 ) { Text(LocalDate.parse(dateText).format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL).withLocale(locale))) }
             }
         }
@@ -102,6 +89,16 @@ internal fun SunriseScheduleEditor(
                     saved?.enabled ?: true, requireNotNull(callbackId ?: saved?.callbackId)))
             }, enabled = canSave, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
         ) { Text(if (busy) "Saving…" else "Save") }
+    }
+    if (choosingTime) AlarmTimePicker(LocalTime.parse(timeText), onCancel = { choosingTime = false }) { time ->
+        timeText = time.toString()
+        if (!dateExplicitlyChosen) dateText = nextSunriseDate(time).toString()
+        choosingTime = false
+    }
+    if (choosingDate) AlarmDatePicker(LocalDate.parse(dateText), onCancel = { choosingDate = false }) { date ->
+        dateText = date.toString()
+        dateExplicitlyChosen = true
+        choosingDate = false
     }
 }
 

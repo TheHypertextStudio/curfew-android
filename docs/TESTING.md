@@ -281,8 +281,8 @@ The final compact-layout run passed 24 installed API33 checks in 44.15s,
 including fourteen layout cases, nine navigation cases, and eight captures
 from one capture case. Plain/GMS builds, both 181-case unit suites, and both
 Android lint tasks passed. The source diff and preview JavaScript syntax
-checks passed. The earlier API36 CI alarm-presentation failure remains an
-independent P1 acceptance issue; these visual checks do not resolve it.
+checks passed. The then-current API36 CI alarm-presentation failure was independent of
+these visual checks. The later `c83bb57` CI matrix passes all four API levels.
 
 ## Late-transition playback evidence
 
@@ -293,6 +293,42 @@ for both notification and actual alarm audio. The late-transition case now
 uses the same bounded condition wait, records persisted state, notification
 channels, and audio status on failure, and requires audio before and after
 the old broadcast. API33 GMS passes all four isolation cases in 9.477s.
-This strengthens test observation; it does not change service behavior or
-establish that the API36 failure is resolved. The next CI run must supply
-that result.
+This strengthens test observation without changing service behavior. CI
+at `c83bb57` subsequently passes API33/34/35/36 and both verification jobs.
+
+## Branded alarm pickers
+
+`SunriseScheduleEditorInstrumentedTest` first failed the two themed-action
+cases against framework dialogs. The replacement uses stock Material time
+and date controls inside a Curfew modal. Tests exercise Done versus Save,
+cancellation, Back, invalid values, midnight/noon, inferred versus explicit
+one-night dates, recurring selection, and saved identity. The date tests
+enter actual localized input and assert the resulting calendar date. They
+do not set internal picker state.
+
+`AlarmPickerLayoutInstrumentedTest` checks actual dialog-window font scale,
+text allocation, both themes, and a real touch on Done with the keyboard
+open. It allows at most one physical pixel for text rounding and checks each
+line against its allocated constraints and line limit. Stock picker text
+can retain a wide paragraph while reporting a tighter glyph box; that
+empty paragraph width is not glyph clipping.
+It does not clamp font scale. `scripts/accept-picker-layout-emulator.py`
+refuses any device except the owned Sunrise_API33 emulator. It runs normal,
+320dp, and 320dp/200% profiles with both clock formats, exports full-display
+captures, and restores density, text scale, clock format, and animations
+in its finally block. Android can materialize an absent font-scale key as
+the equivalent default `1.0`; the driver records read-back settings and
+checks that effective default. This evidence covers native layout and interaction;
+it does not establish physical speaker volume or wakefulness.
+
+Picker changes require no storage migration or protocol release. A revert
+restores framework dialogs while preserving saved schedules.
+
+The final picker candidate passes all four owned API33 profiles. Each
+reports 18 checks; the dial and calendar cases skip where those controls
+are intentionally replaced by narrow/enlarged input. Six such skips occur
+across the three constrained profiles. The normal profile exercises both
+controls, including a real dial tap. The driver verifies cleanup and records
+the installed APK checksum. Both 181-case host suites, both app/test builds,
+and both Android lint variants pass. Final native captures and their actual
+profile manifest are in `design/android-review/native/pickers/`.

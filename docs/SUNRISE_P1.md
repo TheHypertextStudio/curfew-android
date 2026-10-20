@@ -32,10 +32,13 @@ Forward and backward five-minute wall-clock changes now both preserve the
 original first attempt and its real two-minute boundary. Secure reboot
 coverage still supports ringing only after first unlock.
 
-CI at 919e70b passes both verification jobs, release evidence, and API34/35/36
-instrumentation. API33 failed scheduled delivery within its observation
-window. Current-head CI remains required. The earlier 65-minute Doze result
-belongs to runtime 789e0cd and does not establish current-runtime acceptance.
+CI at `c83bb57` passes both verification jobs, release evidence, and all
+API33/34/35/36 instrumentation jobs. Its late-transition isolation test
+requires actual alarm audio before and after the stale broadcast. That
+result follows the notification-only startup failure at `843ac01`.
+The 65-minute Doze observation for runtime `843ac01` remains live with a
+13:33:03 UTC target on October 20. The older result at `789e0cd` does not
+establish current-runtime acceptance.
 Physical Pixel/non-Pixel checks,
 manufacturer/DND behavior, remaining design review, and Docket publication
 remain open. Docket exposes no callable connector tools, and plugin discovery

@@ -1,0 +1,40 @@
+{
+  "syntheticFixture": true,
+  "physicalDeviceEvidence": false,
+  "profiles": {
+    "normal": {
+      "configuration": "fontScale=1.0 screenWidthDp=411",
+      "nativeResult": "33.934\n\nOK (18 tests)"
+    },
+    "narrow": {
+      "configuration": "fontScale=1.0 screenWidthDp=320",
+      "nativeResult": "28.501\n\nOK (18 tests)"
+    },
+    "large": {
+      "configuration": "fontScale=2.0 screenWidthDp=320",
+      "nativeResult": "28.491\n\nOK (18 tests)"
+    },
+    "large-24h": {
+      "configuration": "fontScale=2.0 screenWidthDp=320",
+      "nativeResult": "26.829\n\nOK (18 tests)"
+    }
+  },
+  "installedApk": "39c0a5a635cb9d3df470b734de2d96802c44d55d68f7ed08c4119e957d57dddc",
+  "cleanup": {
+    "completed": [
+      "normal",
+      "narrow",
+      "large",
+      "large-24h"
+    ],
+    "originalProfileRestored": true,
+    "restoredSettings": {
+      "system/font_scale": "1.0",
+      "system/time_12_24": "null",
+      "global/window_animation_scale": "1.0",
+      "global/transition_animation_scale": "1.0",
+      "global/animator_duration_scale": "null"
+    },
+    "physicalDeviceEvidence": false
+  }
+}

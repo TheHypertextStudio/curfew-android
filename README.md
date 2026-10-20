@@ -35,7 +35,7 @@ Production signing uses these protected environment variables for both release v
 - `CURFEW_ANDROID_KEY_ALIAS`
 - `CURFEW_ANDROID_KEY_PASSWORD`
 
-Without them, local release builds use the Android debug key and are not production artifacts.
+Without them, release builds remain unsigned and are not production artifacts. CI release evidence uses an explicit test keystore; it does not establish production signing.
 
 ## Project boundaries
 
