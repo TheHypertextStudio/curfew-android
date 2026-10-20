@@ -142,3 +142,13 @@ while locked, Doze, lifecycle recovery, or manual accessibility acceptance.
 
 CI run `39495696389` passed all seven jobs on documentation commit
 `25a1742`. The installed application runtime remains `514370d`.
+
+The owner subsequently confirmed hearing the alarm. That supplies perceived
+sound evidence for the brief run, without asserting sufficient wake volume.
+A separate isolated probe exited instrumentation before scheduled delivery.
+The Pixel reported `Dozing`; UID-scoped alarm audio then appeared in 11.072s.
+The driver immediately force-stopped the isolated package and removed both
+test APKs. The 14-second cutoff did not trigger. This establishes delivery
+from screen-off ambient display, not deep-idle/Doze or locked UI usability.
+The first probe aborted before delivery after an early screen-state sample;
+its cleanup passed. Logs are in `build/sunrise-evidence/physical/pixel-screen-off/`.

@@ -697,3 +697,13 @@ are in `build/sunrise-evidence/physical/`. That directory name does not turn
 its isolated-emulator results into physical acceptance. One earlier Plain
 command used the wrong repository test package; its class-loading failure
 is retained separately from the corrected passing run.
+
+## Adaptive launcher icon
+
+`LauncherIconInstrumentedTest` renders the packaged adaptive icon and checks
+sun color, transparency, full-bleed dusk gradient, mask-safe geometry, and
+monochrome silhouette. It first failed against the stock robot, then passed
+two native cases on API36 GMS in 0.166s and API33 Plain in 0.056s.
+Both distributions pass 182 host tests, APK builds, and Android lint. The native contact sheet is
+`design/android-review/native/icon/launcher-icon-review.png`. See
+[the icon design and rollback notes](ANDROID_ICON.md).
