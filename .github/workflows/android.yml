@@ -112,8 +112,12 @@ jobs:
       - uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api }}
-          target: aosp_atd
+          # These tests use the IME, SystemUI, and platform alarm media.
+          target: google_apis
           arch: x86_64
+          profile: pixel_2
+          cores: 2
+          ram-size: 1536M
           disable-animations: true
           working-directory: curfew-android
           script: ./ci/run-instrumented-tests.sh ${{ matrix.distribution }} ${{ matrix.api }}

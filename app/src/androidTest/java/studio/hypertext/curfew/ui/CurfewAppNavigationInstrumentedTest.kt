@@ -10,6 +10,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
@@ -121,7 +122,7 @@ class CurfewAppNavigationInstrumentedTest {
         show(required = setOf(ReadinessAction.RAISE_ALARM_VOLUME))
         compose.onNodeWithContentDescription("Settings").performClick()
         compose.onNodeWithText("Alarm access and sound").performClick()
-        compose.onNodeWithText("Turn up alarm volume").performClick()
+        compose.onNodeWithText("Turn up alarm volume").performScrollTo().assertIsDisplayed().performClick()
         compose.runOnIdle { assertEquals(1, volumeRequests) }
         compose.onNodeWithText("HTTPS verifier endpoint").assertDoesNotExist()
     }
@@ -131,8 +132,8 @@ class CurfewAppNavigationInstrumentedTest {
         compose.onNodeWithContentDescription("Edit Sunrise").performClick()
         compose.onNodeWithText("Weekly").performClick()
         compose.onNodeWithText("Finish setup").performClick()
-        compose.onNodeWithText("Turn up alarm volume").performClick()
-        compose.onNodeWithText("Done").performClick()
+        compose.onNodeWithText("Turn up alarm volume").performScrollTo().assertIsDisplayed().performClick()
+        compose.onNodeWithText("Done").performScrollTo().assertIsDisplayed().performClick()
         compose.onNodeWithText("Weekly").assertIsSelected()
         compose.onNodeWithContentDescription("Back").performClick()
         compose.onNodeWithContentDescription("Edit Sunrise").assertIsDisplayed()
