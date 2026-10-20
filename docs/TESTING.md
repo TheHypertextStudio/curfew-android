@@ -86,3 +86,42 @@ reports pending state, notification presence, observed alarm audio, and exact
 alarm access separately so a compound predicate does not hide the failed stage.
 The corrected recovery and delivery fixtures pass locally in ten cases
 (25.796s). Their remote result still requires CI.
+
+
+## Wall-clock Doze acceptance
+
+Run `python3 -B scripts/accept-doze-emulator.py` on the owned API36 AVD only.
+Install the current plain app and test APK first. The script refuses an existing
+pending or upcoming alarm. It saves a real one-night alarm 65 minutes ahead,
+ends instrumentation, disconnects emulated charging, turns the screen off, and
+requires observed deep idle before waiting for alarm audio. Do not run another
+native test, install, reboot, or change the emulator during that wait.
+
+Android's default upcoming-alarm guard prevents entering deep idle within an
+hour of an alarm on this image. AlarmManager also leaves idle before alarm-clock
+delivery. The 65-minute case preserves those policies and the real clock. It
+uses no idle-threshold override and does not shorten Curfew's ring/quiet cadence.
+[Android's Doze guide](https://developer.android.com/training/monitoring-device-state/doze-standby)
+describes alarm-clock delivery and the shell idle controls.
+
+Evidence lives in `build/sunrise-evidence/doze/`. The driver records deep-idle
+entry, a live status file, installed APK digest, delivery time, unchanged stored
+occurrence, audio observation, and cleanup. A live status file alone does not
+prove that the process is running or that the alarm passed. Revalidate the
+specific exec session or process before waiting on it. Cleanup restores idle,
+battery reporting, and the awake screen, then removes the controlled fixture.
+This is emulator acceptance; physical sleep, speaker output, and manufacturer
+policy remain separate.
+
+
+## Local transition and optional publication
+
+`LocalAlarmTransitionTest` checks local delivery before coordinator publication,
+network failure isolation, local failure propagation, cancellation, and release
+of the broadcast result before publication. The previous publish-first ordering
+fails three behavior assertions. The new broadcast-finish requirement also
+failed before implementation. Both distribution host suites now pass 153 tests.
+
+Run the installed HTTPS journey, service isolation, cadence, and process-loss
+checks after installing the local-first APK. The in-progress Doze observation
+uses the previous runtime and cannot establish those new installed results.

@@ -18,12 +18,13 @@ def call(*args):
     return subprocess.run([ADB, "-s", SERIAL, *args], check=True, capture_output=True, timeout=30).stdout
 
 
-def instrument(method, destination):
+def instrument(method, destination, arguments=None):
+    extra_arguments = [part for key, value in (arguments or {}).items() for part in ["-e", key, value]]
     with destination.open("wb") as output:
         try:
             subprocess.run(
                 [ADB, "-s", SERIAL, "shell", "am", "instrument", "-w", "-e",
-                 "persistentCadenceAcceptance", "true", "-e", "class", TEST + "#" + method, RUNNER],
+                 "persistentCadenceAcceptance", "true", *extra_arguments, "-e", "class", TEST + "#" + method, RUNNER],
                 stdout=output, stderr=subprocess.STDOUT, check=True, timeout=270,
             )
         except subprocess.TimeoutExpired:

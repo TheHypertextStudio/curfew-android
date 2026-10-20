@@ -161,7 +161,9 @@ class PersistentCadenceJourneyInstrumentedTest {
                     assertTrue(setup.verify(it.callbackId))
                 }
             }
-            val start = Instant.now().plusSeconds(10).atZone(ZoneOffset.UTC)
+            val delaySeconds = InstrumentationRegistry.getArguments().getString("fixtureDelaySeconds")?.toLong() ?: 10L
+            require(delaySeconds in 10L..7_200L)
+            val start = Instant.now().plusSeconds(delaySeconds).atZone(ZoneOffset.UTC)
             val scheduleId = "cadence-process-loss-${UUID.randomUUID()}"
             val saved = scheduler.save(SunriseSchedule(scheduleId, start.toLocalTime(), start.toLocalDate(), emptySet(), true, definition.callbackId), zone = ZoneOffset.UTC)
             campaignId = requireNotNull(saved.occurrence).campaignId

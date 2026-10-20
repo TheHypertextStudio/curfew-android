@@ -5,6 +5,26 @@ Action: Complete the local Sunrise journey and collect evidence against all four
 Date: October 19, 2026.
 Status: Implementation started. No feature or device acceptance is claimed.
 
+## Current acceptance boundary
+
+The four P1 tasks remain unaccepted. Scheduling, offline cadence, authenticated
+HTTPS release, deliberate recovery, and real SIGKILL recovery have separate
+local evidence below. The full default local suite passes at `3ae4f2a`.
+Remote CI at `789e0cd` passes both verification jobs, release evidence, and the
+API34 instrumentation job. API33/35/36 fail the schedule-to-audio journey.
+The new diagnostics show saved ringing state and notification presentation with
+no observed audio track; platform logs cannot open the default alarm URI.
+Do not call this a scheduling failure or infer physical silence from it alone.
+The held-key fixture no longer fails anywhere in that matrix.
+
+A 65-minute Doze acceptance run is in progress on the installed `789e0cd`
+runtime. It entered actual deep idle under the default Android policy. Its
+scheduled boundary is 09:57:44.907899 UTC on October 20. It has not passed yet.
+The current local network-isolation change is not installed in that run.
+Reboot, replacement, clock/zone, access revocation, physical Pixel/non-Pixel
+acceptance, picker review, and Docket publication still need current evidence.
+The Docket connector remains unavailable.
+
 ## Decision
 
 Keep the existing persistent campaign engine, exact-alarm gateway, Room campaign storage, and authenticated callback protocol. Add a durable local alarm schedule above that engine. Curfew accounts and the coordinator remain optional. The saved schedule describes future mornings; the active campaign identifies one morning and keeps its release authority even when future settings change.
@@ -343,3 +363,26 @@ The keyboard fixture now requires keyboard input mode and verifies focus;
 its remote effect is unproven. Delivery timeouts report their component states.
 Read-only ADB inventories on the local host and WillieStudio show emulators
 only. No physical Pixel or non-Pixel result is inferred from that inventory.
+
+
+## Local delivery before optional coordinator publication
+
+`AlarmTransitionReceiver` previously awaited coordinator publication before
+applying the local ringing, quiet, or completion transition. A signed-in phone's
+unavailable coordinator could therefore abort local delivery. The extracted
+old ordering fails three host regressions: unavailable publication, blocked
+publication, and publication before a failed local action.
+
+The receiver now applies the local transition, finishes its broadcast result,
+and then attempts optional status publication. Network exceptions produce a
+non-secret warning instead of aborting local playback. Cancellation still
+propagates. Local failure finishes the broadcast and does not publish an applied
+state. Status publication remains best-effort; this change does not implement
+P1b coordination or a new wire contract.
+
+Five regressions pass. Both distribution suites pass 153 host tests, both debug
+APKs build, the plain test APK builds, and both Android lint variants pass
+(`local-first-final.txt`, 52s). The change requires installed regression evidence
+after the current Doze run finishes. That run still uses the previous APK.
+No schema or permission changes occur. Reverting the delivery boundary preserves
+saved data but restores the original coordinator dependency.
