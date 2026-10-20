@@ -61,3 +61,9 @@ Larger text can grow the group; readability takes precedence over the ordinary
 size target. The 390dp fixture checks that the check-in label starts within
 248dp of the task content top. Narrow, enlarged-text fixtures still check time
 hierarchy and weekday separation.
+
+
+An explicitly selected one-night date stays fixed when the time changes.
+An inferred date continues to follow the next occurrence until the owner picks
+a date. A saved one-night alarm loads as an explicit choice. This draft marker
+survives the editor's saved state and does not add another visible control.

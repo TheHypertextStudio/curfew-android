@@ -431,3 +431,33 @@ date when time changes. Both test APKs and lint compile the case. A native red
 assertion is still required before changing that production behavior. The owned
 AVD remains reserved for its live Doze observation; the regression will run in
 CI without interrupting it. This test does not arm a real occurrence.
+
+
+## One-night date preservation accepted locally
+
+The actual picker regression fails first with expected November 3 and actual
+October 20. The editor now marks a picked date as explicit and preserves it on
+time edits. An unpicked inferred date still moves to the next occurrence; a
+new midnight test checks that it becomes tomorrow. Saved one-night dates are
+explicit from the start. No persistence schema or scheduling rule changes.
+
+Both host suites pass 162 tests, both app/test APKs build, and both lint variants
+pass (`one-night-green-build.txt`, 55s). Five editor and seven recovery cases
+pass on the second owned API35 AVD (31.564s). The full default installed suite
+passes with 91 reported cases (147.602s). The five opt-in cases in that run do
+not establish their separate acceptance. The final editor fixture/capture passes
+five cases in 9.989s, and its screenshot was reviewed. Both test APKs and lint
+pass again after the fixture-only capture changes (25s). The original API36
+Doze driver remains live and uses its earlier installed runtime.
+
+The API35 UI AVD uses emulator-5556 with two cores and 1GiB guest RAM. It runs
+from a separate project-owned data directory. Host memory was 53% free before
+launch and 49% free during validation. All commands target an explicit serial.
+The original Doze AVD at emulator-5554 was not reset, installed over, or unlocked.
+
+Remaining isolation audit: `WakeStatusPollWorker.stopCampaign` still calls
+component-wide `stopService` with a campaign ID in extras. Extras do not scope a
+service instance, so late cleanup needs a native regression against a newer
+ringing occurrence. Delayed service start intents also need direct isolation
+coverage. These are local safety checks around existing optional network work,
+not P1b implementation. P1 is not accepted while those cases remain unproven.

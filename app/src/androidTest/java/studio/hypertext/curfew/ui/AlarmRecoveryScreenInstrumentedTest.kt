@@ -13,6 +13,7 @@ import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.platform.LocalInputModeManager
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsEnabled
@@ -74,8 +75,10 @@ class AlarmRecoveryScreenInstrumentedTest {
     fun releasingEarlyCancelsTheHold() {
         show()
         compose.onNodeWithText("What happened?").performTextInput(reason)
-        compose.onNodeWithText("Hold for 3 seconds").performTouchInput { down(center); up() }
-        compose.waitUntil(2_000) { cancellations.get() > 0 }
+        val previousCancellations = cancellations.get()
+        compose.onNodeWithText("Hold for 3 seconds").assertIsEnabled().assertIsDisplayed()
+            .performTouchInput { down(center); up() }
+        compose.waitUntil(2_000) { cancellations.get() > previousCancellations }
         assertEquals(1, starts.get())
         assertEquals(0, confirmations.get())
     }

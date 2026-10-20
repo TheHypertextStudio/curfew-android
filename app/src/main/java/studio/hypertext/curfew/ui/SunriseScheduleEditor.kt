@@ -43,6 +43,7 @@ internal fun SunriseScheduleEditor(
     var timeText by rememberSaveable { mutableStateOf((saved?.wakeTime ?: LocalTime.of(7, 0)).toString()) }
     var weekly by rememberSaveable { mutableStateOf(saved != null && saved.onceDate == null) }
     var dateText by rememberSaveable { mutableStateOf((saved?.onceDate ?: nextSunriseDate(LocalTime.parse(timeText))).toString()) }
+    var dateExplicitlyChosen by rememberSaveable { mutableStateOf(saved?.onceDate != null) }
     var weekdays by rememberSaveable { mutableIntStateOf(saved?.weekdays?.takeIf { it.isNotEmpty() }?.fold(0) { mask, day -> mask or (1 shl day.ordinal) } ?: 127) }
     val canSave = !busy && (callbackId ?: saved?.callbackId) != null && (canArm || saved?.enabled == false) && (!weekly || weekdays != 0)
     TaskContent {
@@ -53,7 +54,7 @@ internal fun SunriseScheduleEditor(
                     val time = LocalTime.parse(timeText)
                     TimePickerDialog(context, { _, hour, minute ->
                         timeText = LocalTime.of(hour, minute).toString()
-                        if (saved == null) dateText = nextSunriseDate(LocalTime.parse(timeText)).toString()
+                        if (!dateExplicitlyChosen) dateText = nextSunriseDate(LocalTime.parse(timeText)).toString()
                     }, time.hour, time.minute, DateFormat.is24HourFormat(context)).show()
                 }, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 88.dp),
             ) { Text(timeLabel(LocalTime.parse(timeText), context, locale), style = MaterialTheme.typography.headlineLarge.copy(fontFamily = MaterialTheme.typography.bodyLarge.fontFamily)) }
@@ -82,7 +83,10 @@ internal fun SunriseScheduleEditor(
                 OutlinedButton(
                     onClick = {
                         val date = LocalDate.parse(dateText)
-                        DatePickerDialog(context, { _, year, month, day -> dateText = LocalDate.of(year, month + 1, day).toString() }, date.year, date.monthValue - 1, date.dayOfMonth).show()
+                        DatePickerDialog(context, { _, year, month, day ->
+                            dateText = LocalDate.of(year, month + 1, day).toString()
+                            dateExplicitlyChosen = true
+                        }, date.year, date.monthValue - 1, date.dayOfMonth).show()
                     }, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
                 ) { Text(LocalDate.parse(dateText).format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL).withLocale(locale))) }
             }

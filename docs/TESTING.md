@@ -147,3 +147,20 @@ time independently. The original editor resets a new alarm's date when its time
 changes; native failing-first evidence is still pending. Both test APKs and both
 lint variants compile this regression. A missing widget or failed interaction
 would be a fixture failure, not proof of the date-reset defect.
+
+
+The one-night regression now has native red/green evidence on the isolated API35
+UI AVD. The red assertion changed November 3 to October 20 after a time edit.
+The fix preserves the explicit date while the midnight case still rolls an
+inferred date to tomorrow. Five editor and seven recovery cases pass together
+(31.564s). The full default installed suite then passes with 91 reported cases
+(147.602s); opt-in cases remain separate. The final themed editor fixture and
+capture pass five cases in 9.989s. Screenshot evidence is
+`build/sunrise-evidence/one-night-date-draft.png`.
+
+The early-release recovery fixture records its cancellation counter before the
+press. Disposal after entering the reason can already increment that counter,
+so waiting for any nonzero value does not establish that the press was handled.
+The corrected fixture waits for a new cancellation and requires a visible,
+enabled button before touching it. It retains the start and no-confirmation
+assertions.
