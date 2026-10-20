@@ -32,8 +32,9 @@ every job. A subsequent consumer-language and check-in completion pass
 passes 121 installed API33 Plain cases in 167.768s and four GMS
 check-in workflow cases in 7.416s. Its CI run `39447168226` at `3906ac7`
 passed all seven jobs. The responsive follow-up passes 182 host tests per
-variant, both app/test APK builds, and both Android lint variants. Its new CI
-result must be checked separately. Local logs live in `build/sunrise-evidence/`, which is
+variant, both app/test APK builds, and both Android lint variants. Its CI
+run `39490702571` at `40c9351` passed all seven jobs. The subsequent
+identity-race correction requires its own CI result. Local logs live in `build/sunrise-evidence/`, which is
 not published as part of the source tree.
 
 An active alarm audio track does not establish perceived speaker output.
@@ -101,14 +102,19 @@ emulators; the owner's display settings and app data were not reset.
 | Avoid duplicate ringing and unrelated release | Service-isolation tests, completion interruption tests, controller and Room guards | Automated and installed emulator |
 | Deliver after standby on the corrected notification runtime | Completed 65-minute API36 driver: scheduled `2026-10-20T15:13:31.268582Z`, audio observed at `15:13:35.992585Z`, same first-attempt bounds | Notification-runtime candidate before the later atomic-recovery and consumer changes; five-second polling, successful cleanup, no physical hearing claim |
 | Complete the required Pixel and non-Pixel journeys | No current complete physical record exists | Open: locked delivery, perceived sound, Doze, fallback, offline/reconnection/release, and manufacturer behavior |
-| Publish task updates with Codex attribution through Docket | No callable Docket connector is exposed | Open; no browser or account impersonation substitute |
+| Publish task updates with Codex attribution through Docket | Connector update `01M5DFQN5WBS8JWWZ8D4J5V3HC`, verified by `get_updates` | Origin reports `performerKind=agent`, `performerName=Codex`, and no human author; task acceptance remains open |
 
 ## Remaining acceptance work
 
-Complete the latest consumer-pass CI matrix, full physical-device matrix,
-and manual accessibility review. The corrected-notification standby
-observation passed with its exact candidate boundary recorded above. The local and WillieStudio ADB inventories
-currently contain only emulators. A discovered phone's wireless endpoint
-refused the attempted trusted ADB connection on October 20; discovery alone
-does not provide test access. Docket remains unavailable through the connector.
-None of these gaps is waived by a green build or an earlier physical TLS test.
+Complete the current candidate's CI matrix, full physical-device matrix,
+and manual accessibility review. The connected Pixel 11 Pro/API37 has the
+in-place GMS update and ordinary layout evidence. The owner cannot perform a
+speaker check now, and no non-Pixel phone is available. No physical acceptance
+requirement is waived. The corrected-notification standby observation retains
+its exact earlier candidate boundary above.
+
+Docket is reconnected. Its project update read-back identifies Codex as the
+agent performer. The four feature tasks remain in progress and unaccepted.
+A fresh isolated install then exposed concurrent encrypted-key and device-ID
+creation races. The new native regressions failed before correction. The
+reliability follow-up and its installed results are recorded in TESTING.md.

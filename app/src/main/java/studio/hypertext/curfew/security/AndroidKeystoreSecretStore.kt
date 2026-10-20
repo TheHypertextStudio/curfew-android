@@ -20,8 +20,7 @@ class AndroidKeystoreSecretStore(
         check(it.mkdirs() || it.isDirectory) { "secure secret storage is unavailable" }
     }
 
-    @Synchronized
-    fun put(identifier: String, secret: ByteArray) {
+    fun put(identifier: String, secret: ByteArray) = synchronized(operationLock) {
         require(identifier.isNotBlank())
         require(secret.isNotEmpty())
         val cipher = Cipher.getInstance(CIPHER_TRANSFORMATION)
@@ -40,10 +39,9 @@ class AndroidKeystoreSecretStore(
         check(temporary.renameTo(destination)) { "could not persist encrypted secret" }
     }
 
-    @Synchronized
-    fun get(identifier: String): ByteArray? {
+    fun get(identifier: String): ByteArray? = synchronized(operationLock) {
         val source = fileFor(identifier)
-        if (!source.exists()) return null
+        if (!source.exists()) return@synchronized null
         val payload = source.readBytes()
         require(payload.isNotEmpty()) { "encrypted secret is malformed" }
         val ivSize = payload[0].toInt() and 0xff
@@ -56,11 +54,14 @@ class AndroidKeystoreSecretStore(
             requireNotNull(keyStore().getKey(keyAlias, null) as? SecretKey),
             GCMParameterSpec(128, payload.copyOfRange(1, 1 + ivSize)),
         )
-        return cipher.doFinal(payload.copyOfRange(1 + ivSize, payload.size))
+        cipher.doFinal(payload.copyOfRange(1 + ivSize, payload.size))
     }
 
-    @Synchronized
-    fun delete(identifier: String) {
+    fun getOrPut(identifier: String, create: () -> ByteArray): ByteArray = synchronized(operationLock) {
+        get(identifier) ?: create().also { put(identifier, it) }
+    }
+
+    fun delete(identifier: String) = synchronized(operationLock) {
         val file = fileFor(identifier)
         if (file.exists()) check(file.delete()) { "could not delete encrypted secret" }
     }
@@ -95,6 +96,8 @@ class AndroidKeystoreSecretStore(
     }
 
     private companion object {
+        // Android's alias belongs to the process UID, not an individual store instance.
+        val operationLock = Any()
         const val CIPHER_TRANSFORMATION = "AES/GCM/NoPadding"
     }
 }

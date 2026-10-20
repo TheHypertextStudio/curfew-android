@@ -12,7 +12,7 @@ to assess the four feature tasks. The chronological entries below retain
 historical failures and their candidate boundaries.
 
 The four P1 tasks remain unaccepted. The latest completed CI candidate is
-`3906ac7`. The responsive follow-up passes 182 host tests per distribution,
+`40c9351`. The responsive follow-up passes 182 host tests per distribution,
 app/test APK builds, and Android lint. Historical suite counts below retain
 their original candidate boundaries.
 The corrected plain API33 suite passes 115 reported cases in 163.046s; the
@@ -40,8 +40,8 @@ every job, including both verification variants, release evidence, and
 API33/34/35/36 instrumentation. Earlier five-minute timeouts remain failed
 historical results. Runs `39440146825` (`23e4963`) and `39443372382`
 (`902ffd7`) also pass all jobs. The consumer pass at `3906ac7` passed all
-seven jobs in run `39447168226`. The responsive follow-up requires its own
-CI result. The corrected-notification standby observation has now completed;
+seven jobs in run `39447168226`. The responsive follow-up at `40c9351` passed all seven jobs in run
+`39490702571`. The subsequent identity correction needs its own CI result. The corrected-notification standby observation has now completed;
 its exact candidate boundary is recorded below.
 
 Physical Pixel/non-Pixel acceptance, actual speaker hearing, manufacturer
@@ -890,3 +890,27 @@ built APK digest. Its saved completed one-night alarm remains present.
 The layout pass does not accept physical audio, locked delivery, TalkBack,
 manufacturer battery behavior, or non-Pixel coverage. Revert the responsive
 commit to restore the previous presentation; no database migration is added.
+
+## First-start identity correction and reconnected Docket
+
+A fresh isolated GMS install exposed an encrypted-device-ID failure before
+alarm scheduling. Native regressions reproduced concurrent creation of a
+shared Android Keystore alias and divergent local device IDs. Store operations
+now share one process monitor, and device identity uses atomic read-or-create.
+Existing valid keys, ciphertext, and IDs keep their values and format. The
+correction prevents the race; it does not discard or recreate corrupt secrets.
+[The security model](SECURITY.md) records the single-process boundary.
+
+The two regressions failed first and now pass with the existing round-trip
+case. A fresh isolated install passes four TLS/security cases. An external
+probe observes scheduled audio after instrumentation exits and verifies the
+unchanged first ringing interval. Both normal variants pass 13 targeted native
+cases, both 182-case host suites, builds, and Android lint. TESTING.md records
+exact timings and candidate limits. Reverting the correction restores the
+startup race; this change adds no migration or wire-format change.
+
+Docket is connected again. Project update `01M5DFQN5WBS8JWWZ8D4J5V3HC`
+was read back with `performerKind=agent`, `performerName=Codex`, and no human
+author. The four feature tasks remain in progress. The owner deferred speaker
+testing and has no non-Pixel phone available. Those acceptance gates remain
+open, as do manual accessibility and the full physical lifecycle matrix.

@@ -4,11 +4,23 @@ Curfew treats wake controls and callback credentials as security-sensitive.
 
 ## Local protection
 
-- Callback secrets, account tokens, the device private key, the account root key, and Recovery Key material are encrypted with AES-256-GCM under a non-exportable Android Keystore key.
+- Callback secrets, account tokens, the account root key, and Recovery Key material are encrypted with AES-256-GCM under a non-exportable Android Keystore key. Device signing and agreement private keys remain in Android Keystore.
 - Encrypted secret blobs live under `noBackupFilesDir`. Application backup and device-transfer extraction are disabled for all app data.
 - Room stores runtime state, encrypted outbox payloads, and non-secret callback configuration. No secret values are logged.
 - Exported flags are explicit. Only the launcher/OAuth callback activity is exported; alarm receivers and services are not.
 - Pending intents are immutable, and normal alarm notifications contain no stop, dismiss, or snooze action.
+
+The app runs its secret users in one Android process. All secret-store instances
+share one monitor for key lookup/creation and encrypted-file reads, writes, and
+deletes. Android Keystore aliases are scoped to the app UID; instance monitors
+do not prevent two clients from replacing the same fresh alias. Replacing that
+key makes ciphertext written by the other client unreadable.
+
+Device identity uses one read-or-create operation under that monitor. Concurrent
+startup therefore returns one persisted ID. Existing aliases, ciphertext, and
+IDs keep their format and value. Failed authentication does not silently create
+a new identity or discard credentials. A move to multiple Android processes
+requires cross-process coordination before those processes share this store.
 
 ## Callback authentication
 

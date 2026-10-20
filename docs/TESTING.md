@@ -667,3 +667,33 @@ and `git diff --check` pass. The five actual-profile journeys pass. The captured
 Plain APK still matches the final built APK byte for byte. The physical
 Pixel's installed GMS digest also matches the final built GMS APK. Local logs
 remain private build artifacts. New CI evidence must be read separately.
+
+## Concurrent first-start identity and encryption
+
+A fresh `.acceptance` GMS install failed before scheduling with
+`AEADBadTagException`. Its package and instrumentation target were checked
+with AAPT; it used a separate app UID and private storage. It was installed
+only on the owned API36 emulator, not on the owner's phone.
+
+`AndroidKeystoreSecretStoreInstrumentedTest` then reproduced two failures:
+two stores could replace a fresh shared key alias and make a written secret
+unreadable; two authenticators could return different device IDs. The secret
+case uses two writers across 12 new aliases. The identity case uses a scoped
+private directory and verifies both returned IDs against the persisted ID.
+Both failed before the shared monitor and atomic read-or-create correction.
+The unchanged round-trip case and both regressions now pass together.
+
+A clean isolated reinstall then passed the TLS schedule-to-release journey
+and all three secret tests: four cases in 15.406s. A separate probe scheduled
+an alarm, ended instrumentation, observed actual UID-scoped alarm audio and
+the same first ringing interval, and cleaned up its occurrence. This is
+emulator audio-track evidence, not physical speaker evidence. The temporary
+isolated packages were removed after their cleanup passed.
+
+The normal Plain API33 and GMS API36 apps pass 13 targeted secret-store,
+TLS, repository, polling, and service-isolation cases in 29.634s and 33.673s.
+Both 182-case host suites, app/test APK builds, and Android lint pass. Logs
+are in `build/sunrise-evidence/physical/`. That directory name does not turn
+its isolated-emulator results into physical acceptance. One earlier Plain
+command used the wrong repository test package; its class-loading failure
+is retained separately from the corrected passing run.
