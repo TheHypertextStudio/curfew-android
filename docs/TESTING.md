@@ -283,3 +283,16 @@ from one capture case. Plain/GMS builds, both 181-case unit suites, and both
 Android lint tasks passed. The source diff and preview JavaScript syntax
 checks passed. The earlier API36 CI alarm-presentation failure remains an
 independent P1 acceptance issue; these visual checks do not resolve it.
+
+## Late-transition playback evidence
+
+The API36 run at runtime head `843ac01` failed before the old transition
+was delivered. That case used a five-second notification-only startup
+window. The two adjacent isolation cases used a ten-second condition wait
+for both notification and actual alarm audio. The late-transition case now
+uses the same bounded condition wait, records persisted state, notification
+channels, and audio status on failure, and requires audio before and after
+the old broadcast. API33 GMS passes all four isolation cases in 9.477s.
+This strengthens test observation; it does not change service behavior or
+establish that the API36 failure is resolved. The next CI run must supply
+that result.

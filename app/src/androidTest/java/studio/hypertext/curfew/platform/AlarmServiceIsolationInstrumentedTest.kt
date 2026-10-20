@@ -159,10 +159,13 @@ class AlarmServiceIsolationInstrumentedTest {
                 ContextCompat.startForegroundService(activity,
                     PerpetualAlarmService.startIntent(activity, currentId, 1, null, null))
             }
-            repeat(100) {
-                if (!isRingingPresentationActive()) Thread.sleep(50)
-            }
-            assertTrue("Current alarm did not reach ringing presentation", isRingingPresentationActive())
+            val audio = context.getSystemService(AudioManager::class.java)
+            fun audioActive() = audio.activePlaybackConfigurations.any { it.audioAttributes.usage == AudioAttributes.USAGE_ALARM }
+            val deadline = android.os.SystemClock.elapsedRealtime() + 10_000
+            while ((!isRingingPresentationActive() || !audioActive()) && android.os.SystemClock.elapsedRealtime() < deadline) Thread.sleep(50)
+            val startupEvidence = "state=${repository.load(currentId)} channels=${notifications.activeNotifications.map { it.notification.channelId }} alarmAudio=${audioActive()}"
+            assertTrue("Current alarm did not reach ringing presentation: $startupEvidence", isRingingPresentationActive())
+            assertTrue("Current alarm did not produce audio: $startupEvidence", audioActive())
             val completed = CountDownLatch(1)
             context.sendOrderedBroadcast(
                 AndroidAlarmClockGateway(context).transitionCommand(oldId),
@@ -174,6 +177,7 @@ class AlarmServiceIsolationInstrumentedTest {
             )
             assertTrue("Old transition did not finish", completed.await(10, TimeUnit.SECONDS))
             assertTrue("An old occurrence stopped current playback", isRingingPresentationActive())
+            assertTrue("An old occurrence stopped current alarm audio", audioActive())
         }
     }
 }
