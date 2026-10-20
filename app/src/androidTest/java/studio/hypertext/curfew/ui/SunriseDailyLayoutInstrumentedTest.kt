@@ -45,7 +45,7 @@ class SunriseDailyLayoutInstrumentedTest {
     private val locale = context.resources.configuration.locales[0]
     private val wakeTime = LocalTime.of(7, 0)
 
-    private fun show(fontScale: Float, nextDate: LocalDate? = null, onceDate: LocalDate? = null, width: Int = 320, height: Int? = null) {
+    private fun show(fontScale: Float, nextDate: LocalDate? = null, onceDate: LocalDate? = null, width: Int = 320, height: Int? = null, canArm: Boolean = true) {
         scale.floatValue = fontScale
         compose.setContent {
             val density = LocalDensity.current
@@ -56,13 +56,20 @@ class SunriseDailyLayoutInstrumentedTest {
                             alarm = SavedSunriseAlarm(SunriseSchedule("layout-alarm", wakeTime, onceDate, if (onceDate == null) DayOfWeek.entries.take(5).toSet() else emptySet(), true, "check-in"),
                                 nextDate?.let { SunriseOccurrence("layout-occurrence", it, it.atTime(wakeTime).atZone(ZoneId.systemDefault()).toInstant()) }),
                             conditionLabel = "Morning check-in", conditionVerified = true,
-                            canArm = true, busy = false, error = null,
+                            canArm = canArm, busy = false, error = null,
                             onEdit = {}, onCheckIn = {}, onSetup = {}, onToggle = {},
                         )
                     }
                 }
             }
         }
+    }
+
+    @Test fun enabledAlarmReportsAttentionWhenReadinessIsLost() {
+        show(1f, width = 390, canArm = false)
+        compose.onNodeWithText("Needs attention").assertExists()
+        compose.onNodeWithText("Alarm on").assertDoesNotExist()
+        compose.onNodeWithText("Finish setup").assertExists()
     }
 
     @Test fun ordinaryPhoneGivesTheWakeTimeVisualPriority() {

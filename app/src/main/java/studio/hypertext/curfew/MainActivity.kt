@@ -59,6 +59,8 @@ import studio.hypertext.curfew.ui.CurfewApp
 import studio.hypertext.curfew.ui.theme.CurfewTheme
 import studio.hypertext.curfew.sync.WakeSyncScheduler
 import studio.hypertext.curfew.alarm.AlarmCampaignState
+import studio.hypertext.curfew.alarm.AlarmRuntimeSnapshot
+import studio.hypertext.curfew.alarm.AlarmRuntimeClock
 import studio.hypertext.curfew.alarm.SunriseSchedule
 import studio.hypertext.curfew.platform.SunriseScheduler
 import studio.hypertext.curfew.protocols.CallbackDefinition
@@ -76,7 +78,7 @@ class MainActivity : ComponentActivity() {
     private var sunriseSaving by mutableStateOf(false)
     private var sunriseError by mutableStateOf<String?>(null)
     private var sunriseReadFailed by mutableStateOf(false)
-    private var requestedAlarmState by mutableStateOf<AlarmCampaignState?>(null)
+    private var requestedAlarmSnapshot by mutableStateOf<AlarmRuntimeSnapshot?>(null)
     private var requestedAlarmLoaded by mutableStateOf(false)
     private var recoveryVisible by mutableStateOf(false)
     private val ownerRecoveryDelegate = lazy {
@@ -137,12 +139,12 @@ class MainActivity : ComponentActivity() {
         val requestedId = intent.getStringExtra(AndroidAlarmClockGateway.EXTRA_CAMPAIGN_ID)
         if (intent.getBooleanExtra(EXTRA_SHOW_ALARM, false) && requestedId != null) {
             lifecycleScope.launch {
-                requestedAlarmState = runCatching {
-                    AlarmRuntimeRepository(this@MainActivity).load(requestedId)
+                requestedAlarmSnapshot = runCatching {
+                    AlarmRuntimeRepository(this@MainActivity).snapshot(requestedId)
                 }.getOrNull()
                 requestedAlarmLoaded = true
-                if (requestedAlarmState is AlarmCampaignState.Ringing ||
-                    requestedAlarmState is AlarmCampaignState.Quiet
+                if (requestedAlarmSnapshot?.state is AlarmCampaignState.Ringing ||
+                    requestedAlarmSnapshot?.state is AlarmCampaignState.Quiet
                 ) {
                     presentOverKeyguard()
                 }
@@ -158,10 +160,12 @@ class MainActivity : ComponentActivity() {
             @Suppress("UNUSED_EXPRESSION")
             capabilityEpoch
             val savedAlarm = sunriseState.collectAsStateWithLifecycle(initialValue = null).value
+            val runtime = remember { AlarmRuntimeRepository(this@MainActivity) }
+            val bootId = remember(runtime) { runtime.currentBootId() }
             val campaignId = intent.getStringExtra(AndroidAlarmClockGateway.EXTRA_CAMPAIGN_ID)
                 ?: savedAlarm?.occurrence?.campaignId
-            val campaignFlow = remember(campaignId) {
-                campaignId?.let { AlarmRuntimeRepository(this).observe(it) }
+            val campaignFlow = remember(campaignId, runtime) {
+                campaignId?.let { runtime.observeSnapshot(it) }
                     ?.catch {
                         sunriseError = "The current Sunrise could not be read."
                         emit(null)
@@ -169,7 +173,8 @@ class MainActivity : ComponentActivity() {
             }
             val campaignSnapshot = remember(campaignFlow) { campaignFlow.map { true to it } }
                 .collectAsStateWithLifecycle(initialValue = false to null).value
-            val campaign = if (campaignSnapshot.first) campaignSnapshot.second else requestedAlarmState
+            val runtimeSnapshot = if (campaignSnapshot.first) campaignSnapshot.second else requestedAlarmSnapshot
+            val campaign = runtimeSnapshot?.state
             val showAlarm = campaign is AlarmCampaignState.Ringing || campaign is AlarmCampaignState.Quiet
             var ringingCondition by remember(campaignId) { mutableStateOf<CallbackDefinition?>(null) }
             LaunchedEffect(campaignId) {
@@ -225,8 +230,9 @@ class MainActivity : ComponentActivity() {
                     val clock = android.text.format.DateFormat.getTimeFormat(this@MainActivity)
                     AlarmRingingScreen(
                         time = clock.format(java.util.Date.from(requireNotNull(campaign).campaignStartedAt())),
-                        nextRingTime = (campaign as? AlarmCampaignState.Quiet)?.nextAttemptAt?.let {
-                            clock.format(java.util.Date.from(it))
+                        nextRingTime = runtimeSnapshot.takeIf { it.state is AlarmCampaignState.Quiet }?.let {
+                            AlarmRuntimeClock.nextTransitionAt(it, java.time.Instant.now(), android.os.SystemClock.elapsedRealtime(), bootId)
+                                ?.let { next -> clock.format(java.util.Date.from(next)) }
                         },
                         onRecover = { recoveryVisible = true },
                         conditionLabel = ringingCondition?.displayLabel ?: "your check-in",
@@ -404,8 +410,11 @@ class MainActivity : ComponentActivity() {
         capabilityEpoch += 1
         lifecycleScope.launch {
             runCatching { sunrise.restore() }.onFailure {
-                sunriseError = "Sunrise needs attention. Check alarm access, sound, and the wake condition."
+                sunriseError = if (!AndroidAlarmClockGateway(this@MainActivity).canScheduleExactAlarms()) {
+                    "Alarm access is off."
+                } else "Couldn’t restore this alarm."
             }
+            PerpetualAlarmService.restoreAfterForegroundEntry(this@MainActivity)
         }
     }
 

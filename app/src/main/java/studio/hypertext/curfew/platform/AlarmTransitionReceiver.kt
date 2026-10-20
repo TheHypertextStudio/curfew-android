@@ -9,7 +9,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import studio.hypertext.curfew.alarm.AlarmCampaignEngine
 import studio.hypertext.curfew.alarm.AlarmCampaignState
 import studio.hypertext.curfew.alarm.LocalAlarmTransition
 import studio.hypertext.curfew.callback.CallbackConfigurationRepository
@@ -37,11 +36,10 @@ class AlarmTransitionReceiver : BroadcastReceiver() {
 
     private suspend fun transition(context: Context, campaignId: String): AlarmCampaignState? {
         val repository = AlarmRuntimeRepository(context)
-        val previous = repository.load(campaignId) ?: return null
-        val current = repository.save(AlarmCampaignEngine().advanceTo(previous, Instant.now()))
+        val current = repository.recover(campaignId) ?: return null
         val gateway = AndroidAlarmClockGateway(context)
         when (current) {
-            is AlarmCampaignState.Scheduled -> gateway.setAlarmClock(campaignId, current.startsAt)
+            is AlarmCampaignState.Scheduled -> repository.nextTransitionAt(campaignId)?.let { gateway.setAlarmClock(campaignId, it) }
             is AlarmCampaignState.Ringing -> {
                 val definition = repository.callbackId(campaignId)?.let {
                     CallbackConfigurationRepository(context).find(it)
@@ -57,10 +55,10 @@ class AlarmTransitionReceiver : BroadcastReceiver() {
                     ),
                 )
                 if (definition != null) CallbackPollScheduler.schedule(context, campaignId)
-                gateway.setAlarmClock(campaignId, current.ringEndsAt)
+                repository.nextTransitionAt(campaignId)?.let { gateway.setAlarmClock(campaignId, it) }
             }
             is AlarmCampaignState.Quiet -> {
-                gateway.setAlarmClock(campaignId, current.nextAttemptAt)
+                repository.nextTransitionAt(campaignId)?.let { gateway.setAlarmClock(campaignId, it) }
             }
             is AlarmCampaignState.Overridden,
             is AlarmCampaignState.Satisfied,

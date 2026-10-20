@@ -211,3 +211,52 @@ is valid background behavior, not a failed process-restart assertion.
 The shared external-lifecycle fixture uses the actual device timezone because
 recovery resolves saved local times again. This does not alter production
 schedule resolution or the default offline cadence fixture.
+
+
+Run `python3 -B scripts/accept-clock-emulator.py` only on the owned
+Sunrise_API36 AVD at emulator-5554 after installing matching current app/test
+APKs. It disables automatic time temporarily, moves the emulator wall clock
+five minutes forward during actual audio, and requires the same first attempt
+to reach quiet at its original two-minute elapsed boundary. A short unchanged
+snapshot alone does not pass. The driver restores the original clock offset
+and automatic-time setting and removes its scoped fixture. The callback worker
+must use elapsed recovery too; an early green observation missed that writer.
+See [active clock rules](ALARM_CLOCK.md) for the required domain invariants.
+
+
+Use `scripts/accept-clock-emulator.py --backward` for the corresponding
+five-minute reverse adjustment. Both directions require the real two-minute
+boundary and preserve their records in separate directories.
+
+`scripts/accept-timezone-emulator.py` requires the owned Sunrise_UI_API35
+AVD on port 5556 with its initial Los Angeles zone. It saves a future local
+alarm, observes an Anchorage round trip, requires the original occurrence's
+audio, and restores the zone and automatic-zone settings during cleanup.
+
+`scripts/accept-relaunch-emulator.py` requires Sunrise_API36 on port 5554.
+Its `--api33` preset requires Sunrise_API33 on port 5558. Both presets refuse
+other AVDs and real devices. The driver saves an alarm, waits for actual audio,
+force-stops the disposable app, and reopens MainActivity without starting a
+service by hand. It requires the same first attempt and boundary to regain
+audio within 30 seconds. A notification or persisted Ringing state alone cannot
+pass. Cleanup removes only the scoped occurrence. Android 13 must pass directly;
+newer-platform reopen broadcasts cannot stand in for oldest-platform evidence.
+
+
+`scripts/accept-permission-emulator.py` requires the owned Sunrise_API33 AVD
+on port 5558. It saves an alarm two minutes ahead, revokes exact-alarm access,
+and reopens Curfew. Its opt-in native probe requires Android and readiness to
+report revoked access while preserving the enabled schedule and occurrence.
+It then restores access, returns through MainActivity, and requires the same
+occurrence's first audio at the original boundary. The driver restores alarm
+access and removes its fixture in cleanup. This is permission recovery on one
+emulator, not a manufacturer or physical-device acceptance result.
+
+
+The package-replacement driver's `--api33` preset uses the owned Sunrise_API33
+AVD on port 5558 and writes a separate evidence directory. Its default still
+requires Sunrise_UI_API35 on port 5556. Neither preset accepts arbitrary
+serials or real devices. The permission driver additionally reads the native
+accessibility XML. It requires Needs attention, rejects Alarm on, and requires
+the specific Alarm access is off message before restoring access. Its native
+probe verifies platform readiness and durable state independently from copy.

@@ -12,7 +12,7 @@ Use the shared Curfew design roles from `curfew/landing/public/design/tokens.css
 
 ## Screens and tasks
 
-Daily use centers on the saved time, seven visual alarm days or one-night date, the on/off control, and the named wake check. Group the time, days, and switch on one tonal surface. Give the check-in its own row. Do not add a status dashboard or explain each visible control in a paragraph. Use “Alarm on” and “Alarm off,” not “armed.”
+Daily use centers on the saved time, seven visual alarm days or one-night date, the on/off control, and the named wake check. Group the time, days, and switch on one tonal surface. Give the check-in its own row. Do not add a status dashboard or explain each visible control in a paragraph. Use “Alarm on” and “Alarm off,” not “armed.” An enabled schedule with missing readiness says “Needs attention” and retains its setup repair action. The switch records the owner’s choice; it cannot establish that Android can deliver the alarm.
 
 Alarm editing uses native time and date controls and one Save action. Keep a draft until Save. Back cancels changes. Show the actual next occurrence in the user's locale. A completed one-night alarm does not become a recurring alarm. Future edits and toggles cannot dismiss an active occurrence.
 

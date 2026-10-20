@@ -115,7 +115,7 @@ internal fun SunriseDailyScreen(
                     }
                 } else {
                     Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text(when { complete -> "One-night alarm complete"; saved.enabled -> "Alarm on"; else -> "Alarm off" },
+                        Text(when { complete -> "One-night alarm complete"; saved.enabled && !canArm -> "Needs attention"; saved.enabled -> "Alarm on"; else -> "Alarm off" },
                             style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
                         if (!complete) Switch(
                             checked = saved.enabled, onCheckedChange = onToggle,

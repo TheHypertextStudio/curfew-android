@@ -4,15 +4,12 @@ import android.app.AlarmManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.os.SystemClock
 import java.time.Instant
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import studio.hypertext.curfew.alarm.AlarmCampaignEngine
 import studio.hypertext.curfew.alarm.AlarmCampaignState
-import studio.hypertext.curfew.alarm.AlarmRecoveryPlanner
 
 class AlarmRecoveryReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
@@ -35,18 +32,14 @@ class AlarmRecoveryReceiver : BroadcastReceiver() {
         val gateway = AndroidAlarmClockGateway(context)
         if (!gateway.canScheduleExactAlarms()) return
         val repository = AlarmRuntimeRepository(context)
-        val planner = AlarmRecoveryPlanner(AlarmCampaignEngine())
-        val nowWall = Instant.now()
-        val nowElapsed = SystemClock.elapsedRealtime()
-        val bootId = repository.currentBootId()
         repository.pendingSnapshots().forEach { snapshot ->
-            val state = repository.save(planner.recover(snapshot, nowWall, nowElapsed, bootId))
+            val state = repository.recover(snapshot.state.campaignId) ?: return@forEach
             val next = when (state) {
                 is AlarmCampaignState.Scheduled -> state.startsAt
                 // BOOT_COMPLETED cannot directly launch a media-playback FGS on Android 15+.
                 // A user-visible alarm-clock transition immediately re-enters the normal path.
                 is AlarmCampaignState.Ringing -> Instant.now().plusSeconds(5)
-                is AlarmCampaignState.Quiet -> state.nextAttemptAt
+                is AlarmCampaignState.Quiet -> repository.nextTransitionAt(state.campaignId)
                 is AlarmCampaignState.Overridden,
                 is AlarmCampaignState.Satisfied,
                 -> null

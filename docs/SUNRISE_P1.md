@@ -7,28 +7,39 @@ Status: Implementation started. No feature or device acceptance is claimed.
 
 ## Current acceptance boundary
 
-The four P1 tasks remain unaccepted. Scheduling, real offline cadence,
-authenticated HTTPS release, deliberate recovery, and SIGKILL recovery have
-separate local evidence below. The audio fallback resolves the missing default
-alarm URI observed on emulator images. CI at 29e3537 passes API 34 GMS and
-API 35 plain, both verification jobs, and release evidence. API 33 fails an
-ordered-broadcast completion assertion. API 36 fails a check-in save-retry
-assertion. Neither failure is accepted as resolved.
+The four P1 tasks remain unaccepted. The local implementation has separate
+installed evidence for schedule-to-audio-to-authenticated-release, persistent
+offline cadence, deliberate credential recovery, process death, package
+replacement, reboot after first unlock, wall-clock changes, and a future
+timezone round trip. Older observations below retain their exact candidate
+boundary; they are not current physical-device acceptance.
 
-The default-policy 65-minute Doze observation passed on earlier runtime
-789e0cd. It establishes emulator alarm audio, not full-screen presentation or
-physical sound. The current candidate fixes old terminal cleanup, delayed
-service commands,
-and denied foreground entry during boot recovery. The final plain runtime
-passes 94 reported installed cases. Secure API 36 reboot recovery and seven
-focused GMS audio/isolation/release cases pass. See the dated records below
-for exact candidate and copy-only follow-up boundaries.
+The active-clock candidate passes both 181-case host suites, both app/test
+builds, and both Android lint variants. Its API35 plain suite passed 97
+reported cases before the later daily layout change. Its API36 GMS suite
+passed 97 reported cases after the sound-test fixture correction and before
+the new foreground-relaunch correction. Five opt-in cases require separate
+drivers; an ordinary suite does not establish those journeys.
 
-Before-first-unlock ringing is unsupported. Current-runtime offline cadence
-and API 35 package replacement now pass. Clock/zone, access revocation,
-physical Pixel/non-Pixel acceptance, design review, and Docket publication
-still need current evidence.
-The Docket connector exposes no callable tools in this session.
+The owned API33 emulator delivered the saved alarm and actual first-attempt
+audio. Force-stop then reopening preserved Ringing state but failed to resume
+audio. The foreground restoration fix now passes that same driver with a new
+process and unchanged first-attempt boundaries. The full API36 GMS suite
+then passes 99 reported cases in 212.668s. The actual API33 permission-restoration journey also passes with the same
+occurrence and chosen boundary. The final API33 plain suite passes 101 reported cases in 172.13s, including
+the corrected status. Six opt-in cases still require their separate drivers.
+Forward and backward five-minute wall-clock changes now both preserve the
+original first attempt and its real two-minute boundary. Secure reboot
+coverage still supports ringing only after first unlock.
+
+CI at 919e70b passes both verification jobs, release evidence, and API34/35/36
+instrumentation. API33 failed scheduled delivery within its observation
+window. Current-head CI remains required. The earlier 65-minute Doze result
+belongs to runtime 789e0cd and does not establish current-runtime acceptance.
+Physical Pixel/non-Pixel checks,
+manufacturer/DND behavior, remaining design review, and Docket publication
+remain open. Docket exposes no callable connector tools, and plugin discovery
+returned no matching Docket plugin on October 20.
 
 ## Decision
 
@@ -51,12 +62,16 @@ flowchart LR
   P[Local schedule storage]
   G[Android alarm gateway]
   E[Campaign runtime]
+  C[Active clock mapping]
   V[Authenticated callback client]
   UI --> S
   S --> P
   S --> G
   S --> E
   E --> V
+  E --> C
+  E --> G
+  UI --> E
 ```
 
 ## Implementation sequence
@@ -623,3 +638,160 @@ a UTC clock time as local time. Both test APKs and lint variants pass after
 that fixture correction (27s). No production alarm code changed in this
 acceptance follow-up. These results do not prove physical speaker output,
 manufacturer behavior, or current-runtime Doze acceptance.
+
+
+### October 20: Preserve active cadence through clock changes
+
+The installed forward-clock regression failed on 919e70b. Moving the clock
+five minutes ahead changed the first ringing attempt into quiet after attempt
+2 and stopped audio. Both the clock and the controlled occurrence were
+restored during cleanup.
+
+Eleven new host cases failed first on the missing active-clock API. The
+runtime now preserves its logical elapsed anchor when saving active state,
+maps its remaining interval to Android wall time, and uses current wall time
+for future scheduled alarms. Callback polling, alarm transitions, service
+restoration, and lifecycle recovery use the same rules. The first short check
+passed, but the longer boundary check exposed callback polling's remaining
+wall-time advancement. That path now uses the shared runtime recovery method.
+
+The final real clock observation retained the same first attempt and audio
+after the jump, then reached quiet at the original two-minute elapsed boundary.
+The next logical attempt boundary stayed unchanged. Both variants pass 181
+host tests, app/test APK assembly, and lint. The API 35 plain runtime passed
+96 reported installed cases (156.826s), including five opt-in skips.
+Secure reboot recovery also passed again after the timing change, with the
+same first occurrence and original boundary after first unlock.
+
+CI at 14d3fa8 exposed a transient notification loss on a delayed old command:
+foreground entry replaced the current ringing notification with a startup
+placeholder. The service now enters foreground once per instance and retains
+its current notification on subsequent commands. The 919e70b CI run passes
+both verification jobs, release evidence, and API 34/35/36 instrumentation.
+API 33 leaves the scheduled alarm undelivered within the journey's observation
+window. Transition commands now request foreground broadcast delivery, and
+interrupted-completion fixtures use that real command factory. Current-head
+CI remains required; prior failures are not reported as accepted.
+
+The quiet screen's stored next-ring timestamp also needed the wall-time
+mapping. Its native regression and final presentation checks are recorded in
+the next verification entry. [Active alarm clock rules](ALARM_CLOCK.md)
+record the decision, storage semantics, platform mapping, and rollback.
+
+
+### October 20: Clock presentation, reverse adjustment, and older-platform relaunch
+
+The corrected quiet-screen fixture failed against the prior MainActivity:
+its saved logical time showed 4:11 AM where the mapped device time required
+4:16 AM. The mapped presentation passed after restoring the new implementation.
+The full plain installed suite then passed 97 reported cases in 229.335s.
+The initial GMS run failed only the sound-test replay fixture, which asserted
+the confirmation prompt before playback's bounded preview completed. The
+fixture now waits for the same actual prompt on initial playback and replay.
+Its four cases passed, then the full GMS suite passed 97 cases in 212.528s.
+Neither fixture change changes audio or release authority.
+
+The reverse-clock driver moved the owned API36 emulator five minutes back
+while first-attempt audio played. The same occurrence remained audible and
+entered quiet at its original two-minute elapsed boundary. The next logical
+attempt stayed one minute later. Cleanup restored the clock and automatic-time
+setting. The forward and reverse driver records are separate.
+
+The future-timezone driver saved one local occurrence, changed Los Angeles
+to Anchorage, and observed its target move one hour later with the same
+identity. Restoring Los Angeles restored the original target, and that same
+first attempt produced audio outside instrumentation. The driver restored
+timezone settings and removed its fixture.
+
+A real force-stop/reopen observation passed on API36. The same experiment
+failed on the owned API33 emulator: the saved occurrence reached audio first,
+force-stop removed playback, and an ordinary MainActivity launch displayed
+Ringing without audio for the entire 30-second observation. State and first
+attempt boundaries remained unchanged. Scoped cleanup passed. The service now
+tracks its own process-local lifecycle so foreground entry requests recovery
+only when the playback service is absent. The recovery receiver rechecks
+stored authority and schedules the existing alarm-clock retry. It does not
+invent release or replay a new occurrence. The same external API33 driver now passes with process 7711 replaced by 7800,
+actual alarm audio, and unchanged first-attempt bounds. Cleanup passed. Both
+181-case host suites, both app/test builds, and both lint variants passed
+after the production correction (73s). The complete API36 GMS suite passed
+99 reported cases in 212.668s, including the current daily layout checks.
+Current-head CI and the complete API33 suite remain required.
+
+
+### October 20: Revoke and restore exact-alarm access
+
+The owned API33 emulator saved a one-night alarm two minutes ahead. After
+exact-alarm access was revoked, the native probe confirmed that Android and
+readiness both reported the missing permission. The enabled schedule and
+same Scheduled occurrence remained stored. Reopening showed the setup repair
+action and an error. Restoring access and reopening produced actual audio
+at 12:14:57.323760 UTC for the original occurrence's first attempt. No manual
+service start or replacement occurrence was used. Cleanup restored access
+and removed the fixture.
+
+The revoked-access screenshot exposed an inaccurate Alarm on label. The new
+native regression failed because Needs attention was absent. The daily screen
+now reports Needs attention when an enabled schedule cannot meet readiness.
+The on/off control still records the owner's future-alarm choice. Disabling
+future alarms remains distinct from releasing an active occurrence. No
+permission, schedule, or callback authority changes are part of that label
+correction. Final status-test and oldest-platform suite results follow below.
+
+
+The current clock/relaunch runtime passed the actual offline default cadence
+in 186.492s. The same occurrence produced first-attempt audio at 12:15:55.212656
+UTC, quiet without audio at 12:17:54.297201 UTC, and second-attempt audio at the
+next saved boundary, observed at 12:18:54.257050 UTC. Every recorded phase remained offline. Cleanup passed
+and restored airplane mode off, Wi-Fi on, and mobile data on. This supersedes
+the older-runtime cadence result for local regression coverage; it still does
+not establish physical speaker behavior.
+
+The final build/lint verification passed both 181-case host suites, both app
+and test APKs, and both Android lint variants in 60s. The complete current
+API33 plain suite passed 101 reported cases in 172.13s, including the status
+regression, actual HTTPS release, interrupted completion, service isolation,
+and native layout checks. The API36 GMS suite passed 99 cases immediately
+before the status-label correction. Focused current GMS results follow.
+
+
+The focused final GMS run passed 22 cases in 40.899s. It includes the actual
+HTTPS release, service isolation, interrupted completion, owner recovery
+storage, mapped quiet-screen time, and all 13 daily-layout cases. The final
+native Needs attention assertion passes in the complete API33 suite and this
+GMS run. Both the local and WillieStudio ADB inventories contain only
+emulators; no current physical-device acceptance is inferred.
+
+
+The current GMS runtime also passed real Android credential success and Back
+cancellation in 16.133s. The driver cleared its temporary PIN and verified the
+original no-credential state. A real playback-process SIGKILL recovered audio
+in 2.246s with a new process, the same occurrence, and unchanged first-attempt
+bounds. The current plain APK survived actual PackageManager replacement on
+API33 before its saved wake time. The same first occurrence rang at
+12:24:49.533038 UTC. Scoped cleanup passed in each driver.
+
+The final permission screen initially repeated Needs attention in its error
+paragraph. The external XML assertion failed first because the actual missing
+permission was unnamed. The error now says Alarm access is off when Android
+reports exact-alarm access revoked. Other restore failures report that the
+alarm could not be restored. This preserves the selected schedule and repair
+action without adding protocol terminology or repeating the status heading.
+
+
+The final permission copy passed the real native XML assertion: Needs
+attention remains the status, Alarm access is off names the cause, and Finish
+setup remains the action. The final app/test build, both 181-case host suites,
+and both lint variants pass again in 54s. A fresh 65-minute Doze observation is
+running on the current GMS APK. It is pending until its own driver records
+actual first-attempt audio and successful cleanup. Its target is
+13:33:03.159902 UTC on October 20. Do not use the earlier-runtime green result
+to accept this live run.
+
+
+The final permission repair driver passed again after the copy correction.
+Its actual native XML names the missing access without repeating the status.
+The same occurrence then produced first-attempt audio at the original chosen
+boundary. Cleanup restored alarm access and removed the fixture. Final
+whitespace checks and acceptance-driver parsing pass. The 65-minute current
+Doze observation remains live and unaccepted until its result is recorded.

@@ -36,11 +36,15 @@ class AndroidAlarmClockGateway(context: Context) : AlarmClockGateway {
     private fun transitionIntent(campaignId: String): PendingIntent = PendingIntent.getBroadcast(
         applicationContext,
         campaignId.hashCode(),
-        Intent(applicationContext, AlarmTransitionReceiver::class.java)
-            .setAction(ACTION_ALARM_TRANSITION)
-            .putExtra(EXTRA_CAMPAIGN_ID, campaignId),
+        transitionCommand(campaignId),
         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
     )
+
+    internal fun transitionCommand(campaignId: String): Intent =
+        Intent(applicationContext, AlarmTransitionReceiver::class.java)
+            .setAction(ACTION_ALARM_TRANSITION)
+            .putExtra(EXTRA_CAMPAIGN_ID, campaignId)
+            .addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
 
     companion object {
         const val ACTION_ALARM_TRANSITION = "studio.hypertext.curfew.action.ALARM_TRANSITION"

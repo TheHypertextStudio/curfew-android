@@ -62,9 +62,7 @@ class RecoveryCompletionResumeInstrumentedTest {
                 val approval = requireNotNull(authorization.finishConfirmation(request.requestId, true))
                 assertTrue(AlarmOwnerRecoveryRepository(context).recover(approval))
                 // Only the atomic outcome survived. No completion callback or schedule cleanup ran.
-                context.sendBroadcast(Intent(context, AlarmTransitionReceiver::class.java)
-                    .setAction(AndroidAlarmClockGateway.ACTION_ALARM_TRANSITION)
-                    .putExtra(AndroidAlarmClockGateway.EXTRA_CAMPAIGN_ID, id))
+                context.sendBroadcast(AndroidAlarmClockGateway(context).transitionCommand(id))
                 val deadline = android.os.SystemClock.elapsedRealtime() + 10_000
                 do {
                     val restored = scheduler.state.first()

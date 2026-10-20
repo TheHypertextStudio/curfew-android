@@ -48,6 +48,14 @@ class AlarmServiceIsolationInstrumentedTest {
     }
 
     @Test
+    fun alarmTransitionsUseForegroundDelivery() {
+        val command = AndroidAlarmClockGateway(context).transitionCommand(currentId)
+        assertTrue("Alarm transitions must not wait in the background broadcast queue", command.flags and Intent.FLAG_RECEIVER_FOREGROUND != 0)
+        assertEquals(currentId, command.getStringExtra(AndroidAlarmClockGateway.EXTRA_CAMPAIGN_ID))
+        assertEquals(AlarmTransitionReceiver::class.java.name, command.component?.className)
+    }
+
+    @Test
     fun terminalCleanupForAnOldOccurrenceCannotStopCurrentPlayback() = runBlocking {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         for (command in listOf(
@@ -157,11 +165,7 @@ class AlarmServiceIsolationInstrumentedTest {
             assertTrue("Current alarm did not reach ringing presentation", isRingingPresentationActive())
             val completed = CountDownLatch(1)
             context.sendOrderedBroadcast(
-                Intent(context, AlarmTransitionReceiver::class.java)
-                    .setAction(AndroidAlarmClockGateway.ACTION_ALARM_TRANSITION)
-                    // This case measures receiver completion, not background queue latency.
-                    .addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
-                    .putExtra(AndroidAlarmClockGateway.EXTRA_CAMPAIGN_ID, oldId),
+                AndroidAlarmClockGateway(context).transitionCommand(oldId),
                 null,
                 object : BroadcastReceiver() {
                     override fun onReceive(context: Context, intent: Intent) { completed.countDown() }

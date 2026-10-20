@@ -3,6 +3,7 @@
 from datetime import datetime, timezone
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
+import argparse
 import hashlib
 import json
 import subprocess
@@ -19,7 +20,15 @@ OUTPUT = Path("build/sunrise-evidence/package-replacement")
 
 
 def main():
-    require(b"Sunrise_UI_API35" in call("emu", "avd", "name"), "The owned UI AVD is required")
+    global OUTPUT
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--api33", action="store_true", help="Use the owned Sunrise_API33 AVD on port 5558")
+    args = parser.parse_args()
+    expected_avd = "Sunrise_API33" if args.api33 else "Sunrise_UI_API35"
+    if args.api33:
+        process.cadence.SERIAL = "emulator-5558"
+        OUTPUT = Path("build/sunrise-evidence/package-replacement-api33")
+    require(call("emu", "avd", "name").decode().splitlines()[0].strip() == expected_avd, "The owned AVD is required")
     require(call("shell", "getprop", "ro.kernel.qemu").strip() == b"1", "A disposable emulator is required")
     require(APK.is_file(), "Build the plain debug APK first")
     process.ALARM_UID = call("shell", "run-as", process.PACKAGE, "id", "-u").decode().strip()

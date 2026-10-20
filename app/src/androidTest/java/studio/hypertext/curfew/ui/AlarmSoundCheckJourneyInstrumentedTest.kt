@@ -6,6 +6,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performSemanticsAction
@@ -46,12 +47,19 @@ class AlarmSoundCheckJourneyInstrumentedTest {
         preferences.setTestSoundConfirmed(false)
     }
 
+    private fun awaitConfirmationPrompt() {
+        compose.waitUntil(10_000) {
+            compose.onAllNodesWithText("Did you hear the alarm?").fetchSemanticsNodes().isNotEmpty()
+        }
+        compose.onNodeWithText("Did you hear the alarm?").assertIsDisplayed()
+    }
+
     private fun openAndPlay() {
         compose.onNodeWithContentDescription("Settings").performClick()
         compose.onNodeWithText("Alarm access and sound").performClick()
         compose.onNodeWithText("Test alarm sound").performScrollTo().performClick()
         compose.waitUntil(5_000) { audio.activePlaybackConfigurations.any { it.audioAttributes.usage == AudioAttributes.USAGE_ALARM } }
-        compose.onNodeWithText("Did you hear the alarm?").assertIsDisplayed()
+        awaitConfirmationPrompt()
         assertFalse(runBlocking { preferences.state.first().testSoundCompleted })
         Thread.sleep(500)
         val bitmap = InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot()
@@ -73,7 +81,7 @@ class AlarmSoundCheckJourneyInstrumentedTest {
         compose.waitUntil(5_000) { runBlocking { preferences.state.first().testSoundCompleted } }
         compose.onNodeWithText("Did you hear the alarm?").assertDoesNotExist()
         compose.onNodeWithText("Test alarm sound").performScrollTo().performClick()
-        compose.onNodeWithText("Did you hear the alarm?").assertIsDisplayed()
+        awaitConfirmationPrompt()
         compose.onNodeWithText("Not now").performClick()
         assertTrue(runBlocking { preferences.state.first().testSoundCompleted })
     }

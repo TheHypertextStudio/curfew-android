@@ -32,9 +32,8 @@ class CallbackPollWorker(
         val campaignId = inputData.getString(KEY_CAMPAIGN_ID) ?: return Result.failure()
         val failureCount = inputData.getInt(KEY_FAILURE_COUNT, 0)
         val runtime = AlarmRuntimeRepository(applicationContext)
-        val persisted = runtime.load(campaignId) ?: return Result.success()
         val now = Instant.now()
-        val state = runtime.save(AlarmCampaignEngine().advanceTo(persisted, now))
+        val state = runtime.recover(campaignId) ?: return Result.success()
         if (state !is AlarmCampaignState.Scheduled &&
             state !is AlarmCampaignState.Ringing &&
             state !is AlarmCampaignState.Quiet

@@ -44,6 +44,7 @@ Without them, local release builds use the Android debug key and are not product
 - Encrypted settings are synchronized through `curfew-sync.hypertext.studio`; FCM never carries decrypted settings or authoritative state.
 - Android cannot defeat OS-level force-stop, uninstall, power-off, permission revocation, or every manufacturer battery policy. Readiness discloses those limits before arming. After a restart, the owner must unlock the phone before alarms can resume.
 
+Connect an existing trusted service using [verifier setup](docs/VERIFIER_SETUP.md).
 The local alarm acceptance record is [Sunrise P1](docs/SUNRISE_P1.md).
 
 See [Security](docs/SECURITY.md), [Privacy](docs/PRIVACY.md), [Design](docs/DESIGN.md), [Play policy](docs/PLAY_POLICY.md), and [Testing](docs/TESTING.md).

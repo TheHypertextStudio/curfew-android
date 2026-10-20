@@ -177,6 +177,19 @@ class PersistentCadenceJourneyInstrumentedTest {
         }
     }
 
+    @Test fun assertExactAlarmRevokedFixture(): Unit = runBlocking {
+        requireOptIn()
+        val fixture = JSONObject(marker.readText())
+        require(fixture.getString("scheduleId").startsWith("cadence-process-loss-"))
+        assertFalse("Android must report revoked exact-alarm access", AndroidAlarmClockGateway(context).canScheduleExactAlarms())
+        assertFalse("Readiness must report the missing access", AndroidAlarmReadiness(context).evaluate(CurfewPreferences(context).state.first()).canArm)
+        val saved = requireNotNull(scheduler.state.first())
+        assertEquals(fixture.getString("scheduleId"), saved.schedule.id)
+        assertTrue("Revocation must preserve the owner's enabled schedule", saved.schedule.enabled)
+        assertEquals(fixture.getString("campaignId"), saved.occurrence?.campaignId)
+        assertTrue("Revocation cannot release or advance the saved occurrence", runtime.load(fixture.getString("campaignId")) is AlarmCampaignState.Scheduled)
+    }
+
     @Test fun cleanupInterruptedFixture(): Unit = runBlocking {
         requireOptIn()
         if (!marker.exists()) return@runBlocking
@@ -191,7 +204,15 @@ class PersistentCadenceJourneyInstrumentedTest {
             if (state is AlarmCampaignState.Scheduled && Instant.now() < state.startsAt) {
                 scheduler.state.first()?.takeIf { it.occurrence?.campaignId == id }?.let { scheduler.save(it.schedule.copy(enabled = false)) }
             } else if (state is AlarmCampaignState.Ringing || state is AlarmCampaignState.Quiet || state is AlarmCampaignState.Scheduled) {
-                runtime.save(AlarmCampaignEngine().override(requireNotNull(state), Instant.now(), "cadence-test-cleanup", Instant.now().plusSeconds(60)))
+                val earliest = when (state) {
+                    is AlarmCampaignState.Ringing -> state.ringStartedAt
+                    is AlarmCampaignState.Quiet -> state.nextAttemptAt.minus(state.policy.quietDuration)
+                    is AlarmCampaignState.Scheduled -> state.startsAt
+                    else -> error("Expected a pending fixture")
+                }
+                // Clock-change acceptance must still remove its controlled occurrence after a rewind.
+                val cleanupAt = maxOf(Instant.now(), earliest)
+                runtime.save(AlarmCampaignEngine().override(requireNotNull(state), cleanupAt, "cadence-test-cleanup", cleanupAt.plusSeconds(60)))
             }
             scheduler.consume(id)
             scheduler.state.first()?.takeIf { it.schedule.id.startsWith("cadence-") }?.let { scheduler.save(it.schedule.copy(enabled = false)) }

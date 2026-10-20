@@ -51,10 +51,12 @@ class PerpetualAlarmService : Service() {
     private var playbackGeneration = 0
     private val requestedCampaignIds = mutableSetOf<String>()
     private var stickyRecoveryRequested = false
+    private var foregroundEntered = false
     private var syncCampaignId: String? = null
 
     override fun onCreate() {
         super.onCreate()
+        running = true
         ensureChannels(this)
     }
 
@@ -68,17 +70,20 @@ class PerpetualAlarmService : Service() {
         playbackJob?.cancel()
         // Android requires foreground entry before disk recovery can complete.
         try {
-            ServiceCompat.startForeground(
-                this,
-                ALARM_NOTIFICATION_ID,
-                NotificationCompat.Builder(this, STATUS_CHANNEL_ID)
-                    .setSmallIcon(R.drawable.ic_launcher_foreground)
-                    .setContentTitle(getString(R.string.app_name))
-                    .setSilent(true)
-                    .setOngoing(true)
-                    .build(),
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK,
-            )
+            if (!foregroundEntered) {
+                ServiceCompat.startForeground(
+                    this,
+                    ALARM_NOTIFICATION_ID,
+                    NotificationCompat.Builder(this, STATUS_CHANNEL_ID)
+                        .setSmallIcon(R.drawable.ic_launcher_foreground)
+                        .setContentTitle(getString(R.string.app_name))
+                        .setSilent(true)
+                        .setOngoing(true)
+                        .build(),
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK,
+                )
+                foregroundEntered = true
+            }
         } catch (_: ForegroundServiceStartNotAllowedException) {
             // Android may retain a boot-only exemption after an exact alarm delivery.
             AlarmRecoveryReceiver.requestPlaybackRetry(this)
@@ -100,12 +105,7 @@ class PerpetualAlarmService : Service() {
                     )?.let { repository.save(it) }
                 }
                 val gateway = AndroidAlarmClockGateway(this@PerpetualAlarmService)
-                val boundary = when (state) {
-                    is AlarmCampaignState.Scheduled -> state.startsAt
-                    is AlarmCampaignState.Ringing -> state.ringEndsAt
-                    is AlarmCampaignState.Quiet -> state.nextAttemptAt
-                    else -> null
-                }
+                val boundary = state?.let { repository.nextTransitionAt(it.campaignId) }
                 if (state != null && boundary != null) {
                     runCatching { gateway.setAlarmClock(state.campaignId, boundary) }
                         .onFailure { android.util.Log.w("SunrisePlayback", "Next transition needs exact alarm access") }
@@ -153,6 +153,7 @@ class PerpetualAlarmService : Service() {
     }
 
     override fun onDestroy() {
+        running = false
         alarmSound.stop()
         audioFocusRequest?.let {
             getSystemService(AudioManager::class.java).abandonAudioFocusRequest(it)
@@ -241,6 +242,13 @@ class PerpetualAlarmService : Service() {
     }
 
     companion object {
+        @Volatile private var running = false
+
+        internal fun restoreAfterForegroundEntry(context: Context) {
+            // Force-stop removes timers; older Android versions do not send a reopen broadcast.
+            if (!running) AlarmRecoveryReceiver.requestPlaybackRetry(context)
+        }
+
         private const val ALARM_CHANNEL_ID = "curfew_perpetual_alarm"
         private const val STATUS_CHANNEL_ID = "curfew_wake_status"
         private const val ALARM_NOTIFICATION_ID = 4100

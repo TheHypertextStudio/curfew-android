@@ -16,6 +16,9 @@ import org.json.JSONObject
 import studio.hypertext.curfew.alarm.AlarmCampaignState
 import studio.hypertext.curfew.alarm.AlarmRecurrencePolicy
 import studio.hypertext.curfew.alarm.AlarmRuntimeSnapshot
+import studio.hypertext.curfew.alarm.AlarmRuntimeClock
+import studio.hypertext.curfew.alarm.AlarmRecoveryPlanner
+import studio.hypertext.curfew.alarm.AlarmCampaignEngine
 import studio.hypertext.curfew.persistence.AlarmCampaignEntity
 import studio.hypertext.curfew.persistence.CurfewDatabase
 
@@ -45,6 +48,9 @@ class AlarmRuntimeRepository(context: Context) {
         dao.find(campaignId)?.let(::decode)
     }
 
+    fun observeSnapshot(campaignId: String): Flow<AlarmRuntimeSnapshot?> =
+        dao.observe(campaignId).map { it?.let(::snapshotOf) }.distinctUntilChanged()
+
     fun observe(campaignId: String): Flow<AlarmCampaignState?> =
         dao.observe(campaignId).map { it?.let(::decode) }.distinctUntilChanged()
 
@@ -65,6 +71,10 @@ class AlarmRuntimeRepository(context: Context) {
                 }
                 return@withTransaction stored
             }
+            val checkpoint = AlarmRuntimeClock.checkpoint(
+                existing?.let { AlarmRuntimeSnapshot(requireNotNull(stored), Instant.ofEpochMilli(it.persistedAtWall), it.persistedAtElapsed, it.bootId) },
+                state, Instant.now(), SystemClock.elapsedRealtime(), bootId(),
+            )
             dao.upsert(
                 AlarmCampaignEntity(
                     campaignId = state.campaignId,
@@ -72,9 +82,10 @@ class AlarmRuntimeRepository(context: Context) {
                     state = state.storageName(),
                     // This legacy column has no release-deadline authority in persistent campaigns.
                     finalDeadlineAt = Long.MAX_VALUE,
-                    persistedAtWall = System.currentTimeMillis(),
-                    persistedAtElapsed = SystemClock.elapsedRealtime(),
-                    bootId = bootId(),
+                    // An active interval keeps its elapsed-time anchor across wall-clock changes.
+                    persistedAtWall = checkpoint.persistedAtWall.toEpochMilli(),
+                    persistedAtElapsed = checkpoint.persistedAtElapsedMillis,
+                    bootId = checkpoint.bootId,
                     writerCounter = maxOf(writerCounter ?: 0, existing?.writerCounter ?: 0),
                     callbackId = callbackId ?: existing?.callbackId,
                 ),
@@ -88,14 +99,25 @@ class AlarmRuntimeRepository(context: Context) {
     }
 
     suspend fun pendingSnapshots(): List<AlarmRuntimeSnapshot> = withContext(Dispatchers.IO) {
-        dao.pending().map { entity ->
-            AlarmRuntimeSnapshot(
-                state = decode(entity),
-                persistedAtWall = Instant.ofEpochMilli(entity.persistedAtWall),
-                persistedAtElapsedMillis = entity.persistedAtElapsed,
-                bootId = entity.bootId,
-            )
-        }
+        dao.pending().map(::snapshotOf)
+    }
+
+    suspend fun snapshot(campaignId: String): AlarmRuntimeSnapshot? = withContext(Dispatchers.IO) {
+        dao.find(campaignId)?.let(::snapshotOf)
+    }
+
+    private fun snapshotOf(entity: AlarmCampaignEntity) = AlarmRuntimeSnapshot(
+        decode(entity), Instant.ofEpochMilli(entity.persistedAtWall), entity.persistedAtElapsed, entity.bootId,
+    )
+
+    suspend fun recover(campaignId: String): AlarmCampaignState? = snapshot(campaignId)?.let {
+        save(AlarmRecoveryPlanner(AlarmCampaignEngine()).recover(
+            it, Instant.now(), SystemClock.elapsedRealtime(), bootId(),
+        ))
+    }
+
+    suspend fun nextTransitionAt(campaignId: String): Instant? = snapshot(campaignId)?.let {
+        AlarmRuntimeClock.nextTransitionAt(it, Instant.now(), SystemClock.elapsedRealtime(), bootId())
     }
 
     fun currentBootId(): String = bootId()
