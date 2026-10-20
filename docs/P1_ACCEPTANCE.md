@@ -15,13 +15,19 @@ Application runtime `204cfbf` contains the lock-screen notification fix.
 Later commits through `07ceb3f` add acceptance tests, drivers, documentation,
 and CI time budgeting. Their app runtime source is unchanged. The subsequent
 daily accessibility change adds occurrence date/time semantics without
-changing alarm scheduling or playback. Each installed driver records its
+changing alarm scheduling or playback. The following recovery correction
+makes occurrence updates atomic and serializes lifecycle timer registration
+with schedule edits. Its installed concurrency and process-loss results are
+recorded below. Each installed driver records its
 APK digest where supported. Earlier lifecycle observations retain their
 candidate boundaries in [the implementation record](SUNRISE_P1.md).
 
 CI runs `39436437575` (`21f3c9e`) and `39437430362` (`07ceb3f`) passed every
 job: both verification variants, release evidence, and instrumentation on
-API33/34/35/36. The later accessibility change needs its own final result.
+API33/34/35/36. Run `39440146825` also passed every job at `23e4963`,
+including the occurrence accessibility change. The later recovery race fix
+passes both local host/lint/build variants and all 119 reported API33 Plain
+cases in 167.074s. Its current-head CI result remains pending.
 Both latest host suites pass 181 tests; both app/test APK builds and Android
 lint variants pass. Local logs live in `build/sunrise-evidence/`, which is
 not published as part of the source tree.
@@ -50,7 +56,7 @@ battery behavior. Before-first-unlock playback is explicitly unsupported.
 | Requirement | Authoritative evidence | Boundary |
 | --- | --- | --- |
 | Deliver while locked and outside the app | External secure-lock drivers on API33 and API36 | Installed emulators; no retained instrumentation during delivery |
-| Continue 120-second ring / 60-second quiet intervals | Engine tests and the actual API33 offline ring/quiet/ring timeline | Corrected notification runtime passed in 185.338s with unchanged occurrence and restored network settings |
+| Continue 120-second ring / 60-second quiet intervals | Engine tests and the actual API33 offline ring/quiet/ring timeline | Atomic recovery runtime passed in 185.124s with unchanged occurrence and restored network settings |
 | Offer real sound rehearsal and require hearing confirmation | Playback/fallback tests and installed sound-confirmation journey | Automated playback; no automatic hearing assertion |
 | Check permission, channel, and effective volume readiness | Readiness tests, exact-access revocation, installed DND no-interruptions/alarms/off checks | Installed emulators; physical/OEM policy still open |
 | Support denied full-screen access | API36 actual notification tap, Android PIN prompt, and unchanged ringing state | Installed emulator; original access and credential state restored |
@@ -74,13 +80,14 @@ battery behavior. Before-first-unlock playback is explicitly unsupported.
 
 | Requirement | Authoritative evidence | Boundary |
 | --- | --- | --- |
-| Restore after actual process death | External SIGKILL drivers; current notification runtime also passes API33 in 1.632s | Guarded disposable AVDs; no app root permission |
+| Restore after actual process death | External SIGKILL drivers; atomic recovery runtime also passes API33 in 1.643s | Guarded disposable AVDs; no app root permission |
 | Restore after force-stop and reopening | API33 relaunch driver observes actual audio and original bounds | Force-stop prevents unattended alarms until reopening, as disclosed |
 | Preserve an upcoming occurrence across package replacement | Actual PackageManager replacement and audio at the original boundary | API33 emulator |
 | Recover after reboot and distinguish first unlock | Secure reboot driver and setup disclosure | No audio before first unlock; recovery observed after unlock |
 | Preserve active cadence through clock changes | Actual five-minute forward/backward adjustments through the original two-minute boundary | Earlier runtime; clock engine source remains unchanged |
 | Reconcile timezone changes | Actual future timezone round trip | API35 emulator |
 | Retain state through permission revocation and restoration | Native readiness XML plus same-occurrence audio after repair | API33 emulator |
+| Preserve concurrent disable and time edits during recovery | Installed Room concurrency regressions fail with the old split read/save and pass with one transaction; timer restoration holds the schedule mutex | API33 installed proof; independent read-only review confirmed the lock order |
 | Avoid duplicate ringing and unrelated release | Service-isolation tests, completion interruption tests, controller and Room guards | Automated and installed emulator |
 | Deliver after standby on the corrected runtime | Live 65-minute driver, target `2026-10-20T15:13:31.268582Z` | Pending; an earlier-runtime success cannot accept this run |
 | Complete the required Pixel and non-Pixel journeys | No current complete physical record exists | Open: locked delivery, perceived sound, Doze, fallback, offline/reconnection/release, and manufacturer behavior |

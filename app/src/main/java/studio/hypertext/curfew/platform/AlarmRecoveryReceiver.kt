@@ -29,22 +29,25 @@ class AlarmRecoveryReceiver : BroadcastReceiver() {
         // Readiness failure for tomorrow must not prevent recovery of today's active alarm.
         runCatching { SunriseScheduler(context).restore() }
             .onFailure { android.util.Log.w("SunriseRecovery", "Saved schedule needs attention") }
-        val gateway = AndroidAlarmClockGateway(context)
-        if (!gateway.canScheduleExactAlarms()) return
-        val repository = AlarmRuntimeRepository(context)
-        repository.pendingSnapshots().forEach { snapshot ->
-            val state = repository.recover(snapshot.state.campaignId) ?: return@forEach
-            val next = when (state) {
-                is AlarmCampaignState.Scheduled -> state.startsAt
-                // BOOT_COMPLETED cannot directly launch a media-playback FGS on Android 15+.
-                // A user-visible alarm-clock transition immediately re-enters the normal path.
-                is AlarmCampaignState.Ringing -> Instant.now().plusSeconds(5)
-                is AlarmCampaignState.Quiet -> repository.nextTransitionAt(state.campaignId)
-                is AlarmCampaignState.Overridden,
-                is AlarmCampaignState.Satisfied,
-                -> null
+        // Hold the schedule lock through registration so a later disable cancels it.
+        SunriseScheduler.serialized {
+            val gateway = AndroidAlarmClockGateway(context)
+            if (!gateway.canScheduleExactAlarms()) return@serialized
+            val repository = AlarmRuntimeRepository(context)
+            repository.pendingSnapshots().forEach { snapshot ->
+                val state = repository.recover(snapshot.state.campaignId) ?: return@forEach
+                val next = when (state) {
+                    is AlarmCampaignState.Scheduled -> state.startsAt
+                    // BOOT_COMPLETED cannot directly launch a media-playback FGS on Android 15+.
+                    // A user-visible alarm-clock transition immediately re-enters the normal path.
+                    is AlarmCampaignState.Ringing -> Instant.now().plusSeconds(5)
+                    is AlarmCampaignState.Quiet -> repository.nextTransitionAt(state.campaignId)
+                    is AlarmCampaignState.Overridden,
+                    is AlarmCampaignState.Satisfied,
+                    -> null
+                }
+                if (next != null) gateway.setAlarmClock(state.campaignId, next)
             }
-            if (next != null) gateway.setAlarmClock(state.campaignId, next)
         }
     }
 

@@ -76,9 +76,11 @@ connection. Do not delete the app's data to repair a single failed connection.
 
 The installed SunriseReleaseJourneyInstrumentedTest uses a loopback TLS peer
 and the real phone scheduler, callback authentication, and alarm audio. It
-checks pending, forged, malformed, wrong-occurrence, valid release, and retry
-behavior. Its test-only trust configuration does not alter production TLS.
-Host authentication cases cover the remaining freshness and replay rules.
+checks pending, forged, malformed, wrong-occurrence, expired, future-dated,
+replayed, and HTTP503 responses before valid release and a harmless retry.
+Each invalid approval leaves audio active. Its test-only trust configuration
+does not alter production TLS. Host tests also cover authentication vectors
+and receipt freshness.
 
 Those checks prove the controlled integration, not an external operator's
 production deployment or physical speaker volume. The owner and operator must

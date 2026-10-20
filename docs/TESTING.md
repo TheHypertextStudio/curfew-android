@@ -497,3 +497,65 @@ available throughout. The driver removed the scoped fixture and restored
 airplane mode off, Wi-Fi on, and mobile data on. It records the installed
 APK digest. The default API36 driver remains available, and its live
 standby observation was not modified by this API33 run.
+
+
+## Concurrent lifecycle recovery and schedule changes
+
+The independent P1 review found that recovery could save a stale Scheduled
+snapshot after a disable deleted it or a same-day edit changed its time.
+`AlarmRecoveryConcurrencyInstrumentedTest` pauses recovery after reading
+that snapshot and queues each competing write. The preserved split-read/save
+implementation failed both installed cases on API33: it recreated the
+removed occurrence and restored the old time. The transaction fix passed
+both regressions plus the three existing repository guards in 0.612s.
+The edit case also checks that the release-condition identifier survives.
+A missing row cannot enter the update callback.
+
+The initial compiler failure established the missing atomic-update contract.
+The separate installed red run reproduced the actual two data races before
+transactional behavior changed. Logs are `recovery-race-red-build.txt`,
+`recovery-race-runtime-red.txt`, and `recovery-race-green-plain-api33.txt`
+under `build/sunrise-evidence/`. An initial unauthenticated dependency fetch
+and an offline cache miss were setup failures, not failing-test evidence.
+Authenticated dependency resolution restored the build.
+
+Recovery now reads and writes one existing occurrence inside a Room
+transaction. Lifecycle timer restoration holds the schedule mutex through
+registration, so a later disable cancels that timer. The scheduler releases
+its own restore lock before runtime reconciliation acquires it. The
+independent reviewer checked this order and the nested Room transaction.
+Both distributions pass all 181 host tests, app/test APK assembly, and
+Android lint after the change. The full API33 Plain suite reports
+`OK (119 tests)` in 167.074s; opt-in cases still require their drivers.
+No protocol, schema, permission, or migration changes are required. Rolling
+back restores the stale-write risk; preserve the concurrency tests when
+changing this path.
+
+
+The fixed runtime also passed all five repository cases under GMS on API33
+in 0.581s. A fresh external SIGKILL observation restored foreground alarm
+audio in 1.643s with the original occurrence and first-attempt bounds.
+The driver exited successfully and removed its scoped fixture. Prior API33
+process evidence is preserved under
+`process-loss-api33-before-atomic-recovery/`; the new result is in
+`process-loss-api33/`. Neither observation establishes physical hearing.
+
+
+The fixed runtime passed a fresh offline ring/quiet/ring observation in
+185.124s. Audio stopped at the original two-minute boundary and resumed at
+the one-minute quiet boundary without a new occurrence or network access.
+The prior result is preserved under
+`cadence-offline-api33-before-atomic-recovery/`.
+
+The initial cleanup sample recorded mobile data off while Android was still
+applying its restore request. A later device read confirmed the original
+value. The driver now waits up to five seconds for every original network
+setting and fails if any value remains different. Two host regressions
+first failed for the missing restoration check, then passed for delayed
+success and persistent failure. Both run in the CI verification jobs.
+The revised helper was also run on the guarded API33 AVD and confirmed the
+original values: airplane mode off, Wi-Fi on, and mobile data on. The
+initial sample remains in `restored-network-initial-sample.json`; the
+confirmed state is in `restored-network.json`. This driver correction adds
+no app permission or runtime behavior. It does not turn the pending API36
+Doze observation into a success.

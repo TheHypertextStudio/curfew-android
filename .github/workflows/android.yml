@@ -45,9 +45,11 @@ jobs:
           lint${{ matrix.distribution }}Debug
           assemble${{ matrix.distribution }}Debug
           --stacktrace
-      - name: Verify instrumentation result handling
+      - name: Verify acceptance driver results
         working-directory: curfew-android
-        run: python3 -B ci/test-instrumentation-output.py
+        run: |
+          python3 -B ci/test-instrumentation-output.py
+          python3 -B ci/test-cadence-network-cleanup.py
       # The release build is the only one R8 minifies, and the app resolves
       # kotlinx.serialization serializers reflectively. Assembling only the debug
       # variant meant a keep-rule regression reached a device before it reached

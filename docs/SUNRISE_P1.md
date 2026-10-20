@@ -829,3 +829,16 @@ CI for `9ec905b` passed both verification jobs, release evidence, and
 API33/34/35 instrumentation. API36 reached its five-minute instrumentation
 timeout without a final result. The previous `c83bb57` matrix passed all
 four APIs. Current local results do not resolve that CI timeout.
+
+
+The final independent review identified a lifecycle race that could restore
+an owner-disabled future alarm or revert a same-day time edit. Both cases
+failed in installed API33 regressions before the fix. Recovery now reads,
+transforms, and saves an existing occurrence in one Room transaction.
+Lifecycle restoration also holds the schedule mutex through timer
+registration. A later disable therefore cancels that registration.
+Both distributions pass host tests, APK builds, and lint; installed and CI
+evidence remains separately recorded in [P1 acceptance](P1_ACCEPTANCE.md).
+The independent reviewer confirmed the correction and found no lock-order
+deadlock. This change adds no schema, wire, permission, or release-policy
+change. It preserves current release authority and persisted cadence anchors.

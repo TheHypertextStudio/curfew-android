@@ -41,6 +41,20 @@ def require(condition, message):
         raise RuntimeError(message)
 
 
+
+def restore_network(original):
+    call("shell", "cmd", "connectivity", "airplane-mode", "enable" if original["airplane_mode_on"] == "1" else "disable")
+    call("shell", "svc", "wifi", "enable" if original["wifi_on"] == "1" else "disable")
+    call("shell", "svc", "data", "enable" if original["mobile_data"] == "1" else "disable")
+    for _ in range(20):
+        observed = {name: call("shell", "settings", "get", "global", name).decode().strip() for name in original}
+        (OUTPUT / "restored-network.json").write_text(json.dumps(observed, indent=2))
+        if observed == original:
+            return
+        time.sleep(0.25)
+    raise RuntimeError("Network settings did not return to their original values; inspect restored-network.json")
+
+
 def main():
     global SERIAL, OUTPUT
     require(sys.argv[1:] in [[], ["--api33"]], "Supported option: --api33")
@@ -91,11 +105,7 @@ def main():
         try:
             instrument("cleanupInterruptedFixture", OUTPUT / "cleanup.txt")
         finally:
-            call("shell", "cmd", "connectivity", "airplane-mode", "enable" if original["airplane_mode_on"] == "1" else "disable")
-            call("shell", "svc", "wifi", "enable" if original["wifi_on"] == "1" else "disable")
-            call("shell", "svc", "data", "enable" if original["mobile_data"] == "1" else "disable")
-            (OUTPUT / "restored-network.json").write_text(json.dumps(
-                {name: call("shell", "settings", "get", "global", name).decode().strip() for name in original}, indent=2))
+            restore_network(original)
 
 
 if __name__ == "__main__":

@@ -110,10 +110,21 @@ class AlarmRuntimeRepository(context: Context) {
         decode(entity), Instant.ofEpochMilli(entity.persistedAtWall), entity.persistedAtElapsed, entity.bootId,
     )
 
-    suspend fun recover(campaignId: String): AlarmCampaignState? = snapshot(campaignId)?.let {
-        save(AlarmRecoveryPlanner(AlarmCampaignEngine()).recover(
+    suspend fun recover(campaignId: String): AlarmCampaignState? = updateExisting(campaignId) {
+        AlarmRecoveryPlanner(AlarmCampaignEngine()).recover(
             it, Instant.now(), SystemClock.elapsedRealtime(), bootId(),
-        ))
+        )
+    }
+
+    internal suspend fun updateExisting(
+        campaignId: String,
+        update: suspend (AlarmRuntimeSnapshot) -> AlarmCampaignState,
+    ): AlarmCampaignState? = withContext(Dispatchers.IO) {
+        // Recovery must not write a snapshot after an edit or deletion committed.
+        database.withTransaction {
+            val current = dao.find(campaignId) ?: return@withTransaction null
+            save(update(snapshotOf(current)))
+        }
     }
 
     suspend fun nextTransitionAt(campaignId: String): Instant? = snapshot(campaignId)?.let {
