@@ -629,3 +629,41 @@ The driver exited successfully. Independent read-back confirmed no credential
 and no showing keyguard. The fixture PIN never touches a physical device.
 Results are in `credential-journey/` and
 `consumer-final-credential-journey.txt`; the earlier record remains archived.
+
+## Responsive window regression
+
+`ResponsiveAlarmLayoutInstrumentedTest` reproduces the repeat-choice failure
+at 240dp and 200% text. The original row breaks “Weekly” into five lines.
+The corrected layout must render both complete labels and keep Save reachable by scrolling.
+`SunriseDailyLayoutInstrumentedTest` also checks every weekday at that width.
+`CurfewLayoutModeTest` covers short windows and text-aware navigation selection.
+
+`CurfewAppNavigationInstrumentedTest.scaledWindowKeepsDailyAndEditorActionsReachable`
+uses Android's actual window and font configuration. It traverses daily,
+editing, weekly selection, Settings, and Account without saving. It captures
+the daily, editor, and account surfaces in the test app's private cache. Run
+this fixture on an emulator, not against an owner's saved phone state. The
+local matrix driver restores its original display size, density, and text
+scale in a finally block. Evidence belongs in
+`build/sunrise-evidence/responsive/`. These layout checks do not establish
+physical alarm delivery or hearing acceptance.
+
+The first rendered matrix exposed a second failure: the leading icon squeezed
+“Morning” onto two lines at 240dp/200% text.
+`scaledNarrowCheckInDoesNotSplitItsFirstWord` failed before the icon adaptation.
+The regression checks the word's first and last character on the same line;
+it does not mistake the absence of an overflow flag for readable wrapping.
+
+The initial regression used `hasVisualOverflow`, which also reports a wider
+intrinsic paragraph when its visible glyphs fit. The corrected regression
+checks line count, actual glyph bounds, and containment in the window. It was
+rerun against the original horizontal row and failed with five “Weekly” lines
+before restoring the wrapping implementation. The earlier failed full-suite
+log retains that test-diagnostic boundary rather than claiming a clean run.
+
+The final targeted suites pass 32 API33 Plain cases in 120.967s and 32 API36
+GMS cases in 153.174s. Both 182-case host suites, app/test builds, Android lint,
+and `git diff --check` pass. The five actual-profile journeys pass. The captured
+Plain APK still matches the final built APK byte for byte. The physical
+Pixel's installed GMS digest also matches the final built GMS APK. Local logs
+remain private build artifacts. New CI evidence must be read separately.

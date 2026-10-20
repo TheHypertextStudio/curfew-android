@@ -11,8 +11,10 @@ Use [the requirement-by-requirement acceptance record](P1_ACCEPTANCE.md)
 to assess the four feature tasks. The chronological entries below retain
 historical failures and their candidate boundaries.
 
-The four P1 tasks remain unaccepted. The application candidate is `204cfbf`.
-Both distributions pass 181 host tests, app/test APK builds, and Android lint.
+The four P1 tasks remain unaccepted. The latest completed CI candidate is
+`3906ac7`. The responsive follow-up passes 182 host tests per distribution,
+app/test APK builds, and Android lint. Historical suite counts below retain
+their original candidate boundaries.
 The corrected plain API33 suite passes 115 reported cases in 163.046s; the
 GMS API36 suite passes 115 in 262.452s. Six opt-in lifecycle cases require
 separate drivers. A new DND observation adds one opt-in instrumentation case;
@@ -37,8 +39,9 @@ CI runs `39436437575` (`21f3c9e`) and `39437430362` (`07ceb3f`) now pass
 every job, including both verification variants, release evidence, and
 API33/34/35/36 instrumentation. Earlier five-minute timeouts remain failed
 historical results. Runs `39440146825` (`23e4963`) and `39443372382`
-(`902ffd7`) also pass all jobs. The final consumer pass needs its own CI
-result. The corrected-notification standby observation has now completed;
+(`902ffd7`) also pass all jobs. The consumer pass at `3906ac7` passed all
+seven jobs in run `39447168226`. The responsive follow-up requires its own
+CI result. The corrected-notification standby observation has now completed;
 its exact candidate boundary is recorded below.
 
 Physical Pixel/non-Pixel acceptance, actual speaker hearing, manufacturer
@@ -864,3 +867,26 @@ battery, awake, and idle state. This observation predates the later atomic
 recovery and consumer changes. It is installed emulator evidence, not
 physical sound or manufacturer acceptance. [Testing](TESTING.md) retains the
 APK digest and cleanup checks.
+
+## Responsive window follow-up
+
+The alarm editor now wraps whole repeat choices instead of squeezing Weekly
+into five lines. Tasks reduce their gutters below 360dp. App-bar titles remain
+on one line, and permanent navigation requires enough height and text-adjusted
+width. Its destination list scrolls. Narrow enlarged-text setting rows give
+the saved name room by omitting their decorative leading icon.
+
+Both distributions pass 182 host tests, app/test builds, and Android lint.
+The final changed UI suites pass 32 cases on API33 Plain in 120.967s and
+32 on API36 GMS in 153.174s. Five actual Android window/text configurations
+pass the no-save navigation journey, including 240dp/200%, short landscape,
+and expanded layout. Native captures retain their exact APK digest. Independent
+design review confirmed the narrow saved-name correction. The initial broad
+run's false-positive text-overflow assertion remains recorded in TESTING.md;
+it is not reported as a passing current full suite.
+
+The connected Pixel 11 Pro runs API37. Its in-place GMS update matches the
+built APK digest. Its saved completed one-night alarm remains present.
+The layout pass does not accept physical audio, locked delivery, TalkBack,
+manufacturer battery behavior, or non-Pixel coverage. Revert the responsive
+commit to restore the previous presentation; no database migration is added.

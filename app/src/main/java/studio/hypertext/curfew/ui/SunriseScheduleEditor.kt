@@ -54,7 +54,7 @@ internal fun SunriseScheduleEditor(
         }
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Text("Repeat", style = MaterialTheme.typography.labelLarge)
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 FilterChip(selected = !weekly, onClick = { weekly = false }, label = { Text("One night") }, enabled = !busy, modifier = Modifier.heightIn(min = 48.dp))
                 FilterChip(selected = weekly, onClick = { weekly = true }, label = { Text("Weekly") }, enabled = !busy, modifier = Modifier.heightIn(min = 48.dp))
             }

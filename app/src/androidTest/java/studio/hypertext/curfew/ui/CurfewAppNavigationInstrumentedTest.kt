@@ -13,6 +13,8 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onLast
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -72,6 +74,30 @@ class CurfewAppNavigationInstrumentedTest {
                 )
             }
         }
+    }
+
+    @Test
+    fun scaledWindowKeepsDailyAndEditorActionsReachable() {
+        show()
+        compose.onNodeWithContentDescription("Settings").assertIsDisplayed()
+        compose.onNodeWithContentDescription("Edit alarm").assertIsDisplayed()
+        captureResponsiveWindow("daily")
+        compose.onNodeWithContentDescription("Edit alarm").performClick()
+        compose.onNodeWithText("Weekly").performScrollTo().assertIsDisplayed().performClick()
+        compose.onNodeWithContentDescription("Repeat on Sunday").performScrollTo().assertIsDisplayed()
+        captureResponsiveWindow("editor")
+        compose.onNodeWithText("Save").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithContentDescription("Back").performClick()
+        compose.onNodeWithContentDescription("Settings").performClick()
+        compose.onAllNodesWithText("Account").onLast().performScrollTo().performClick()
+        compose.onNodeWithText("Sign in").performScrollTo().assertIsDisplayed()
+        captureResponsiveWindow("account")
+        compose.runOnIdle { assertEquals(0, saves) }
+    }
+
+    private fun captureResponsiveWindow(scene: String) {
+        val output = InstrumentationRegistry.getInstrumentation().targetContext.cacheDir.resolve("responsive-$scene.png")
+        output.outputStream().use { compose.onRoot().captureToImage().asAndroidBitmap().compress(Bitmap.CompressFormat.PNG, 100, it) }
     }
 
     @Test

@@ -30,15 +30,22 @@ passes both local host/lint/build variants and all 119 reported API33 Plain
 cases in 167.074s. Its run `39443372382` at `902ffd7` also passed
 every job. A subsequent consumer-language and check-in completion pass
 passes 121 installed API33 Plain cases in 167.768s and four GMS
-check-in workflow cases in 7.416s. Its CI matrix remains pending.
-Both latest host suites pass 181 tests; both app/test APK builds and Android
-lint variants pass. Local logs live in `build/sunrise-evidence/`, which is
+check-in workflow cases in 7.416s. Its CI run `39447168226` at `3906ac7`
+passed all seven jobs. The responsive follow-up passes 182 host tests per
+variant, both app/test APK builds, and both Android lint variants. Its new CI
+result must be checked separately. Local logs live in `build/sunrise-evidence/`, which is
 not published as part of the source tree.
 
 An active alarm audio track does not establish perceived speaker output.
 An emulator is not a Pixel or non-Pixel physical acceptance run. A passing
 test fixture does not establish real hearing, TalkBack speech, or manufacturer
 battery behavior. Before-first-unlock playback is explicitly unsupported.
+
+A Pixel 11 Pro is now connected. The responsive GMS candidate was installed
+with an in-place update, and its installed APK digest matches the built APK.
+This establishes installation only. Physical speaker, locked-delivery,
+TalkBack, and non-Pixel acceptance remain open. Display scaling checks use
+emulators; the owner's display settings and app data were not reset.
 
 ## P1.1: Scheduling
 

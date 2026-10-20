@@ -2,6 +2,9 @@ package studio.hypertext.curfew.ui
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -97,7 +100,7 @@ fun CurfewApp(
                 title = {
                     if (destination == "daily") Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         CurfewHorizonMark()
-                        Text(title, style = MaterialTheme.typography.headlineSmall)
+                        Text(title, style = MaterialTheme.typography.headlineSmall, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
                     } else Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.semantics { heading() })
                 },
                 navigationIcon = {
@@ -114,13 +117,13 @@ fun CurfewApp(
         },
     ) { padding ->
         BoxWithConstraints(Modifier.fillMaxSize().padding(padding).semantics { paneTitle = if (destination == "daily") "Alarm" else title }) {
-            val expanded = maxWidth >= 840.dp
+            val expanded = CurfewLayoutMode.forWindow(maxWidth.value.toInt(), maxHeight.value.toInt(), LocalDensity.current.fontScale) == CurfewLayoutMode.EXPANDED
             Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.Center) {
                 if (expanded) {
-                    Column(Modifier.width(248.dp).padding(20.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Column(Modifier.width(248.dp).fillMaxHeight().verticalScroll(rememberScrollState()).padding(20.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         listOf("daily" to "Alarm", "check-in" to "Check-in", "readiness" to "Alarm access and sound", "account" to "Account").forEach { (route, label) ->
                             NavigationDrawerItem(
-                                label = { Text(label) }, selected = destination == route,
+                                label = { Text(label, maxLines = 1, overflow = TextOverflow.Ellipsis) }, selected = destination == route,
                                 onClick = { open(route) },
                             )
                         }

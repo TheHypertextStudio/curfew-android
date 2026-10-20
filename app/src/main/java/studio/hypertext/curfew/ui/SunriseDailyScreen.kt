@@ -53,10 +53,13 @@ internal fun CurfewHorizonMark() {
 
 @Composable
 internal fun TaskContent(spacing: Dp = 24.dp, verticalPadding: Dp = 20.dp, content: @Composable ColumnScope.() -> Unit) {
-    Column(
-        Modifier.fillMaxSize().imePadding().verticalScroll(rememberScrollState()).padding(horizontal = 24.dp, vertical = verticalPadding),
-        verticalArrangement = Arrangement.spacedBy(spacing), content = content,
-    )
+    BoxWithConstraints(Modifier.fillMaxSize().imePadding()) {
+        val gutter = if (maxWidth < 360.dp) 16.dp else 24.dp
+        Column(
+            Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = gutter, vertical = verticalPadding),
+            verticalArrangement = Arrangement.spacedBy(spacing), content = content,
+        )
+    }
 }
 
 @Composable
@@ -67,14 +70,17 @@ internal fun TaskMessage(message: String, error: Boolean = false) {
 
 @Composable
 internal fun SettingRow(title: String, detail: String? = null, icon: Int? = null, onClick: () -> Unit) {
-    ListItem(
-        headlineContent = { Text(title) },
-        supportingContent = detail?.let { { Text(it) } },
-        leadingContent = icon?.let { { Icon(painterResource(it), null, tint = MaterialTheme.colorScheme.primary) } },
-        trailingContent = { Icon(painterResource(R.drawable.ic_chevron_right_rounded), null) },
-        colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
-        modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable(role = Role.Button, onClick = onClick),
-    )
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
+        val showLeadingIcon = maxWidth.value / LocalDensity.current.fontScale.coerceAtLeast(1f) >= 180f
+        ListItem(
+            headlineContent = { Text(title) },
+            supportingContent = detail?.let { { Text(it) } },
+            leadingContent = icon?.takeIf { showLeadingIcon }?.let { { Icon(painterResource(it), null, tint = MaterialTheme.colorScheme.primary) } },
+            trailingContent = { Icon(painterResource(R.drawable.ic_chevron_right_rounded), null) },
+            colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+            modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable(role = Role.Button, onClick = onClick),
+        )
+    }
 }
 
 internal fun timeLabel(time: LocalTime, context: Context, locale: Locale): String = time.format(

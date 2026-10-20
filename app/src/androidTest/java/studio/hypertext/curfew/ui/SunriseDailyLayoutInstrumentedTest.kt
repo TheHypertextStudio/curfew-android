@@ -137,6 +137,19 @@ class SunriseDailyLayoutInstrumentedTest {
         }
     }
 
+    @Test fun scaledNarrowWindowKeepsEveryWeekdayReadable() {
+        show(2f, width = 240)
+        DayOfWeek.entries.forEach { day ->
+            assertFalse("The weekday must remain readable in a narrow scaled window: $day", weekday(day).textLayout().hasVisualOverflow)
+        }
+    }
+
+    @Test fun scaledNarrowCheckInDoesNotSplitItsFirstWord() {
+        show(2f, width = 240)
+        val layout = compose.onNodeWithText("Morning check-in", useUnmergedTree = true).textLayout()
+        assertEquals("A decorative icon must not squeeze Morning onto two lines", layout.getLineForOffset(0), layout.getLineForOffset(6))
+    }
+
     @Test fun weekdayMarkersGrowWithLargeText() {
         show(1f)
         val normalHeight = markerBounds(DayOfWeek.MONDAY).height

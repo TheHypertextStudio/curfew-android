@@ -143,3 +143,22 @@ stateDiagram-v2
     Completion --> [*]: Done
     Replacement --> [*]: Back
 ```
+
+## Scaled windows
+
+Task gutters use 16dp below 360dp and 24dp otherwise. Repeat choices wrap
+as whole chips when they cannot share a row. Do not reduce the owner's text
+size to retain a fixed arrangement. The brand and task titles use one line
+with ellipsis; accessibility retains their full names.
+
+The permanent navigation requires at least 840dp width, 480dp content height,
+and 600dp width after accounting for enlarged text. Other windows retain the
+same Settings and Back paths as a phone. The permanent list scrolls, and its
+labels use native single-line overflow. The daily 420dp and task 640dp limits
+still apply. These rules change presentation only; they do not save a draft,
+change an alarm, or release an active occurrence.
+
+Setting rows give the saved name priority over a decorative leading icon.
+When the row width divided by text scale falls below 180dp, omit that icon.
+Keep the chevron, full-row action, and unchanged text size. This avoids
+splitting a normal word such as “Morning” across lines at 240dp/200% text.
