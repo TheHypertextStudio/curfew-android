@@ -165,3 +165,9 @@ so waiting for any nonzero value does not establish that the press was handled.
 The corrected fixture waits for a new cancellation and requires a visible,
 enabled button before touching it. It retains the start and no-confirmation
 assertions.
+
+
+AlarmServiceIsolationInstrumentedTest also invokes real worker completion
+for an old terminal occurrence while current alarm audio plays. The test
+requires that current audio and its ringing notification remain active.
+It does not exercise network authentication or claim P1b acceptance.

@@ -455,12 +455,11 @@ from a separate project-owned data directory. Host memory was 53% free before
 launch and 49% free during validation. All commands target an explicit serial.
 The original Doze AVD at emulator-5554 was not reset, installed over, or unlocked.
 
-Remaining isolation audit: `WakeStatusPollWorker.stopCampaign` still calls
-component-wide `stopService` with a campaign ID in extras. Extras do not scope a
-service instance, so late cleanup needs a native regression against a newer
-ringing occurrence. Delayed service start intents also need direct isolation
-coverage. These are local safety checks around existing optional network work,
-not P1b implementation. P1 is not accepted while those cases remain unproven.
+The October 20 isolation audit reproduced a component-wide service stop from
+old terminal cleanup. The scoped-completion fix below resolves that case.
+Delayed service start intents still need direct isolation coverage. These are
+local safety checks around existing optional network work, not P1b delivery.
+P1 remains unaccepted.
 
 
 ### October 20: Compact daily grouping
@@ -483,3 +482,34 @@ Verification passed for both debug builds, both Android lint variants, and
 layout tests and the eight-state capture case (11 reported tests total).
 The native captures were reviewed at 390dp normal text and 320dp double
 local text density. Browser rendering of the updated proposal was not run.
+
+
+### October 20: Scope terminal cleanup to the matching occurrence
+
+The native regression reproduced old terminal cleanup stopping a newer
+alarm's audio. Intent extras do not scope Android stopService to an occurrence.
+WakeStatusPollWorker now completes the matching occurrence through
+SunriseScheduler. The service observes its own stored state. A completion
+failure returns retry, and cancellation still propagates. A retried terminal
+worker repairs completion rather than skipping it.
+
+The failing behavioral run is old-cleanup-behavior-red.txt. Both host suites,
+both app/test APK builds, and both lint variants pass (56s). The isolation,
+fallback-audio, and authenticated-release classes pass five installed cases
+on API 35 plain and API 36 GMS. This checks local cleanup, not network
+integration acceptance. The subsequent density build also passed both
+162-test host suites and both lint variants.
+
+### October 20: Default-policy Doze observation
+
+The 65-minute observation finished on API 36 using runtime 789e0cd. It entered
+deep idle at 08:52:45 UTC and retained the original 09:57:44.907899 UTC wake
+boundary. Alarm audio was observed at 09:57:49.777398 UTC. That 4.87-second
+observation delay includes the five-second polling interval. The occurrence
+identity, first attempt, and 120/60-second cadence remained unchanged.
+Cleanup passed and restored network, battery, and idle settings.
+
+This is emulator audio evidence on the earlier runtime. The screenshot is
+black, and full-screen access was denied. It proves neither full-screen
+presentation nor physical speaker output. Current-runtime lifecycle and
+physical-device acceptance remain required.

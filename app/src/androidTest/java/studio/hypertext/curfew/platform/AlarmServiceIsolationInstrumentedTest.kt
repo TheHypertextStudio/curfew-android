@@ -4,6 +4,10 @@ import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.media.AudioAttributes
+import android.media.AudioManager
+import androidx.work.testing.TestListenableWorkerBuilder
+import studio.hypertext.curfew.sync.WakeStatusPollWorker
 import android.os.Handler
 import android.os.Looper
 import androidx.core.content.ContextCompat
@@ -16,6 +20,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.runBlocking
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import studio.hypertext.curfew.MainActivity
@@ -39,6 +44,45 @@ class AlarmServiceIsolationInstrumentedTest {
             AndroidAlarmClockGateway(context).cancel(id)
             CallbackPollScheduler.cancel(context, id)
             CurfewDatabase.open(context).alarmCampaignDao().delete(id)
+        }
+    }
+
+    @Test
+    fun terminalCleanupForAnOldOccurrenceCannotStopCurrentPlayback() = runBlocking {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        for (command in listOf(
+            "pm grant ${context.packageName} android.permission.POST_NOTIFICATIONS",
+            "appops set ${context.packageName} SCHEDULE_EXACT_ALARM allow",
+        )) instrumentation.uiAutomation.executeShellCommand(command).use {
+            android.os.ParcelFileDescriptor.AutoCloseInputStream(it).readBytes()
+        }
+        val now = Instant.now()
+        val engine = AlarmCampaignEngine()
+        repository.save(engine.advanceTo(
+            AlarmCampaignState.Scheduled(currentId, now, AlarmRecurrencePolicy.default(), setOf("fixture")), now,
+        ))
+        repository.save(engine.satisfy(
+            AlarmCampaignState.Scheduled(oldId, now.minusSeconds(60), AlarmRecurrencePolicy.default(), setOf("fixture")),
+            now, "Previous morning",
+        ))
+        ActivityScenario.launch<MainActivity>(Intent(context, MainActivity::class.java)).use { scenario ->
+            scenario.onActivity { activity ->
+                ContextCompat.startForegroundService(activity,
+                    PerpetualAlarmService.startIntent(activity, currentId, 1))
+            }
+            val audio = context.getSystemService(AudioManager::class.java)
+            fun audioActive() = audio.activePlaybackConfigurations.any { it.audioAttributes.usage == AudioAttributes.USAGE_ALARM }
+            val deadline = android.os.SystemClock.elapsedRealtime() + 10_000
+            while ((!isRingingPresentationActive() || !audioActive()) && android.os.SystemClock.elapsedRealtime() < deadline) Thread.sleep(50)
+            assertTrue("Current alarm did not produce audio", audioActive())
+            assertEquals(androidx.work.ListenableWorker.Result.success(),
+                TestListenableWorkerBuilder<WakeStatusPollWorker>(context).build().completeCampaign(oldId))
+            instrumentation.waitForIdleSync()
+            repeat(20) {
+                Thread.sleep(100)
+                assertTrue("Old terminal cleanup stopped current alarm audio", audioActive())
+                assertTrue("Old terminal cleanup removed current presentation", isRingingPresentationActive())
+            }
         }
     }
 
