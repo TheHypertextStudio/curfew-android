@@ -435,3 +435,30 @@ controls, including a real dial tap. The driver verifies cleanup and records
 the installed APK checksum. Both 181-case host suites, both app/test builds,
 and both Android lint variants pass. Final native captures and their actual
 profile manifest are in `design/android-review/native/pickers/`.
+
+## Authenticated approval rejection through real TLS
+
+The installed `SunriseReleaseJourneyInstrumentedTest` now exercises pending,
+forged, malformed, wrong-occurrence, expired, future-dated, replay-seed,
+replayed-approval, and HTTP503 responses before the final valid approval.
+Each case checks persisted ringing, the alarm notification, and actual
+alarm-track activity. The final approval must stop both presentation and
+audio, consume the one-night occurrence, record the condition, and remain
+harmless when the worker retries. The journey requires at least eleven
+actual TLS exchanges, including setup verification.
+
+Earlier forged and wrong-occurrence fixtures also returned pending status.
+That combination did not prove rejection of an invalid response claiming
+success. Invalid fixture responses now claim satisfied. Expired approval
+uses the current challenge timestamp and an expiry one nanosecond later,
+so it is already expired on receipt without predating its challenge. The
+replay seed returns pending while retaining a separately signed satisfied
+approval for that old nonce; the next request receives that old approval.
+The unavailable response uses HTTP503 even though its body claims success.
+These are test-only changes using the existing published callback protocol.
+
+Both instrumentation builds and Android lint variants pass. The strengthened
+journey passed on the owned API33 emulator in 6.004s for Plain and 6.036s
+for GMS. The driver restored the Plain app and test APK afterward. These
+observations do not replace physical hearing or current-platform lifecycle
+acceptance. The final-runtime Doze driver on API36 remained untouched.

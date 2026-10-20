@@ -26,6 +26,7 @@ internal class LocalHttpsVerifier : Closeable {
     @Volatile var definition: CallbackDefinition? = null
     @Volatile var mode = "pending"
     val requests = AtomicInteger()
+    private var replayApproval: JSONObject? = null
 
     init {
         val keys = KeyStore.getInstance("PKCS12").apply {
@@ -77,17 +78,37 @@ internal class LocalHttpsVerifier : Closeable {
         check(sign(configured, "curfew-callback-request-v1", unsignedChallenge) == challenge.getString("mac"))
         requests.incrementAndGet()
         val now = Instant.now()
+        val responseMode = mode
         val response = JSONObject().apply {
-            put("campaignId", if (mode == "wrong-occurrence") "another-alarm" else challenge.getString("campaignId"))
+            put("campaignId", if (responseMode == "wrong-occurrence") "another-alarm" else challenge.getString("campaignId"))
             put("nonce", challenge.getString("nonce"))
-            put("observedAt", now.toString())
-            put("expiresAt", now.plusSeconds(30).toString())
-            put("status", if (mode == "satisfied") "satisfied" else "pending")
+            put("observedAt", when (responseMode) {
+                "expired" -> Instant.parse(challenge.getString("challengedAt"))
+                "future" -> now.plusSeconds(60)
+                else -> now
+            }.toString())
+            put("expiresAt", when (responseMode) {
+                "expired" -> Instant.parse(challenge.getString("challengedAt")).plusNanos(1)
+                "future" -> now.plusSeconds(90)
+                else -> now.plusSeconds(30)
+            }.toString())
+            put("status", if (responseMode in setOf("pending", "replay-seed")) "pending" else "satisfied")
         }
-        response.put("mac", if (mode == "forged") "invalid" else sign(configured, "curfew-callback-response-v1", response))
-        val body = if (mode == "malformed") "{}" else response.toString()
+        if (responseMode == "replay-seed") {
+            replayApproval = JSONObject(response.toString()).apply {
+                put("status", "satisfied")
+                put("mac", sign(configured, "curfew-callback-response-v1", this))
+            }
+        }
+        response.put("mac", if (responseMode == "forged") "invalid" else sign(configured, "curfew-callback-response-v1", response))
+        val body = when (responseMode) {
+            "malformed" -> "{}"
+            "replayed-approval" -> requireNotNull(replayApproval).toString()
+            else -> response.toString()
+        }
         val bytes = body.toByteArray()
-        client.outputStream.write("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: ${bytes.size}\r\nConnection: close\r\n\r\n".toByteArray())
+        val status = if (responseMode == "unavailable") "503 Service Unavailable" else "200 OK"
+        client.outputStream.write("HTTP/1.1 $status\r\nContent-Type: application/json\r\nContent-Length: ${bytes.size}\r\nConnection: close\r\n\r\n".toByteArray())
         client.outputStream.write(bytes)
         client.outputStream.flush()
     }

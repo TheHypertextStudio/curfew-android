@@ -85,7 +85,7 @@ class SunriseReleaseJourneyInstrumentedTest {
                 await("scheduled alarm starts through Android AlarmManager") {
                     runtime.load(id) is AlarmCampaignState.Ringing && ringingNotification() && alarmAudioIsActive()
                 }
-                for (mode in listOf("pending", "forged", "malformed", "wrong-occurrence")) {
+                for (mode in listOf("pending", "forged", "malformed", "wrong-occurrence", "expired", "future", "replay-seed", "replayed-approval", "unavailable")) {
                     verifier.mode = mode
                     val worker = TestListenableWorkerBuilder<CallbackPollWorker>(context)
                         .setInputData(Data.Builder().putString(CallbackPollWorker.KEY_CAMPAIGN_ID, id).build())
@@ -106,7 +106,7 @@ class SunriseReleaseJourneyInstrumentedTest {
                 assertEquals("Fixture morning check-in", (runtime.load(id) as AlarmCampaignState.Satisfied).conditionLabel)
                 assertEquals(null, scheduler.state.first()?.occurrence)
                 assertNotNull(scheduler.state.first()?.completedThrough)
-                assertTrue("Expected actual TLS callback exchanges", verifier.requests.get() >= 6)
+                assertTrue("Expected actual TLS callback exchanges", verifier.requests.get() >= 11)
                 worker.doWork()
                 assertFalse(ringingNotification())
             } finally {
