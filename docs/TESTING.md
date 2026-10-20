@@ -559,3 +559,73 @@ initial sample remains in `restored-network-initial-sample.json`; the
 confirmed state is in `restored-network.json`. This driver correction adds
 no app permission or runtime behavior. It does not turn the pending API36
 Doze observation into a success.
+
+
+## Consumer alarm labels
+
+The installed navigation and accessibility expectations now use “Edit alarm”
+and the “Alarm” pane instead of requiring the feature name in ordinary tasks.
+Both existing assertions first failed against the old installed labels in
+`consumer-labels-red.txt`. The update preserves the occurrence's date/time
+accessibility state and the native switch's checked semantics. Other native
+fixtures use the same labels to exercise the real controls.
+Both distributions pass their 181 host tests, app/test APK builds, and lint.
+The review-page scripts pass Node syntax checks. Installed and rendered
+results remain separately recorded after the complete suite finishes.
+
+
+The initial label pass reports all 119 installed cases green in 170.796s.
+The subsequent design review found a redundant Done in unchanged connected
+detail, cryptography terms in file guidance, and duplicate save/connection
+success messages. Two new installed CheckInScreen regressions failed before
+that correction in `check-in-completion-red.txt`. They require the ordinary
+detail to retain a file-save error without another exit button, and setup to
+keep an operative file-save action and completion after verification.
+The second test also enters replacement, keeps the existing connection,
+and then completes setup. It caught a candidate that cleared completion
+intent too early (`check-in-detour-red.txt`). Successful new selection now
+starts setup; canceling replacement preserves the prior intent. This adds
+no extra backup state and does not suppress errors on verified connections.
+Both distributions pass host/build/lint checks after the final correction.
+The final API33 Plain suite reports `OK (121 tests)` in 167.768s.
+The GMS check-in class also passes all four installed cases in 7.416s.
+Fresh native captures are retained under
+`design/android-review/native/consumer/`, with the APK digest and fixture
+parameters. Visual inspection found no overlap or clipping in the normal
+connected detail, 320dp enlarged-text detail, editor, or initial form.
+These results do not establish physical-device hearing or manual TalkBack.
+
+
+## Completed corrected-notification standby observation
+
+The externally observed 65-minute API36 run entered deep idle at
+14:08:32.897704 UTC on October 20. Its unchanged alarm was scheduled for
+15:13:31.268582. The five-second observer found active alarm audio at
+15:13:35.992585, a 4.724-second observation delay. The stored occurrence
+retained attempt 1 and the original 15:13:31–15:15:31 ringing bounds.
+The driver exited successfully; native fixture cleanup reports OK (1 test).
+Read-back confirmed force idle off, normal charging, screen on, and both
+idle state machines ACTIVE. The emulator had no credential afterward.
+
+The installed APK digest is
+`24587bc2ebd649044880ff86cc4ff95f025f11cee12789ac4ab87b802885981e`.
+This candidate contains the notification correction and predates the later
+atomic-recovery and consumer changes. Those changes retain their separate
+installed/CI evidence. Do not relabel this run as physical acceptance or as
+a byte-identical test of the later APK. Results and cleanup live in
+`build/sunrise-evidence/doze/`; the driver log is
+`presentation-runtime-doze-driver.txt`. The previous runtime's standby result
+remains in its archived directory.
+
+
+After the standby driver exited and restored the AVD, the latest GMS app
+and test APKs passed both real Android credential journeys on API36 in
+14.856s. Successful screen-lock authorization stops audio and records the
+override; cancellation keeps audio and records no recovery audit. The
+fixture recognizes the shortened cancellation feedback. The installed APK
+matches the latest built GMS SHA256:
+`960180b46f4e35b43db9e19638abeb52a1b236b6ccb42745926994c0056f22e7`.
+The driver exited successfully. Independent read-back confirmed no credential
+and no showing keyguard. The fixture PIN never touches a physical device.
+Results are in `credential-journey/` and
+`consumer-final-credential-journey.txt`; the earlier record remains archived.

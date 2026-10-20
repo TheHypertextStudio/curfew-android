@@ -73,7 +73,7 @@ class AndroidOwnerRecovery(
                         pendingId = null
                         signal = null
                         busy = false
-                        error = "Confirmation canceled. Sunrise is still active."
+                        error = "Confirmation canceled."
                     }
 
                     override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
@@ -95,7 +95,7 @@ class AndroidOwnerRecovery(
                             pendingId = null
                             busy = false
                             when (outcome) {
-                                OwnerRecoveryResult.NotSaved -> error = "Couldn’t save recovery. Sunrise is still active. Try again."
+                                OwnerRecoveryResult.NotSaved -> error = "Couldn’t stop the alarm. Try again."
                                 else -> onRecovered(outcome)
                             }
                         }

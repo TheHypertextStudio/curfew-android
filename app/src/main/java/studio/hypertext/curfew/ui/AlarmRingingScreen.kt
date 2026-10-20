@@ -68,7 +68,7 @@ fun AlarmRingingScreen(
                 verticalArrangement = Arrangement.Center,
             ) {
                 Text(
-                    if (nextRingTime == null) "Time to get up." else "Sunrise is still active.",
+                    "Time to get up.",
                     style = MaterialTheme.typography.headlineLarge,
                     color = MaterialTheme.colorScheme.onSurface,
                     textAlign = TextAlign.Center,

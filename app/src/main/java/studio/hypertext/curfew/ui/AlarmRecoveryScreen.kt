@@ -121,7 +121,7 @@ fun AlarmRecoveryScreen(
             verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
             if (credentialAvailable) {
-                Text("This stops Sunrise without completing $conditionLabel.", style = MaterialTheme.typography.bodyLarge)
+                Text("This stops the alarm without completing $conditionLabel.", style = MaterialTheme.typography.bodyLarge)
                 OutlinedTextField(
                 value = reason,
                 onValueChange = { reason = it },

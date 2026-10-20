@@ -90,7 +90,7 @@ class CurfewDesignCaptureInstrumentedTest {
             }
             compose.waitForIdle()
             if (scene == "editor") {
-                compose.onNodeWithContentDescription("Edit Sunrise").performClick()
+                compose.onNodeWithContentDescription("Edit alarm").performClick()
             } else if (scene != "daily") {
                 compose.onNodeWithContentDescription("Settings").performClick()
                 val destination = when (scene) {
@@ -152,7 +152,7 @@ class CurfewDesignCaptureInstrumentedTest {
 
     private fun capturePicker(time: Boolean) {
         compose.setContent { Fixture(initialForm = false, required = emptySet(), oneNight = true) }
-        compose.onNodeWithContentDescription("Edit Sunrise").performClick()
+        compose.onNodeWithContentDescription("Edit alarm").performClick()
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val locale = context.resources.configuration.locales[0]
         if (time) compose.onNodeWithText(timeLabel(LocalTime.of(7, 0), context, locale)).performClick()

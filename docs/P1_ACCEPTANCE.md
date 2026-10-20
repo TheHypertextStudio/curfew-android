@@ -27,7 +27,10 @@ job: both verification variants, release evidence, and instrumentation on
 API33/34/35/36. Run `39440146825` also passed every job at `23e4963`,
 including the occurrence accessibility change. The later recovery race fix
 passes both local host/lint/build variants and all 119 reported API33 Plain
-cases in 167.074s. Its current-head CI result remains pending.
+cases in 167.074s. Its run `39443372382` at `902ffd7` also passed
+every job. A subsequent consumer-language and check-in completion pass
+passes 121 installed API33 Plain cases in 167.768s and four GMS
+check-in workflow cases in 7.416s. Its CI matrix remains pending.
 Both latest host suites pass 181 tests; both app/test APK builds and Android
 lint variants pass. Local logs live in `build/sunrise-evidence/`, which is
 not published as part of the source tree.
@@ -74,7 +77,7 @@ battery behavior. Before-first-unlock playback is explicitly unsupported.
 | Reject pending, forged, malformed, wrong-occurrence, expired, future, replayed, and unavailable replies | Strengthened TLS journey checks ringing, notification, and audio after every case; authenticator golden-vector tests | Invalid approvals claim satisfaction; unavailable uses HTTP503 |
 | Keep retried completion harmless | TLS worker retry plus controller duplicate-consumption tests | Automated and installed emulator |
 | Display the condition and open its supported action | Native condition/action tests; saved verifier definition | Real external provider action availability depends on the chosen operator |
-| Record deliberate recovery separately | Real Android credential success/cancellation, reason and hold tests, Room audit assertions | API36 emulator; no physical credential acceptance claimed |
+| Record deliberate recovery separately | Real Android credential success/cancellation, reason and hold tests, Room audit assertions | Latest consumer-pass GMS APK passes both actual API36 credential cases in 14.856s; original credential-free/unlocked state restored; no physical acceptance claimed |
 
 ## P1.4: Recovery and complete device acceptance
 
@@ -89,15 +92,15 @@ battery behavior. Before-first-unlock playback is explicitly unsupported.
 | Retain state through permission revocation and restoration | Native readiness XML plus same-occurrence audio after repair | API33 emulator |
 | Preserve concurrent disable and time edits during recovery | Installed Room concurrency regressions fail with the old split read/save and pass with one transaction; timer restoration holds the schedule mutex | API33 installed proof; independent read-only review confirmed the lock order |
 | Avoid duplicate ringing and unrelated release | Service-isolation tests, completion interruption tests, controller and Room guards | Automated and installed emulator |
-| Deliver after standby on the corrected runtime | Live 65-minute driver, target `2026-10-20T15:13:31.268582Z` | Pending; an earlier-runtime success cannot accept this run |
+| Deliver after standby on the corrected notification runtime | Completed 65-minute API36 driver: scheduled `2026-10-20T15:13:31.268582Z`, audio observed at `15:13:35.992585Z`, same first-attempt bounds | Notification-runtime candidate before the later atomic-recovery and consumer changes; five-second polling, successful cleanup, no physical hearing claim |
 | Complete the required Pixel and non-Pixel journeys | No current complete physical record exists | Open: locked delivery, perceived sound, Doze, fallback, offline/reconnection/release, and manufacturer behavior |
 | Publish task updates with Codex attribution through Docket | No callable Docket connector is exposed | Open; no browser or account impersonation substitute |
 
 ## Remaining acceptance work
 
-Finish the current standby observation and latest verification
-before updating this snapshot. Then complete the full physical-device matrix
-and manual accessibility review. The local and WillieStudio ADB inventories
+Complete the latest consumer-pass CI matrix, full physical-device matrix,
+and manual accessibility review. The corrected-notification standby
+observation passed with its exact candidate boundary recorded above. The local and WillieStudio ADB inventories
 currently contain only emulators. A discovered phone's wireless endpoint
 refused the attempted trusted ADB connection on October 20; discovery alone
 does not provide test access. Docket remains unavailable through the connector.

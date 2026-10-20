@@ -74,14 +74,14 @@ class SunriseScheduleController(
         )
         val next = SavedSunriseAlarm(schedule, plan.occurrence, plan.completedThrough)
         if (requireOccurrence && schedule.enabled) {
-            requireNotNull(plan.occurrence) { "Choose a future date and time for Sunrise" }
+            requireNotNull(plan.occurrence) { "Choose a future date and time." }
         }
         val shouldArm = plan.occurrence != null && phase != SunriseOccurrencePhase.ACTIVE
         if (schedule.enabled && plan.occurrence != null &&
             (requireOccurrence || phase != SunriseOccurrencePhase.ACTIVE) &&
             !runtime.canArm(schedule.callbackId)
         ) {
-            throw IllegalStateException("Finish alarm readiness and configure a release condition")
+            throw IllegalStateException("Finish alarm setup and connect your check-in.")
         }
         if (shouldArm) {
             runtime.arm(requireNotNull(plan.occurrence), schedule.callbackId)

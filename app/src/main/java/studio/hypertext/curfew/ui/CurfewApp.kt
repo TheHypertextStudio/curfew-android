@@ -84,7 +84,7 @@ fun CurfewApp(
         }
     }
     val title = when (destination) {
-        "edit" -> "Edit Sunrise"
+        "edit" -> "Edit alarm"
         "readiness" -> "Alarm access and sound"
         "check-in" -> "Check-in"
         "settings" -> "Settings"
@@ -113,12 +113,12 @@ fun CurfewApp(
             )
         },
     ) { padding ->
-        BoxWithConstraints(Modifier.fillMaxSize().padding(padding).semantics { paneTitle = if (destination == "daily") "Sunrise" else title }) {
+        BoxWithConstraints(Modifier.fillMaxSize().padding(padding).semantics { paneTitle = if (destination == "daily") "Alarm" else title }) {
             val expanded = maxWidth >= 840.dp
             Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.Center) {
                 if (expanded) {
                     Column(Modifier.width(248.dp).padding(20.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        listOf("daily" to "Sunrise", "check-in" to "Check-in", "readiness" to "Alarm access and sound", "account" to "Account").forEach { (route, label) ->
+                        listOf("daily" to "Alarm", "check-in" to "Check-in", "readiness" to "Alarm access and sound", "account" to "Account").forEach { (route, label) ->
                             NavigationDrawerItem(
                                 label = { Text(label) }, selected = destination == route,
                                 onClick = { open(route) },

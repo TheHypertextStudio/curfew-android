@@ -2,6 +2,7 @@ package studio.hypertext.curfew.ui
 
 import androidx.test.espresso.Espresso
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -51,6 +52,44 @@ class CheckInScreenInstrumentedTest {
         compose.onNodeWithText("Could not save check-in. Try again.").assertExists()
         compose.onNodeWithText("Save check-in").performScrollTo().assertIsEnabled().performClick()
         compose.runOnIdle { assertEquals(2, saves) }
+    }
+
+    @Test
+    fun anUnchangedConnectedDetailKeepsFailuresWithoutADuplicateExit() {
+        compose.setContent {
+            CurfewTheme {
+                CheckInScreen("condition-1", "Morning check-in", true, false,
+                    "Couldn’t save the setup file. Try again.",
+                    onSave = { _, _, _ -> }, onExport = {}, onVerify = {}, onDone = {})
+            }
+        }
+        compose.onNodeWithText("Connected").assertIsDisplayed()
+        compose.onNodeWithText("Couldn’t save the setup file. Try again.").assertIsDisplayed()
+        compose.onNodeWithText("Done").assertDoesNotExist()
+    }
+
+    @Test
+    fun aNewConnectionKeepsACompletionActionAfterVerification() {
+        val verified = mutableStateOf(false)
+        var exports = 0
+        var completions = 0
+        compose.setContent {
+            CurfewTheme {
+                CheckInScreen("condition-1", "Morning check-in", verified.value, false, null,
+                    onSave = { _, _, _ -> }, onExport = { exports++ },
+                    onVerify = { verified.value = true }, onDone = { completions++ })
+            }
+        }
+        compose.onNodeWithText("Save setup file").performScrollTo().performClick()
+        compose.runOnIdle { assertEquals(1, exports) }
+        compose.onNodeWithText("Test connection").performScrollTo().performClick()
+        compose.onNodeWithText("Connected").assertIsDisplayed()
+        compose.onNodeWithText("Connection details").performClick()
+        compose.onNodeWithText("Replace check-in").performScrollTo().performClick()
+        compose.onNodeWithText("Keep current check-in").performScrollTo().performClick()
+        compose.onNodeWithText("Done").performScrollTo().performClick()
+        compose.runOnIdle { assertEquals(1, completions) }
+        compose.onNodeWithText("Done").assertDoesNotExist()
     }
 
 }

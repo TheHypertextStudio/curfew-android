@@ -66,7 +66,7 @@ internal fun AlarmReadinessScreen(
             }
         }
         if (ReadinessDisclosure.FULL_SCREEN_FALLBACK in readiness.disclosures) {
-            Text("Full-screen access is off. Sunrise will use a lock-screen notification.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text("Full-screen access is off. The alarm will use a lock-screen notification.", color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         TextButton(onClick = { showLimits = !showLimits }) { Text("Android limits") }
         if (showLimits || next == ReadinessAction.ACKNOWLEDGE_LIMITATIONS) {
@@ -103,7 +103,7 @@ internal fun CurfewAccountScreen(
         Text(when {
             enrolled -> "This device is connected to your account."
             signedIn -> "This device is not connected yet."
-            else -> "Connect your devices with a Curfew account. Sunrise works without an account."
+            else -> "Connect your devices with a Curfew account. Alarms work without an account."
         }, style = MaterialTheme.typography.bodyLarge)
         when (recoveryState) {
             AccountRecoveryState.EnterRecoveryKey -> {

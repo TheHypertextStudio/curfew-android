@@ -112,7 +112,7 @@ internal fun SunriseDailyScreen(
             Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 if (saved == null) {
                     Text("No alarm set", style = MaterialTheme.typography.titleLarge)
-                    FilledTonalButton(onClick = onEdit, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp).semantics { contentDescription = "Edit Sunrise" }) {
+                    FilledTonalButton(onClick = onEdit, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp).semantics { contentDescription = "Edit alarm" }) {
                         Text("Choose a wake time")
                     }
                 } else {
@@ -124,7 +124,7 @@ internal fun SunriseDailyScreen(
                         horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         Box(Modifier.weight(1f).heightIn(min = 48.dp).clickable(role = Role.Button, onClick = onEdit)
                             .semantics {
-                                contentDescription = "Edit Sunrise"
+                                contentDescription = "Edit alarm"
                                 alarm.occurrence?.startsAt?.atZone(ZoneId.systemDefault())?.let { occurrence ->
                                     stateDescription = "${occurrence.toLocalDate().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale))}, ${timeLabel(occurrence.toLocalTime(), context, locale)}"
                                 }
@@ -134,7 +134,7 @@ internal fun SunriseDailyScreen(
                         if (!complete) Switch(
                             checked = saved.enabled, onCheckedChange = onToggle,
                             enabled = !busy && (saved.enabled || canArm),
-                            modifier = Modifier.semantics { contentDescription = "Enable future Sunrise alarms" },
+                            modifier = Modifier.semantics { contentDescription = "Alarm" },
                         )
                     }
                     if (saved.onceDate == null) {

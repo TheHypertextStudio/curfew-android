@@ -36,8 +36,10 @@ it is not a still-running job or physical speaker evidence.
 CI runs `39436437575` (`21f3c9e`) and `39437430362` (`07ceb3f`) now pass
 every job, including both verification variants, release evidence, and
 API33/34/35/36 instrumentation. Earlier five-minute timeouts remain failed
-historical results. The new accessibility change requires its own final
-verification; the final-runtime standby observation is still live.
+historical results. Runs `39440146825` (`23e4963`) and `39443372382`
+(`902ffd7`) also pass all jobs. The final consumer pass needs its own CI
+result. The corrected-notification standby observation has now completed;
+its exact candidate boundary is recorded below.
 
 Physical Pixel/non-Pixel acceptance, actual speaker hearing, manufacturer
 behavior, and Docket publication remain open. October 20 local and
@@ -842,3 +844,23 @@ evidence remains separately recorded in [P1 acceptance](P1_ACCEPTANCE.md).
 The independent reviewer confirmed the correction and found no lock-order
 deadlock. This change adds no schema, wire, permission, or release-policy
 change. It preserves current release authority and persisted cadence anchors.
+
+
+Ordinary app instructions and accessibility labels now say “alarm” rather
+than repeating the Sunrise capability name. The daily screen adds no new
+visible title. The editor and expanded navigation use the same noun.
+Check-in setup omits the redundant valid-link hint. Recovery cancellation
+reports the action without a potentially stale claim that ringing continues.
+Scheduling, persistent cadence, and release authority remain unchanged.
+[Design guidance](DESIGN.md) and [verification](TESTING.md) record this pass.
+
+
+The corrected-notification candidate completed its separate 65-minute
+standby observation on October 20. It entered deep idle at 14:08:32.897704
+UTC and retained its scheduled 15:13:31.268582 alarm. The five-second observer
+found active audio at 15:13:35.992585 with the same first-attempt bounds.
+The driver exited successfully, removed the fixture, and restored normal
+battery, awake, and idle state. This observation predates the later atomic
+recovery and consumer changes. It is installed emulator evidence, not
+physical sound or manufacturer acceptance. [Testing](TESTING.md) retains the
+APK digest and cleanup checks.

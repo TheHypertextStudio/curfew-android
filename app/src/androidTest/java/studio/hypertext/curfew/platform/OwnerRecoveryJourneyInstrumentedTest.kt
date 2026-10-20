@@ -161,7 +161,7 @@ class OwnerRecoveryJourneyInstrumentedTest {
                 shell("input keyevent KEYCODE_BACK")
             }
             await("canceled confirmation is reported") {
-                find { it.text?.toString() == "Confirmation canceled. Sunrise is still active." } != null
+                find { it.text?.toString() == "Confirmation canceled." } != null
             }
             assertTrue(audioActive())
             assertTrue(runtime.load(id) is AlarmCampaignState.Ringing)

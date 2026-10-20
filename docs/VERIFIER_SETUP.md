@@ -13,7 +13,7 @@ wake occurrence has satisfied its condition.
 1. The owner opens Settings, then Check-in, on the phone. The owner enters a
    recognizable name, the operator's HTTPS service address, and an optional
    link for completing the check-in. The owner saves the connection.
-2. The owner chooses Export setup file and saves the private file through Android's
+2. The owner chooses Save setup file and saves the private file through Android's
    document picker. The owner transfers that file directly to the trusted
    operator. It contains the generated signing secret. Do not put it in a
    public issue, log, screenshot, or shared source repository.

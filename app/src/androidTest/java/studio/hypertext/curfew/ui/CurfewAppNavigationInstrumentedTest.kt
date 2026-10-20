@@ -88,7 +88,7 @@ class CurfewAppNavigationInstrumentedTest {
     @Test
     fun dailyShowsSavedAlarmWithoutSetupForms() {
         show()
-        compose.onNodeWithContentDescription("Edit Sunrise").assertIsDisplayed()
+        compose.onNodeWithContentDescription("Edit alarm").assertIsDisplayed()
         compose.onNodeWithText("Morning check-in").assertIsDisplayed()
         compose.onNodeWithText("HTTPS verifier endpoint").assertDoesNotExist()
         compose.onNodeWithText("Curfew Recovery Key").assertDoesNotExist()
@@ -113,10 +113,10 @@ class CurfewAppNavigationInstrumentedTest {
     @Test
     fun editBackDiscardsAllDraftChanges() {
         show()
-        compose.onNodeWithContentDescription("Edit Sunrise").performClick()
+        compose.onNodeWithContentDescription("Edit alarm").performClick()
         compose.onNodeWithText("Weekly").performClick()
         compose.onNodeWithContentDescription("Back").performClick()
-        compose.onNodeWithContentDescription("Edit Sunrise").performClick()
+        compose.onNodeWithContentDescription("Edit alarm").performClick()
         compose.onNodeWithText("One night").assertIsSelected()
         compose.runOnIdle { assertEquals(0, saves) }
     }
@@ -124,7 +124,7 @@ class CurfewAppNavigationInstrumentedTest {
     @Test
     fun failedSaveKeepsDraftAndEditorOpen() {
         show(failSave = true)
-        compose.onNodeWithContentDescription("Edit Sunrise").performClick()
+        compose.onNodeWithContentDescription("Edit alarm").performClick()
         compose.onNodeWithText("Weekly").performClick()
         compose.onNodeWithText("Save").performClick()
         compose.onNodeWithText("Could not save the alarm. Try again.").assertIsDisplayed()
@@ -145,30 +145,30 @@ class CurfewAppNavigationInstrumentedTest {
     @Test
     fun setupReturnsToTheDraftAndBackStillLeavesTheEditor() {
         show(required = setOf(ReadinessAction.RAISE_ALARM_VOLUME))
-        compose.onNodeWithContentDescription("Edit Sunrise").performClick()
+        compose.onNodeWithContentDescription("Edit alarm").performClick()
         compose.onNodeWithText("Weekly").performClick()
         compose.onNodeWithText("Finish setup").performClick()
         compose.onNodeWithText("Turn up alarm volume").performScrollTo().assertIsDisplayed().performClick()
         compose.onNodeWithText("Done").performScrollTo().assertIsDisplayed().performClick()
         compose.onNodeWithText("Weekly").assertIsSelected()
         compose.onNodeWithContentDescription("Back").performClick()
-        compose.onNodeWithContentDescription("Edit Sunrise").assertIsDisplayed()
+        compose.onNodeWithContentDescription("Edit alarm").assertIsDisplayed()
         compose.runOnIdle { assertEquals(0, saves) }
     }
 
     @Test
     fun anUnchangedSaveCanFinishWithoutAnIntermediateBusyFrame() {
         show()
-        compose.onNodeWithContentDescription("Edit Sunrise").performClick()
+        compose.onNodeWithContentDescription("Edit alarm").performClick()
         compose.onNodeWithText("Save").performClick()
-        compose.onNodeWithContentDescription("Edit Sunrise").assertIsDisplayed()
+        compose.onNodeWithContentDescription("Edit alarm").assertIsDisplayed()
         compose.runOnIdle { assertEquals(1, saves) }
     }
 
     @Test
     fun destinationsExposeTheirNamesToAssistiveTechnology() {
         show()
-        compose.onNode(SemanticsMatcher.expectValue(SemanticsProperties.PaneTitle, "Sunrise")).assertExists()
+        compose.onNode(SemanticsMatcher.expectValue(SemanticsProperties.PaneTitle, "Alarm")).assertExists()
         compose.onNodeWithContentDescription("Settings").performClick()
         compose.onNode(SemanticsMatcher.expectValue(SemanticsProperties.PaneTitle, "Settings")).assertExists()
         compose.onNodeWithText("Settings").assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))

@@ -99,3 +99,47 @@ The device-limit acknowledgement tells the owner to unlock the phone after
 restarting. This is an observed alarm availability limit, not explanatory
 copy about the interface. It appears before acknowledgement alongside the
 existing power, force-stop, and battery-policy limits.
+
+
+## Alarm language
+
+Keep Sunrise as the product capability name in planning and implementation.
+Use “alarm” for ordinary actions, destinations, and status in the app.
+The daily time announces “Edit alarm” and its stored occurrence; the native
+switch announces “Alarm” with its own checked state. The editor title and
+expanded navigation use the same noun. Quiet intervals retain “Time to get
+up.” with the next ringing time rather than another feature-name heading.
+Do not add a second visible title or explanatory row to achieve this.
+
+Check-in setup keeps one short statement about release and lost connection.
+The optional link needs validation feedback only when invalid. Recovery
+cancellation reports cancellation without claiming that a concurrent wake
+approval has not stopped the alarm. Errors identify the failed action.
+This copy pass changes no authorization or schedule behavior.
+
+
+An unchanged connected detail uses the app bar's Back action. Show Done only
+when finishing setup. Preserve that completion intent through a canceled
+replacement; a successful replacement starts a new setup. Connection errors
+and file-save outcomes remain visible even when the current connection is
+verified. Do not repeat authoritative Connected state in another success row.
+Explain the setup file's authority to stop the alarm rather than its signing
+mechanism. The Android document action says Save setup file.
+
+This state diagram distinguishes configuration completion from ordinary viewing.
+
+```mermaid
+stateDiagram-v2
+    [*] --> Detail: Open connected check-in
+    [*] --> Setup: Open missing or untested check-in
+    Setup --> Completion: Verify connection
+    Detail --> Replacement: Replace
+    Completion --> Replacement: Replace
+    Replacement --> Detail: Keep current from detail
+    Replacement --> Completion: Keep current during setup
+    Replacement --> Setup: Save new connection
+    Detail --> [*]: Back
+    Setup --> [*]: Back
+    Completion --> [*]: Done
+    Replacement --> [*]: Back
+```

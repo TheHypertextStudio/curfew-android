@@ -76,7 +76,7 @@ class SunriseDailyLayoutInstrumentedTest {
         val actualTime = LocalTime.of(8, 15)
         show(1f, nextDate = date, occurrenceAt = date.atTime(actualTime).atZone(ZoneId.systemDefault()).toInstant())
         val formattedDate = date.format(DateTimeFormatter.ofLocalizedDate(java.time.format.FormatStyle.MEDIUM).withLocale(locale))
-        compose.onNodeWithContentDescription("Edit Sunrise").assert(SemanticsMatcher.expectValue(
+        compose.onNodeWithContentDescription("Edit alarm").assert(SemanticsMatcher.expectValue(
             SemanticsProperties.StateDescription, "$formattedDate, ${timeLabel(actualTime, context, locale)}",
         ))
         compose.onNodeWithText(formattedDate).assertDoesNotExist()
@@ -92,7 +92,7 @@ class SunriseDailyLayoutInstrumentedTest {
     @Test fun ordinaryAlarmDoesNotSpendARowRepeatingItsSwitchState() {
         show(1f, width = 390)
         compose.onNodeWithText("Alarm on").assertDoesNotExist()
-        val toggle = compose.onNodeWithContentDescription("Enable future Sunrise alarms").fetchSemanticsNode().boundsInRoot
+        val toggle = compose.onNodeWithContentDescription("Alarm").fetchSemanticsNode().boundsInRoot
         val numeric = wakeTime.format(DateTimeFormatter.ofPattern(if (DateFormat.is24HourFormat(context)) "HH:mm" else "h:mm", locale))
         val time = compose.onNodeWithText(numeric, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
         assertTrue("The switch belongs beside the time", toggle.center.y in time.top..time.bottom)
@@ -113,14 +113,14 @@ class SunriseDailyLayoutInstrumentedTest {
 
     @Test fun enlargedTextKeepsTheDailyGroupAtTheTop() {
         show(2f)
-        val start = compose.onNodeWithContentDescription("Edit Sunrise").fetchSemanticsNode().boundsInRoot
+        val start = compose.onNodeWithContentDescription("Edit alarm").fetchSemanticsNode().boundsInRoot
         val density = context.resources.displayMetrics.density
         assertTrue("Enlarged text must start near the top instead of centering a long task", start.top - compose.onNodeWithTag("daily-fixture").fetchSemanticsNode().boundsInRoot.top <= 40f * density)
     }
 
     @Test fun shortPhoneKeepsTheDailyGroupAtTheTop() {
         show(1f, width = 390, height = 360)
-        val start = compose.onNodeWithContentDescription("Edit Sunrise").fetchSemanticsNode().boundsInRoot
+        val start = compose.onNodeWithContentDescription("Edit alarm").fetchSemanticsNode().boundsInRoot
         assertTrue("The editable time must fit within the initial 56dp of the short task: $start",
             start.top - compose.onNodeWithTag("daily-fixture").fetchSemanticsNode().boundsInRoot.top <= 56f * context.resources.displayMetrics.density)
     }

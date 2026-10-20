@@ -23,6 +23,7 @@ internal fun CheckInScreen(
     onDone: () -> Unit,
 ) {
     var replacing by rememberSaveable { mutableStateOf(false) }
+    var completingSetup by rememberSaveable { mutableStateOf(!verified) }
     var name by rememberSaveable { mutableStateOf("") }
     var endpoint by rememberSaveable { mutableStateOf("") }
     var actionUrl by rememberSaveable { mutableStateOf("") }
@@ -38,6 +39,7 @@ internal fun CheckInScreen(
     LaunchedEffect(callbackId, busy, submitting, awaitingSelection) {
         if (awaitingSelection && callbackId != submittedId) {
             awaitingSelection = false
+            completingSetup = true
             replacing = false
         }
         if (submitting && !busy) submitting = false
@@ -48,23 +50,23 @@ internal fun CheckInScreen(
                 Text(savedLabel, style = MaterialTheme.typography.headlineSmall)
                 Text(if (verified) "Connected" else "Connection not tested", color = if (verified) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            Text("This service can stop Sunrise after your check-in. If it cannot be reached, the alarm stays active.")
+            Text("Your check-in stops the alarm. Without a connection, it keeps ringing.")
             if (!verified) {
-                Text("Give your service its setup file, then test the connection.", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                OutlinedButton(onClick = onExport, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)) { Text("Export setup file") }
-                Button(onClick = onVerify, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text(if (busy) "Checking…" else "Test connection") }
+                Text("Share the setup file only with the service you chose, then test the connection.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                OutlinedButton(onClick = onExport, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)) { Text("Save setup file") }
+                Button(onClick = { completingSetup = true; onVerify() }, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text(if (busy) "Checking…" else "Test connection") }
             }
             if (message != null) TaskMessage(message)
             TextButton(onClick = { showDetails = !showDetails }, enabled = !busy) { Text("Connection details") }
             if (showDetails) {
-                Text("The setup file contains a private signing key. Give it only to the service you chose.", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                if (verified) OutlinedButton(onClick = onExport, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)) { Text("Export setup file") }
+                Text("This file lets your service stop the alarm. Share it only with that service.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                if (verified) OutlinedButton(onClick = onExport, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)) { Text("Save setup file") }
                 if (verified) OutlinedButton(onClick = onVerify, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)) { Text("Test connection") }
                 TextButton(onClick = { replacing = true; name = ""; endpoint = ""; actionUrl = "" }, enabled = !busy) { Text("Replace check-in") }
             }
-            if (verified) Button(onClick = onDone, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Done") }
+            if (verified && completingSetup) Button(onClick = { completingSetup = false; onDone() }, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Done") }
         } else {
-            Text("Your service confirms your check-in before Sunrise can stop. If it cannot be reached, the alarm stays active.", style = MaterialTheme.typography.bodyLarge)
+            Text("Your check-in stops the alarm. Without a connection, it keeps ringing.", style = MaterialTheme.typography.bodyLarge)
             OutlinedTextField(
                 name, { name = it }, label = { Text("Name") }, enabled = !busy && !submitting,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next), singleLine = true, modifier = Modifier.fillMaxWidth(),
@@ -78,7 +80,7 @@ internal fun CheckInScreen(
             )
             OutlinedTextField(
                 actionUrl, { actionUrl = it }, label = { Text("Check-in link (optional)") }, enabled = !busy && !submitting,
-                supportingText = { Text(if (!actionValid) "Enter a valid link." else "Open this link when Sunrise rings.") },
+                supportingText = if (!actionValid) { { Text("Enter a valid link.") } } else null,
                 isError = !actionValid,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri, imeAction = ImeAction.Done),
                 singleLine = true, modifier = Modifier.fillMaxWidth(),

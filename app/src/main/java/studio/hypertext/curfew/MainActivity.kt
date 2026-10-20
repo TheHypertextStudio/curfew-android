@@ -85,10 +85,10 @@ class MainActivity : ComponentActivity() {
         AndroidOwnerRecovery(activity = this, onRecovered = { result ->
             recoveryVisible = false
             val message = when (result) {
-                OwnerRecoveryResult.Recovered -> "Sunrise stopped through recovery."
-                OwnerRecoveryResult.RecoveredNextAlarmUnavailable -> "Sunrise stopped. Check tomorrow’s alarm."
-                OwnerRecoveryResult.NotActive -> "Sunrise is no longer active."
-                OwnerRecoveryResult.NotSaved -> "Couldn’t save recovery. Sunrise is still active."
+                OwnerRecoveryResult.Recovered -> "Alarm stopped through recovery."
+                OwnerRecoveryResult.RecoveredNextAlarmUnavailable -> "Alarm stopped. Check tomorrow’s alarm."
+                OwnerRecoveryResult.NotActive -> "This alarm is not ringing."
+                OwnerRecoveryResult.NotSaved -> "Couldn’t stop the alarm. Try again."
             }
             Toast.makeText(this, message, Toast.LENGTH_LONG).show()
         })
@@ -97,7 +97,7 @@ class MainActivity : ComponentActivity() {
     private val sunriseState by lazy {
         sunrise.state.catch {
             sunriseReadFailed = true
-            sunriseError = "Sunrise settings could not be read. Restart before changing the alarm."
+            sunriseError = "Couldn’t load your alarm. Restart the app before making changes."
             emit(null)
         }
     }
@@ -110,7 +110,7 @@ class MainActivity : ComponentActivity() {
         val definition = pendingVerifierExport
         pendingVerifierExport = null
         if (uri == null || definition == null) {
-            conditionMessage = "Export canceled. Your check-in has not changed."
+            conditionMessage = "File not saved."
         } else {
             conditionBusy = true
             lifecycleScope.launch {
@@ -120,9 +120,9 @@ class MainActivity : ComponentActivity() {
                             it.write(Json.encodeToString(definition))
                         }
                     }
-                    conditionMessage = "Setup file exported. Share it with your check-in service, then test the connection."
+                    conditionMessage = "Setup file saved."
                 } catch (failure: Exception) {
-                    conditionMessage = "Couldn’t export the file. Choose another location and retry."
+                    conditionMessage = "Couldn’t save the setup file. Choose another location and try again."
                 } finally {
                     conditionBusy = false
                 }
@@ -167,7 +167,7 @@ class MainActivity : ComponentActivity() {
             val campaignFlow = remember(campaignId, runtime) {
                 campaignId?.let { runtime.observeSnapshot(it) }
                     ?.catch {
-                        sunriseError = "The current Sunrise could not be read."
+                        sunriseError = "Couldn’t load this alarm."
                         emit(null)
                     } ?: flowOf(null)
             }
@@ -213,7 +213,7 @@ class MainActivity : ComponentActivity() {
                     onCancel = ::cancelTestSound,
                 )
                 if (!requestedAlarmLoaded) {
-                    Surface { Text("Loading Sunrise…") }
+                    Surface { Text("Loading alarm…") }
                 } else if (showAlarm && recoveryVisible) {
                     AlarmRecoveryScreen(
                         conditionLabel = ringingCondition?.displayLabel ?: "your check-in",
@@ -243,7 +243,7 @@ class MainActivity : ComponentActivity() {
                                     .onFailure {
                                         Toast.makeText(
                                             this@MainActivity,
-                                            "No app could open this check-in. Sunrise is still active.",
+                                            "Couldn’t open the check-in link.",
                                             Toast.LENGTH_LONG,
                                         ).show()
                                     }
@@ -316,7 +316,7 @@ class MainActivity : ComponentActivity() {
                                 }.onFailure {
                                     Toast.makeText(
                                         this@MainActivity,
-                                        "That Recovery Key could not decrypt this account.",
+                                        "That recovery key couldn’t restore your settings.",
                                         Toast.LENGTH_LONG,
                                     ).show()
                                 }
@@ -336,7 +336,7 @@ class MainActivity : ComponentActivity() {
                             lifecycleScope.launch {
                                 try {
                                     wakeConditionSetup.save(label, endpoint, actionUrl)
-                                    conditionMessage = "Saved. Export the setup file, then test the connection."
+                                    conditionMessage = null
                                 } catch (failure: Exception) {
                                     conditionMessage = "Couldn’t save the check-in. Check its name and address, then retry."
                                 } finally {
@@ -358,7 +358,7 @@ class MainActivity : ComponentActivity() {
                                     exportVerifier.launch("curfew-verifier.json")
                                 } catch (failure: Exception) {
                                     pendingVerifierExport = null
-                                    conditionMessage = "Couldn’t read this check-in. Save it again before exporting."
+                                    conditionMessage = "Couldn’t read this check-in. Save it again before saving its setup file."
                                 } finally {
                                     conditionBusy = false
                                 }
@@ -371,7 +371,7 @@ class MainActivity : ComponentActivity() {
                                 conditionMessage = "Testing the connection…"
                                 try {
                                     conditionMessage = if (wakeConditionSetup.verify(id)) {
-                                        "Connection confirmed."
+                                        null
                                     } else {
                                         "Your check-in changed. Test the connection again."
                                     }
@@ -460,7 +460,7 @@ class MainActivity : ComponentActivity() {
                     Toast.makeText(
                         this@MainActivity,
                         when (state) {
-                            AccountRecoveryState.Ready -> "Signed in. Encrypted sync is ready."
+                            AccountRecoveryState.Ready -> "Signed in."
                             AccountRecoveryState.EnterRecoveryKey ->
                                 "Signed in. Enter your Curfew Recovery Key to restore sync."
                             is AccountRecoveryState.SaveRecoveryKey ->
@@ -535,9 +535,9 @@ class MainActivity : ComponentActivity() {
                 ) ?: return@launch
                 sunrise.save(desired)
             } catch (failure: IllegalArgumentException) {
-                sunriseError = failure.message ?: "Choose a future date and time for Sunrise."
+                sunriseError = failure.message ?: "Choose a future date and time."
             } catch (failure: Exception) {
-                sunriseError = "Sunrise could not be saved. Check alarm access, sound, and the wake condition."
+                sunriseError = "Couldn’t save the alarm. Check alarm access, sound, and your check-in."
             } finally {
                 sunriseSaving = false
             }
