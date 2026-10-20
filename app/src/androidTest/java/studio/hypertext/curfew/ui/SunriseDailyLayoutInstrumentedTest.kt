@@ -44,13 +44,13 @@ class SunriseDailyLayoutInstrumentedTest {
     private val locale = context.resources.configuration.locales[0]
     private val wakeTime = LocalTime.of(7, 0)
 
-    private fun show(fontScale: Float, nextDate: LocalDate? = null, onceDate: LocalDate? = null) {
+    private fun show(fontScale: Float, nextDate: LocalDate? = null, onceDate: LocalDate? = null, width: Int = 320) {
         scale.floatValue = fontScale
         compose.setContent {
             val density = LocalDensity.current
             CompositionLocalProvider(LocalDensity provides Density(density.density, scale.floatValue)) {
                 CurfewTheme(dynamicColor = false) {
-                    Box(Modifier.width(320.dp).fillMaxHeight()) {
+                    Box(Modifier.width(width.dp).fillMaxHeight()) {
                         SunriseDailyScreen(
                             alarm = SavedSunriseAlarm(SunriseSchedule("layout-alarm", wakeTime, onceDate, if (onceDate == null) DayOfWeek.entries.take(5).toSet() else emptySet(), true, "check-in"),
                                 nextDate?.let { SunriseOccurrence("layout-occurrence", it, it.atTime(wakeTime).atZone(ZoneId.systemDefault()).toInstant()) }),
@@ -62,6 +62,13 @@ class SunriseDailyLayoutInstrumentedTest {
                 }
             }
         }
+    }
+
+    @Test fun ordinaryPhoneKeepsTheAlarmAndCheckInCompact() {
+        show(1f, width = 390)
+        val checkIn = compose.onNodeWithText("Morning check-in").fetchSemanticsNode().boundsInRoot
+        val density = context.resources.displayMetrics.density
+        assertTrue("The check-in label must begin within 248dp of the content top: ${checkIn.top / density}", checkIn.top <= 248f * density)
     }
 
     @Test fun weekdaysRemainSeparatedAtNarrowWidthAndLargeText() {

@@ -46,3 +46,10 @@ Sound-dialog captures assert `TextLayoutResult.layoutInput.density.fontScale` ag
 `PersistentCadenceJourneyInstrumentedTest` is an opt-in wall-clock acceptance case. Run `python3 scripts/accept-cadence-emulator.py` after installing the current plain debug app and test APKs on the owned `Sunrise_API36` AVD at `emulator-5554`. The driver refuses other AVDs, disconnects the emulator, records its original network settings, and requires the same occurrence to produce ring/quiet/ring audio evidence under the default 120/60-second policy. Native setup validates a loopback HTTPS check-in before closing that verifier. A failed callback must leave ringing active. The driver checks fresh timeline phases, exact occurrence identity, offline state, and audio transitions. It runs scoped fixture cleanup and restores the original network settings. A skipped default-CI case does not establish cadence acceptance.
 
 The platform CI suite uses full `google_apis` images with SystemUI and LatinIME. ATD deliberately removes those components and cannot validate the keyboard, lock-screen, and complete alarm-media journey. Plain dependency isolation remains a separate release-graph check; a Google APIs emulator is not proof of physical behavior without Google services. CI uses an explicit Pixel 2 profile, two cores, and 1536 MiB of guest memory. Navigation fixtures scroll actions into view before real touch input so a short window does not turn an offscreen tap into a false behavior failure. The loopback PKCS12 test container uses Android 13-compatible wrapping without changing its TLS certificate; see the fixture's [README](../app/src/androidTest/assets/README.md).
+
+
+The daily density regression first fails with the previous time sizing at
+267.4dp. It limits the ordinary 390dp layout to a 248dp check-in label position.
+This is a visual grouping constraint, not a limit on enlarged-text height.
+Run the whole `SunriseDailyLayoutInstrumentedTest` class and
+`CurfewDesignCaptureInstrumentedTest#captureDaily` after changing its spacing.

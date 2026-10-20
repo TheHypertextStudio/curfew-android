@@ -288,3 +288,19 @@ Evidence is under `build/sunrise-evidence/cadence-offline/`: native output, phas
 The disabled-animation reproduction on the full API36 image passes all four corresponding input/capture cases (15.413s). A separate 320dp by 533dp window reproduces both navigation failures: a tap does not reach the offscreen volume action, so Done never appears. After the fixtures scroll and assert visibility before touching the action, those two cases and the recovery key-hold case pass in that same short window (three tests, 7.694s).
 
 CI now requests full Google APIs images with an explicit Pixel 2 profile instead of ATD. This preserves the real keyboard and platform surfaces required by the existing assertions. The public test PKCS12 fixture now uses Android 13-compatible SHA-1/Triple-DES container protection. Its TLS certificate fingerprint is unchanged (`a72db9a45420ddb660efd2fe680f86575efc707ea90f08480ab2449b6623a51d`). This does not modify production trust or callback authentication. Real HTTPS release and interrupted-completion acceptance pass locally with the repackaged container (two tests, 6.15s). Both instrumentation APKs and both lint variants pass (`ci-platform-fixture-build.txt`, 29s). Android 13 loading and the full remote matrix still require the next CI run; local API36 evidence cannot establish them.
+
+
+## October 20 daily spacing follow-up
+
+The daily card now uses a 72sp numeric-time ceiling and 12dp vertical padding.
+The change keeps the selected weekdays, switch, and separate check-in surface.
+It removes height inside the group without adding content below it. A new
+390dp density regression failed first at a 267.4dp check-in label position.
+The final layout meets its 248dp bound. All ten daily layout cases and the
+native capture case pass (11 tests, 11.317s). Eight light/dark, 320/390dp,
+100/200% captures were reviewed under `build/sunrise-evidence/density-reviewed`.
+Both host test variants, both Android lint variants, the plain debug APK, and
+the plain instrumentation APK pass (`density-green-build.txt`, 52s).
+The change affects presentation only; rollback restores the previous sizing.
+The full CI rerun at `66f6490` completed with failure. This focused local
+spacing verification does not resolve those failures or establish P1 acceptance.

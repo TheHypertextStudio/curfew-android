@@ -48,3 +48,16 @@ The platform time-picker capture shows an unbranded teal dialog beneath a System
 The sound test uses one confirmation dialog after playback starts. It asks “Did you hear the alarm?” and offers “I heard it,” “Play again,” and “Not now.” Failed playback cannot offer hearing confirmation. The sound action remains available after setup. [Sound-check behavior](SOUND_CHECK.md) defines cancellation and the old-flag correction.
 
 Compact task app bars keep one title line and use an ellipsis when enlarged text cannot fit. The full task name remains available to accessibility. Titles must not paint over content below the app bar. Dialog visual fixtures use the actual device's font scale because a local density override outside the separate dialog window is ineffective.
+
+
+## Daily screen density
+
+Keep the daily alarm compact at ordinary text sizes. The numeric time uses a
+72sp ceiling, with measured fitting on narrow windows. The alarm surface uses
+12dp vertical padding and keeps its 8dp internal gaps. The check-in follows
+12dp below the surface. Keep unused space below this group rather than adding
+instructions, duplicate headings, or stretching the controls to fill the phone.
+Larger text can grow the group; readability takes precedence over the ordinary
+size target. The 390dp fixture checks that the check-in label starts within
+248dp of the task content top. Narrow, enlarged-text fixtures still check time
+hierarchy and weekday separation.
