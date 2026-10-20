@@ -754,3 +754,71 @@ full-screen access, waits for actual readiness, and reports missing actions
 if readiness stays false. This is fixture setup and diagnostic work, not a
 claim that the earlier CI failure's exact cause was established. The updated
 commit still requires its own CI result.
+
+## First-use flow and native navigation — October 20, 2026
+
+The onboarding follow-up replaces the first-use empty-screen/checklist sequence
+with Welcome, a separate persisted schedule draft, connection verification,
+focused Android access and rehearsal tasks, and explicit activation review.
+The design and remaining consumer-service gap are in ONBOARDING_DESIGN.md.
+
+Failing-first records include absent draft/persistence/review contracts, the old
+launcher theme, missing focused permission headings, cached connection callbacks,
+a competing sound action during permission setup, and continuation after Back
+to a verified connection. The installed Activity suite also stalled behind a
+splash condition driven through Compose before that condition was removed.
+No stalled or interrupted run counts as passing evidence.
+
+Both Plain and GMS pass 195 host cases with zero failures/errors, app/test APK
+assembly, and Android lint. The dependency license check and plain runtime
+isolation pass. Gradle uses one worker and a 1GiB heap. The post-format command
+repeats both variants' test/build/lint checks. Local logs are
+`build/onboarding-final-verification.txt`,
+`build/onboarding-post-format-verify.txt`, and
+`build/onboarding-dependency-checks.txt`.
+
+The installed API33 Plain and API36 GMS suites each pass 25 cases. They cover
+navigation, fresh choice-to-review without premature saving, current capability
+and connection callback values, denied access, verified-connection continuation,
+read-error retry, native launch theme, and the actual Activity sound rehearsal.
+They completed in 79.581s and 108.578s. The actual authenticated TLS release
+journey additionally passes on API36 in 9.225s. These are emulator observations.
+
+Seven native onboarding/navigation cases pass on each of three additional
+profiles: 320dp at 200% text, the same profile in dark mode, and a 1080dp expanded
+window at 100% text. All 21 profile cases pass. The driver verifies restoration
+of original density, text size, and night mode. The retained result is
+`build/onboarding-layout/result.json`.
+
+An external driver resets only the owned API36 emulator, launches the real
+MainActivity, chooses a weekly draft, and advances to service setup. After an
+actual process stop and cold launch, the app resumes service setup. Back returns
+to a daily screen with no enabled alarm. The driver then resets that disposable
+fixture and leaves it at Welcome. The result is
+`build/onboarding-review/first-use-resume-result.json`. The fresh Activity cold
+launch reached Welcome in 1.585s on this emulator. No permission prompt or alarm
+started on that first screen.
+
+Native captures are in `design/android-review/native/first-use/`. The fresh
+MainActivity image is an actual reset installation. The focused component
+captures use native Compose fixtures with synthetic labels. Rendered review
+covers the warm palette, clear primary action, enlarged text wrapping, dark
+contrast, and official wide navigation rail.
+
+The Pixel disconnected before installing this follow-up. Its earlier heard
+alarm and lifecycle probes retain their earlier APK boundaries. Manual TalkBack,
+physical full-screen presentation, and physical deep idle remain open. The
+first-use preference file is separate from the runtime schedule and introduces
+no database or protocol migration. Rolling back this UI follow-up makes its
+unfinished draft unavailable to the old UI but must not erase saved alarms.
+
+
+A final deferral regression failed before correction: an existing draft forced
+Review even after the introduction choice was deferred. The shell now resumes
+a draft automatically only when setup was started, and keeps the draft available
+for deliberate continuation after Not now. Both variants again pass the full
+195-case host/build/lint checks. Three final installed cases per variant cover
+deferral, fresh explicit activation, and ordinary saved-alarm startup. They pass
+in 10.395s on API33 Plain and 14.322s on API36 GMS. Their logs are
+`build/onboarding-final-deferral-plain.txt` and `-gms.txt`. The final build log is
+`build/onboarding-deferral-final.txt`.

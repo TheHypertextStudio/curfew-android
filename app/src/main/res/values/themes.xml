@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <style name="Theme.Curfew" parent="android:Theme.Material.Light.NoActionBar" />
+    <color name="launch_canvas">#FBF7EF</color>
+    <color name="launch_horizon">#29221F</color>
+    <style name="Theme.Curfew" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/launch_canvas</item>
+    </style>
+    <style name="Theme.Curfew.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/launch_canvas</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/curfew_launch_motion</item>
+        <item name="postSplashScreenTheme">@style/Theme.Curfew</item>
+    </style>
 </resources>

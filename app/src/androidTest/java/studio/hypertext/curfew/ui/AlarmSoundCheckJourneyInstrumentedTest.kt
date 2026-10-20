@@ -35,6 +35,10 @@ class AlarmSoundCheckJourneyInstrumentedTest {
             "pm grant ${context.packageName} android.permission.POST_NOTIFICATIONS",
             "appops set ${context.packageName} SCHEDULE_EXACT_ALARM allow",
         )) automation.executeShellCommand(command).use { android.os.ParcelFileDescriptor.AutoCloseInputStream(it).readBytes() }
+        if (android.os.Build.VERSION.SDK_INT >= 34) automation.executeShellCommand(
+            "appops set ${context.packageName} USE_FULL_SCREEN_INTENT allow",
+        ).use { android.os.ParcelFileDescriptor.AutoCloseInputStream(it).readBytes() }
+        studio.hypertext.curfew.persistence.FirstUsePreferences(context).chooseNotNow()
         originalVolume = audio.getStreamVolume(AudioManager.STREAM_ALARM)
         audio.setStreamVolume(AudioManager.STREAM_ALARM, maxOf(originalVolume, 1), 0)
         preferences.setTestSoundConfirmed(false)
@@ -56,7 +60,7 @@ class AlarmSoundCheckJourneyInstrumentedTest {
 
     private fun openAndPlay() {
         compose.onNodeWithContentDescription("Settings").performClick()
-        compose.onNodeWithText("Alarm access and sound").performClick()
+        compose.onNodeWithText("Alarm setup").performClick()
         compose.onNodeWithText("Test alarm sound").performScrollTo().performClick()
         compose.waitUntil(5_000) { audio.activePlaybackConfigurations.any { it.audioAttributes.usage == AudioAttributes.USAGE_ALARM } }
         awaitConfirmationPrompt()
@@ -67,12 +71,11 @@ class AlarmSoundCheckJourneyInstrumentedTest {
         file.outputStream().use { bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) }
     }
 
-    @Test fun setupHeaderStaysWithinOneToolbarLine() {
+    @Test fun setupExplainsTheSoundCheckPurpose() {
         compose.onNodeWithContentDescription("Settings").performClick()
-        compose.onNodeWithText("Alarm access and sound").performClick()
-        val layouts = mutableListOf<androidx.compose.ui.text.TextLayoutResult>()
-        compose.onNodeWithText("Alarm access and sound").performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.GetTextLayoutResult) { it(layouts) }
-        assertEquals("The compact toolbar must not paint a second line over setup", 1, layouts.single().lineCount)
+        compose.onNodeWithText("Alarm setup").performClick()
+        compose.onNodeWithText("Check the sound").assertIsDisplayed()
+        compose.onNodeWithText("Test alarm sound").assertIsDisplayed()
     }
 
     @Test fun playbackNeedsConfirmationAndRemainsAvailableAfterward() {

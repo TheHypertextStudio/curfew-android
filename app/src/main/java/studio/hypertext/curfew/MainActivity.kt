@@ -12,6 +12,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import studio.hypertext.curfew.callback.AndroidWakeConditionSetup
 import androidx.activity.ComponentActivity
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.activity.compose.setContent
 import androidx.activity.compose.BackHandler
 import androidx.activity.enableEdgeToEdge
@@ -23,6 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -45,6 +47,10 @@ import studio.hypertext.curfew.account.AndroidAccountRecovery
 import studio.hypertext.curfew.account.NativeDeviceProofAuthenticator
 import studio.hypertext.curfew.account.OAuthTokenExchange
 import studio.hypertext.curfew.persistence.CurfewPreferenceState
+import studio.hypertext.curfew.persistence.FirstUsePreferences
+import studio.hypertext.curfew.ui.FirstUseLoadErrorScreen
+import studio.hypertext.curfew.persistence.FirstUseLoadState
+import studio.hypertext.curfew.persistence.FirstUseChoice
 import studio.hypertext.curfew.persistence.CurfewPreferences
 import studio.hypertext.curfew.platform.AlarmRuntimeRepository
 import studio.hypertext.curfew.platform.AndroidAlarmClockGateway
@@ -131,7 +137,13 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splash = installSplashScreen()
         super.onCreate(savedInstanceState)
+        splash.setOnExitAnimationListener { provider ->
+            if (android.animation.ValueAnimator.areAnimatorsEnabled()) {
+                provider.view.animate().alpha(0f).setDuration(180L).withEndAction { provider.remove() }.start()
+            } else provider.remove()
+        }
         enableEdgeToEdge()
         PerpetualAlarmService.ensureChannels(this)
         WakeSyncScheduler.install(this)
@@ -159,7 +171,14 @@ class MainActivity : ComponentActivity() {
         setContent {
             @Suppress("UNUSED_EXPRESSION")
             capabilityEpoch
-            val savedAlarm = sunriseState.collectAsStateWithLifecycle(initialValue = null).value
+            val savedAlarmResult = remember { sunriseState.map { true to it } }
+                .collectAsStateWithLifecycle(initialValue = false to null).value
+            val savedAlarm = savedAlarmResult.second
+            val firstUsePreferences = remember { FirstUsePreferences(this@MainActivity) }
+            var firstUseRetry by androidx.compose.runtime.saveable.rememberSaveable { mutableIntStateOf(0) }
+            val firstUseFlow = remember(firstUsePreferences, firstUseRetry) { firstUsePreferences.loadState.map { it } }
+            val firstUseLoad = firstUseFlow.collectAsStateWithLifecycle(initialValue = FirstUseLoadState.Loading).value
+            val firstUse = (firstUseLoad as? FirstUseLoadState.Ready)?.state
             val runtime = remember { AlarmRuntimeRepository(this@MainActivity) }
             val bootId = remember(runtime) { runtime.currentBootId() }
             val campaignId = intent.getStringExtra(AndroidAlarmClockGateway.EXTRA_CAMPAIGN_ID)
@@ -176,6 +195,8 @@ class MainActivity : ComponentActivity() {
             val runtimeSnapshot = if (campaignSnapshot.first) campaignSnapshot.second else requestedAlarmSnapshot
             val campaign = runtimeSnapshot?.state
             val showAlarm = campaign is AlarmCampaignState.Ringing || campaign is AlarmCampaignState.Quiet
+            val initialDataReady = requestedAlarmLoaded && (showAlarm ||
+                savedAlarmResult.first && firstUseLoad != FirstUseLoadState.Loading && campaignSnapshot.first)
             var ringingCondition by remember(campaignId) { mutableStateOf<CallbackDefinition?>(null) }
             LaunchedEffect(campaignId) {
                 ringingCondition = campaignId?.let { id ->
@@ -212,8 +233,12 @@ class MainActivity : ComponentActivity() {
                     onReplay = ::playTestSound,
                     onCancel = ::cancelTestSound,
                 )
-                if (!requestedAlarmLoaded) {
-                    Surface { Text("Loading alarm…") }
+                if (!initialDataReady) {
+                    Surface(modifier = androidx.compose.ui.Modifier.fillMaxSize()) {
+                        androidx.compose.foundation.layout.Box(contentAlignment = androidx.compose.ui.Alignment.Center) {
+                            androidx.compose.material3.CircularProgressIndicator()
+                        }
+                    }
                 } else if (showAlarm && recoveryVisible) {
                     AlarmRecoveryScreen(
                         conditionLabel = ringingCondition?.displayLabel ?: "your check-in",
@@ -250,6 +275,8 @@ class MainActivity : ComponentActivity() {
                             }
                         },
                     )
+                } else if (firstUseLoad == FirstUseLoadState.Error && savedAlarm == null) {
+                    Surface { FirstUseLoadErrorScreen(onRetry = { firstUseRetry++ }) }
                 } else {
                     val preferenceState = preferences.state.collectAsStateWithLifecycle(
                         initialValue = CurfewPreferenceState(
@@ -272,6 +299,16 @@ class MainActivity : ComponentActivity() {
                     }
                     CurfewApp(
                         readiness = readiness,
+                        showWelcome = firstUse?.needsWelcome(savedAlarm != null) == true,
+                        startSetup = savedAlarm == null && firstUse?.choice == FirstUseChoice.STARTED,
+                        setupDraft = firstUse?.draft.takeIf { savedAlarm == null },
+                        onWelcomeChoice = { start -> lifecycleScope.launch {
+                            runCatching {
+                                if (start) firstUsePreferences.chooseContinue() else firstUsePreferences.chooseNotNow()
+                            }.onFailure { Toast.makeText(this@MainActivity, "Couldn’t save setup. Try again.", Toast.LENGTH_LONG).show() }
+                        } },
+                        onPrepareDraft = { draft -> firstUsePreferences.saveDraft(draft) },
+                        onSetupActivated = { lifecycleScope.launch { runCatching { firstUsePreferences.clearDraft() } } },
                         accountEnrolled = preferenceState.accountEnrolled,
                         accountSignedIn = preferenceState.accountSignedIn,
                         accountRecoveryState = accountRecoveryState,

@@ -1,5 +1,7 @@
 package studio.hypertext.curfew.ui
 
+import studio.hypertext.curfew.alarm.AlarmSetupDraft
+
 import android.graphics.Bitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.captureToImage
@@ -41,14 +43,18 @@ class CurfewAppNavigationInstrumentedTest {
     )
     private val failure = mutableStateOf<String?>(null)
     private var saves = 0
+    private val callbackGeneration = mutableStateOf(0)
+    private var verifiedGeneration = -1
+    private var exportedGeneration = -1
     private var volumeRequests = 0
     private var fullScreenRequests = 0
     private val missingActions = mutableStateOf<Set<ReadinessAction>>(emptySet())
 
-    private fun show(required: Set<ReadinessAction> = emptySet(), failSave: Boolean = false) {
+    private fun show(required: Set<ReadinessAction> = emptySet(), failSave: Boolean = false, fresh: Boolean = false, welcome: Boolean = fresh, deferredDraft: AlarmSetupDraft? = null) {
         missingActions.value = required
         compose.setContent {
             CurfewTheme {
+                val generation = callbackGeneration.value
                 CurfewApp(
                     readiness = AlarmReadiness(missingActions.value.isEmpty(), missingActions.value, emptySet(), AlarmPresentation.FULL_SCREEN),
                     accountEnrolled = false,
@@ -65,7 +71,9 @@ class CurfewAppNavigationInstrumentedTest {
                     onRestoreRecoveryKey = {},
                     onAcknowledgeRecoveryKey = {},
                     onSaveCallback = { _, _, _ -> },
-                    sunriseAlarm = saved,
+                    sunriseAlarm = if (fresh) null else saved,
+                    showWelcome = welcome,
+                    setupDraft = deferredDraft,
                     callbackId = "condition-1",
                     conditionLabel = "Morning check-in",
                     alarmBusy = false,
@@ -74,6 +82,8 @@ class CurfewAppNavigationInstrumentedTest {
                     onToggleAlarm = {},
                     onRaiseAlarmVolume = { volumeRequests++; missingActions.value = emptySet() },
                     conditionVerified = true,
+                    onVerifyCondition = { verifiedGeneration = generation },
+                    onExportCondition = { exportedGeneration = generation },
                 )
             }
         }
@@ -166,7 +176,7 @@ class CurfewAppNavigationInstrumentedTest {
     fun readinessUsesTheActualMissingAction() {
         show(required = setOf(ReadinessAction.RAISE_ALARM_VOLUME))
         compose.onNodeWithContentDescription("Settings").performClick()
-        compose.onNodeWithText("Alarm access and sound").performClick()
+        compose.onNodeWithText("Alarm setup").performClick()
         compose.onNodeWithText("Turn up alarm volume").performScrollTo().assertIsDisplayed().performClick()
         compose.runOnIdle { assertEquals(1, volumeRequests) }
         compose.onNodeWithText("HTTPS verifier endpoint").assertDoesNotExist()
@@ -200,19 +210,73 @@ class CurfewAppNavigationInstrumentedTest {
         compose.onNode(SemanticsMatcher.expectValue(SemanticsProperties.PaneTitle, "Alarm")).assertExists()
         compose.onNodeWithContentDescription("Settings").performClick()
         compose.onNode(SemanticsMatcher.expectValue(SemanticsProperties.PaneTitle, "Settings")).assertExists()
-        compose.onNodeWithText("Settings").assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
+        compose.onNode(androidx.compose.ui.test.hasText("Settings") and SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading)).assertExists()
     }
 
     @Test
     fun missingFullScreenAccessOffersTheAlarmScreenRequest() {
         show(required = setOf(ReadinessAction.GRANT_FULL_SCREEN_ACCESS))
         compose.onNodeWithContentDescription("Settings").performClick()
-        compose.onNodeWithText("Alarm access and sound").performClick()
+        compose.onNodeWithText("Alarm setup").performClick()
         compose.onAllNodesWithText("Complete").assertCountEquals(0)
         compose.onNodeWithText("Done").assertDoesNotExist()
         compose.onNodeWithText("Allow alarm screen").performScrollTo().assertIsDisplayed().performClick()
         compose.runOnIdle { assertEquals(1, fullScreenRequests) }
         compose.onNodeWithText("Done").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun primaryNavigationConnectsAlarmAndSettingsButLeavesEditingFocused() {
+        show()
+        compose.onNodeWithContentDescription("Alarm navigation").assertIsDisplayed().assertIsSelected()
+        compose.onNodeWithContentDescription("Settings").performClick()
+        compose.onNodeWithContentDescription("Settings").assertIsSelected()
+        compose.onNodeWithContentDescription("Alarm navigation").performClick()
+        compose.onNodeWithContentDescription("Edit alarm").performClick()
+        compose.onNodeWithContentDescription("Alarm navigation").assertDoesNotExist()
+        compose.onNodeWithText("Weekly").performClick()
+        compose.onNodeWithContentDescription("Back").performClick()
+        compose.onNodeWithContentDescription("Alarm navigation").assertIsDisplayed().assertIsSelected()
+        compose.runOnIdle { assertEquals(0, saves) }
+    }
+
+    @Test
+    fun firstUseChoosesTimeWithoutSavingBeforeTheExplicitReviewAction() {
+        show(fresh = true)
+        compose.onNodeWithText("Welcome to Curfew").assertIsDisplayed()
+        compose.onNodeWithContentDescription("Alarm navigation").assertDoesNotExist()
+        compose.onNodeWithText("Set up alarm").performClick()
+        compose.onNodeWithText("Weekly").performClick()
+        compose.onNodeWithText("Continue").performScrollTo().performClick()
+        compose.onNodeWithText("Turn on alarm").performScrollTo().assertIsDisplayed()
+        compose.runOnIdle { assertEquals(0, saves) }
+        compose.onNodeWithText("Turn on alarm").performClick()
+        compose.runOnIdle { assertEquals(1, saves) }
+    }
+
+    @Test
+    fun openCheckInUsesTheCurrentConnectionCallbacks() {
+        show()
+        compose.onNodeWithText("Morning check-in").performClick()
+        compose.onNodeWithText("Connection details").performClick()
+        compose.runOnIdle { callbackGeneration.value = 1 }
+        compose.onNodeWithText("Test connection").performScrollTo().performClick()
+        compose.onNodeWithText("Save setup file").performScrollTo().performClick()
+        compose.runOnIdle {
+            assertEquals(1, verifiedGeneration)
+            assertEquals(1, exportedGeneration)
+        }
+    }
+
+    @Test
+    fun deferredDraftDoesNotForceSetupOnTheNextLaunch() {
+        show(fresh = true, welcome = false, deferredDraft = AlarmSetupDraft(
+            "deferred", LocalTime.of(7, 0), LocalDate.of(2026, 10, 21), emptySet(),
+        ))
+        compose.onNodeWithContentDescription("Alarm navigation").assertIsDisplayed()
+        compose.onNodeWithText("No alarm set").assertIsDisplayed()
+        compose.onNodeWithText("Turn on alarm").assertDoesNotExist()
+        compose.runOnIdle { assertEquals(0, saves) }
     }
 
 }

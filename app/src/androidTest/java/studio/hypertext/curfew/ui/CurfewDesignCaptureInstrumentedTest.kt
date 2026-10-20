@@ -94,7 +94,7 @@ class CurfewDesignCaptureInstrumentedTest {
             } else if (scene != "daily") {
                 compose.onNodeWithContentDescription("Settings").performClick()
                 val destination = when (scene) {
-                    "readiness" -> "Alarm access and sound"
+                    "readiness" -> "Alarm setup"
                     "account" -> "Account"
                     else -> "Check-in"
                 }

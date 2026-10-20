@@ -162,3 +162,18 @@ Setting rows give the saved name priority over a decorative leading icon.
 When the row width divided by text scale falls below 180dp, omit that icon.
 Keep the chevron, full-row action, and unchanged text size. This avoids
 splitting a normal word such as “Morning” across lines at 240dp/200% text.
+
+
+## First use and navigation
+
+The first launch welcomes the owner before exposing setup requirements. Wake
+time, service connection, required Android access, sound rehearsal, and explicit
+activation form one flow. Continue saves a draft without enabling it. Saved
+alarms skip the introduction. Settings offers Alarm setup for later repairs;
+the page shows the current missing action and its purpose.
+
+The shell uses Jetpack Navigation 3 and Material 3 Expressive adaptive navigation,
+with a compact short bar or wide rail only on main destinations. Shared wake-time
+bounds connect the alarm, editor, and review. The Android system splash uses the
+Curfew canvas and animated horizon without an artificial wait. See
+[the first-use design and remaining service gap](ONBOARDING_DESIGN.md).

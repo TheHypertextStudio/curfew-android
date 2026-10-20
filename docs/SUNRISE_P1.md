@@ -923,3 +923,17 @@ name two manufacturers record the superseded plan. Actual speaker, locked
 delivery, lifecycle, release, and accessibility observations remain open
 where the acceptance record lacks evidence. This changes scope only; no
 application behavior or existing test result changes.
+
+## First-use follow-up
+
+The new first-use flow configures a persisted draft before explicit activation.
+It uses a native system splash, Navigation 3, Material 3 Expressive adaptive
+navigation, and shared wake-time bounds. It replaces the seven-row setup list
+with focused access/sound tasks. Existing saved and active alarms bypass the
+introduction. The change does not add bedtime lockout, device pairing, offline
+release, or consumer check-in enrollment.
+
+See ONBOARDING_DESIGN.md for decisions and TESTING.md for current automated,
+rendered, and installed evidence. This follow-up remains separate from accepting
+the remaining physical recovery and accessibility requirements. The Pixel was
+not connected for installation of this candidate.

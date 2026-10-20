@@ -8,8 +8,8 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -17,7 +17,6 @@ import studio.hypertext.curfew.R
 import studio.hypertext.curfew.account.AccountRecoveryState
 import studio.hypertext.curfew.readiness.AlarmReadiness
 import studio.hypertext.curfew.readiness.ReadinessAction
-import studio.hypertext.curfew.readiness.ReadinessDisclosure
 
 @Composable
 internal fun CurfewSettingsScreen(
@@ -28,7 +27,7 @@ internal fun CurfewSettingsScreen(
         Surface(shape = MaterialTheme.shapes.large, color = MaterialTheme.colorScheme.surfaceContainerLow) {
             Column {
                 SettingRow("Check-in", conditionLabel?.let { if (conditionVerified) it else "$it · Not tested" } ?: "Not connected", R.drawable.ic_link_rounded, onCheckIn)
-                SettingRow("Alarm access and sound", if (readinessComplete) "Ready" else "Needs attention", R.drawable.ic_lock_rounded, onReadiness)
+                SettingRow("Alarm setup", if (readinessComplete) "Ready" else "Needs attention", R.drawable.ic_lock_rounded, onReadiness)
             }
         }
         Surface(shape = MaterialTheme.shapes.large, color = MaterialTheme.colorScheme.surfaceContainerLow) {
@@ -50,56 +49,70 @@ internal fun AlarmReadinessScreen(
     onGrantFullScreen: () -> Unit = {},
 ) {
     var showLimits by rememberSaveable { mutableStateOf(false) }
-    val actions = listOf(
-        ReadinessAction.GRANT_EXACT_ALARM_ACCESS to "Exact alarms",
-        ReadinessAction.GRANT_NOTIFICATIONS to "Notifications",
-        ReadinessAction.GRANT_FULL_SCREEN_ACCESS to "Alarm screen",
-        ReadinessAction.REPAIR_ALARM_CHANNEL to "Alarm sound",
-        ReadinessAction.RAISE_ALARM_VOLUME to "Alarm volume",
-        ReadinessAction.PLAY_TEST_SOUND to "Sound test",
-        ReadinessAction.ACKNOWLEDGE_LIMITATIONS to "Device limits",
-    )
-    val next = actions.firstOrNull { it.first in readiness.requiredActions }?.first
+    val next = listOf(
+        ReadinessAction.GRANT_EXACT_ALARM_ACCESS,
+        ReadinessAction.GRANT_NOTIFICATIONS,
+        ReadinessAction.GRANT_FULL_SCREEN_ACCESS,
+        ReadinessAction.REPAIR_ALARM_CHANNEL,
+        ReadinessAction.RAISE_ALARM_VOLUME,
+        ReadinessAction.PLAY_TEST_SOUND,
+        ReadinessAction.ACKNOWLEDGE_LIMITATIONS,
+    ).firstOrNull { it in readiness.requiredActions }
+    val title = when (next) {
+        ReadinessAction.GRANT_EXACT_ALARM_ACCESS -> "Ring on time"
+        ReadinessAction.GRANT_NOTIFICATIONS -> "Show alarm notifications"
+        ReadinessAction.GRANT_FULL_SCREEN_ACCESS -> "On your lock screen"
+        ReadinessAction.REPAIR_ALARM_CHANNEL -> "Allow alarm sound"
+        ReadinessAction.RAISE_ALARM_VOLUME -> "Turn up the alarm"
+        ReadinessAction.PLAY_TEST_SOUND -> "Check the sound"
+        ReadinessAction.ACKNOWLEDGE_LIMITATIONS -> "Keep your alarm available"
+        null -> "Access and sound are ready"
+    }
+    val purpose = when (next) {
+        ReadinessAction.GRANT_EXACT_ALARM_ACCESS -> "Allow Curfew to ring at your chosen time."
+        ReadinessAction.GRANT_NOTIFICATIONS -> "Keep the alarm available outside Curfew."
+        ReadinessAction.GRANT_FULL_SCREEN_ACCESS -> "Allow Curfew to appear over your lock screen."
+        ReadinessAction.REPAIR_ALARM_CHANNEL -> "Allow sound for Curfew’s alarm notification."
+        ReadinessAction.RAISE_ALARM_VOLUME -> "Your alarm volume is muted."
+        ReadinessAction.PLAY_TEST_SOUND -> "A short alarm will play. Confirm that you hear it."
+        ReadinessAction.ACKNOWLEDGE_LIMITATIONS -> "Unlock your phone after restarting so alarms can resume."
+        null -> null
+    }
+    val (label, callback) = when (next) {
+        ReadinessAction.GRANT_EXACT_ALARM_ACCESS -> "Allow exact alarms" to onGrantExactAlarm
+        ReadinessAction.GRANT_NOTIFICATIONS -> "Allow notifications" to onGrantNotifications
+        ReadinessAction.GRANT_FULL_SCREEN_ACCESS -> "Allow alarm screen" to onGrantFullScreen
+        ReadinessAction.REPAIR_ALARM_CHANNEL -> "Check alarm sound" to onRepairAlarmChannel
+        ReadinessAction.RAISE_ALARM_VOLUME -> "Turn up alarm volume" to onRaiseAlarmVolume
+        ReadinessAction.PLAY_TEST_SOUND -> "Test alarm sound" to onPlayTestSound
+        ReadinessAction.ACKNOWLEDGE_LIMITATIONS -> "I understand" to onAcknowledgeLimitations
+        null -> "Done" to onDone
+    }
     TaskContent {
-        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            actions.forEach { (action, title) ->
-                ListItem(
-                    headlineContent = { Text(title) },
-                    leadingContent = {
-                        val complete = action !in readiness.requiredActions
-                        Icon(
-                            painterResource(if (complete) R.drawable.ic_check_circle_rounded else R.drawable.ic_radio_button_unchecked_rounded),
-                            contentDescription = null,
-                            tint = if (complete) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    },
-                    modifier = Modifier.semantics {
-                        stateDescription = if (action in readiness.requiredActions) "Needs attention" else "Complete"
-                    },
-                    colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
+        Surface(shape = MaterialTheme.shapes.extraLarge, color = MaterialTheme.colorScheme.surfaceContainerLow) {
+            Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                Icon(
+                    painterResource(if (next == null) R.drawable.ic_check_circle_rounded else R.drawable.ic_lock_rounded),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(32.dp),
                 )
+                Text(title, style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
+                if (purpose != null) Text(purpose, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                if (next == ReadinessAction.ACKNOWLEDGE_LIMITATIONS) {
+                    Text("Powering off, force-stopping, or uninstalling Curfew can prevent the alarm. Do Not Disturb and manufacturer battery settings can also affect sound and delivery.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                Button(onClick = callback, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text(label) }
             }
         }
-        if (ReadinessDisclosure.FULL_SCREEN_FALLBACK in readiness.disclosures) {
-            Text("Allow Curfew to show the alarm over your lock screen.", color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-        TextButton(onClick = { showLimits = !showLimits }) { Text("Android limits") }
-        if (showLimits || next == ReadinessAction.ACKNOWLEDGE_LIMITATIONS) {
-            Text("Unlock your phone after restarting so alarms can resume. Powering off, force-stopping, or uninstalling Curfew can prevent the alarm. Do Not Disturb and manufacturer battery settings can also affect sound and delivery.", color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-        val (label, callback) = when (next) {
-            ReadinessAction.GRANT_EXACT_ALARM_ACCESS -> "Allow exact alarms" to onGrantExactAlarm
-            ReadinessAction.GRANT_NOTIFICATIONS -> "Allow notifications" to onGrantNotifications
-            ReadinessAction.GRANT_FULL_SCREEN_ACCESS -> "Allow alarm screen" to onGrantFullScreen
-            ReadinessAction.REPAIR_ALARM_CHANNEL -> "Check alarm sound" to onRepairAlarmChannel
-            ReadinessAction.RAISE_ALARM_VOLUME -> "Turn up alarm volume" to onRaiseAlarmVolume
-            ReadinessAction.PLAY_TEST_SOUND -> "Test alarm sound" to onPlayTestSound
-            ReadinessAction.ACKNOWLEDGE_LIMITATIONS -> "I understand" to onAcknowledgeLimitations
-            null -> "Done" to onDone
-        }
-        Button(onClick = callback, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text(label) }
-        if (ReadinessAction.PLAY_TEST_SOUND !in readiness.requiredActions) {
+        if (readiness.canArm) {
             TextButton(onClick = onPlayTestSound, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Test alarm sound") }
+        }
+        if (next != ReadinessAction.ACKNOWLEDGE_LIMITATIONS) {
+            TextButton(onClick = { showLimits = !showLimits }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Android limits") }
+            if (showLimits) {
+                Text("Unlock your phone after restarting so alarms can resume. Powering off, force-stopping, or uninstalling Curfew can prevent the alarm. Do Not Disturb and manufacturer battery settings can also affect sound and delivery.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
         }
     }
 }

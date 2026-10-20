@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="288dp" android:height="288dp" android:viewportWidth="108" android:viewportHeight="108">
+    <group>
+        <clip-path android:pathData="M0,0h108v59h-108z" />
+        <group android:name="rising_sun">
+        <path android:fillColor="#E98243" android:pathData="M40,50a20,20 0,1 0,40 0a20,20 0,1 0,-40 0" />
+        </group>
+    </group>
+    <path android:fillColor="@color/launch_horizon" android:pathData="M26,64h56v3h-56z" />
+</vector>

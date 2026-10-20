@@ -38,7 +38,7 @@ check-in workflow cases in 7.416s. Its CI run `39447168226` at `3906ac7`
 passed all seven jobs. The responsive follow-up passes 182 host tests per
 variant, both app/test APK builds, and both Android lint variants. Its CI
 run `39490702571` at `40c9351` passed all seven jobs. The subsequent
-identity-race correction requires its own CI result. Local logs live in `build/sunrise-evidence/`, which is
+identity-race correction passed its matrix. The full-screen setup and icon candidate `f224056` passed all seven CI jobs in run `39504123161`. Local logs live in `build/sunrise-evidence/`, which is
 not published as part of the source tree.
 
 An active alarm audio track does not establish perceived speaker output.
@@ -46,11 +46,13 @@ An emulator is not a Pixel or non-Pixel physical acceptance run. A passing
 test fixture does not establish real hearing, TalkBack speech, or manufacturer
 battery behavior. Before-first-unlock playback is explicitly unsupported.
 
-A Pixel 11 Pro is now connected. The responsive GMS candidate was installed
-with an in-place update, and its installed APK digest matches the built APK.
-This establishes installation only. Physical speaker, locked-delivery,
-and TalkBack acceptance remain open. Non-Pixel coverage is later work.
-Display scaling checks use emulators; the owner's display settings and app data were not reset.
+The Pixel 11 Pro/API37 is connected. The owner confirmed hearing the brief
+alarm. Isolated probes also recorded screen-off delivery, process-loss recovery,
+offline audio, and a denied-full-screen locked notification. These retain the
+pre-icon runtime boundary recorded below. The owner-authorized normal Curfew
+app reset succeeded after reconnecting. Display-scale checks use emulators;
+the owner's display settings were not changed. Manual TalkBack, physical deep
+idle, and allowed-full-screen automatic presentation remain open.
 
 ## P1.1: Scheduling
 
@@ -110,15 +112,14 @@ Display scaling checks use emulators; the owner's display settings and app data 
 
 ## Remaining acceptance work
 
-Complete the current candidate's CI matrix, full physical-device matrix,
-and manual accessibility review. The connected Pixel 11 Pro/API37 has the
-in-place GMS update and ordinary layout evidence. The owner cannot perform a
-speaker check now. Pixel acceptance remains open; another manufacturer's
-phone is not required. The corrected-notification standby observation retains
-its exact earlier candidate boundary above.
+Verify the new onboarding candidate's CI matrix, finish the remaining connected
+Pixel recovery/presentation checks, and perform manual accessibility review.
+The owner already confirmed speaker output. Another manufacturer's phone is
+not required. The earlier standby observation retains its candidate boundary.
 
-Docket is reconnected. Its project update read-back identifies Codex as the
-agent performer. The four feature tasks remain in progress and unaccepted.
+Docket accepted scheduling and authenticated release. Playback/readiness and
+complete recovery remain open. The connector's latest attempted update failed
+with MCP authentication required. No later task-state write is claimed.
 A fresh isolated install then exposed concurrent encrypted-key and device-ID
 creation races. The new native regressions failed before correction. The
 reliability follow-up and its installed results are recorded in TESTING.md.
@@ -176,4 +177,4 @@ Docket scheduling and authenticated-release tasks are accepted. Playback and
 readiness was reopened for the owner's full-screen onboarding requirement.
 The complete recovery task remains open. Acceptance criteria now use one
 Markdown checkbox per independently recorded criterion. The owner requested
-an app-state reset; the Pixel disconnected before that operation.
+an app-state reset. It succeeded after the Pixel reconnected.

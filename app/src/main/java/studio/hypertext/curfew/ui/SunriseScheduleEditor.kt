@@ -1,5 +1,7 @@
 package studio.hypertext.curfew.ui
 
+import studio.hypertext.curfew.alarm.AlarmSetupDraft
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -32,24 +34,26 @@ internal fun SunriseScheduleEditor(
     error: String?,
     onSave: (SunriseSchedule) -> Unit,
     onFinishSetup: () -> Unit,
+    setupMode: Boolean = false,
+    initialDraft: AlarmSetupDraft? = null,
+    onPrepare: (AlarmSetupDraft) -> Unit = {},
 ) {
     val saved = alarm?.schedule
     val context = LocalContext.current
     val locale = LocalConfiguration.current.locales[0]
-    val id = rememberSaveable { saved?.id ?: UUID.randomUUID().toString() }
-    var timeText by rememberSaveable { mutableStateOf((saved?.wakeTime ?: LocalTime.of(7, 0)).toString()) }
-    var weekly by rememberSaveable { mutableStateOf(saved != null && saved.onceDate == null) }
-    var dateText by rememberSaveable { mutableStateOf((saved?.onceDate ?: nextSunriseDate(LocalTime.parse(timeText))).toString()) }
-    var dateExplicitlyChosen by rememberSaveable { mutableStateOf(saved?.onceDate != null) }
-    var weekdays by rememberSaveable { mutableIntStateOf(saved?.weekdays?.takeIf { it.isNotEmpty() }?.fold(0) { mask, day -> mask or (1 shl day.ordinal) } ?: 127) }
+    val id = rememberSaveable { initialDraft?.id ?: saved?.id ?: UUID.randomUUID().toString() }
+    var timeText by rememberSaveable { mutableStateOf((initialDraft?.wakeTime ?: saved?.wakeTime ?: LocalTime.of(7, 0)).toString()) }
+    var weekly by rememberSaveable { mutableStateOf(initialDraft?.let { it.onceDate == null } ?: (saved != null && saved.onceDate == null)) }
+    var dateText by rememberSaveable { mutableStateOf((initialDraft?.onceDate ?: saved?.onceDate ?: nextSunriseDate(LocalTime.parse(timeText))).toString()) }
+    var dateExplicitlyChosen by rememberSaveable { mutableStateOf(initialDraft?.onceDate != null || saved?.onceDate != null) }
+    var weekdays by rememberSaveable { mutableIntStateOf((initialDraft?.weekdays ?: saved?.weekdays)?.takeIf { it.isNotEmpty() }?.fold(0) { mask, day -> mask or (1 shl day.ordinal) } ?: 127) }
     var choosingTime by rememberSaveable { mutableStateOf(false) }
     var choosingDate by rememberSaveable { mutableStateOf(false) }
     val canSave = !busy && (callbackId ?: saved?.callbackId) != null && (canArm || saved?.enabled == false) && (!weekly || weekdays != 0)
     TaskContent {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Wake time", style = MaterialTheme.typography.labelLarge)
             FilledTonalButton(
-                onClick = { choosingTime = true }, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 88.dp),
+                onClick = { choosingTime = true }, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 88.dp).curfewSharedBounds("alarm-time"),
             ) { Text(timeLabel(LocalTime.parse(timeText), context, locale), style = MaterialTheme.typography.headlineLarge.copy(fontFamily = MaterialTheme.typography.bodyLarge.fontFamily)) }
         }
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -79,16 +83,18 @@ internal fun SunriseScheduleEditor(
             }
         }
         if (error != null) TaskMessage(error, error = true)
-        if (!canArm && saved?.enabled != false) {
+        if (!setupMode && !canArm && saved?.enabled != false) {
             TextButton(onClick = onFinishSetup, enabled = !busy) { Text("Finish setup") }
         }
         Button(
             onClick = {
-                onSave(SunriseSchedule(id, LocalTime.parse(timeText), if (weekly) null else LocalDate.parse(dateText),
-                    if (weekly) DayOfWeek.entries.filter { weekdays and (1 shl it.ordinal) != 0 }.toSet() else emptySet(),
-                    saved?.enabled ?: true, requireNotNull(callbackId ?: saved?.callbackId)))
-            }, enabled = canSave, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
-        ) { Text(if (busy) "Saving…" else "Save") }
+                val time = LocalTime.parse(timeText)
+                val date = if (weekly) null else LocalDate.parse(dateText)
+                val days = if (weekly) DayOfWeek.entries.filter { weekdays and (1 shl it.ordinal) != 0 }.toSet() else emptySet()
+                if (setupMode) onPrepare(AlarmSetupDraft(id, time, date, days))
+                else onSave(SunriseSchedule(id, time, date, days, saved?.enabled ?: true, requireNotNull(callbackId ?: saved?.callbackId)))
+            }, enabled = if (setupMode) !busy && (!weekly || weekdays != 0) else canSave, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
+        ) { Text(if (busy) "Saving…" else if (setupMode) "Continue" else "Save") }
     }
     if (choosingTime) AlarmTimePicker(LocalTime.parse(timeText), onCancel = { choosingTime = false }) { time ->
         timeText = time.toString()

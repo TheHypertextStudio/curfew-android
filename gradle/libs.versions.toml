@@ -11,6 +11,8 @@ ksp = "2.3.11"
 compose = "1.12.0"
 material3 = "1.5.0-beta01"
 material3Adaptive = "1.2.0"
+navigation3 = "1.2.0"
+splashscreen = "1.2.0"
 room = "2.8.4"
 datastore = "1.2.1"
 work = "2.11.2"
@@ -47,3 +49,8 @@ androidx-work-testing = { group = "androidx.work", name = "work-testing", versio
 androidx-browser = { group = "androidx.browser", name = "browser", version.ref = "browser" }
 firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging", version.ref = "firebaseMessaging" }
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
+
+androidx-navigation3-runtime = { group = "androidx.navigation3", name = "navigation3-runtime", version.ref = "navigation3" }
+androidx-navigation3-ui = { group = "androidx.navigation3", name = "navigation3-ui", version.ref = "navigation3" }
+androidx-compose-material3-navigation-suite = { group = "androidx.compose.material3", name = "material3-adaptive-navigation-suite", version.ref = "material3" }
+androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "splashscreen" }

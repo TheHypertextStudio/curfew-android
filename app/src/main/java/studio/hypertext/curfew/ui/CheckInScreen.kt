@@ -21,6 +21,7 @@ internal fun CheckInScreen(
     onExport: () -> Unit,
     onVerify: () -> Unit,
     onDone: () -> Unit,
+    inSetup: Boolean = false,
 ) {
     var replacing by rememberSaveable { mutableStateOf(false) }
     var completingSetup by rememberSaveable { mutableStateOf(!verified) }
@@ -64,7 +65,7 @@ internal fun CheckInScreen(
                 if (verified) OutlinedButton(onClick = onVerify, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)) { Text("Test connection") }
                 TextButton(onClick = { replacing = true; name = ""; endpoint = ""; actionUrl = "" }, enabled = !busy) { Text("Replace check-in") }
             }
-            if (verified && completingSetup) Button(onClick = { completingSetup = false; onDone() }, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Done") }
+            if (verified && (completingSetup || inSetup)) Button(onClick = { completingSetup = false; onDone() }, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text(if (inSetup) "Continue" else "Done") }
         } else {
             Text("Your check-in stops the alarm. Without a connection, it keeps ringing.", style = MaterialTheme.typography.bodyLarge)
             OutlinedTextField(

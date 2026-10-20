@@ -128,7 +128,7 @@ internal fun SunriseDailyScreen(
                     }
                     Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Box(Modifier.weight(1f).heightIn(min = 48.dp).clickable(role = Role.Button, onClick = onEdit)
+                        Box(Modifier.weight(1f).heightIn(min = 48.dp).curfewSharedBounds("alarm-time").clickable(role = Role.Button, onClick = onEdit)
                             .semantics {
                                 contentDescription = "Edit alarm"
                                 alarm.occurrence?.startsAt?.atZone(ZoneId.systemDefault())?.let { occurrence ->
