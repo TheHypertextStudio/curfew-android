@@ -4,8 +4,9 @@ import android.content.Context
 import android.media.AudioAttributes
 import android.media.AudioManager
 import android.media.MediaPlayer
-import android.media.RingtoneManager
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.platform.app.InstrumentationRegistry
+import kotlinx.coroutines.runBlocking
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import kotlin.math.PI
@@ -57,15 +58,13 @@ class AlarmAudioProbeInstrumentedTest {
     }
 
     @Test
-    fun theDefaultRingtoneStartsAnAlarmAudioTrack() {
-        val ringtone = requireNotNull(RingtoneManager.getRingtone(context, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)))
+    fun theConfiguredAlarmSoundStartsAnAlarmAudioTrack() = runBlocking {
+        val sound = AndroidAlarmSound(context)
         try {
-            ringtone.audioAttributes = attributes
-            ringtone.isLooping = true
-            ringtone.play()
-            assertTrue("Default ringtone must produce an alarm audio track", awaitPlayback())
+            assertTrue("Curfew must start its default or bundled alarm sound", sound.play())
+            assertTrue("Android must report Curfew's alarm audio track", awaitPlayback())
         } finally {
-            ringtone.stop()
+            InstrumentationRegistry.getInstrumentation().runOnMainSync { sound.stop() }
         }
     }
 }

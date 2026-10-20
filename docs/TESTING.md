@@ -125,3 +125,16 @@ failed before implementation. Both distribution host suites now pass 153 tests.
 Run the installed HTTPS journey, service isolation, cadence, and process-loss
 checks after installing the local-first APK. The in-progress Doze observation
 uses the previous runtime and cannot establish those new installed results.
+
+
+## Default sound failure and fallback
+
+[Alarm audio](ALARM_AUDIO.md) defines the shared persistent/rehearsal path.
+`AlarmSoundPlaybackTest` has nine host cases for preference, failure, cancellation,
+and stale source ownership. Its late-null-source regression failed before the
+extra generation guard. Run `AlarmSoundFallbackInstrumentedTest` for real bundled
+playback from an unreadable preferred URI and the two-second preview limit.
+The test preserves the original alarm-stream volume. It changes no default URI
+or other global sound setting. `AlarmAudioProbeInstrumentedTest` retains the
+known-PCM probe and observes Curfew's actual preferred-or-fallback playback.
+The HTTPS journey retains its audio-start and audio-stop requirements.

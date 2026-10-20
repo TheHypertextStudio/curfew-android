@@ -386,3 +386,30 @@ APKs build, the plain test APK builds, and both Android lint variants pass
 after the current Doze run finishes. That run still uses the previous APK.
 No schema or permission changes occur. Reverting the delivery boundary preserves
 saved data but restores the original coordinator dependency.
+
+
+## Default sound failure handling
+
+The previous service made one unchecked ringtone play call. The shared player
+now prepares the preferred default URI locally and tries a bundled PCM alarm if
+loading, decoding, or startup fails. Rehearsal uses the same player. Volume,
+permissions, cadence, release authority, and hearing confirmation remain unchanged.
+The service cancels an in-flight sound when persisted state leaves ringing.
+Focus gain can restart playback without moving the saved boundary.
+
+Nine host regressions cover preferred/fallback selection, complete failure,
+cancellation, and late loads. A late-null-source assertion failed before its
+generation guard. Two new native cases require actual fallback audio and bounded
+rehearsal from an unreadable URI. The configured-audio probe now checks Curfew's
+playback contract; the independent known-PCM probe remains. Installed acceptance
+of this change is pending. The Doze run continues on its earlier APK.
+See [audio behavior and rollback](ALARM_AUDIO.md).
+
+
+Audio replacement build evidence: both distributions pass 162 host tests, both
+app APKs and both test APKs build, and both Android lint variants pass
+(`fallback-final-build.txt`, 62s; `fallback-probe-checks.txt`, 25s;
+`fallback-ownership-final.txt`, 21s). Both packaged APKs contain the 88,244-byte
+uncompressed PCM resource. These results do not establish installed decoder,
+service, focus, or physical speaker behavior for the replacement. The current
+Doze process remains live on its earlier runtime and has not passed yet.

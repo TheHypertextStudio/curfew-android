@@ -11,7 +11,6 @@ import android.content.pm.ServiceInfo
 import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
-import android.media.Ringtone
 import android.media.RingtoneManager
 import android.os.IBinder
 import android.os.Build
@@ -25,6 +24,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.withContext
 import android.os.SystemClock
 import java.time.Instant
@@ -40,7 +40,7 @@ import studio.hypertext.curfew.sync.ForegroundWakeSocket
 import studio.hypertext.curfew.sync.WakeStatusPollScheduler
 
 class PerpetualAlarmService : Service() {
-    private var ringtone: Ringtone? = null
+    private val alarmSound by lazy { AndroidAlarmSound(this) }
     private var audioFocusRequest: AudioFocusRequest? = null
     private val mainHandler = Handler(Looper.getMainLooper())
     private var pollRunnable: Runnable? = null
@@ -102,7 +102,7 @@ class PerpetualAlarmService : Service() {
                 val definition = repository.callbackId(state.campaignId)?.let {
                     CallbackConfigurationRepository(this@PerpetualAlarmService).find(it)
                 }
-                repository.observe(state.campaignId).collect { current ->
+                repository.observe(state.campaignId).collectLatest { current ->
                     withContext(Dispatchers.Main) {
                         if (generation == playbackGeneration) {
                             if (current is AlarmCampaignState.Ringing) {
@@ -134,8 +134,7 @@ class PerpetualAlarmService : Service() {
     }
 
     override fun onDestroy() {
-        ringtone?.stop()
-        ringtone = null
+        alarmSound.stop()
         audioFocusRequest?.let {
             getSystemService(AudioManager::class.java).abandonAudioFocusRequest(it)
         }
@@ -150,8 +149,8 @@ class PerpetualAlarmService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? = null
 
-    private fun beginAlarmSound() {
-        if (ringtone?.isPlaying == true) return
+    private suspend fun beginAlarmSound() {
+        if (alarmSound.isPlaying) return
         val attributes = AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_ALARM)
             .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
@@ -162,22 +161,16 @@ class PerpetualAlarmService : Service() {
             .setAcceptsDelayedFocusGain(false)
             .setOnAudioFocusChangeListener { change ->
                 when (change) {
-                    AudioManager.AUDIOFOCUS_GAIN -> ringtone?.play()
+                    AudioManager.AUDIOFOCUS_GAIN -> serviceScope.launch(Dispatchers.Main.immediate) { alarmSound.play() }
                     AudioManager.AUDIOFOCUS_LOSS,
                     AudioManager.AUDIOFOCUS_LOSS_TRANSIENT,
                     AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK,
-                    -> ringtone?.stop()
+                    -> alarmSound.stop()
                 }
             }
             .build()
             .also(audioManager::requestAudioFocus)
-        val alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
-            ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
-        ringtone = RingtoneManager.getRingtone(this, alarmUri)?.apply {
-            audioAttributes = attributes
-            isLooping = true
-            play()
-        }
+        if (!alarmSound.play()) android.util.Log.e("SunrisePlayback", "Alarm sound could not start")
     }
 
     private fun beginActiveSync(campaignId: String) {
