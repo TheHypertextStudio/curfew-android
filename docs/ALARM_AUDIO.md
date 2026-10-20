@@ -53,3 +53,10 @@ Rollback restores the prior player without changing saved occurrences.
 
 Sources: [Android MediaPlayer](https://developer.android.com/reference/android/media/MediaPlayer)
 and [Android Ringtone](https://developer.android.com/reference/android/media/Ringtone).
+
+
+Resource ownership also covers the interval after preparation while descriptor
+cleanup suspends. The player remains under the preparation function's cleanup
+until the caller can accept it. Cancellation in that interval releases the
+prepared player. Host suites, both app/test APKs, and both lint variants pass
+again after that cleanup refactor (`audio-resource-checks.txt`, 50s).

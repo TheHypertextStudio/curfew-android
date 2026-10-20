@@ -11,6 +11,8 @@ import java.io.IOException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
@@ -46,36 +48,40 @@ internal class AndroidAlarmSound(
 
     private suspend fun prepare(uri: Uri): AlarmSoundSource {
         var descriptor: AssetFileDescriptor? = null
+        var player: MediaPlayer? = null
         try {
-            withContext(Dispatchers.IO) {
-                descriptor = context.contentResolver.openAssetFileDescriptor(uri, "r")
-                    ?: throw IOException("Alarm sound is unavailable")
-            }
-            val source = requireNotNull(descriptor)
-            val player = MediaPlayer()
-            try {
-                player.setAudioAttributes(attributes)
-                if (source.declaredLength < 0) player.setDataSource(source.fileDescriptor)
-                else player.setDataSource(source.fileDescriptor, source.startOffset, source.declaredLength)
-                player.isLooping = true
+            val sound = try {
+                withContext(Dispatchers.IO) {
+                    descriptor = context.contentResolver.openAssetFileDescriptor(uri, "r")
+                        ?: throw IOException("Alarm sound is unavailable")
+                }
+                val source = requireNotNull(descriptor)
+                val preparedPlayer = MediaPlayer().also { player = it }
+                preparedPlayer.setAudioAttributes(attributes)
+                if (source.declaredLength < 0) preparedPlayer.setDataSource(source.fileDescriptor)
+                else preparedPlayer.setDataSource(source.fileDescriptor, source.startOffset, source.declaredLength)
+                preparedPlayer.isLooping = true
                 val prepared = CompletableDeferred<Unit>()
-                player.setOnPreparedListener { prepared.complete(Unit) }
-                player.setOnErrorListener { _, _, _ ->
+                preparedPlayer.setOnPreparedListener { prepared.complete(Unit) }
+                preparedPlayer.setOnErrorListener { _, _, _ ->
                     prepared.completeExceptionally(IOException("Alarm sound decoding failed"))
                     true
                 }
-                player.prepareAsync()
+                preparedPlayer.prepareAsync()
                 if (withTimeoutOrNull(3_000) { prepared.await(); true } != true) {
                     throw IOException("Alarm sound preparation timed out")
                 }
-                return PlayerSource(player)
-            } catch (failure: Throwable) {
-                player.release()
-                throw failure
+                PlayerSource(preparedPlayer)
+            } finally {
+                // A provider can finish opening after cancellation; close its descriptor then too.
+                withContext(NonCancellable + Dispatchers.IO) { descriptor?.close() }
             }
-        } finally {
-            // A provider can finish opening after cancellation; close its descriptor in that case too.
-            withContext(NonCancellable + Dispatchers.IO) { descriptor?.close() }
+            currentCoroutineContext().ensureActive()
+            return sound
+        } catch (failure: Throwable) {
+            // Descriptor cleanup can suspend after preparation but before the player changes owners.
+            player?.release()
+            throw failure
         }
     }
 
