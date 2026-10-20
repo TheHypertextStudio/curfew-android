@@ -461,3 +461,25 @@ service instance, so late cleanup needs a native regression against a newer
 ringing occurrence. Delayed service start intents also need direct isolation
 coverage. These are local safety checks around existing optional network work,
 not P1b implementation. P1 is not accepted while those cases remain unproven.
+
+
+### October 20: Compact daily grouping
+
+The owner identified excess empty space. The review page reserved an unused
+notes column and pushed ordinary form actions away from their inputs. Those
+layout rules are removed. The native daily card has smaller internal gaps
+and padding, and the check-in row has a 64dp minimum height. Larger text can
+still expand every group. Alarm scheduling and release behavior are unchanged.
+
+The new installed 220dp grouping assertion failed first at 238.9dp. The
+native layout suite and daily captures cover 320dp/390dp widths, both themes,
+and normal/double local text density. These captures remain synthetic native
+fixtures. They do not establish physical alarm or launch acceptance. Revert
+the spacing values and review CSS to roll back this pass.
+
+
+Verification passed for both debug builds, both Android lint variants, and
+162 host tests per variant. The API 35 plain emulator passed all 10 daily
+layout tests and the eight-state capture case (11 reported tests total).
+The native captures were reviewed at 390dp normal text and 320dp double
+local text density. Browser rendering of the updated proposal was not run.

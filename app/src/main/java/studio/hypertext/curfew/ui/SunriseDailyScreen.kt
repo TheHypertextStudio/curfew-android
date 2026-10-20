@@ -71,7 +71,7 @@ internal fun SettingRow(title: String, detail: String? = null, icon: Int? = null
         leadingContent = icon?.let { { Icon(painterResource(it), null, tint = MaterialTheme.colorScheme.primary) } },
         trailingContent = { Icon(painterResource(R.drawable.ic_chevron_right_rounded), null) },
         colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
-        modifier = Modifier.fillMaxWidth().heightIn(min = 72.dp).clickable(role = Role.Button, onClick = onClick),
+        modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp).clickable(role = Role.Button, onClick = onClick),
     )
 }
 
@@ -107,7 +107,7 @@ internal fun SunriseDailyScreen(
     } ?: false
     TaskContent(spacing = 12.dp, verticalPadding = 12.dp) {
         Surface(shape = MaterialTheme.shapes.extraLarge, color = MaterialTheme.colorScheme.surfaceContainerLow) {
-            Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 if (saved == null) {
                     Text("No alarm set", style = MaterialTheme.typography.titleLarge)
                     FilledTonalButton(onClick = onEdit, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp).semantics { contentDescription = "Edit Sunrise" }) {
@@ -178,7 +178,7 @@ private fun DailyAlarmTime(time: LocalTime, use24Hour: Boolean, locale: Locale, 
             requireNotNull(periodWidth) + with(density) { 8.dp.toPx() }
         } else 0f
         var low = 8f
-        var high = 72f
+        var high = 68f
         repeat(10) {
             val candidate = (low + high) / 2f
             val width = measurer.measure(numeric, numericStyle.copy(fontSize = candidate.sp), maxLines = 1).size.width

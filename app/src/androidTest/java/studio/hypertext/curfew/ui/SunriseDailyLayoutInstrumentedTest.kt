@@ -68,7 +68,7 @@ class SunriseDailyLayoutInstrumentedTest {
         show(1f, width = 390)
         val checkIn = compose.onNodeWithText("Morning check-in").fetchSemanticsNode().boundsInRoot
         val density = context.resources.displayMetrics.density
-        assertTrue("The check-in label must begin within 248dp of the content top: ${checkIn.top / density}", checkIn.top <= 248f * density)
+        assertTrue("The check-in label must begin within 220dp of the content top: ${checkIn.top / density}", checkIn.top <= 220f * density)
     }
 
     @Test fun weekdaysRemainSeparatedAtNarrowWidthAndLargeText() {

@@ -59,7 +59,7 @@ Keep the daily alarm compact at ordinary text sizes. The numeric time uses a
 instructions, duplicate headings, or stretching the controls to fill the phone.
 Larger text can grow the group; readability takes precedence over the ordinary
 size target. The 390dp fixture checks that the check-in label starts within
-248dp of the task content top. Narrow, enlarged-text fixtures still check time
+220dp of the task content top. Narrow, enlarged-text fixtures still check time
 hierarchy and weekday separation.
 
 
@@ -67,3 +67,12 @@ An explicitly selected one-night date stays fixed when the time changes.
 An inferred date continues to follow the next occurrence until the owner picks
 a date. A saved one-night alarm loads as an explicit choice. This draft marker
 survives the editor's saved state and does not add another visible control.
+
+
+The October 20 density pass removes the empty notes column from the HTML
+review and keeps ordinary form actions directly after their fields. The
+ringing screen retains its separate bottom action area. The native daily
+card uses 8dp vertical padding and 4dp internal gaps. The time remains the
+largest element, and switches retain their Material touch targets. Setting
+rows have a 64dp minimum and grow around larger content. Remaining unused
+screen height does not justify extra content or stretched controls.

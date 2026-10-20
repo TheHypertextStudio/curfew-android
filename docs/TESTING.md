@@ -49,7 +49,8 @@ The platform CI suite uses full `google_apis` images with SystemUI and LatinIME.
 
 
 The daily density regression first fails with the previous time sizing at
-267.4dp. It limits the ordinary 390dp layout to a 248dp check-in label position.
+267.4dp. The later density pass tightens the ordinary 390dp limit to 220dp.
+The previous layout fails that limit at 238.9dp.
 This is a visual grouping constraint, not a limit on enlarged-text height.
 Run the whole `SunriseDailyLayoutInstrumentedTest` class and
 `CurfewDesignCaptureInstrumentedTest#captureDaily` after changing its spacing.
