@@ -23,3 +23,11 @@ layout only; manual motion and TalkBack acceptance remain separate.
 
 The full flow and current service limitation are in
 [the first-use design](../../../../docs/ONBOARDING_DESIGN.md).
+
+
+`system-full-screen-settings.png` and `system-grant-return.png` show the actual
+API36 system Settings path from the shared Alarm setup repair flow. The system
+control starts denied. Granting it and returning advances Curfew to Check the
+sound. `system-grant-result.json` records the installed digest, no played audio,
+and restored app-op modes. These images establish emulator grant/return behavior,
+not complete first-use or physical-device acceptance.

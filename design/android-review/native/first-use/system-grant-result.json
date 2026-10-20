@@ -1,0 +1,13 @@
+{
+  "actualSystemSettings": true,
+  "deniedBeforeGrant": true,
+  "grantChangedThroughSystemUI": true,
+  "actualGrantRefreshedOnReturn": true,
+  "nextTask": "Check the sound",
+  "soundPlayed": false,
+  "physicalDevice": false,
+  "appOpModesRestored": true,
+  "installedApkSha256": "319b2fd7bea78c777043e87864376683025a6d277cb5c740a19634d9b9aa5dfa",
+  "runtimeSource": "03db94e",
+  "apiLevel": 36
+}

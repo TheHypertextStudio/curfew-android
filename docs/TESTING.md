@@ -822,3 +822,20 @@ deferral, fresh explicit activation, and ordinary saved-alarm startup. They pass
 in 10.395s on API33 Plain and 14.322s on API36 GMS. Their logs are
 `build/onboarding-final-deferral-plain.txt` and `-gms.txt`. The final build log is
 `build/onboarding-deferral-final.txt`.
+
+
+The `03db94e` full-screen setup observation also exercises Android Settings
+itself. On the owned API36 emulator the system toggle starts denied, Curfew
+opens its package-specific page, the driver grants it through the visible
+system control, and Back advances Curfew to Check the sound. No sound plays.
+Original UID/package app-op modes are restored. The source/installed candidate
+and digest are recorded in P1_ACCEPTANCE.md. This does not replace physical
+first-use acceptance.
+
+
+CI run 39516628313 subsequently passed all seven jobs on the `03db94e` runtime
+source. Each API33/34/35/36 job reports 141 successful instrumentation cases,
+including final deferral and verified-connection Back behavior. Both verification
+jobs and published release evidence pass. All three published artifact hashes
+match, and the PR merge source tree matches the branch head. APKs are unsigned;
+this is build evidence rather than a production-signing claim.

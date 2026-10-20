@@ -107,19 +107,21 @@ idle, and allowed-full-screen automatic presentation remain open.
 | Preserve concurrent disable and time edits during recovery | Installed Room concurrency regressions fail with the old split read/save and pass with one transaction; timer restoration holds the schedule mutex | API33 installed proof; independent read-only review confirmed the lock order |
 | Avoid duplicate ringing and unrelated release | Service-isolation tests, completion interruption tests, controller and Room guards | Automated and installed emulator |
 | Deliver after standby on the corrected notification runtime | Completed 65-minute API36 driver: scheduled `2026-10-20T15:13:31.268582Z`, audio observed at `15:13:35.992585Z`, same first-attempt bounds | Notification-runtime candidate before the later atomic-recovery and consumer changes; five-second polling, successful cleanup, no physical hearing claim |
-| Complete the required connected-Pixel journey | No current complete physical record exists | Open: locked delivery, perceived sound, Doze, fallback, and offline/reconnection/release |
+| Complete the required connected-Pixel journey | Short physical records below establish heard sound, screen-off delivery, process recovery, offline audio, and denied-full-screen notification on their earlier candidate | Open: the complete current-candidate Pixel matrix, including onboarding, allowed-full-screen presentation, deep idle, and manual accessibility |
 | Publish task updates with Codex attribution through Docket | Connector update `01M5DFQN5WBS8JWWZ8D4J5V3HC`, verified by `get_updates` | Origin reports `performerKind=agent`, `performerName=Codex`, and no human author; task acceptance remains open |
 
 ## Remaining acceptance work
 
-Verify the new onboarding candidate's CI matrix, finish the remaining connected
-Pixel recovery/presentation checks, and perform manual accessibility review.
+Finish the remaining connected-Pixel recovery/presentation checks and manual
+accessibility review. The current runtime candidate passed its CI matrix.
 The owner already confirmed speaker output. Another manufacturer's phone is
 not required. The earlier standby observation retains its candidate boundary.
 
-Docket accepted scheduling and authenticated release. Playback/readiness and
-complete recovery remain open. The connector's latest attempted update failed
-with MCP authentication required. No later task-state write is claimed.
+Docket accepted scheduling, authenticated release, and playback/readiness. The
+complete connected-Pixel recovery task remains open. Project update
+`01M5DV3JA1CKY0G850XAGNYQQR` and readiness comments
+`01M5DVAK97P2FA1XK5P4C04M1N` and `01M5DVSJ4C0JGB7JX72ZM9ZPJ2`
+record the evidence with verified Codex attribution and no human author.
 A fresh isolated install then exposed concurrent encrypted-key and device-ID
 creation races. The new native regressions failed before correction. The
 reliability follow-up and its installed results are recorded in TESTING.md.
@@ -178,3 +180,39 @@ readiness was reopened for the owner's full-screen onboarding requirement.
 The complete recovery task remains open. Acceptance criteria now use one
 Markdown checkbox per independently recorded criterion. The owner requested
 an app-state reset. It succeeded after the Pixel reconnected.
+
+
+## Current full-screen setup observation
+
+The installed `03db94e` GMS candidate passed the real Android Settings return
+path on the owned API36 emulator. The driver denied full-screen access, opened
+Curfew's Alarm setup task, launched the package-specific system page through
+Allow alarm screen, changed its actual toggle, and returned. Curfew advanced
+to Check the sound after re-reading the real grant. The driver played no audio
+and restored the original package and UID app-op modes. Its result and native
+XML/PNG captures are under
+`build/sunrise-evidence/full-screen-setup-03db94e/`.
+
+Installed APK SHA-256:
+`319b2fd7bea78c777043e87864376683025a6d277cb5c740a19634d9b9aa5dfa`.
+This is installed emulator evidence, not physical onboarding acceptance.
+
+
+## CI and published artifact verification
+
+[Run 39516628313](https://github.com/TheHypertextStudio/curfew-android/actions/runs/39516628313)
+passed all seven jobs for runtime source `03db94e`. Each of the four API33,
+API34, API35, and API36 instrumentation jobs reports 141 passing cases. Their
+logs include the final deferral and verified-connection continuation cases.
+Both verification jobs include minified release builds.
+
+The three published APK/AAB checksums match their files. Provenance records PR
+merge commit `e3c0e4754133c4954d0c41a3395ad2c3f75c548d`. Its parent includes
+`03db94eac035f41ac5695d42b52df13bd8c2a9e7`, and their complete source-tree IDs
+match. The APKs remain unsigned verification builds. These artifacts do not
+establish production signing or store readiness. Local verification is in
+`build/ci-release-03db94e/verification.json`.
+
+USB inventory, adb, and wireless discovery show no connected Pixel. The owner
+has a pending reconnection request. This remains a physical acceptance blocker;
+the passing CI matrix does not replace the phone's remaining checks.
