@@ -7,23 +7,27 @@ Status: Implementation started. No feature or device acceptance is claimed.
 
 ## Current acceptance boundary
 
-The four P1 tasks remain unaccepted. Scheduling, offline cadence, authenticated
-HTTPS release, deliberate recovery, and real SIGKILL recovery have separate
-local evidence below. The full default local suite passes at `3ae4f2a`.
-Remote CI at `789e0cd` passes both verification jobs, release evidence, and the
-API34 instrumentation job. API33/35/36 fail the schedule-to-audio journey.
-The new diagnostics show saved ringing state and notification presentation with
-no observed audio track; platform logs cannot open the default alarm URI.
-Do not call this a scheduling failure or infer physical silence from it alone.
-The held-key fixture no longer fails anywhere in that matrix.
+The four P1 tasks remain unaccepted. Scheduling, real offline cadence,
+authenticated HTTPS release, deliberate recovery, and SIGKILL recovery have
+separate local evidence below. The audio fallback resolves the missing default
+alarm URI observed on emulator images. CI at 29e3537 passes API 34 GMS and
+API 35 plain, both verification jobs, and release evidence. API 33 fails an
+ordered-broadcast completion assertion. API 36 fails a check-in save-retry
+assertion. Neither failure is accepted as resolved.
 
-A 65-minute Doze acceptance run is in progress on the installed `789e0cd`
-runtime. It entered actual deep idle under the default Android policy. Its
-scheduled boundary is 09:57:44.907899 UTC on October 20. It has not passed yet.
-The current local network-isolation change is not installed in that run.
-Reboot, replacement, clock/zone, access revocation, physical Pixel/non-Pixel
-acceptance, picker review, and Docket publication still need current evidence.
-The Docket connector remains unavailable.
+The default-policy 65-minute Doze observation passed on earlier runtime
+789e0cd. It establishes emulator alarm audio, not full-screen presentation or
+physical sound. The current candidate fixes old terminal cleanup, delayed
+service commands,
+and denied foreground entry during boot recovery. The final plain runtime
+passes 94 reported installed cases. Secure API 36 reboot recovery and seven
+focused GMS audio/isolation/release cases pass. See the dated records below
+for exact candidate and copy-only follow-up boundaries.
+
+Before-first-unlock ringing is unsupported. Replacement, clock/zone, access
+revocation, physical Pixel/non-Pixel acceptance, design review, and Docket
+publication still need current evidence.
+The Docket connector exposes no callable tools in this session.
 
 ## Decision
 
@@ -513,3 +517,82 @@ This is emulator audio evidence on the earlier runtime. The screenshot is
 black, and full-screen access was denied. It proves neither full-screen
 presentation nor physical speaker output. Current-runtime lifecycle and
 physical-device acceptance remain required.
+
+
+### October 20: Delayed starts, audio focus, and real reboot recovery
+
+A new native regression reproduced delayed service delivery for an older
+terminal occurrence stopping current alarm audio. Playback recovery now
+retains a still-active occurrence only when this live service previously
+requested it, or when Android already requested sticky recovery. An unknown
+explicit command cannot choose an unrelated occurrence. Eight new host cases
+cover that boundary, quiet phase, terminal state, and request precedence.
+
+Both variants pass 170 host tests, app/test APK assembly, and lint. Before the
+boot-specific change, both full installed suites passed 93 reported cases
+(API 35 plain: 208.031s; API 36 GMS: 190.863s), including five opt-in skips.
+The new transient-focus case passed on API 35 (2.268s): actual alarm audio
+paused and resumed while the same stored attempt and boundaries remained.
+
+The current GMS runtime recovered actual SIGKILL in 1.777s with a different
+process and the same occurrence, first attempt, and 120/60-second boundaries.
+Both real native credential cases passed again (15.588s). These observations
+precede the boot-specific retry change; that change needs its own final checks.
+
+The secure reboot fixture reached the chosen time with the user still locked
+and observed no alarm audio. After first unlock, the old recovery path crashed
+with ForegroundServiceStartNotAllowedException attributed to BOOT_COMPLETED.
+Its one-second alarm handoff was insufficient. The failing driver, logs, and
+successful credential/fixture cleanup remain in the boot-restriction-red
+evidence directory. Pre-unlock ringing remains unsupported.
+
+The service now catches denied foreground entry, stops without sticky crash
+restart, and asks its non-exported recovery receiver to recheck saved state.
+The receiver uses a five-second alarm-clock retry during ringing. It preserves
+the original identity, attempt, and ringing boundary. It never treats denial,
+a quiet interval, or elapsed retries as a successful wake. No permission,
+wire format, network requirement, or Android policy override is added.
+
+The API 33 broadcast fixture now explicitly uses the foreground queue for its
+receiver-completion assertion. Actual background alarm delivery remains a
+separate journey check. The check-in retry fixture dismisses the keyboard
+and requires the first failure before tapping retry. Both assertions remain
+in place; remote CI confirmation remains required.
+
+
+The boot retry runtime passed the full API 35 plain suite with 94 reported
+cases (165.994s), including five opt-in skips. Seven focused API 36 GMS cases
+passed (21.744s), including transient audio focus and actual authenticated
+release. Both distributions passed 170 host tests, app/test builds, and lint
+again after the boot recovery change (57s).
+
+The controlled secure reboot then passed. No audio played before first
+unlock. The original first occurrence produced alarm audio at 10:34:19.241216
+UTC after the user unlocked at 10:33:54.530300 UTC (24.71s later). Its original
+10:33:47.263 UTC ringing boundary and attempt 1 remained intact. Platform logs
+show an initial BOOT_COMPLETED start reason followed by a successful
+ALARM_MANAGER_ALARM_CLOCK reason without a fatal crash. Cleanup passed and
+restored the original no-PIN state. This establishes the observed API 36
+post-unlock path, not physical speaker output or pre-unlock ringing.
+
+The first retry observation used a 30-second window and timed out. Its boot
+broadcast scheduled Curfew around 26 seconds into delivery, which left too
+little time for the following five-second alarm. That failed result is retained.
+The final driver waits at most 80 seconds and still requires attempt 1 and its
+original boundary. A later cadence attempt cannot pass this check.
+
+Setup now tells the owner to unlock the phone after restarting. The native
+disclosure assertion failed first because the required sentence was absent.
+This copy update does not change the verified playback runtime. The README
+also points to this acceptance record and corrects its stale protocol version.
+The remaining local lifecycle matrix, current physical-device acceptance,
+remote CI, picker review, and Docket publication remain open.
+
+
+Final copy verification passed both 170-test host suites, both app/test APK
+builds, and both Android lint variants (54s). The complete native navigation
+class passed nine cases (14.551s). A final fixture assertion also confirmed
+that the acknowledgement action remains visible after scrolling the restart
+instruction into view; that focused case passed. Both test APK builds and
+lint variants passed again after that fixture change (24s). The native
+screenshot was reviewed with the full acknowledgement button visible.

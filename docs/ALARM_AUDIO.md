@@ -47,8 +47,8 @@ still requires an actual alarm audio track and its eventual stop.
 Installed and physical acceptance remain separate from compilation and host
 checks. An active audio track does not establish perceived sound, sufficient
 volume, DND behavior, headphone routing, or manufacturer battery handling.
-The current long Doze observation uses the earlier installed APK and cannot
-verify this replacement. No schema, account, wire, or signing change occurs.
+The completed default-policy Doze observation used the earlier installed APK
+and cannot verify this replacement. No schema, account, wire, or signing change occurs.
 Rollback restores the prior player without changing saved occurrences.
 
 Sources: [Android MediaPlayer](https://developer.android.com/reference/android/media/MediaPlayer)
@@ -60,3 +60,51 @@ cleanup suspends. The player remains under the preparation function's cleanup
 until the caller can accept it. Cancellation in that interval releases the
 prepared player. Host suites, both app/test APKs, and both lint variants pass
 again after that cleanup refactor (`audio-resource-checks.txt`, 50s).
+
+
+## Playback denied during boot recovery
+
+Android 15 and later restrict media playback services started from boot.
+The API 36 reboot fixture reproduced rejection even after a one-second
+AlarmManager handoff. Its platform log retained BOOT_COMPLETED as the
+foreground start reason. The image grants a 20-second boot exemption, and
+AOSP retains the longer existing temporary allowlist entry. These observations
+suggest that a following alarm-clock exemption can retain the boot reason.
+They do not establish that all exact-alarm starts are forbidden.
+
+When foreground entry is denied, the service stops without entering a crash
+restart loop. Its private recovery receiver reloads durable pending state and
+sets another alarm-clock transition five seconds ahead during a ringing phase.
+The next transition again checks saved state. Quiet and terminal states never
+become ringing because a start was denied. The retry does not change the
+occurrence identity, attempt, or ringing boundary. It requests no additional
+permission and changes no Android policy setting.
+
+The sequence diagram shows the local retry after Android rejects foreground
+entry. Android controls foreground authorization at every attempt.
+
+```mermaid
+sequenceDiagram
+    participant Android
+    participant Recovery as Recovery receiver
+    participant Storage as Local alarm storage
+    participant Transition as Transition receiver
+    participant Playback as Playback service
+    Android->>Recovery: Boot completes after first unlock
+    Recovery->>Storage: Recover pending occurrence
+    Recovery->>Android: Set alarm-clock transition
+    Android->>Transition: Deliver transition
+    Transition->>Playback: Start matching occurrence
+    Playback->>Android: Enter media playback foreground
+    Android-->>Playback: Foreground start denied
+    Playback->>Recovery: Request private playback retry
+    Playback->>Playback: Stop without sticky restart
+    Recovery->>Storage: Recheck current state
+    Recovery->>Android: Retry ringing transition in five seconds
+    Android->>Transition: Deliver retry
+    Transition->>Playback: Start matching occurrence
+    Playback->>Android: Request foreground authorization again
+```
+
+Sources: [Android 15 foreground service restrictions](https://developer.android.com/about/versions/15/changes/foreground-service-types)
+and [AOSP temporary allowlist implementation](https://android.googlesource.com/platform/frameworks/base/+/refs/heads/android16-release/services/core/java/com/android/server/am/FgsTempAllowList.java).

@@ -86,6 +86,47 @@ class AlarmServiceIsolationInstrumentedTest {
         }
     }
 
+    @Test
+    fun aDelayedStartForAnOldOccurrenceCannotStopCurrentPlayback() = runBlocking {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        for (command in listOf(
+            "pm grant ${context.packageName} android.permission.POST_NOTIFICATIONS",
+            "appops set ${context.packageName} SCHEDULE_EXACT_ALARM allow",
+        )) instrumentation.uiAutomation.executeShellCommand(command).use {
+            android.os.ParcelFileDescriptor.AutoCloseInputStream(it).readBytes()
+        }
+        val now = Instant.now()
+        val engine = AlarmCampaignEngine()
+        repository.save(engine.advanceTo(
+            AlarmCampaignState.Scheduled(currentId, now, AlarmRecurrencePolicy.default(), setOf("fixture")), now,
+        ))
+        repository.save(engine.satisfy(
+            AlarmCampaignState.Scheduled(oldId, now.minusSeconds(60), AlarmRecurrencePolicy.default(), setOf("fixture")),
+            now, "Previous morning",
+        ))
+        ActivityScenario.launch<MainActivity>(Intent(context, MainActivity::class.java)).use { scenario ->
+            scenario.onActivity { activity ->
+                ContextCompat.startForegroundService(activity,
+                    PerpetualAlarmService.startIntent(activity, currentId, 1))
+            }
+            val audio = context.getSystemService(AudioManager::class.java)
+            fun audioActive() = audio.activePlaybackConfigurations.any { it.audioAttributes.usage == AudioAttributes.USAGE_ALARM }
+            val deadline = android.os.SystemClock.elapsedRealtime() + 10_000
+            while ((!isRingingPresentationActive() || !audioActive()) && android.os.SystemClock.elapsedRealtime() < deadline) Thread.sleep(50)
+            assertTrue("Current alarm did not produce audio", audioActive())
+            scenario.onActivity { activity ->
+                ContextCompat.startForegroundService(activity,
+                    PerpetualAlarmService.startIntent(activity, oldId, 1))
+            }
+            instrumentation.waitForIdleSync()
+            repeat(20) {
+                Thread.sleep(100)
+                assertTrue("Old service start stopped current alarm audio", audioActive())
+                assertTrue("Old service start removed current presentation", isRingingPresentationActive())
+            }
+        }
+    }
+
     private fun isRingingPresentationActive() = notifications.activeNotifications.any {
         it.notification.channelId == "curfew_perpetual_alarm"
     }
@@ -118,6 +159,8 @@ class AlarmServiceIsolationInstrumentedTest {
             context.sendOrderedBroadcast(
                 Intent(context, AlarmTransitionReceiver::class.java)
                     .setAction(AndroidAlarmClockGateway.ACTION_ALARM_TRANSITION)
+                    // This case measures receiver completion, not background queue latency.
+                    .addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
                     .putExtra(AndroidAlarmClockGateway.EXTRA_CAMPAIGN_ID, oldId),
                 null,
                 object : BroadcastReceiver() {

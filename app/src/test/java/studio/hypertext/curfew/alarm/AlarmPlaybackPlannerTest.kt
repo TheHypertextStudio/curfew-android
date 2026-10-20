@@ -49,6 +49,66 @@ class AlarmPlaybackPlannerTest {
         assertEquals("newer", AlarmPlaybackPlanner().restore(null, listOf(snapshot(ringing), newer), start.plusSeconds(2), 1000, "boot")?.campaignId)
     }
 
+    @Test
+    fun `stale command preserves an active occurrence already requested by this service`() {
+        assertEquals(ringing, AlarmPlaybackPlanner().restore(
+            "released", listOf(snapshot(ringing)), start, 1000, "boot", setOf("morning"),
+        ))
+    }
+
+    @Test
+    fun `terminal command preserves a known current occurrence`() {
+        val terminal = engine.satisfy(ringing.copyCampaign("released"), start, "Verified")
+        assertEquals(ringing, AlarmPlaybackPlanner().restore(
+            "released", listOf(snapshot(terminal), snapshot(ringing)), start, 1000, "boot", setOf("morning"),
+        ))
+    }
+
+    @Test
+    fun `stale command retains the known occurrences quiet boundary`() {
+        val result = AlarmPlaybackPlanner().restore(
+            "released", listOf(snapshot(ringing)), start.plusSeconds(125), 126000, "boot", setOf("morning"),
+        )
+        assertEquals(engine.advanceTo(ringing, start.plusSeconds(125)), result)
+    }
+
+    @Test
+    fun `stale command never starts an unknown active occurrence`() {
+        assertNull(AlarmPlaybackPlanner().restore(
+            "released", listOf(snapshot(ringing)), start, 1000, "boot", setOf("unrelated"),
+        ))
+    }
+
+    @Test
+    fun `stale command never resumes a known terminal occurrence`() {
+        val terminal = engine.satisfy(ringing, start, "Verified")
+        assertNull(AlarmPlaybackPlanner().restore(
+            "released", listOf(snapshot(terminal)), start, 1000, "boot", setOf("morning"),
+        ))
+    }
+
+    @Test
+    fun `valid requested occurrence takes precedence over a known older one`() {
+        val newer = ringing.copyCampaign("newer")
+        assertEquals(newer, AlarmPlaybackPlanner().restore(
+            "newer", listOf(snapshot(ringing), snapshot(newer)), start, 1000, "boot", setOf("morning"),
+        ))
+    }
+
+    @Test
+    fun `stale command can finish a sticky recovery already requested by Android`() {
+        assertEquals(ringing, AlarmPlaybackPlanner().restore(
+            "released", listOf(snapshot(ringing)), start, 1000, "boot", emptySet(), true,
+        ))
+    }
+
+    @Test
+    fun `sticky continuation cannot turn a future schedule into ringing`() {
+        assertNull(AlarmPlaybackPlanner().restore(
+            "released", listOf(snapshot(scheduled)), start, 1000, "boot", emptySet(), true,
+        ))
+    }
+
     private fun AlarmCampaignState.copyCampaign(id: String): AlarmCampaignState =
         (this as AlarmCampaignState.Ringing).copy(campaignId = id)
 }

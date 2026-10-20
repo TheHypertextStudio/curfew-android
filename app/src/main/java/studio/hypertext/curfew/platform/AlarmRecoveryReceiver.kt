@@ -45,7 +45,7 @@ class AlarmRecoveryReceiver : BroadcastReceiver() {
                 is AlarmCampaignState.Scheduled -> state.startsAt
                 // BOOT_COMPLETED cannot directly launch a media-playback FGS on Android 15+.
                 // A user-visible alarm-clock transition immediately re-enters the normal path.
-                is AlarmCampaignState.Ringing -> Instant.now().plusSeconds(1)
+                is AlarmCampaignState.Ringing -> Instant.now().plusSeconds(5)
                 is AlarmCampaignState.Quiet -> state.nextAttemptAt
                 is AlarmCampaignState.Overridden,
                 is AlarmCampaignState.Satisfied,
@@ -55,8 +55,19 @@ class AlarmRecoveryReceiver : BroadcastReceiver() {
         }
     }
 
-    private companion object {
-        val SUPPORTED_ACTIONS = setOf(
+    companion object {
+        private const val ACTION_RETRY_PLAYBACK = "studio.hypertext.curfew.action.RETRY_PLAYBACK"
+
+        internal fun requestPlaybackRetry(context: Context) {
+            context.applicationContext.sendBroadcast(
+                Intent(context, AlarmRecoveryReceiver::class.java)
+                    .setAction(ACTION_RETRY_PLAYBACK)
+                    .addFlags(Intent.FLAG_RECEIVER_FOREGROUND),
+            )
+        }
+
+        private val SUPPORTED_ACTIONS = setOf(
+            ACTION_RETRY_PLAYBACK,
             Intent.ACTION_BOOT_COMPLETED,
             Intent.ACTION_MY_PACKAGE_REPLACED,
             Intent.ACTION_TIME_CHANGED,

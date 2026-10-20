@@ -1,5 +1,6 @@
 package studio.hypertext.curfew.ui
 
+import androidx.test.espresso.Espresso
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -43,7 +44,11 @@ class CheckInScreenInstrumentedTest {
         }
         compose.onNodeWithText("Name").performTextInput("Morning check-in")
         compose.onNodeWithText("Service address").performTextInput("https://wake.example.test/check-in")
-        compose.onNodeWithText("Save check-in").performScrollTo().performClick()
+        Espresso.closeSoftKeyboard()
+        compose.waitForIdle()
+        compose.onNodeWithText("Save check-in").performScrollTo().assertIsEnabled().performClick()
+        compose.runOnIdle { assertEquals(1, saves) }
+        compose.onNodeWithText("Could not save check-in. Try again.").assertExists()
         compose.onNodeWithText("Save check-in").performScrollTo().assertIsEnabled().performClick()
         compose.runOnIdle { assertEquals(2, saves) }
     }

@@ -76,3 +76,9 @@ card uses 8dp vertical padding and 4dp internal gaps. The time remains the
 largest element, and switches retain their Material touch targets. Setting
 rows have a 64dp minimum and grow around larger content. Remaining unused
 screen height does not justify extra content or stretched controls.
+
+
+The device-limit acknowledgement tells the owner to unlock the phone after
+restarting. This is an observed alarm availability limit, not explanatory
+copy about the interface. It appears before acknowledgement alongside the
+existing power, force-stop, and battery-policy limits.

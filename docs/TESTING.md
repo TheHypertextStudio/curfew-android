@@ -171,3 +171,30 @@ AlarmServiceIsolationInstrumentedTest also invokes real worker completion
 for an old terminal occurrence while current alarm audio plays. The test
 requires that current audio and its ringing notification remain active.
 It does not exercise network authentication or claim P1b acceptance.
+
+
+The delayed-service-command regression starts the actual service for an old
+terminal occurrence while a newer occurrence owns alarm audio. It requires
+the newer audio and presentation to survive. AlarmPlaybackPlannerTest also
+covers known versus unknown active occurrences, terminal state, quiet phase,
+and continuation of an in-flight sticky recovery. These cases do not permit
+a stale explicit command to select an unrelated alarm.
+
+Run `python3 -B scripts/accept-reboot-emulator.py` only on the owned
+Sunrise_API36 AVD at emulator-5554 after installing the current app and test
+APKs. It refuses an existing credential, saves a controlled alarm two minutes
+ahead, installs a temporary PIN, and reboots. It observes the chosen time
+while the credential-encrypted user remains locked, then unlocks and checks
+the original occurrence's recovered audio and boundary. Its finally block
+clears the temporary PIN and removes only the controlled fixture. A missing
+pre-unlock alarm is recorded as a support limitation, not a passed ringing
+case. The result remains emulator evidence without physical speaker proof.
+
+
+The reboot driver allows an 80-second post-unlock observation but requires
+attempt 1 and the original start boundary. It does not accept playback that
+only begins on a later cadence attempt. Retain the failed initial boot run
+and the shorter observation rather than overwriting them with a green result.
+The setup disclosure case fails if the first-unlock instruction is absent
+from the required device-limit acknowledgement. It also captures the native
+readiness screen for visual review.

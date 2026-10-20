@@ -70,7 +70,7 @@ internal fun AlarmReadinessScreen(
         }
         TextButton(onClick = { showLimits = !showLimits }) { Text("Android limits") }
         if (showLimits || next == ReadinessAction.ACKNOWLEDGE_LIMITATIONS) {
-            Text("Powering off, force-stopping, or uninstalling Curfew can prevent the alarm. Do Not Disturb and manufacturer battery settings can also affect sound and delivery.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text("Unlock your phone after restarting so alarms can resume. Powering off, force-stopping, or uninstalling Curfew can prevent the alarm. Do Not Disturb and manufacturer battery settings can also affect sound and delivery.", color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         val (label, callback) = when (next) {
             ReadinessAction.GRANT_EXACT_ALARM_ACCESS -> "Allow exact alarms" to onGrantExactAlarm

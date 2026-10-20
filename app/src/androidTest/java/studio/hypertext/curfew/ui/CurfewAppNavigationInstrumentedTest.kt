@@ -1,5 +1,10 @@
 package studio.hypertext.curfew.ui
 
+import android.graphics.Bitmap
+import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.onRoot
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
@@ -67,6 +72,17 @@ class CurfewAppNavigationInstrumentedTest {
                 )
             }
         }
+    }
+
+    @Test
+    fun setupDisclosesTheFirstUnlockRequirement() {
+        show(setOf(ReadinessAction.ACKNOWLEDGE_LIMITATIONS))
+        compose.onNodeWithText("Finish setup").performScrollTo().performClick()
+        compose.onNodeWithText("Unlock your phone after restarting so alarms can resume.", substring = true)
+            .performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("I understand").performScrollTo().assertIsDisplayed()
+        val output = InstrumentationRegistry.getInstrumentation().targetContext.cacheDir.resolve("first-unlock-readiness.png")
+        output.outputStream().use { compose.onRoot().captureToImage().asAndroidBitmap().compress(Bitmap.CompressFormat.PNG, 100, it) }
     }
 
     @Test

@@ -5,6 +5,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
+import android.app.ForegroundServiceStartNotAllowedException
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
@@ -48,6 +49,8 @@ class PerpetualAlarmService : Service() {
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var playbackJob: Job? = null
     private var playbackGeneration = 0
+    private val requestedCampaignIds = mutableSetOf<String>()
+    private var stickyRecoveryRequested = false
     private var syncCampaignId: String? = null
 
     override fun onCreate() {
@@ -56,30 +59,44 @@ class PerpetualAlarmService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        val previouslyRequestedIds = requestedCampaignIds.toSet()
+        val previouslyRequestedStickyRecovery = stickyRecoveryRequested
+        if (intent == null) stickyRecoveryRequested = true
+        val requestedId = intent?.getStringExtra(EXTRA_CAMPAIGN_ID)
+        requestedId?.let(requestedCampaignIds::add)
         val generation = ++playbackGeneration
         playbackJob?.cancel()
         // Android requires foreground entry before disk recovery can complete.
-        ServiceCompat.startForeground(
-            this,
-            ALARM_NOTIFICATION_ID,
-            NotificationCompat.Builder(this, STATUS_CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setContentTitle(getString(R.string.app_name))
-                .setSilent(true)
-                .setOngoing(true)
-                .build(),
-            ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK,
-        )
+        try {
+            ServiceCompat.startForeground(
+                this,
+                ALARM_NOTIFICATION_ID,
+                NotificationCompat.Builder(this, STATUS_CHANNEL_ID)
+                    .setSmallIcon(R.drawable.ic_launcher_foreground)
+                    .setContentTitle(getString(R.string.app_name))
+                    .setSilent(true)
+                    .setOngoing(true)
+                    .build(),
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK,
+            )
+        } catch (_: ForegroundServiceStartNotAllowedException) {
+            // Android may retain a boot-only exemption after an exact alarm delivery.
+            AlarmRecoveryReceiver.requestPlaybackRetry(this)
+            stopSelf(startId)
+            return START_NOT_STICKY
+        }
         playbackJob = serviceScope.launch {
             try {
                 val repository = AlarmRuntimeRepository(this@PerpetualAlarmService)
                 val state = SunriseScheduler.serialized {
                     AlarmPlaybackPlanner().restore(
-                        intent?.getStringExtra(EXTRA_CAMPAIGN_ID),
+                        requestedId,
                         repository.pendingSnapshots(),
                         Instant.now(),
                         SystemClock.elapsedRealtime(),
                         repository.currentBootId(),
+                        previouslyRequestedIds,
+                        previouslyRequestedStickyRecovery,
                     )?.let { repository.save(it) }
                 }
                 val gateway = AndroidAlarmClockGateway(this@PerpetualAlarmService)
@@ -113,6 +130,8 @@ class PerpetualAlarmService : Service() {
                                         current.attempt, definition?.displayLabel, definition?.actionUrl,
                                     ),
                                 )
+                                requestedCampaignIds.add(current.campaignId)
+                                stickyRecoveryRequested = false
                                 beginAlarmSound()
                                 if (syncCampaignId != current.campaignId) beginActiveSync(current.campaignId)
                             } else {
