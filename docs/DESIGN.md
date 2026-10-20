@@ -12,7 +12,7 @@ Use the shared Curfew design roles from `curfew/landing/public/design/tokens.css
 
 ## Screens and tasks
 
-Daily use centers on the saved time, seven visual alarm days or one-night date, the on/off control, and the named wake check. Group the time, days, and switch on one tonal surface. Give the check-in its own row. Do not add a status dashboard or explain each visible control in a paragraph. Use “Alarm on” and “Alarm off,” not “armed.” An enabled schedule with missing readiness says “Needs attention” and retains its setup repair action. The switch records the owner’s choice; it cannot establish that Android can deliver the alarm.
+Daily use centers on the saved time, seven visual alarm days or one-night date, the on/off control, and the named wake check. Group the time, days, and switch on one tonal surface. Give the check-in its own row. Do not add a status dashboard or explain each visible control in a paragraph. Let the switch show ordinary on/off state without a separate status row. An enabled schedule with missing readiness says “Needs attention” and retains its setup repair action. The switch records the owner’s choice; it cannot establish that Android can deliver the alarm.
 
 Alarm editing uses native time and date controls and one Save action. Keep a draft until Save. Back cancels changes. Show the actual next occurrence in the user's locale. A completed one-night alarm does not become a recurring alarm. Future edits and toggles cannot dismiss an active occurrence.
 
@@ -68,7 +68,9 @@ Limit the daily column to 420dp on expanded windows. Other tasks keep their
 Give the chosen time visual priority. Its numeric size can reach 100sp when
 width permits. Fit the time and localized period by measurement; narrow windows
 and enlarged text must retain readable values without clipping. The alarm
-surface uses 16dp vertical padding and 12dp gaps. Setting rows have a 64dp
+surface uses 12dp vertical padding and 12dp gaps. The time and switch share
+one row. Reserve a separate status for missing readiness or a completed
+one-night alarm. Keep the clock type size; compact the surrounding surface instead. Setting rows have a 56dp
 minimum and grow around their content. Keep top-aligned scrolling on short
 windows, during setup, and with enlarged text.
 

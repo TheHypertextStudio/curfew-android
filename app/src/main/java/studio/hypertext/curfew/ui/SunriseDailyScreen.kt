@@ -71,7 +71,7 @@ internal fun SettingRow(title: String, detail: String? = null, icon: Int? = null
         leadingContent = icon?.let { { Icon(painterResource(it), null, tint = MaterialTheme.colorScheme.primary) } },
         trailingContent = { Icon(painterResource(R.drawable.ic_chevron_right_rounded), null) },
         colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
-        modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp).clickable(role = Role.Button, onClick = onClick),
+        modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable(role = Role.Button, onClick = onClick),
     )
 }
 
@@ -107,26 +107,28 @@ internal fun SunriseDailyScreen(
     } ?: false
     TaskContent(spacing = 12.dp, verticalPadding = 12.dp) {
         Surface(shape = MaterialTheme.shapes.extraLarge, color = MaterialTheme.colorScheme.surfaceContainerLow) {
-            Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 if (saved == null) {
                     Text("No alarm set", style = MaterialTheme.typography.titleLarge)
                     FilledTonalButton(onClick = onEdit, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp).semantics { contentDescription = "Edit Sunrise" }) {
                         Text("Choose a wake time")
                     }
                 } else {
-                    Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text(when { complete -> "One-night alarm complete"; saved.enabled && !canArm -> "Needs attention"; saved.enabled -> "Alarm on"; else -> "Alarm off" },
-                            style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                    if (complete || saved.enabled && !canArm) {
+                        Text(if (complete) "One-night alarm complete" else "Needs attention",
+                            style = MaterialTheme.typography.titleMedium)
+                    }
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Box(Modifier.weight(1f).heightIn(min = 48.dp).clickable(role = Role.Button, onClick = onEdit)
+                            .semantics { contentDescription = "Edit Sunrise" }) {
+                            DailyAlarmTime(saved.wakeTime, DateFormat.is24HourFormat(context), locale, Modifier.fillMaxWidth())
+                        }
                         if (!complete) Switch(
                             checked = saved.enabled, onCheckedChange = onToggle,
                             enabled = !busy && (saved.enabled || canArm),
                             modifier = Modifier.semantics { contentDescription = "Enable future Sunrise alarms" },
                         )
-                    }
-                    Row(Modifier.fillMaxWidth().clickable(role = Role.Button, onClick = onEdit).semantics { contentDescription = "Edit Sunrise" },
-                        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        DailyAlarmTime(saved.wakeTime, DateFormat.is24HourFormat(context), locale, Modifier.weight(1f))
-                        Icon(painterResource(R.drawable.ic_chevron_right_rounded), null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     if (saved.onceDate == null) {
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -184,7 +186,7 @@ private fun DailyAlarmTime(time: LocalTime, use24Hour: Boolean, locale: Locale, 
             val width = measurer.measure(numeric, numericStyle.copy(fontSize = candidate.sp), maxLines = 1).size.width
             if (width <= available) low = candidate else high = candidate
         }
-        val fittedStyle = numericStyle.copy(fontSize = low.sp, lineHeight = (low * 1.12f).sp)
+        val fittedStyle = numericStyle.copy(fontSize = low.sp, lineHeight = low.sp)
         if (inlinePeriod) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = androidx.compose.ui.Alignment.Bottom) {
                 val numericWidth = measurer.measure(numeric, fittedStyle, maxLines = 1).size.width + 2

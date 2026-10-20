@@ -260,3 +260,26 @@ serials or real devices. The permission driver additionally reads the native
 accessibility XML. It requires Needs attention, rejects Alarm on, and requires
 the specific Alarm access is off message before restoring access. Its native
 probe verifies platform readiness and durable state independently from copy.
+
+## Compact daily composition
+
+The October 20 density pass removes the repeated normal on/off status row.
+`SunriseDailyLayoutInstrumentedTest#ordinaryAlarmDoesNotSpendARowRepeatingItsSwitchState`
+failed against the earlier layout before production edits. It checks that
+the switch sits beside the time and that the ordinary 390dp alarm plus
+check-in fits within 280dp. Existing tests retain enlarged-text allocation,
+weekday separation, a one-night date, missing-readiness status, and clock
+formatting. Native captures cover both themes at 320/390dp and 100/200% text.
+
+This changes presentation only. The saved schedule, alarm delivery, and
+release authority do not change. Reverting the composition restores the
+previous spacing without a migration. The HTML review frame now fits the
+available viewport instead of forcing an 844px phone. Short review windows retain internal scrolling. The review remains a
+proposal and cannot establish native functionality.
+
+The final compact-layout run passed 24 installed API33 checks in 44.15s,
+including fourteen layout cases, nine navigation cases, and eight captures
+from one capture case. Plain/GMS builds, both 181-case unit suites, and both
+Android lint tasks passed. The source diff and preview JavaScript syntax
+checks passed. The earlier API36 CI alarm-presentation failure remains an
+independent P1 acceptance issue; these visual checks do not resolve it.

@@ -70,3 +70,14 @@ superseded headings and copy and must not be used to assess the current UI.
 Use the live HTML for the current proposal and `native/` for the latest
 installed daily fixtures. Native fixtures cover 320/390dp, 100/200% text,
 and both themes. They establish rendered layout, not alarm delivery.
+
+## Compact daily group
+
+The October 20 follow-up removes the row that repeats the switch state.
+Place the switch beside the editable time and keep the visual days below.
+Retain the separate readiness and completed-alarm messages when needed.
+The native clock keeps its measured type size. The surface uses 12dp vertical
+padding, and ordinary setting rows have a 56dp minimum.
+The browser frame uses the available window height, bounded to 240–844px,
+so the review no longer forces a tall empty phone into a short window.
+No extra copy or decorative panels fill the remaining screen.

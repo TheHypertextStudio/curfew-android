@@ -15,6 +15,8 @@ import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.text.TextLayoutResult
@@ -51,7 +53,7 @@ class SunriseDailyLayoutInstrumentedTest {
             val density = LocalDensity.current
             CompositionLocalProvider(LocalDensity provides Density(density.density, scale.floatValue)) {
                 CurfewTheme(dynamicColor = false) {
-                    Box(Modifier.width(width.dp).then(if (height == null) Modifier.fillMaxHeight() else Modifier.height(height.dp))) {
+                    Box(Modifier.testTag("daily-fixture").width(width.dp).then(if (height == null) Modifier.fillMaxHeight() else Modifier.height(height.dp))) {
                         SunriseDailyScreen(
                             alarm = SavedSunriseAlarm(SunriseSchedule("layout-alarm", wakeTime, onceDate, if (onceDate == null) DayOfWeek.entries.take(5).toSet() else emptySet(), true, "check-in"),
                                 nextDate?.let { SunriseOccurrence("layout-occurrence", it, it.atTime(wakeTime).atZone(ZoneId.systemDefault()).toInstant()) }),
@@ -72,27 +74,40 @@ class SunriseDailyLayoutInstrumentedTest {
         compose.onNodeWithText("Finish setup").assertExists()
     }
 
+    @Test fun ordinaryAlarmDoesNotSpendARowRepeatingItsSwitchState() {
+        show(1f, width = 390)
+        compose.onNodeWithText("Alarm on").assertDoesNotExist()
+        val toggle = compose.onNodeWithContentDescription("Enable future Sunrise alarms").fetchSemanticsNode().boundsInRoot
+        val numeric = wakeTime.format(DateTimeFormatter.ofPattern(if (DateFormat.is24HourFormat(context)) "HH:mm" else "h:mm", locale))
+        val time = compose.onNodeWithText(numeric, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+        assertTrue("The switch belongs beside the time", toggle.center.y in time.top..time.bottom)
+        val checkIn = compose.onNodeWithText("Morning check-in").fetchSemanticsNode().boundsInRoot
+        val fixtureTop = compose.onNodeWithTag("daily-fixture").fetchSemanticsNode().boundsInRoot.top
+        val heightDp = (checkIn.bottom - fixtureTop) / context.resources.displayMetrics.density
+        assertTrue("The ordinary alarm and check-in must fit within 280dp: height=$heightDp time=$time checkIn=$checkIn fixtureTop=$fixtureTop", heightDp <= 280f)
+    }
+
     @Test fun ordinaryPhoneGivesTheWakeTimeVisualPriority() {
         show(1f, width = 390)
         val numeric = wakeTime.format(DateTimeFormatter.ofPattern(if (DateFormat.is24HourFormat(context)) "HH:mm" else "h:mm", locale))
         val time = compose.onNodeWithText(numeric, useUnmergedTree = true).textLayout()
-        val status = compose.onNodeWithText("Alarm on", useUnmergedTree = true).textLayout()
+        val status = weekday(DayOfWeek.MONDAY).textLayout()
         assertTrue("The chosen time must lead the single-alarm screen",
             time.layoutInput.style.fontSize.value >= 5f * status.layoutInput.style.fontSize.value)
     }
 
     @Test fun enlargedTextKeepsTheDailyGroupAtTheTop() {
         show(2f)
-        val start = compose.onNodeWithText("Alarm on").fetchSemanticsNode().boundsInRoot
+        val start = compose.onNodeWithContentDescription("Edit Sunrise").fetchSemanticsNode().boundsInRoot
         val density = context.resources.displayMetrics.density
-        assertTrue("Enlarged text must start near the top instead of centering a long task", start.top <= 40f * density)
+        assertTrue("Enlarged text must start near the top instead of centering a long task", start.top - compose.onNodeWithTag("daily-fixture").fetchSemanticsNode().boundsInRoot.top <= 40f * density)
     }
 
     @Test fun shortPhoneKeepsTheDailyGroupAtTheTop() {
         show(1f, width = 390, height = 360)
-        val start = compose.onNodeWithText("Alarm on").fetchSemanticsNode().boundsInRoot
-        assertTrue("The status must fit within the initial 56dp of the short task: $start",
-            start.top <= 56f * context.resources.displayMetrics.density)
+        val start = compose.onNodeWithContentDescription("Edit Sunrise").fetchSemanticsNode().boundsInRoot
+        assertTrue("The editable time must fit within the initial 56dp of the short task: $start",
+            start.top - compose.onNodeWithTag("daily-fixture").fetchSemanticsNode().boundsInRoot.top <= 56f * context.resources.displayMetrics.density)
     }
 
     @Test fun weekdaysRemainSeparatedAtNarrowWidthAndLargeText() {
@@ -121,9 +136,9 @@ class SunriseDailyLayoutInstrumentedTest {
         val twentyFour = DateFormat.is24HourFormat(context)
         val numeric = wakeTime.format(DateTimeFormatter.ofPattern(if (twentyFour) "HH:mm" else "h:mm", locale))
         val numericLayout = compose.onNodeWithText(numeric, useUnmergedTree = true).textLayout()
-        val statusLayout = compose.onNodeWithText("Alarm on", useUnmergedTree = true).textLayout()
+        val statusLayout = weekday(DayOfWeek.MONDAY).textLayout()
         assertFalse("The numeric time must not clip: ${numericLayout.diagnostics()}", numericLayout.hasVisualOverflow)
-        assertTrue("The time must remain larger than its status", numericLayout.layoutInput.style.fontSize.value >= statusLayout.layoutInput.style.fontSize.value * 1.5f)
+        assertTrue("The time must remain larger than a day label", numericLayout.layoutInput.style.fontSize.value >= statusLayout.layoutInput.style.fontSize.value * 1.5f)
         if (!twentyFour) {
             val period = wakeTime.format(DateTimeFormatter.ofPattern("a", locale))
             val periodLayout = compose.onNodeWithText(period, useUnmergedTree = true).textLayout()
