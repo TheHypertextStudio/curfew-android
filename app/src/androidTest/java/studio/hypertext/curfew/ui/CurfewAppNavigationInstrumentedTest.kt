@@ -9,6 +9,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -41,6 +42,7 @@ class CurfewAppNavigationInstrumentedTest {
     private val failure = mutableStateOf<String?>(null)
     private var saves = 0
     private var volumeRequests = 0
+    private var fullScreenRequests = 0
     private val missingActions = mutableStateOf<Set<ReadinessAction>>(emptySet())
 
     private fun show(required: Set<ReadinessAction> = emptySet(), failSave: Boolean = false) {
@@ -54,6 +56,7 @@ class CurfewAppNavigationInstrumentedTest {
                     accountRecoveryState = null,
                     onGrantExactAlarm = {},
                     onGrantNotifications = {},
+                    onGrantFullScreen = { fullScreenRequests++; missingActions.value = emptySet() },
                     onRepairAlarmChannel = {},
                     onPlayTestSound = {},
                     onAcknowledgeLimitations = {},
@@ -198,6 +201,18 @@ class CurfewAppNavigationInstrumentedTest {
         compose.onNodeWithContentDescription("Settings").performClick()
         compose.onNode(SemanticsMatcher.expectValue(SemanticsProperties.PaneTitle, "Settings")).assertExists()
         compose.onNodeWithText("Settings").assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
+    }
+
+    @Test
+    fun missingFullScreenAccessOffersTheAlarmScreenRequest() {
+        show(required = setOf(ReadinessAction.GRANT_FULL_SCREEN_ACCESS))
+        compose.onNodeWithContentDescription("Settings").performClick()
+        compose.onNodeWithText("Alarm access and sound").performClick()
+        compose.onAllNodesWithText("Complete").assertCountEquals(0)
+        compose.onNodeWithText("Done").assertDoesNotExist()
+        compose.onNodeWithText("Allow alarm screen").performScrollTo().assertIsDisplayed().performClick()
+        compose.runOnIdle { assertEquals(1, fullScreenRequests) }
+        compose.onNodeWithText("Done").performScrollTo().assertIsDisplayed()
     }
 
 }

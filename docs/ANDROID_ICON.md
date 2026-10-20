@@ -9,14 +9,17 @@ rather than Apple's glass, shadows, or a rounded tile baked into the image.
 Android's launcher supplies the outer mask and motion.
 
 Both launcher entries reference a full-bleed 108dp background, a transparent
-108dp foreground, and a separate white monochrome silhouette. The sun has
-an 18dp radius, centered at (54, 56). Its pixels remain within the centered
-66dp safe circle. The monochrome layer lets the launcher apply wallpaper
+108dp foreground, and a separate white monochrome silhouette. The setting sun has
+a 20dp radius, centered at (60, 50), clipped below y=59. The horizon mark
+runs from x=26 to x=82 at y=64–67. All foreground pixels remain within the
+centered 66dp safe circle. The full-bleed background has a lower dusk band
+that meets the launcher mask. The off-center sun and horizon distinguish
+the icon from a plain dot. The monochrome layer lets the launcher apply wallpaper
 colors. The Android 13 minimum means pre-adaptive bitmap fallbacks are
 unnecessary; the previous stock Android bitmap resources were removed.
 
 `LauncherIconInstrumentedTest` checks the packaged adaptive drawable,
-opaque gradient background, transparent foreground, sun color, safe circle,
+opaque gradient background, transparent foreground, sun color, horizon separation, safe circle,
 and matching themed silhouette. It also renders a native contact sheet
 with circle, squircle, rounded-square, and themed treatments. Review that
 image after geometry or palette changes. The test first failed against the

@@ -51,13 +51,15 @@ def main():
             require(match is not None or "No operations" in original_op, "Could not read the original full-screen access mode")
             original_full_screen_mode = match.group(1) if match else "default"
             (OUTPUT / "original-full-screen-op.txt").write_text(original_op)
-            call("shell", "appops", "set", process.PACKAGE, "USE_FULL_SCREEN_INTENT", args.full_screen)
+            call("shell", "appops", "set", process.PACKAGE, "USE_FULL_SCREEN_INTENT", "allow")
         require(b"set to" in call("shell", "locksettings", "set-pin", FIXTURE_PIN), "The fixture PIN was not set")
         pin_set = True
         require(b"verified successfully" in call("shell", "locksettings", "verify", "--old", FIXTURE_PIN), "The fixture PIN did not verify")
         print("Step 1: Save a scoped one-night alarm 90 seconds ahead, then end instrumentation.", flush=True)
         instrument("prepareProcessLossFixture", OUTPUT / "prepare.txt", {"fixtureDelaySeconds": "90"})
         prepared = True
+        if args.api >= 34:
+            call("shell", "appops", "set", process.PACKAGE, "USE_FULL_SCREEN_INTENT", args.full_screen)
         fixture = json.loads(call("exec-out", "run-as", process.PACKAGE, "cat", "cache/cadence-fixture.json"))
         require(fixture["scheduleId"].startswith("cadence-process-loss-"), "Unexpected fixture")
         before = process.snapshot(fixture["campaignId"])

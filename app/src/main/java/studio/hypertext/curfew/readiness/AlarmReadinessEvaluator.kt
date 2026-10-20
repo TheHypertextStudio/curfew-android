@@ -13,6 +13,7 @@ data class AlarmCapabilities(
 enum class ReadinessAction {
     GRANT_EXACT_ALARM_ACCESS,
     GRANT_NOTIFICATIONS,
+    GRANT_FULL_SCREEN_ACCESS,
     REPAIR_ALARM_CHANNEL,
     RAISE_ALARM_VOLUME,
     PLAY_TEST_SOUND,
@@ -47,6 +48,9 @@ class AlarmReadinessEvaluator {
             }
             if (!capabilities.notificationsGranted) {
                 add(ReadinessAction.GRANT_NOTIFICATIONS)
+            }
+            if (!capabilities.fullScreenIntentAllowed) {
+                add(ReadinessAction.GRANT_FULL_SCREEN_ACCESS)
             }
             if (!capabilities.alarmChannelAudible) {
                 add(ReadinessAction.REPAIR_ALARM_CHANNEL)

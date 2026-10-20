@@ -277,6 +277,7 @@ class MainActivity : ComponentActivity() {
                         accountRecoveryState = accountRecoveryState,
                         onGrantExactAlarm = ::requestExactAlarmAccess,
                         onGrantNotifications = ::requestNotifications,
+                        onGrantFullScreen = ::requestFullScreenAccess,
                         onRepairAlarmChannel = ::openAlarmChannelSettings,
                         onRaiseAlarmVolume = { startActivity(Intent(Settings.ACTION_SOUND_SETTINGS)) },
                         onPlayTestSound = ::playTestSound,
@@ -491,6 +492,12 @@ class MainActivity : ComponentActivity() {
                 Uri.parse("package:$packageName"),
             ),
         )
+    }
+
+    private fun requestFullScreenAccess() {
+        if (android.os.Build.VERSION.SDK_INT >= 34) {
+            startActivity(Intent(Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT, Uri.parse("package:$packageName")))
+        }
     }
 
     private fun requestNotifications() {

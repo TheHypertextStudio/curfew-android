@@ -48,6 +48,7 @@ fun CurfewApp(
     onSaveAlarm: (SunriseSchedule) -> Unit,
     onToggleAlarm: (Boolean) -> Unit,
     onRaiseAlarmVolume: () -> Unit = onRepairAlarmChannel,
+    onGrantFullScreen: () -> Unit = {},
     conditionVerified: Boolean = false,
     conditionBusy: Boolean = false,
     conditionMessage: String? = null,
@@ -145,6 +146,7 @@ fun CurfewApp(
                                     readiness, onGrantExactAlarm, onGrantNotifications, onRepairAlarmChannel,
                                     onPlayTestSound, onAcknowledgeLimitations, onRaiseAlarmVolume,
                                     onDone = { if (!conditionVerified) destination = "check-in" else back() },
+                                    onGrantFullScreen = onGrantFullScreen,
                                 )
                                 "check-in" -> CheckInScreen(
                                     callbackId, conditionLabel, conditionVerified, conditionBusy, conditionMessage,

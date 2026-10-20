@@ -7,6 +7,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -44,11 +47,13 @@ internal fun AlarmReadinessScreen(
     onAcknowledgeLimitations: () -> Unit,
     onRaiseAlarmVolume: () -> Unit,
     onDone: () -> Unit,
+    onGrantFullScreen: () -> Unit = {},
 ) {
     var showLimits by rememberSaveable { mutableStateOf(false) }
     val actions = listOf(
         ReadinessAction.GRANT_EXACT_ALARM_ACCESS to "Exact alarms",
         ReadinessAction.GRANT_NOTIFICATIONS to "Notifications",
+        ReadinessAction.GRANT_FULL_SCREEN_ACCESS to "Alarm screen",
         ReadinessAction.REPAIR_ALARM_CHANNEL to "Alarm sound",
         ReadinessAction.RAISE_ALARM_VOLUME to "Alarm volume",
         ReadinessAction.PLAY_TEST_SOUND to "Sound test",
@@ -60,13 +65,23 @@ internal fun AlarmReadinessScreen(
             actions.forEach { (action, title) ->
                 ListItem(
                     headlineContent = { Text(title) },
-                    supportingContent = { Text(if (action in readiness.requiredActions) "Needs attention" else "Complete") },
+                    leadingContent = {
+                        val complete = action !in readiness.requiredActions
+                        Icon(
+                            painterResource(if (complete) R.drawable.ic_check_circle_rounded else R.drawable.ic_radio_button_unchecked_rounded),
+                            contentDescription = null,
+                            tint = if (complete) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    },
+                    modifier = Modifier.semantics {
+                        stateDescription = if (action in readiness.requiredActions) "Needs attention" else "Complete"
+                    },
                     colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
                 )
             }
         }
         if (ReadinessDisclosure.FULL_SCREEN_FALLBACK in readiness.disclosures) {
-            Text("Full-screen access is off. The alarm will use a lock-screen notification.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text("Allow Curfew to show the alarm over your lock screen.", color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         TextButton(onClick = { showLimits = !showLimits }) { Text("Android limits") }
         if (showLimits || next == ReadinessAction.ACKNOWLEDGE_LIMITATIONS) {
@@ -75,6 +90,7 @@ internal fun AlarmReadinessScreen(
         val (label, callback) = when (next) {
             ReadinessAction.GRANT_EXACT_ALARM_ACCESS -> "Allow exact alarms" to onGrantExactAlarm
             ReadinessAction.GRANT_NOTIFICATIONS -> "Allow notifications" to onGrantNotifications
+            ReadinessAction.GRANT_FULL_SCREEN_ACCESS -> "Allow alarm screen" to onGrantFullScreen
             ReadinessAction.REPAIR_ALARM_CHANNEL -> "Check alarm sound" to onRepairAlarmChannel
             ReadinessAction.RAISE_ALARM_VOLUME -> "Turn up alarm volume" to onRaiseAlarmVolume
             ReadinessAction.PLAY_TEST_SOUND -> "Test alarm sound" to onPlayTestSound

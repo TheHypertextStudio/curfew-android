@@ -707,3 +707,50 @@ two native cases on API36 GMS in 0.166s and API33 Plain in 0.056s.
 Both distributions pass 182 host tests, APK builds, and Android lint. The native contact sheet is
 `design/android-review/native/icon/launcher-icon-review.png`. See
 [the icon design and rollback notes](ANDROID_ICON.md).
+
+## Full-screen onboarding access
+
+Full-screen access is required for setup readiness on Android 14 and newer.
+Android 13 reports the capability as available without a separate settings
+step. `AlarmReadinessEvaluatorTest` first failed with denied full-screen
+access incorrectly returning ready. It now requires the access action while
+retaining notification fallback presentation for an already-active alarm.
+`CurfewAppNavigationInstrumentedTest` checks the missing-access button,
+request callback, and transition to Done after the capability is granted.
+MainActivity opens the package-specific Android full-screen access setting
+and re-evaluates capabilities on resume. No setting is silently granted.
+
+The user requested a Pixel app-state reset. The device disconnected before
+installation/reset, so that reset has not occurred yet. Verify the fresh
+installed onboarding separately from synthetic navigation evidence.
+
+The full-screen follow-up passes 182 host tests per distribution, both
+app/test APK builds, and both Android lint checks. Before compacting the
+status rows, API33 Plain passed 13 navigation/icon cases in 159.542s and
+API36 GMS passed 13 in 196.204s. A new native assertion first reproduced
+six redundant Complete labels, then checks that only status icons carry
+those completion states. After compaction, API33 Plain passes four targeted
+icon, permission-navigation, and actual TLS-release cases in 21.506s.
+API36 GMS passes the same four cases in 18.895s.
+
+A real fresh API36 app-state reset was used to inspect onboarding. Exact
+alarm and notification prerequisites were granted as controlled setup;
+full-screen access was denied. The real MainActivity button opened
+Android's Curfew-specific full-screen notifications settings. Enabling its
+system switch and returning advanced the app to the sound-test step. Native
+screenshots live in `design/android-review/native/onboarding/`.
+
+The updated notification fallback driver grants full-screen access for
+setup, then revokes it before delivery. Its old ordering first failed the
+new readiness gate. The corrected 90-second API36 driver passes actual
+notification delivery, notification tap, fixture PIN entry, unchanged ringing
+state, and cleanup. It restores the original access mode and clears its
+owned-emulator credential. This driver never targets the owner's phone.
+
+CI run `39501292679` on the earlier `46e5ace` icon commit passed six jobs
+and failed the API34 GMS release journey's readiness setup. The log did not
+identify the missing capability. The release fixture now explicitly grants
+full-screen access, waits for actual readiness, and reports missing actions
+if readiness stays false. This is fixture setup and diagnostic work, not a
+claim that the earlier CI failure's exact cause was established. The updated
+commit still requires its own CI result.

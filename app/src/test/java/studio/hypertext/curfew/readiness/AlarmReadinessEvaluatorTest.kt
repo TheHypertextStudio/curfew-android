@@ -31,10 +31,11 @@ class AlarmReadinessEvaluatorTest {
     }
 
     @Test
-    fun `full screen denial uses a high priority lock screen fallback`() {
+    fun `full screen denial requires setup repair and preserves runtime fallback`() {
         val result = evaluator.evaluate(readyCapabilities().copy(fullScreenIntentAllowed = false))
 
-        assertTrue(result.canArm)
+        assertFalse(result.canArm)
+        assertTrue(result.requiredActions.map { it.name }.contains("GRANT_FULL_SCREEN_ACCESS"))
         assertEquals(AlarmPresentation.LOCK_SCREEN_NOTIFICATION, result.presentation)
         assertTrue(result.disclosures.contains(ReadinessDisclosure.FULL_SCREEN_FALLBACK))
     }

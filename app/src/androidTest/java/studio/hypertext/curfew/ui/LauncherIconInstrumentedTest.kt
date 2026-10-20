@@ -71,6 +71,8 @@ class LauncherIconInstrumentedTest {
         val foreground = render(icon.foreground)
         assertEquals("The sun keeps Curfew's orange", Color.rgb(242, 138, 57), foreground.getPixel(54, 56))
         assertEquals("No baked-in Apple tile surrounds the sun", 0, Color.alpha(foreground.getPixel(0, 0)))
+        assertEquals("The horizon makes the setting sun recognizable", 255, Color.alpha(foreground.getPixel(54, 65)))
+        assertEquals("The sun and horizon retain a clear gap", 0, Color.alpha(foreground.getPixel(54, 61)))
         val background = render(icon.background)
         assertEquals(255, Color.alpha(background.getPixel(0, 0)))
         assertEquals(255, Color.alpha(background.getPixel(107, 107)))

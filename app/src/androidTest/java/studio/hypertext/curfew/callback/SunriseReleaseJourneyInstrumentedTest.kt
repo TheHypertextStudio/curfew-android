@@ -44,7 +44,8 @@ class SunriseReleaseJourneyInstrumentedTest {
         }
         error("Timed out: $description; pending=${runtime.pending()}; " +
             "notification=${ringingNotification()}; alarmAudio=${alarmAudioIsActive()}; " +
-            "exactAccess=${AndroidAlarmClockGateway(context).canScheduleExactAlarms()}")
+            "exactAccess=${AndroidAlarmClockGateway(context).canScheduleExactAlarms()}; " +
+            "readiness=${studio.hypertext.curfew.platform.AndroidAlarmReadiness(context).evaluate(studio.hypertext.curfew.persistence.CurfewPreferences(context).state.first())}")
     }
 
     private fun ringingNotification() = context.getSystemService(NotificationManager::class.java)
@@ -57,6 +58,9 @@ class SunriseReleaseJourneyInstrumentedTest {
     fun scheduleRingsPendingAndInvalidApprovalStayActiveAndValidApprovalStopsPlayback() = runBlocking {
         shell("pm grant ${context.packageName} android.permission.POST_NOTIFICATIONS")
         shell("appops set ${context.packageName} SCHEDULE_EXACT_ALARM allow")
+        if (android.os.Build.VERSION.SDK_INT >= 34) {
+            shell("appops set ${context.packageName} USE_FULL_SCREEN_INTENT allow")
+        }
         val preferences = CurfewPreferences(context)
         // These fixtures satisfy stored readiness only; this emulator test cannot establish physical sound.
         preferences.acknowledgeLimitations()
@@ -71,6 +75,9 @@ class SunriseReleaseJourneyInstrumentedTest {
                 verifier.definition = definition
                 assertTrue(setup.verify(definition.callbackId))
                 assertTrue(preferences.state.first().isCallbackReady(definition.callbackId))
+                await("granted setup capabilities become available") {
+                    studio.hypertext.curfew.platform.AndroidAlarmReadiness(context).evaluate(preferences.state.first()).canArm
+                }
                 val start = Instant.now().plusSeconds(4).atZone(ZoneOffset.UTC)
                 val saved = scheduler.save(SunriseSchedule(
                     id = UUID.randomUUID().toString(),

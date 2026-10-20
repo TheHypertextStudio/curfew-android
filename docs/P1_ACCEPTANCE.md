@@ -152,3 +152,28 @@ test APKs. The 14-second cutoff did not trigger. This establishes delivery
 from screen-off ambient display, not deep-idle/Doze or locked UI usability.
 The first probe aborted before delivery after an early screen-state sample;
 its cleanup passed. Logs are in `build/sunrise-evidence/physical/pixel-screen-off/`.
+
+## Physical recovery and readiness follow-up
+
+The isolated Pixel process-loss probe restored alarm audio in 2.031s after
+SIGKILL in a replacement process. It preserved occurrence, attempt, and ring
+boundaries. The isolated offline probe observed alarm audio with no active
+default network, then stopped playback and verified original network settings
+and an active connection returned. A secure-keyguard probe with full-screen
+access denied retained audio and the notification content action without an
+automatic foreground launch. Each driver removed both isolated packages.
+These probes used the prepared pre-icon GMS runtime. Logs live under
+`build/sunrise-evidence/physical/pixel-process-loss`, `pixel-offline`, and
+`pixel-presentation-deny`.
+
+The short deep-idle probe was inconclusive: Android refused deep idle with
+an alarm due within its one-hour minimum. Battery updates and ACTIVE idle
+state were restored. An allowed-fullscreen presentation probe aborted before
+delivery when secure-keyguard preconditions were absent. Neither is counted
+as passing deep-idle or automatic presentation evidence.
+
+Docket scheduling and authenticated-release tasks are accepted. Playback and
+readiness was reopened for the owner's full-screen onboarding requirement.
+The complete recovery task remains open. Acceptance criteria now use one
+Markdown checkbox per independently recorded criterion. The owner requested
+an app-state reset; the Pixel disconnected before that operation.
