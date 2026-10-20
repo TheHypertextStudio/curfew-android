@@ -12,7 +12,7 @@ group = "studio.hypertext.curfew"
 
 android {
     namespace = "studio.hypertext.curfew"
-    compileSdk = 36
+    compileSdk { version = release(37) }
 
     defaultConfig {
         applicationId = "studio.hypertext.curfew"
@@ -103,7 +103,7 @@ dependencies {
     implementation(libs.androidx.work.runtime)
     implementation(libs.androidx.browser)
     implementation(libs.okhttp)
-    implementation("studio.hypertext.curfew:curfew-protocols:0.3.0")
+    implementation("studio.hypertext.curfew:curfew-protocols:0.0.13")
     ksp(libs.androidx.room.compiler)
     "gmsImplementation"(libs.firebase.messaging)
     testImplementation(libs.junit)
@@ -216,7 +216,7 @@ tasks.register("writeBuildProvenance") {
         output.get().asFile.apply {
             parentFile.mkdirs()
             writeText(
-                """{"schemaVersion":1,"applicationId":"studio.hypertext.curfew","versionName":"$versionName","sourceRevision":"$sourceRevision","protocolRevision":"bddd7c266f3df1b048ef37d83c3270bf24f7cc12","compileSdk":36,"targetSdk":36,"variants":["plainRelease","gmsRelease"]}""" +
+                """{"schemaVersion":1,"applicationId":"studio.hypertext.curfew","versionName":"$versionName","sourceRevision":"$sourceRevision","protocolRevision":"764ec480a5e5424856150be767a33a8ab022ae08","compileSdk":37,"targetSdk":36,"variants":["plainRelease","gmsRelease"]}""" +
                     "\n",
             )
         }

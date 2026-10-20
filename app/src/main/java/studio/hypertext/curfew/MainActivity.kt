@@ -15,6 +15,7 @@ import kotlinx.serialization.json.Json
 import studio.hypertext.curfew.callback.AndroidWakeConditionSetup
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.compose.BackHandler
 import androidx.activity.enableEdgeToEdge
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -48,6 +49,10 @@ import studio.hypertext.curfew.platform.AndroidAlarmClockGateway
 import studio.hypertext.curfew.platform.PerpetualAlarmService
 import studio.hypertext.curfew.readiness.AlarmReadiness
 import studio.hypertext.curfew.ui.AlarmRingingScreen
+import studio.hypertext.curfew.ui.AlarmRecoveryScreen
+import studio.hypertext.curfew.platform.AndroidOwnerRecovery
+import studio.hypertext.curfew.alarm.OwnerRecoveryResult
+import studio.hypertext.curfew.alarm.campaignStartedAt
 import studio.hypertext.curfew.ui.CurfewApp
 import studio.hypertext.curfew.ui.theme.CurfewTheme
 import studio.hypertext.curfew.sync.WakeSyncScheduler
@@ -66,6 +71,20 @@ class MainActivity : ComponentActivity() {
     private var sunriseReadFailed by mutableStateOf(false)
     private var requestedAlarmState by mutableStateOf<AlarmCampaignState?>(null)
     private var requestedAlarmLoaded by mutableStateOf(false)
+    private var recoveryVisible by mutableStateOf(false)
+    private val ownerRecoveryDelegate = lazy {
+        AndroidOwnerRecovery(activity = this, onRecovered = { result ->
+            recoveryVisible = false
+            val message = when (result) {
+                OwnerRecoveryResult.Recovered -> "Sunrise stopped through recovery."
+                OwnerRecoveryResult.RecoveredNextAlarmUnavailable -> "Sunrise stopped. Check tomorrow’s alarm."
+                OwnerRecoveryResult.NotActive -> "Sunrise is no longer active."
+                OwnerRecoveryResult.NotSaved -> "Couldn’t save recovery. Sunrise is still active."
+            }
+            Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+        })
+    }
+    private val ownerRecovery by ownerRecoveryDelegate
     private val sunriseState by lazy {
         sunrise.state.catch {
             sunriseReadFailed = true
@@ -82,7 +101,7 @@ class MainActivity : ComponentActivity() {
         val definition = pendingVerifierExport
         pendingVerifierExport = null
         if (uri == null || definition == null) {
-            conditionMessage = "Export cancelled. The wake condition has not changed."
+            conditionMessage = "Export canceled. Your check-in has not changed."
         } else {
             conditionBusy = true
             lifecycleScope.launch {
@@ -92,9 +111,9 @@ class MainActivity : ComponentActivity() {
                             it.write(Json.encodeToString(definition))
                         }
                     }
-                    conditionMessage = "Private verifier setup exported. Install it on your verifier, then test the connection."
+                    conditionMessage = "Setup file exported. Share it with your check-in service, then test the connection."
                 } catch (failure: Exception) {
-                    conditionMessage = "The setup file could not be exported. Choose a writable location and retry."
+                    conditionMessage = "Couldn’t export the file. Choose another location and retry."
                 } finally {
                     conditionBusy = false
                 }
@@ -164,22 +183,48 @@ class MainActivity : ComponentActivity() {
                     window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
                 }
             }
+            BackHandler(enabled = recoveryVisible) {
+                ownerRecovery.close()
+                recoveryVisible = false
+            }
+            LaunchedEffect(showAlarm, campaignId) {
+                if (!showAlarm) {
+                    recoveryVisible = false
+                    if (ownerRecoveryDelegate.isInitialized()) ownerRecovery.alarmEnded()
+                }
+            }
             CurfewTheme {
                 if (!requestedAlarmLoaded) {
                     Surface { Text("Loading Sunrise…") }
+                } else if (showAlarm && recoveryVisible) {
+                    AlarmRecoveryScreen(
+                        conditionLabel = ringingCondition?.displayLabel ?: "your check-in",
+                        credentialAvailable = ownerRecovery.credentialAvailable,
+                        busy = ownerRecovery.busy,
+                        error = ownerRecovery.error,
+                        onBack = { ownerRecovery.close(); recoveryVisible = false },
+                        onBeginHold = { reason -> campaignId?.let { ownerRecovery.beginHold(it, reason) } },
+                        onCancelHold = ownerRecovery::cancelHold,
+                        onConfirm = ownerRecovery::requestConfirmation,
+                        onSecuritySettings = { startActivity(Intent(Settings.ACTION_SECURITY_SETTINGS)) },
+                    )
                 } else if (showAlarm) {
+                    val clock = android.text.format.DateFormat.getTimeFormat(this@MainActivity)
                     AlarmRingingScreen(
-                        attempt = (campaign as? AlarmCampaignState.Ringing)?.attempt
-                            ?: (campaign as? AlarmCampaignState.Quiet)?.completedAttempt ?: 1,
-                        conditionLabel = ringingCondition?.displayLabel ?: "your saved wake condition",
-                        actionLabel = ringingCondition?.actionUrl?.let { "Open wake condition" },
+                        time = clock.format(java.util.Date.from(requireNotNull(campaign).campaignStartedAt())),
+                        nextRingTime = (campaign as? AlarmCampaignState.Quiet)?.nextAttemptAt?.let {
+                            clock.format(java.util.Date.from(it))
+                        },
+                        onRecover = { recoveryVisible = true },
+                        conditionLabel = ringingCondition?.displayLabel ?: "your check-in",
+                        actionLabel = ringingCondition?.actionUrl?.let { "Open check-in" },
                         onOpenAction = {
                             ringingCondition?.actionUrl?.let {
                                 runCatching { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it))) }
                                     .onFailure {
                                         Toast.makeText(
                                             this@MainActivity,
-                                            "No app could open this wake condition. Sunrise remains active.",
+                                            "No app could open this check-in. Sunrise is still active.",
                                             Toast.LENGTH_LONG,
                                         ).show()
                                     }
@@ -272,9 +317,9 @@ class MainActivity : ComponentActivity() {
                             lifecycleScope.launch {
                                 try {
                                     wakeConditionSetup.save(label, endpoint, actionUrl)
-                                    conditionMessage = "Saved on this device. Export the verifier setup and test its connection before enabling Sunrise."
+                                    conditionMessage = "Saved. Export the setup file, then test the connection."
                                 } catch (failure: Exception) {
-                                    conditionMessage = "The condition could not be saved. Check the name and HTTPS endpoint, then retry."
+                                    conditionMessage = "Couldn’t save the check-in. Check its name and address, then retry."
                                 } finally {
                                     conditionBusy = false
                                 }
@@ -294,7 +339,7 @@ class MainActivity : ComponentActivity() {
                                     exportVerifier.launch("curfew-verifier.json")
                                 } catch (failure: Exception) {
                                     pendingVerifierExport = null
-                                    conditionMessage = "The saved condition could not be read. Save it again before exporting."
+                                    conditionMessage = "Couldn’t read this check-in. Save it again before exporting."
                                 } finally {
                                     conditionBusy = false
                                 }
@@ -304,15 +349,15 @@ class MainActivity : ComponentActivity() {
                             val id = preferenceState.selectedCallbackId
                             if (id != null && !conditionBusy) lifecycleScope.launch {
                                 conditionBusy = true
-                                conditionMessage = "Testing the verifier’s authenticated response…"
+                                conditionMessage = "Testing the connection…"
                                 try {
                                     conditionMessage = if (wakeConditionSetup.verify(id)) {
-                                        "Connection verified. Sunrise can use this wake condition."
+                                        "Connection confirmed."
                                     } else {
-                                        "The selected condition changed. Test the current condition again."
+                                        "Your check-in changed. Test the connection again."
                                     }
                                 } catch (failure: Exception) {
-                                    conditionMessage = "No valid signed response arrived. Check the verifier setup and connection, then retry."
+                                    conditionMessage = "Couldn’t confirm the connection. Check the service setup, then retry."
                                 } finally {
                                     conditionBusy = false
                                 }
@@ -329,6 +374,11 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        if (ownerRecoveryDelegate.isInitialized()) ownerRecovery.close()
+        super.onDestroy()
     }
 
     override fun onResume() {

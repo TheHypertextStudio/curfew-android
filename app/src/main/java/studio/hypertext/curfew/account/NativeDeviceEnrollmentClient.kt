@@ -33,6 +33,7 @@ class NativeDeviceEnrollmentClient(context: Context) {
             put("keyEpoch", 1)
             put("protocolVersion", "0.3")
             put("pkceChallenge", pkceChallenge)
+            put("remoteControlEnabled", false)
             put("signingPublicKeyJwk", Json.parseToJsonElement(Json.encodeToString(signingJwk)))
             put("state", state)
         }.toString()
@@ -53,6 +54,8 @@ class NativeDeviceEnrollmentClient(context: Context) {
             keyEpoch = 1,
             protocolVersion = "0.3",
             pkceChallenge = pkceChallenge,
+            // Android has not offered remote-control consent in its setup flow.
+            remoteControlEnabled = false,
             signingPublicKeyJwk = signingJwk,
             state = state,
         )

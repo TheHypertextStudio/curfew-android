@@ -15,9 +15,9 @@ Both distributions use application ID `studio.hypertext.curfew`, the same versio
 
 Correctness never depends on FCM. Both distributions use visible exact alarms, an active foreground WebSocket, bounded polling, and a WorkManager outbox. Apple and Google sign-in use OAuth 2.1 Authorization Code + PKCE in the system browser, so the plain distribution can sign in without Play Services.
 
-Set `CURFEW_PROTOCOLS_CHECKOUT` to a `curfew-protocols` checkout while developing locally. Its generated `:generated:kotlin` build substitutes the published `studio.hypertext.curfew:curfew-protocols:0.3.0` artifact. Standalone builds read that artifact from GitHub Packages and require `GITHUB_ACTOR` plus a `GITHUB_TOKEN` with `read:packages`, or matching `gpr.user` and `gpr.key` Gradle properties.
+Set `CURFEW_PROTOCOLS_CHECKOUT` to a `curfew-protocols` checkout while developing locally. Its generated `:generated:kotlin` build substitutes the published `studio.hypertext.curfew:curfew-protocols:0.0.13` artifact. Standalone builds read that artifact from GitHub Packages and require `GITHUB_ACTOR` plus a `GITHUB_TOKEN` with `read:packages`, or matching `gpr.user` and `gpr.key` Gradle properties.
 
-The pilot is verified against `curfew-protocols` 0.3.0 before publication.
+CI checks out `curfew-protocols` tag `v0.0.13` at `764ec480a5e5424856150be767a33a8ab022ae08`. Use the same immutable source for local acceptance. A substituted local build does not prove GitHub Packages access or a standalone artifact download.
 
 ```sh
 export CURFEW_PROTOCOLS_CHECKOUT=/path/to/curfew-protocols

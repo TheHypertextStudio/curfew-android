@@ -151,3 +151,90 @@ On October 19, 2026, ADB detected a connected Pixel 11 Pro running API 37 with n
 The full physical Pixel suite passed all 22 instrumentation tests in 18.439 seconds (`full-pixel11-api37.txt`). The strengthened API 35 suite failed its new audio assertion. Android logged MediaPlayer data-source errors for its default alarm tone. The older API 35 notification-based result does not prove audio, so the audio failure remains open while the emulator configuration is investigated. The TLS fixture now records a test-only override and consumes its owned occurrence during failure cleanup to avoid leaving an overdue fixture for the next run.
 
 The host-audio-enabled emulator probe did not finish. ADB stalled, and the owned emulator was stopped after inspecting its live process. `https-audio-enabled-api35.txt` reports Process crashed after that stop; it is not a passing rerun. The physical Pixel disconnected after its completed suite. The local design preview server remains available; its separate capture browser was closed to release resources. The API 35 audio failure remains an explicit gap.
+
+## Owner recovery implementation
+
+The first recovery authorization test run failed compilation on the missing API (`owner-recovery-red.txt`). Installed persistence tests likewise failed compilation on the missing recovery repository and audit storage (`owner-recovery-storage-red.txt`). The new authorization and storage code then compiled. All ten targeted host authorization tests pass (`owner-recovery-kernel-green.txt`, BUILD SUCCESSFUL in 1m 22s). This is not installed recovery acceptance.
+
+The [owner recovery contract](OWNER_RECOVERY.md) records the local-only authority, atomic audit, native screen-lock confirmation, accessibility requirements, and schema 2 rollback limits. Recovery UI, migration execution, native credential interaction, and playback acceptance remain in progress. The independent design review required a named Alarm recovery destination, visible hold progress, keyboard/assistive equivalents, retained reasons, and rechecking the active occurrence after confirmation.
+
+### Recovery clock correction and theme checks
+
+The API 36 test for recovery after a backward clock change failed first with
+`observation predates campaign`. Recovery now uses a valid engine observation
+while retaining the actual wall time in its local audit. All six installed
+recovery repository tests and the schema migration passed in
+`recovery-installed-green.txt`. That invocation finished with 12 of 13 cases passing. Accessible confirmation
+timed out while its timer depended on Compose's animation clock. The hold now
+measures elapsed time and updates progress independently of animation scale;
+its installed rerun is pending.
+
+`CurfewSurfaceRolesTest` failed first because dark bright/dim surface roles
+had reversed luminance. The corrected roles passed with all 133 plain host
+tests. APK assembly completed. Lint crashed during a concurrent source edit in
+`recovery-clock-surface-green-build.txt`; a fresh build with the source held
+unchanged is running in `recovery-elapsed-build.txt`. The first UI invocation crashed
+while emulator System UI was unresponsive. The later six-case UI run had one
+incorrect timing assertion; the revised test measures real elapsed time.
+
+This evidence does not accept native credential confirmation, foreground
+hold cancellation, physical key repeat, full responsive visual review, or
+physical sound. Those gates remain open. The Docket connector was absent
+from the current tool inventory, so no external status update was posted.
+
+### Installed native integration and service audio
+
+`recovery-elapsed-build.txt` completed plain unit tests, both debug APKs, and
+plain lint successfully. `recovery-elapsed-installed.txt` passed the four
+isolated recovery-screen cases. `recovery-native-and-navigation-red.txt`
+passed both native credential prerequisites and failed all five navigation
+cases against the old page before its replacement.
+
+`native-destinations-recovery-installed.txt` then ran 17 installed cases on
+API 36. Sixteen passed, including five destination/navigation checks, two
+ringing actions, two native credential prerequisites, and both audio probes.
+The new missing-screen-lock case failed because the reason field still
+appeared; its layout correction is implemented but not yet rerun. The
+foreground test passed but has since been strengthened to wait longer than
+the hold. Physical keyboard repeat also has a new pending regression.
+
+Both generated PCM and Android's default ringtone produced active alarm
+tracks in the audio probes. The subsequent
+`scheduled-audio-warm-emulator.txt` passed the stronger installed HTTPS
+journey, including AlarmManager delivery, active alarm audio, rejection of
+invalid release responses, and cessation after valid release. The earlier
+startup-time emulator failures remain recorded. No fallback sound change
+was justified by these passing probes. This is emulator playback evidence;
+it does not prove audibility through a physical speaker.
+
+Confirmed recovery cleanup has an additional cancellation regression. Its
+first fixture canceled the protected block itself, which does not model an
+Activity closing. The corrected fixture captures and cancels the outer
+Activity job. `recovery-external-cancel-red.txt` failed with unprotected
+completion. Completion now protects the already-authorized local commit
+and scheduling cleanup; its green run is pending in
+`recovery-cleanup-native-build.txt`.
+
+### Existing published protocol tag
+
+A fresh remote fetch found corrective release `v0.0.13` at
+`764ec480a5e5424856150be767a33a8ab022ae08`. Its generated Kotlin module declares
+version `0.0.13`. The old `v0.3.0` pin still fails remote tag resolution with
+exit 2 (`protocol-tag-red.txt`). Android's dependency, three workflow
+checkouts, and release provenance now name the existing `0.0.13` contract.
+No protocol source, tag, wire shape, or publication was changed.
+
+An archive of that exact Git tag lives under the ignored local
+`build/protocols-v0.0.13` directory for compatibility checks. The checks are
+pending. This replaces the earlier unavailable-tag assumption; it does not
+establish that remote Android CI or Maven package access passed.
+
+
+### October 19 consumer copy and destination semantics
+
+The copy pass removes repeated setup introductions, decorative headings, and instructions that restate visible actions in the review proposal and native check-in form. The app retains connection status, validation errors, offline consequences, and recovery-key guidance. Destination names use accessibility pane titles and app-bar heading semantics without additional visible labels.
+
+Installed tests observed the missing Sunrise pane title before the semantics correction. The same run passed the other 19 navigation, check-in, schedule-editor, and recovery-input tests, including lifecycle cancellation and keyboard auto-repeat. The corrected semantics, current lint, and fresh visual review remain pending until their recorded runs finish. The proposal JavaScript syntax check and diff whitespace check pass.
+
+
+The final copy/semantics run passed both distributions' 139 host tests, both debug lint tasks, both debug APK builds, and the plain instrumentation APK build (`native-copy-final-build.txt`, 5m23s). The installed rerun passed 13 tests including daily navigation, pane/heading semantics, all seven recovery-input cases, credential prerequisites, and two visual capture fixtures (`native-copy-final-installed.txt`). The fixture images cover daily and service setup in both themes, 320/390dp, and 100/200% text. These results close this copy correction; they do not close the separate picker, large-text schedule, full credential-success, or physical-device acceptance gaps.

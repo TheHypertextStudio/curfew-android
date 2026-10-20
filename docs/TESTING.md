@@ -11,3 +11,22 @@ Before release, run the alarm on a current Pixel and at least one non-Pixel devi
 The current P1 implementation and acceptance ledger is [SUNRISE_P1.md](SUNRISE_P1.md). A unit result, an emulator observation, physical sound, and a signed production release are distinct evidence. Do not infer physical acceptance from a compiled or installed APK.
 
 The local P1 concurrency regressions include first-terminal-state preservation, forward-only ring/quiet persistence, old-occurrence playback isolation, and callback work-chain continuity. Run `AlarmRuntimeRepositoryInstrumentedTest`, `AlarmServiceIsolationInstrumentedTest`, and `CallbackPollSchedulerInstrumentedTest` on an installed build. `SunriseReleaseJourneyInstrumentedTest` uses a loopback TLS peer and a test-only certificate to exercise actual HTTPS callback authentication. The certificate never changes production trust configuration. This fixture does not prove external service availability or physical audio.
+
+Owner recovery uses `OwnerRecoveryAuthorizationTest` for the reason, elapsed
+hold, single-use confirmation, and expiry rules. Run
+`OwnerRecoveryRepositoryInstrumentedTest` for atomic audit storage, competing
+wake approval, rollback, future-alarm rejection, and backward clock recovery.
+`RecoveryAuditMigrationInstrumentedTest` preserves schema 1 schedules and
+callback configuration while opening schema 2. `CurfewSurfaceRolesTest` checks
+bright/dim luminance ordering. `CurfewThemeInstrumentedTest` checks the actual
+Compose light/dark roles rather than inspecting token source alone.
+
+`AlarmRecoveryScreenInstrumentedTest` measures accessible confirmation with
+elapsed time. Waiting for Compose idle can itself exceed three seconds, so
+an assertion after that wait cannot prove that confirmation was immediate.
+Foreground cancellation, physical key repeat, and the native credential
+handoff remain acceptance gaps. The screen is not connected to alarm release
+until those authorization and lifecycle paths are implemented and verified.
+
+
+The consumer destinations use `CurfewAppNavigationInstrumentedTest.destinationsExposeTheirNamesToAssistiveTechnology` to check pane titles and heading semantics without duplicate visible headings. Its installed red run found the missing Sunrise pane title. Navigation, form retry, draft handling, and seven recovery input cases passed in that run. Capture fixtures cover the native light/dark, narrow-width, enlarged-text, and keyboard layouts; their images require visual review rather than an automatic design-quality claim.

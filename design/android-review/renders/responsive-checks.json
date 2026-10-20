@@ -1,0 +1,450 @@
+[
+  {
+    "width": 360,
+    "scale": "normal",
+    "state": "home",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 360,
+    "scale": "normal",
+    "state": "off",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 360,
+    "scale": "normal",
+    "state": "edit",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 360,
+    "scale": "normal",
+    "state": "setup",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 360,
+    "scale": "normal",
+    "state": "connect",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 360,
+    "scale": "normal",
+    "state": "no-provider",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 360,
+    "scale": "normal",
+    "state": "review",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 360,
+    "scale": "normal",
+    "state": "checking",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 360,
+    "scale": "normal",
+    "state": "rejected",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 360,
+    "scale": "normal",
+    "state": "unavailable",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 360,
+    "scale": "normal",
+    "state": "ringing",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 360,
+    "scale": "normal",
+    "state": "quiet",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 360,
+    "scale": "normal",
+    "state": "offline",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 360,
+    "scale": "normal",
+    "state": "recovery",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 360,
+    "scale": "normal",
+    "state": "recovery-auth",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 360,
+    "scale": "normal",
+    "state": "settings",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 360,
+    "scale": "large",
+    "state": "home",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 360,
+    "scale": "large",
+    "state": "off",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 360,
+    "scale": "large",
+    "state": "edit",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 360,
+    "scale": "large",
+    "state": "setup",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 360,
+    "scale": "large",
+    "state": "connect",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 360,
+    "scale": "large",
+    "state": "no-provider",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 360,
+    "scale": "large",
+    "state": "review",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 360,
+    "scale": "large",
+    "state": "checking",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 360,
+    "scale": "large",
+    "state": "rejected",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 360,
+    "scale": "large",
+    "state": "unavailable",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 360,
+    "scale": "large",
+    "state": "ringing",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 360,
+    "scale": "large",
+    "state": "quiet",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 360,
+    "scale": "large",
+    "state": "offline",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 360,
+    "scale": "large",
+    "state": "recovery",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 360,
+    "scale": "large",
+    "state": "recovery-auth",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 360,
+    "scale": "large",
+    "state": "settings",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 390,
+    "scale": "normal",
+    "state": "home",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 390,
+    "scale": "normal",
+    "state": "off",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 390,
+    "scale": "normal",
+    "state": "edit",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 390,
+    "scale": "normal",
+    "state": "setup",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 390,
+    "scale": "normal",
+    "state": "connect",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 390,
+    "scale": "normal",
+    "state": "no-provider",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 390,
+    "scale": "normal",
+    "state": "review",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 390,
+    "scale": "normal",
+    "state": "checking",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 390,
+    "scale": "normal",
+    "state": "rejected",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 390,
+    "scale": "normal",
+    "state": "unavailable",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 390,
+    "scale": "normal",
+    "state": "ringing",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 390,
+    "scale": "normal",
+    "state": "quiet",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 390,
+    "scale": "normal",
+    "state": "offline",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 390,
+    "scale": "normal",
+    "state": "recovery",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 390,
+    "scale": "normal",
+    "state": "recovery-auth",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 390,
+    "scale": "normal",
+    "state": "settings",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 390,
+    "scale": "large",
+    "state": "home",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 390,
+    "scale": "large",
+    "state": "off",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 390,
+    "scale": "large",
+    "state": "edit",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 390,
+    "scale": "large",
+    "state": "setup",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 390,
+    "scale": "large",
+    "state": "connect",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 390,
+    "scale": "large",
+    "state": "no-provider",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 390,
+    "scale": "large",
+    "state": "review",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 390,
+    "scale": "large",
+    "state": "checking",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 390,
+    "scale": "large",
+    "state": "rejected",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 390,
+    "scale": "large",
+    "state": "unavailable",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 390,
+    "scale": "large",
+    "state": "ringing",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 390,
+    "scale": "large",
+    "state": "quiet",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 390,
+    "scale": "large",
+    "state": "offline",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 390,
+    "scale": "large",
+    "state": "recovery",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 390,
+    "scale": "large",
+    "state": "recovery-auth",
+    "overflow": false,
+    "unreachable": []
+  },
+  {
+    "width": 390,
+    "scale": "large",
+    "state": "settings",
+    "overflow": false,
+    "unreachable": []
+  }
+]
