@@ -16,18 +16,23 @@ removes a hardware requirement that exceeded the first working-alarm goal.
 ## Current decision
 
 Scheduling, playback/readiness, and authenticated release are done in Docket.
-Recovery remains in progress for its connected-Pixel Doze criterion. The
-current startup correction follows `6eb558b`. It gives Android ownership of
-splash dismissal and explicitly resizes the real activity for the keyboard.
-Both local host/lint/build variants and ten installed API36 focused cases
-pass. CI `39579943603` remains failed: API35's complete native suite passes
-before a System UI splash-copy crash in capture, and API36 fails the real
-keyboard/Back check. The retained failure and red-first correction appear in
-[evidence/check-in-2026-10-21](evidence/check-in-2026-10-21/).
-P1 remains unaccepted. Earlier CI runs `39553434419` and
-`39554867813` establish their recorded candidates rather than the latest app.
-The latter includes 18 complete API35 capture profiles and 108 task PNGs. The
-reviewed API34 task and setup galleries retain their separate boundaries.
+Recovery remains in progress for its connected-Pixel Doze criterion. Candidate
+`172d951` passes all seven jobs in CI `39585385215`. Both distribution
+verification jobs, release evidence, and API33–36 native jobs are green. Each
+native job reports 186 passes, seven guarded skips, and no failures. API35's
+complete capture restores settings and retains 18 welcome profiles, 108 task
+PNGs, and 11 additional native fixtures. All 126 profile PNG dimensions match
+their manifest. The [accepted CI record](evidence/check-in-2026-10-21/ci-accepted-39585385215.json)
+retains exact source and artifact boundaries.
+
+The application source remains at `085d3b2`; `172d951` corrects notification
+ownership and recreation timing in fixtures. The locally reviewed 180-image
+setup gallery keeps its separate recorded APK and source hashes. Release
+artifact hashes match and the merge application's tree matches the candidate.
+Both release APKs remain unsigned. Earlier failed runs remain historical
+evidence, not the current decision. P1 remains unaccepted until the physical
+gate passes. The final Docket update was refused for MCP authentication; no
+new update or human-attributed write was created.
 
 The latest Pixel light-Doze attempt was canceled before sound after Android
 recorded a tap wake. Its cleanup is verified, but it does not prove unattended

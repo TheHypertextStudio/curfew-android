@@ -1301,3 +1301,24 @@ pass. Independent source review finds no remaining concrete issue.
 retain exact source boundaries and test APK hashes. No app code, screenshot,
 stored data, or protocol changes. Reverting changes only test isolation.
 Replacement x86_64 CI and physical Pixel Doze remain separate requirements.
+
+
+## Accepted CI candidate — October 21, 2026
+
+CI `39585385215` at `172d951` passes all seven jobs. API33 Plain, API34 GMS,
+API35 Plain, and API36 GMS each report 186 passes and seven guarded skips.
+Those skips remain opt-in external-driver cases rather than executed default
+CI acceptance. Both distribution verification jobs and release evidence pass.
+The API35 gallery contains all 18 welcome profiles and 108 task PNGs; all
+126 profile dimensions match their manifest, and original settings restore.
+The earlier System UI splash-copy capture crash does not recur in this run.
+
+The three release artifact hashes match. Their provenance references the
+fetched PR merge whose application tree matches the candidate, and protocols
+remain pinned to `v0.0.13`. Both APKs are unsigned. The
+[accepted CI record](evidence/check-in-2026-10-21/ci-accepted-39585385215.json)
+records exact boundaries. This evidence update changes no app or test code.
+Independent completion review finds no additional unimplemented P1 feature
+requirement. Uninterrupted physical Pixel Doze remains unchecked, and the final
+Codex Docket update remains unpublished because native MCP authentication is
+required. No physical test is running.
