@@ -910,3 +910,11 @@ The previous local screenshot matrix is marked as preceding the final changes.
 It must be replaced and reviewed after the CI artifact passes its manifest and
 image checks. Manual TalkBack, physical reduced motion, hardware posture
 changes, and remaining physical alarm acceptance stay open.
+
+The first CI capture attempt passed all 150 API34 native tests, then failed
+because emulator-runner executes each input line as a separate shell command.
+`ci/run-instrumented-and-capture.sh` now keeps the conditional capture step in
+one shell invocation. Three fixture tests fail before the wrapper exists and
+then verify API35 capture, other-API exclusion, and failure short-circuiting.
+The failing-first log is `build/welcome-ci-wrapper-red.txt`. No app code changed
+for this CI correction.

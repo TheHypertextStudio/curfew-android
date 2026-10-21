@@ -50,6 +50,7 @@ jobs:
         run: |
           python3 -B ci/test-instrumentation-output.py
           python3 -B ci/test-cadence-network-cleanup.py
+          python3 -B ci/test-welcome-capture-runner.py
       # The release build is the only one R8 minifies, and the app resolves
       # kotlinx.serialization serializers reflectively. Assembling only the debug
       # variant meant a keep-rule regression reached a device before it reached
@@ -126,11 +127,7 @@ jobs:
           ram-size: 1536M
           disable-animations: true
           working-directory: curfew-android
-          script: |
-            ./ci/run-instrumented-tests.sh ${{ matrix.distribution }} ${{ matrix.api }}
-            if [ "${{ matrix.api }}" = "35" ]; then
-              python3 -B scripts/capture-welcome-matrix.py --serial emulator-5554 --output build/welcome-ci --include-native-fixtures
-            fi
+          script: ./ci/run-instrumented-and-capture.sh ${{ matrix.distribution }} ${{ matrix.api }}
       - uses: actions/upload-artifact@v7
         if: always() && matrix.api == 35
         with:
