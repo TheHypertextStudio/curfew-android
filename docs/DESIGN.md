@@ -190,3 +190,18 @@ with a compact short bar or wide rail only on main destinations. Shared wake-tim
 bounds connect the alarm, editor, and review. The Android system splash uses the
 Curfew canvas and animated horizon without an artificial wait. See
 [the first-use design and remaining service gap](ONBOARDING_DESIGN.md).
+
+
+## Main-screen navigation correction
+
+The owner opens Settings from a tonal icon action in the daily top app bar.
+Settings is a task with Back navigation. The app has one main destination,
+so a two-item bottom bar or rail adds structure without useful navigation.
+Do not invent a third destination. Keep Navigation 3, shared transitions,
+system Back, the established brand, and adaptive content layouts.
+
+The navigation regression checks the Settings action above the alarm content,
+the absence of the former Alarm tab, and return without saving editor changes.
+The responsive run captures daily, Settings, editor, and account screens.
+The correction changes presentation only; the current physical Doze acceptance
+continues on its immutable installed APK.

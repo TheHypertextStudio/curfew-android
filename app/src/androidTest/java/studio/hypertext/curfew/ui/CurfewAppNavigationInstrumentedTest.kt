@@ -24,6 +24,7 @@ import androidx.compose.ui.test.performScrollTo
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
+import org.junit.Assert.assertTrue
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -102,6 +103,7 @@ class CurfewAppNavigationInstrumentedTest {
         compose.onNodeWithText("Save").performScrollTo().assertIsDisplayed()
         compose.onNodeWithContentDescription("Back").performClick()
         compose.onNodeWithContentDescription("Settings").performClick()
+        captureResponsiveWindow("settings")
         compose.onAllNodesWithText("Account").onLast().performScrollTo().performClick()
         compose.onNodeWithText("Sign in").performScrollTo().assertIsDisplayed()
         captureResponsiveWindow("account")
@@ -226,17 +228,21 @@ class CurfewAppNavigationInstrumentedTest {
     }
 
     @Test
-    fun primaryNavigationConnectsAlarmAndSettingsButLeavesEditingFocused() {
+    fun settingsIsATopBarActionAndBackReturnsToTheAlarm() {
         show()
-        compose.onNodeWithContentDescription("Alarm navigation").assertIsDisplayed().assertIsSelected()
-        compose.onNodeWithContentDescription("Settings").performClick()
-        compose.onNodeWithContentDescription("Settings").assertIsSelected()
-        compose.onNodeWithContentDescription("Alarm navigation").performClick()
-        compose.onNodeWithContentDescription("Edit alarm").performClick()
         compose.onNodeWithContentDescription("Alarm navigation").assertDoesNotExist()
+        val settings = compose.onNodeWithContentDescription("Settings").assertIsDisplayed()
+        val actionBounds = settings.fetchSemanticsNode().boundsInRoot
+        val alarmBounds = compose.onNodeWithContentDescription("Edit alarm").fetchSemanticsNode().boundsInRoot
+        assertTrue("Settings must stay above the alarm content", actionBounds.center.y < alarmBounds.top)
+        settings.performClick()
+        compose.onNodeWithContentDescription("Settings").assertDoesNotExist()
+        compose.onNodeWithContentDescription("Back").assertIsDisplayed().performClick()
+        compose.onNodeWithContentDescription("Edit alarm").assertIsDisplayed().performClick()
         compose.onNodeWithText("Weekly").performClick()
         compose.onNodeWithContentDescription("Back").performClick()
-        compose.onNodeWithContentDescription("Alarm navigation").assertIsDisplayed().assertIsSelected()
+        compose.onNodeWithContentDescription("Settings").assertIsDisplayed()
+        compose.onNodeWithContentDescription("Edit alarm").assertIsDisplayed()
         compose.runOnIdle { assertEquals(0, saves) }
     }
 
@@ -273,7 +279,7 @@ class CurfewAppNavigationInstrumentedTest {
         show(fresh = true, welcome = false, deferredDraft = AlarmSetupDraft(
             "deferred", LocalTime.of(7, 0), LocalDate.of(2026, 10, 21), emptySet(),
         ))
-        compose.onNodeWithContentDescription("Alarm navigation").assertIsDisplayed()
+        compose.onNodeWithContentDescription("Settings").assertIsDisplayed()
         compose.onNodeWithText("No alarm set").assertIsDisplayed()
         compose.onNodeWithText("Turn on alarm").assertDoesNotExist()
         compose.runOnIdle { assertEquals(0, saves) }
