@@ -29,6 +29,37 @@ def validate_portrait_placement(nodes, width, height, density, scale, name):
             raise RuntimeError(name + ': portrait introduction is pinned near the top')
 
 
+def capture_accessibility_root(adb, name, output):
+    # A display change can briefly leave Android without an accessibility root.
+    # Each attempt removes the dump so an old screen cannot validate this one.
+    xml = None
+    for _ in range(5):
+        adb('shell', 'rm', '-f', '/data/local/tmp/curfew-welcome.xml')
+        try:
+            adb('shell', 'uiautomator', 'dump', '/data/local/tmp/curfew-welcome.xml')
+            xml = adb('exec-out', 'cat', '/data/local/tmp/curfew-welcome.xml')
+            root = ET.fromstring(xml)
+            labels = {n.get('text') for n in root.iter('node')}
+            expected = 'Get started' if name.endswith('-actions') else 'Your nights.\nYour mornings.'
+            if expected in labels:
+                return xml, root
+        except (subprocess.CalledProcessError, ET.ParseError):
+            continue
+    if xml is not None:
+        (output / (name + '-failed.xml')).write_bytes(xml)
+    diagnostics = {
+        '-failed.png': ('exec-out', 'screencap', '-p'),
+        '-windows.txt': ('shell', 'dumpsys', 'window', 'windows'),
+        '-exit-info.txt': ('shell', 'dumpsys', 'activity', 'exit-info', 'studio.hypertext.curfew'),
+    }
+    for suffix, command in diagnostics.items():
+        try:
+            (output / (name + suffix)).write_bytes(adb(*command))
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as failure:
+            (output / (name + suffix + '.error.txt')).write_text(str(failure))
+    raise RuntimeError(name + ': Android did not provide a fresh accessibility root; diagnostics saved')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--adb', default='adb')
@@ -67,24 +98,7 @@ def main():
     records = []
 
     def capture(name):
-        # Android can briefly return a null accessibility root after a display change.
-        # Remove the previous dump so a failed refresh cannot validate a stale layout.
-        root = None
-        for _ in range(5):
-            adb('shell', 'rm', '-f', '/data/local/tmp/curfew-welcome.xml')
-            adb('shell', 'uiautomator', 'dump', '/data/local/tmp/curfew-welcome.xml')
-            try:
-                xml = adb('exec-out', 'cat', '/data/local/tmp/curfew-welcome.xml')
-                candidate = ET.fromstring(xml)
-                labels = {n.get("text") for n in candidate.iter("node")}
-                if ("Get started" if name.endswith("-actions") else "Your nights.\nYour mornings.") not in labels:
-                    continue
-                root = candidate
-                break
-            except (subprocess.CalledProcessError, ET.ParseError):
-                continue
-        if root is None:
-            raise RuntimeError(name + ': Android did not provide a fresh accessibility root')
+        xml, root = capture_accessibility_root(adb, name, args.output)
         (args.output / (name + '.xml')).write_bytes(xml)
         labels = {n.get('text') for n in root.iter('node')}
         (args.output / (name + '.png')).write_bytes(adb('exec-out', 'screencap', '-p'))

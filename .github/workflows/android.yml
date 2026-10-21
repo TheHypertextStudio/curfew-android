@@ -51,6 +51,7 @@ jobs:
           python3 -B ci/test-instrumentation-output.py
           python3 -B ci/test-cadence-network-cleanup.py
           python3 -B ci/test-welcome-capture-runner.py
+          python3 -B ci/test-welcome-root-capture.py
       # The release build is the only one R8 minifies, and the app resolves
       # kotlinx.serialization serializers reflectively. Assembling only the debug
       # variant meant a keep-rule regression reached a device before it reached

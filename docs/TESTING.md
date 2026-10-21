@@ -930,3 +930,22 @@ one shell invocation. Three fixture tests fail before the wrapper exists and
 then verify API35 capture, other-API exclusion, and failure short-circuiting.
 The failing-first log is `build/welcome-ci-wrapper-red.txt`. No app code changed
 for this CI correction.
+
+## Failed welcome capture diagnostics
+
+The evidence-only head 185018d passed both verification jobs, release evidence,
+and API33/34/36 instrumentation in CI run 39531929779. API35 completed its native
+suite (143 passing cases and seven guarded opt-in skips) before capture failed
+at inner-landscape-dark. Android returned no matching welcome accessibility
+root within the five fresh-dump attempts. Fifteen preceding profiles passed.
+The uploaded partial manifest is not a replacement for the reviewed matrix.
+
+The capture driver now retains the last returned XML, a failure screenshot,
+window state, and app exit information when that gate fails. It still rejects
+the capture and removes the previous dump on every attempt. It does not accept
+an unrelated screen or substitute the last successful image. Two fixture tests
+first failed because the diagnostic helper did not exist, then passed after
+extraction. The red log is `build/welcome-root-diagnostics-red.txt`.
+`ci/test-welcome-root-capture.py`, the three capture-sequencing cases, the four
+existing driver cases, actionlint, and diff whitespace checks pass. No app source
+changed. Further CI capture evidence must establish the new head's result.
