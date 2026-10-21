@@ -3,6 +3,7 @@ package studio.hypertext.curfew.ui
 import android.graphics.Bitmap
 import android.content.Context
 import android.content.ContextWrapper
+import android.view.inputmethod.InputMethodManager
 import androidx.activity.ComponentActivity
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
@@ -33,6 +34,8 @@ import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -40,6 +43,7 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.test.platform.app.InstrumentationRegistry
@@ -81,11 +85,22 @@ class CurfewDesignCaptureInstrumentedTest {
     @Test fun captureConnectedCheckIn() = capture("check-in")
     @Test fun captureInitialServiceForm() = capture("service-form")
     @Test fun captureAccount() = capture("account")
-    @Test fun captureKeyboardServiceForm() = capture("service-form-keyboard", withKeyboard = true)
+    @Test fun captureKeyboardServiceForm() = captureKeyboard(dark = false, width = 390, scale = 1f)
+    @Test fun captureKeyboardServiceFormLightNarrow() = captureKeyboard(dark = false, width = 320, scale = 1f)
+    @Test fun captureKeyboardServiceFormLightLargeText() = captureKeyboard(dark = false, width = 390, scale = 2f)
+    @Test fun captureKeyboardServiceFormLightNarrowLargeText() = captureKeyboard(dark = false, width = 320, scale = 2f)
+    @Test fun captureKeyboardServiceFormDark() = captureKeyboard(dark = true, width = 390, scale = 1f)
+    @Test fun captureKeyboardServiceFormDarkNarrow() = captureKeyboard(dark = true, width = 320, scale = 1f)
+    @Test fun captureKeyboardServiceFormDarkLargeText() = captureKeyboard(dark = true, width = 390, scale = 2f)
+    @Test fun captureKeyboardServiceFormDarkNarrowLargeText() = captureKeyboard(dark = true, width = 320, scale = 2f)
     @Test fun capturePlatformTimePicker() = capturePicker(time = true)
     @Test fun capturePlatformDatePicker() = capturePicker(time = false)
 
-    private fun capture(scene: String, withKeyboard: Boolean = false) {
+    private fun captureKeyboard(dark: Boolean, width: Int, scale: Float) =
+        capture("service-form-keyboard", keyboardFrame = Frame(dark = dark, width = width, scale = scale))
+
+    private fun capture(scene: String, keyboardFrame: Frame? = null) {
+        val withKeyboard = keyboardFrame != null
         val initialForm = scene.startsWith("service-form")
         val required = if (scene == "readiness") setOf(ReadinessAction.RAISE_ALARM_VOLUME, ReadinessAction.PLAY_TEST_SOUND) else emptySet()
         val output = InstrumentationRegistry.getInstrumentation().targetContext.cacheDir.resolve("curfew-design").apply { mkdirs() }
@@ -93,7 +108,11 @@ class CurfewDesignCaptureInstrumentedTest {
         compose.setContent { Fixture(initialForm, required) }
         var generation = 0
         java.io.Closeable { closeKeyboard() }.use {
-            for (dark in listOf(false, true)) for (width in listOf(320, 390)) for (scale in listOf(1f, 2f)) {
+            val frames = keyboardFrame?.let { listOf(it) } ?: listOf(false, true).flatMap { dark ->
+                listOf(320, 390).flatMap { width -> listOf(1f, 2f).map { scale -> Frame(dark = dark, width = width, scale = scale) } }
+            }
+            for (profile in frames) {
+                val (_, dark, width, scale) = profile
                 closeKeyboard()
                 compose.runOnIdle {
                     frame = Frame(++generation, dark, width, scale)
@@ -112,12 +131,24 @@ class CurfewDesignCaptureInstrumentedTest {
                 }
                 if (initialForm) compose.onNodeWithText("I have a service").performScrollTo().performClick()
                 if (withKeyboard) {
-                    compose.onNodeWithText("Service address").performScrollTo().performClick().performTextInput("https://wake.example.test/check-in")
-                    compose.runOnIdle { keyboard?.show() }
                     try {
+                        compose.waitUntil(5_000) { compose.runOnIdle { composeView?.hasWindowFocus() == true } }
+                        compose.onNodeWithText("Service address").performScrollTo()
+                            .performTouchInput { click() }.assertIsFocused()
+                            .performTextInput("https://wake.example.test/check-in")
+                        // Showing the IME before Android connects the focused editor is best effort.
+                        compose.waitUntil(5_000) { compose.runOnIdle { inputReady() } }
+                        compose.runOnIdle { keyboard?.show() }
                         compose.waitUntil(5_000) { platformImeVisible() && imeBottom.get() > 0 }
                     } catch (failure: androidx.compose.ui.test.ComposeTimeoutException) {
-                        throw AssertionError("IME did not appear for dark=$dark width=$width scale=$scale; visible=${platformImeVisible()} inset=${imeBottom.get()}", failure)
+                        val state = compose.runOnIdle {
+                            val view = composeView
+                            val input = view?.context?.getSystemService(InputMethodManager::class.java)
+                            "windowFocus=${view?.hasWindowFocus()} viewFocus=${view?.hasFocus()} " +
+                                "touchMode=${view?.isInTouchMode} active=${input?.isActive} acceptingText=${input?.isAcceptingText} " +
+                                "visible=${platformImeVisible()} inset=${imeBottom.get()}"
+                        }
+                        throw AssertionError("IME did not appear for dark=$dark width=$width scale=$scale; $state", failure)
                     }
                 }
                 compose.waitForIdle()
@@ -128,13 +159,20 @@ class CurfewDesignCaptureInstrumentedTest {
                     .put("dark", dark).put("bitmapWidthPx", bitmap.width).put("bitmapHeightPx", bitmap.height)
                     .put("imeBottomPx", imeBottom.get()).put("syntheticFixture", true))
             }
-            output.resolve("$scene-manifest.json").writeText(manifest.toString(2))
+            val profileSuffix = keyboardFrame?.let { "-${if (it.dark) "dark" else "light"}-${it.width}-font${(it.scale * 100).toInt()}" }.orEmpty()
+            output.resolve("$scene$profileSuffix-manifest.json").writeText(manifest.toString(2))
         }
     }
 
     private fun platformImeVisible(): Boolean = composeView?.let {
         ViewCompat.getRootWindowInsets(it)?.isVisible(WindowInsetsCompat.Type.ime())
     } == true
+
+    private fun inputReady(): Boolean {
+        val view = composeView ?: return false
+        val input = view.context.getSystemService(InputMethodManager::class.java)
+        return view.hasWindowFocus() && view.hasFocus() && input.isActive && input.isAcceptingText
+    }
 
     private fun closeKeyboard() {
         compose.runOnIdle { focusManager?.clearFocus(force = true); keyboard?.hide() }

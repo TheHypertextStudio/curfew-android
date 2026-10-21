@@ -213,14 +213,22 @@ class SunriseScheduleEditorInstrumentedTest {
     }
 
     private fun enterTime(hour: Int, minute: Int) {
-        if (compose.onAllNodesWithTag("time-input-mode").fetchSemanticsNodes().isNotEmpty()) {
+        compose.waitUntil(5_000) {
+            compose.onAllNodesWithTag("alarm-hour").fetchSemanticsNodes().isNotEmpty() ||
+                compose.onAllNodesWithTag("time-input-mode").fetchSemanticsNodes().isNotEmpty()
+        }
+        if (compose.onAllNodesWithTag("alarm-hour").fetchSemanticsNodes().isEmpty()) {
             compose.onNodeWithTag("time-input-mode").performClick()
+        }
+        compose.waitUntil(5_000) {
+            compose.onAllNodesWithTag("alarm-hour").fetchSemanticsNodes().size == 1 &&
+                compose.onAllNodesWithTag("alarm-minute").fetchSemanticsNodes().size == 1
         }
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val use24Hour = android.text.format.DateFormat.is24HourFormat(context)
         val displayHour = if (use24Hour) hour else (hour % 12).takeIf { it != 0 } ?: 12
-        compose.onAllNodes(hasSetTextAction())[0].performTextReplacement(displayHour.toString())
-        compose.onAllNodes(hasSetTextAction())[1].performTextReplacement(minute.toString().padStart(2, '0'))
+        compose.onNodeWithTag("alarm-hour").performTextReplacement(displayHour.toString())
+        compose.onNodeWithTag("alarm-minute").performTextReplacement(minute.toString().padStart(2, '0'))
         if (!use24Hour) {
             val label = LocalTime.of(hour, minute).format(DateTimeFormatter.ofPattern("a", context.resources.configuration.locales[0]))
             compose.onNode(hasText(label) and hasAnyAncestor(isDialog()), useUnmergedTree = true).performClick()

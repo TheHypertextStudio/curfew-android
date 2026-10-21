@@ -1,0 +1,30 @@
+10-21 02:42:30.051  6944  6944 I ImeTracker: studio.hypertext.curfew:188f7b7e: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT_BY_INSETS_API fromUser false
+10-21 02:42:30.103  6944  6944 I ImeTracker: studio.hypertext.curfew:7291524f: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser false
+10-21 02:42:30.103  6944  6944 I ImeTracker: studio.hypertext.curfew:7291524f: onCancelled at PHASE_CLIENT_REPORT_REQUESTED_VISIBLE_TYPES
+10-21 02:42:30.184  6944  6944 I ImeTracker: studio.hypertext.curfew:188f7b7e: onShown
+10-21 02:42:30.901  6944  6944 I ImeTracker: studio.hypertext.curfew:5b7d2d87: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT_BY_INSETS_API fromUser false
+10-21 02:42:30.901  6944  6944 I ImeTracker: studio.hypertext.curfew:5b7d2d87: onCancelled at PHASE_CLIENT_APPLY_ANIMATION
+10-21 02:42:30.901  6944  6944 I ImeTracker: studio.hypertext.curfew:3164299f: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser false
+10-21 02:42:30.901  6944  6944 I ImeTracker: studio.hypertext.curfew:3164299f: onCancelled at PHASE_CLIENT_APPLY_ANIMATION
+10-21 02:42:31.019  6944  6944 I ImeTracker: studio.hypertext.curfew:88fe1bc9: onRequestHide at ORIGIN_CLIENT reason HIDE_SOFT_INPUT_BY_INSETS_API fromUser false
+10-21 02:42:31.052   645  2498 I ImeTracker: system_server:1134eb7d: onRequestHide at ORIGIN_SERVER reason IME_REQUESTED_CHANGED_LISTENER fromUser false
+10-21 02:42:31.068  1465  1465 I ImeTracker: system_server:1134eb7d: onHidden
+10-21 02:42:31.085  6944  6944 I ImeTracker: system_server:b73a742b: onCancelled at PHASE_CLIENT_ON_CONTROLS_CHANGED
+10-21 02:42:31.098  6944  6944 I ImeTracker: studio.hypertext.curfew:dd1e0878: onRequestHide at ORIGIN_CLIENT reason HIDE_SOFT_INPUT fromUser false
+10-21 02:42:31.098  6944  6944 I ImeTracker: studio.hypertext.curfew:dd1e0878: onCancelled at PHASE_CLIENT_ALREADY_HIDDEN
+10-21 02:42:31.856  6944  6944 I ImeTracker: studio.hypertext.curfew:3f363b42: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT_BY_INSETS_API fromUser false
+10-21 02:42:31.906  6944  6944 I ImeTracker: studio.hypertext.curfew:6cb6619: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser false
+10-21 02:42:31.906  6944  6944 I ImeTracker: studio.hypertext.curfew:6cb6619: onCancelled at PHASE_CLIENT_REPORT_REQUESTED_VISIBLE_TYPES
+10-21 02:42:32.134  6944  6944 I ImeTracker: studio.hypertext.curfew:82ee6186: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT_BY_INSETS_API fromUser false
+10-21 02:42:32.134  6944  6944 I ImeTracker: studio.hypertext.curfew:82ee6186: onCancelled at PHASE_CLIENT_REPORT_REQUESTED_VISIBLE_TYPES
+10-21 02:42:32.134  6944  6944 I ImeTracker: studio.hypertext.curfew:f28bbcdb: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser false
+10-21 02:42:32.134  6944  6944 I ImeTracker: studio.hypertext.curfew:f28bbcdb: onCancelled at PHASE_CLIENT_REPORT_REQUESTED_VISIBLE_TYPES
+10-21 02:42:37.171  6944  6944 I ImeTracker: studio.hypertext.curfew:699b36ba: onRequestHide at ORIGIN_CLIENT reason HIDE_SOFT_INPUT_BY_INSETS_API fromUser false
+10-21 02:42:37.233   645  1360 I ImeTracker: studio.hypertext.curfew:3f363b42: onFailed at PHASE_WM_ABORT_SHOW_IME_POST_LAYOUT
+10-21 02:42:37.243  6944  6944 I ImeTracker: studio.hypertext.curfew:d1429043: onRequestHide at ORIGIN_CLIENT reason HIDE_SOFT_INPUT fromUser false
+10-21 02:42:37.243  6944  6944 I ImeTracker: studio.hypertext.curfew:d1429043: onCancelled at PHASE_CLIENT_ALREADY_HIDDEN
+10-21 02:42:37.738  6944  6944 I ImeTracker: studio.hypertext.curfew:a53b5fa5: onCancelled at PHASE_CLIENT_ALREADY_HIDDEN
+10-21 02:42:37.868  6944  6944 I ImeTracker: studio.hypertext.curfew:fa8b14b0: onRequestHide at ORIGIN_CLIENT reason HIDE_SOFT_INPUT_BY_INSETS_API fromUser false
+10-21 02:42:37.868  6944  6944 I ImeTracker: studio.hypertext.curfew:fa8b14b0: onCancelled at PHASE_CLIENT_ALREADY_HIDDEN
+10-21 02:42:37.869  6944  6944 I ImeTracker: studio.hypertext.curfew:76d82c15: onRequestHide at ORIGIN_CLIENT reason HIDE_SOFT_INPUT fromUser false
+10-21 02:42:37.869  6944  6944 I ImeTracker: studio.hypertext.curfew:76d82c15: onCancelled at PHASE_CLIENT_ALREADY_HIDDEN

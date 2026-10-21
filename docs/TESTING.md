@@ -1190,3 +1190,40 @@ thirty contact sheets between them. The clean replacement follows a rejected
 incomplete run with an emulator graphics-context/ADB failure; no partial or
 invalid images enter the accepted gallery. See the
 [current gallery](../design/android-review/native/check-in-matrix/README.md).
+
+
+## API36 keyboard and picker fixture investigation — October 21, 2026
+
+CI run `39575965473` reports 178 passes and seven guarded skips on each of
+API33, API34, and API35. API36 reports 176 passes, seven guarded skips, and
+two failures. Its keyboard capture times out, and its one-night date test
+looks for time fields before the dialog exposes them. Neither the release
+job nor the other green native jobs makes that run accepted.
+
+The unchanged full suite passes locally on API36 Play Store ARM64. An
+input-mode restoration probe also passes, so no input-mode leak is claimed.
+Adding focus and active-editor checks then reproduces the keyboard timeout
+locally at 320dp and 200% text. Android reports a focused, active editor but
+no visible IME or inset. Its ImeTracker records
+`PHASE_WM_ABORT_SHOW_IME_POST_LAYOUT`. This establishes that waiting for
+editor focus alone does not resolve the repeated capture-window failure.
+It does not establish that the earlier CI x86_64 timeout has the same cause.
+
+Each of the eight keyboard profiles now has an independent test activity.
+The fixture no longer cycles a live keyboard through synthetic font/width
+changes in one window. It keeps real IME visibility and positive-inset
+assertions, waits for window and editor readiness, and includes focus, touch
+mode, and input-connection details on timeout. The picker helper waits for
+the named hour/minute fields and switches modes only when those fields are
+absent. No app source, alarm behavior, capture profile, or security gate
+changes. The reviewed 18-profile setup gallery retains its original source
+and APK hashes. Reverting these test changes does not affect stored data.
+
+The final focused run passes all 33 capture/picker cases in 70.256s. The
+complete API36 ARM64 run reports 192 cases in 184.575s: 185 passes, seven
+guarded skips, and no failures. Both test APKs build, both Android lint
+variants pass, and all 16 host capture checks pass. Independent source review
+finds no lost profile coverage or weakened keyboard/picker assertions.
+[Retained red/green records](evidence/check-in-2026-10-21/ci-fixture-verification.json)
+include the failed readiness experiment and final APK hashes. Replacement
+x86_64 CI and physical Pixel Doze retain separate acceptance requirements.

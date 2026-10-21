@@ -1,0 +1,42 @@
+{
+  "failedCi": 39575965473,
+  "unchangedAppMainTree": "9f43197bbb5fc186995424b869f03548e824c034",
+  "installedAppSha256": "a02abd2ecda5a592d38f095fabfcc56c9a371c1804cc666f37619fd0c5148822",
+  "testApkSha256": {
+    "gms": "a470bf7fe424ce88e58cc8d14b94a42fe4f782d153873abd772ce7b1b5ddf178",
+    "plain": "1127aad2a3f33ec91e1e32e4bb2c2d93caa856e16d083f9b2d805f362cecfebf"
+  },
+  "nativeImage": "API36 google_apis_playstore ARM64; CI Google APIs x86_64 remains separate",
+  "baseline": {
+    "reported": 185,
+    "passes": 178,
+    "guardedSkips": 7,
+    "failures": 0,
+    "seconds": 173.473
+  },
+  "readinessExperiment": {
+    "reported": 26,
+    "passes": 25,
+    "failures": 1,
+    "outcome": "focused and active input; IME hidden; PHASE_WM_ABORT_SHOW_IME_POST_LAYOUT"
+  },
+  "windowIsolationFocused": {
+    "reported": 33,
+    "passes": 33,
+    "failures": 0,
+    "seconds": 70.256
+  },
+  "inputModeHypothesis": "Restoration assertion passed; no leak established; probe removed.",
+  "localBuildAndLint": "Both test APK builds and both Android lint variants pass. App source unchanged.",
+  "captureDriverChecks": 16,
+  "screenshotMatrix": "Unchanged; original 18 profiles and 180 PNGs retain recorded hashes.",
+  "physicalPixel": "Absent from local and WillieStudio adb devices on October 21; Doze remains unchecked.",
+  "windowIsolationFull": {
+    "reported": 192,
+    "passes": 185,
+    "guardedSkips": 7,
+    "failures": 0,
+    "seconds": 184.575
+  },
+  "independentReview": "Read-only source review found no actionable defects; no device actions or test execution by reviewer."
+}
