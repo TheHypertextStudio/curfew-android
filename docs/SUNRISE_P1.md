@@ -18,8 +18,8 @@ navigation correction at `79705cc` passes 200 local Plain host tests, lint, and
 app/test APK assembly. Test-only follow-up `530a4cf` passes all seven jobs in CI 39549812707.
 API35 required a fresh-emulator retry after window-focus failures. The later
 short-window layout and fixture-cleanup correction passes its 26 focused
-native cases, 200 Plain host tests, lint, and app/test assembly. Its complete
-matrix and CI remain separate acceptance steps.
+native cases, 200 Plain host tests, lint, and app/test assembly. Its 108-capture matrix passes full independent review across 18 profiles.
+Final CI remains a separate acceptance step.
 The long physical Doze attempt was interrupted and does not close the remaining
 Pixel acceptance criterion.
 

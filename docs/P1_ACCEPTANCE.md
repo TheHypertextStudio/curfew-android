@@ -342,6 +342,14 @@ pass all seven jobs in CI 39549812707. API35 passed on a fresh-emulator retry
 after window-focus failures. Its native suite reports 153 cases, including
 seven guarded assumption skips; those skips are not executed acceptance.
 The screenshot review found three short-window/text defects that are corrected
-with failing-first native proof in TESTING.md. The revised screenshots require
-their own full review. The current normal GMS app installation is recorded in
+with failing-first native proof in TESTING.md. The revised 108-capture task matrix passes all 18 native profile journeys
+and the full independent visual review. Its API34 emulator boundary and
+restored settings are recorded beside the gallery. The current normal GMS app installation is recorded in
 consumer-normal-install.json; it preserved settings and did not take focus.
+
+
+Project update 01M5EHVM4K326XG9A8PMSYR9D5 records the app-bar navigation,
+reviewed native task matrix, current CI boundary, Pixel installation, and
+remaining Doze criterion. Read-back confirms Codex agent origin and null human
+author fields. The normal Pixel installation now matches runtime 961ae1f and
+preserved settings without taking the foreground. No test alarm was started.

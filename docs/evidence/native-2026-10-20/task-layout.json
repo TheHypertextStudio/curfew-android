@@ -1,0 +1,31 @@
+{
+  "sourceCommit": "961ae1fee8a565c9d6166d5afc268bdefe0ddbb9",
+  "device": "Owned API34 ARM64 emulator",
+  "physicalDevice": false,
+  "red": {
+    "cases": 4,
+    "failures": 4,
+    "reasons": [
+      "The short viewport cut off the check-in row.",
+      "Repeat controls formed six days plus Sunday alone.",
+      "The wrapped permission label was not centered.",
+      "Fixture cleanup did not refuse another pending campaign."
+    ]
+  },
+  "green": {
+    "cases": 26,
+    "failures": 0,
+    "seconds": 47.52,
+    "suites": [
+      "TaskLayoutPolishInstrumentedTest",
+      "AlarmFixtureCleanupInstrumentedTest",
+      "AlarmKeyguardPresentationInstrumentedTest",
+      "AlarmClockPresentationInstrumentedTest",
+      "SunriseDailyLayoutInstrumentedTest"
+    ]
+  },
+  "hostTestsPerDistribution": 200,
+  "plainAndGmsLint": "passed",
+  "appAndPlainTestAssembly": "passed",
+  "productionAlarmBehaviorChanged": false
+}

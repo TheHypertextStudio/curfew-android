@@ -70,7 +70,8 @@ width permits. Fit the time and localized period by measurement; narrow windows
 and enlarged text must retain readable values without clipping. The alarm
 surface uses 12dp vertical padding and 12dp gaps. The time and switch share
 one row. Reserve a separate status for missing readiness or a completed
-one-night alarm. Keep the clock type size; compact the surrounding surface instead. Setting rows have a 56dp
+one-night alarm. Keep the time dominant while fitting its size to both available width and
+height. Setting rows have a 56dp
 minimum and grow around their content. Keep top-aligned scrolling on short
 windows, during setup, and with enlarged text.
 

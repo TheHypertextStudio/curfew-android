@@ -1018,5 +1018,21 @@ window-focus failures and changes no production scheduling or audio code.
 The final focused run passes 26 native cases in 47.52s on the owned API34
 emulator. The Plain host suite passes 200 tests with no failures, errors, or
 skips; Plain lint and app/test APK assembly pass. Exact red/green transcripts
-remain in local `build/task-polish-{red,green}.txt`. The fresh responsive matrix
-must still be reviewed before accepting the visible corrections.
+remain in local `build/task-polish-{red,green}.txt`. The fresh responsive matrix is reviewed in
+`design/android-review/native/task-matrix/README.md`. It contains 108 native
+captures from 18 window/theme/text profiles on an owned API34 emulator. Clean
+source, matching installed APK, and exact before/after settings are recorded.
+The initial combined run failed restoration and is rejected. A separate
+task-only rerun passes every journey and restores every recorded setting.
+Root and independent design review find no visible blocker in the captured
+states. Keyboard/error/account-recovery states retain their separate boundary.
+
+
+CI run 39553434419 passes both host/lint/build jobs, release evidence, and the
+API33/34/36 native jobs. API35 reports OK for 158 cases, including seven guarded
+skips, in 236.952s. Its later welcome screenshot step fails at the landscape
+dark profile. The retained PNG and XML show Android's “System UI keeps
+stopping” dialog. This is a failed capture run; it is not a failed UI contract
+or accepted screenshot evidence. A fresh-emulator retry remains pending.
+The separately reviewed API34 task matrix retains its own source/APK/settings
+record. The task-owned remote emulator and cache were removed after capture.
