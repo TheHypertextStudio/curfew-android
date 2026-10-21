@@ -46,7 +46,7 @@ An emulator is not a Pixel or non-Pixel physical acceptance run. A passing
 test fixture does not establish real hearing, TalkBack speech, or manufacturer
 battery behavior. Before-first-unlock playback is explicitly unsupported.
 
-The Pixel 11 Pro/API37 is connected. The owner confirmed hearing the brief
+The earlier Pixel 11 Pro/API37 run was connected. The owner confirmed hearing the brief
 alarm. Isolated probes also recorded screen-off delivery, process-loss recovery,
 offline audio, and a denied-full-screen locked notification. These retain the
 pre-icon runtime boundary recorded below. The owner-authorized normal Curfew
@@ -245,3 +245,23 @@ Independent visual review found no clipping, collision, or unresolved placement.
 Emulator proof does not replace physical alarm, TalkBack, reduced-motion, or
 hardware hinge acceptance. The connected-Pixel recovery criterion above remains
 open. This evidence update changes no runtime source or alarm behavior.
+
+## Current Docket and device audit
+
+On October 20, Codex read the live project and all four task descriptions.
+Scheduling, playback/readiness, and authenticated release are done. Recovery
+remains in progress with its connected-Pixel acceptance criterion unchecked.
+The source plans still require that physical journey; CI does not waive it.
+
+The Docket connector accepted project update `01M5E3S2VK981QWDWNFHAJ8QAM`
+and recovery-task comment `01M5E3SEEQBPXB49GM73BYXFPQ`. Read-back confirms
+`performerKind=agent`, `performerName=Codex`, and null human author fields for
+both records. The update includes runtime f867f51, CI run 39529921160, and the
+reviewed matrix published by evidence commit 7926fa9.
+
+Local adb and wireless discovery list no phone. The reachable WillieStudio
+host also lists only emulators and no wireless devices. Physical USB inventory
+on this host shows no Pixel. Current-candidate onboarding, allowed-full-screen
+locked presentation, deep idle, and manual accessibility therefore remain open.
+No alarm was sounded, phone state changed, or local emulator started during
+this audit. Application source remains unchanged from the verified runtime.
