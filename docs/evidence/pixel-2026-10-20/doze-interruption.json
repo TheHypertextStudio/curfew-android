@@ -1,0 +1,13 @@
+{
+  "observedAt": "2026-10-21T05:44:51.270133+00:00",
+  "accepted": false,
+  "status": "interrupted; canceled before delivery",
+  "isolatedPackagesRemoved": true,
+  "normalCurfewPresent": true,
+  "normalSettingsCleared": false,
+  "normalIdleRestored": true,
+  "minimumAlarmDistanceChanged": false,
+  "testDriverProcessesGone": true,
+  "isolatedAlarmsRemoved": true,
+  "reason": "The screen-off idle interval did not continue to unattended alarm delivery."
+}

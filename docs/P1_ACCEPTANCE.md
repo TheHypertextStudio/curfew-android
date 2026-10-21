@@ -265,3 +265,83 @@ on this host shows no Pixel. Current-candidate onboarding, allowed-full-screen
 locked presentation, deep idle, and manual accessibility therefore remain open.
 No alarm was sounded, phone state changed, or local emulator started during
 this audit. Application source remains unchanged from the verified runtime.
+
+## Reconnected current-source Pixel acceptance
+
+The Pixel reconnected through wireless debugging on October 20. The isolated
+current-source GMS build passes the physical schedule/audio/TLS release journey
+in 8.44s. Invalid approvals retain the occurrence and valid approval stops it.
+The allowed-full-screen probe observes automatic foreground presentation from a
+secure keyguard, active alarm audio, and the notification content action.
+A process-loss run after normal first launch restores the same ring in 1.83s.
+The actual Android Settings full-screen grant/return path also advances to the
+sound check without playing audio.
+
+The accepted offline probe observes no default network before delivery and
+while alarm audio is active. Its phone-local driver stops playback, restores
+network values, and wireless adb reconnects. Bluetooth remains enabled. The
+first network probe still had a default network and is rejected. A first
+keyguard attempt lacked secure-lock preconditions. A first process-loss attempt
+timed out before audio. Those attempts do not count as passing evidence.
+
+The normal package now matches the current normal GMS APK; its settings were
+not cleared. Completed isolated probes removed both isolated packages.
+Sanitized observations and APK hashes are in `docs/evidence/pixel-2026-10-20/`.
+The test APK changes only the application ID suffix; app source is unchanged
+from runtime f867f51. The owner has not supplied a new hearing confirmation.
+
+The longer Doze driver used run 989d625e3d5d4b5d9a6f61fb6eab6f50.
+It scheduled 2026-10-21T05:58:16.194891Z with an independent phone-local
+cutoff ten seconds later. Codex stopped it before delivery, as recorded below.
+Deep idle was established at 04:50:09Z. A later check
+confirms IDLE with screen off, no charging, and the original one-hour minimum
+alarm distance. This does not accept delivery yet. An earlier short attempt
+could not enter idle; Android rejected the DeviceConfig override, and the
+original setting remains unchanged. Natural overnight standby and manual
+TalkBack are not established by this forced-Doze run.
+
+Native Docket sign-in completed. The existing tool connection still rejected
+calls, so a fresh MCP connection used the same authorized Docket credential
+without browser control. Project update `01M5EDED40EGB3146H3C7XH45Z` records the
+physical results and the then-live Doze check. Read-back confirms agent performer Codex
+and null human author fields. No credential material is included in this record.
+
+CI run 39545633058 passes all seven jobs at 1a68060, including both verification
+jobs and all four native API jobs. Its API35 artifact contains 18 complete
+profiles with both first-viewport actions, restored device settings, and a
+matching installed APK hash. The application source is unchanged from f867f51.
+The preceding capture failure remains recorded in TESTING.md.
+
+
+## Interrupted long Pixel sleep check
+
+The 70-minute alarm was scheduled for 05:58:16Z on October 21. The phone
+entered forced deep idle at 04:50:09Z, with a separate screen-off confirmation.
+The log retained IDLE observations through 05:06:08Z, then recorded ACTIVE at 05:06:41Z.
+Later snapshots showed an awake display. At 05:34Z a screen-off restoration
+and stock deep-idle retry did not establish another deep-idle interval.
+No alarm time, clock, idle threshold, or application state was changed.
+
+Codex stopped the controlled driver at 05:40Z before the scheduled sound.
+The run is rejected as Doze-delivery acceptance. It establishes only the
+observed deep-idle interval with a saved upcoming alarm. The driver cleanup
+removes its isolated packages and restores ordinary idle policy. Cleanup was independently checked: both isolated packages, their alarms, and
+the driver/cutoff processes are gone. Normal Curfew remains installed, ordinary
+idle is restored, and the idle threshold remains unchanged. The outstanding
+Pixel acceptance checkbox stays open.
+
+The requirement says Doze rather than a specific sleep duration. A separately
+observed, accurately labeled light-Doze delivery can satisfy that scope.
+It must show screen-off idle followed by unattended, UID-scoped alarm audio.
+Deep-idle delivery and natural overnight standby would remain unverified.
+[Android distinguishes the two Doze modes](https://source.android.com/docs/core/power/platform_mgmt).
+
+
+The consumer navigation runtime at 79705cc and its test-only follow-up 530a4cf
+pass all seven jobs in CI 39549812707. API35 passed on a fresh-emulator retry
+after window-focus failures. Its native suite reports 153 cases, including
+seven guarded assumption skips; those skips are not executed acceptance.
+The screenshot review found three short-window/text defects that are corrected
+with failing-first native proof in TESTING.md. The revised screenshots require
+their own full review. The current normal GMS app installation is recorded in
+consumer-normal-install.json; it preserved settings and did not take focus.

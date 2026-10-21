@@ -113,69 +113,73 @@ internal fun SunriseDailyScreen(
     val complete = saved?.onceDate?.let { date ->
         alarm.occurrence == null && alarm.completedThrough?.let { it >= date } == true
     } ?: false
-    TaskContent(spacing = 12.dp, verticalPadding = 12.dp) {
-        Surface(shape = MaterialTheme.shapes.extraLarge, color = MaterialTheme.colorScheme.surfaceContainerLow) {
-            Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                if (saved == null) {
-                    Text("No alarm set", style = MaterialTheme.typography.titleLarge)
-                    FilledTonalButton(onClick = onEdit, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp).semantics { contentDescription = "Edit alarm" }) {
-                        Text("Choose a wake time")
-                    }
-                } else {
-                    if (complete || saved.enabled && !canArm) {
-                        Text(if (complete) "One-night alarm complete" else "Needs attention",
-                            style = MaterialTheme.typography.titleMedium)
-                    }
-                    Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Box(Modifier.weight(1f).heightIn(min = 48.dp).curfewSharedBounds("alarm-time").clickable(role = Role.Button, onClick = onEdit)
-                            .semantics {
-                                contentDescription = "Edit alarm"
-                                alarm.occurrence?.startsAt?.atZone(ZoneId.systemDefault())?.let { occurrence ->
-                                    stateDescription = "${occurrence.toLocalDate().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale))}, ${timeLabel(occurrence.toLocalTime(), context, locale)}"
-                                }
-                            }) {
-                            DailyAlarmTime(saved.wakeTime, DateFormat.is24HourFormat(context), locale, Modifier.fillMaxWidth())
+    BoxWithConstraints(Modifier.fillMaxSize()) {
+        // Leave room for recurrence and the check-in action when the viewport is short.
+        val timeSizeLimit = (maxHeight.value * 0.30f / LocalDensity.current.fontScale).coerceIn(48f, 100f)
+        TaskContent(spacing = 12.dp, verticalPadding = 12.dp) {
+            Surface(shape = MaterialTheme.shapes.extraLarge, color = MaterialTheme.colorScheme.surfaceContainerLow) {
+                Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    if (saved == null) {
+                        Text("No alarm set", style = MaterialTheme.typography.titleLarge)
+                        FilledTonalButton(onClick = onEdit, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp).semantics { contentDescription = "Edit alarm" }) {
+                            Text("Choose a wake time")
                         }
-                        if (!complete) Switch(
-                            checked = saved.enabled, onCheckedChange = onToggle,
-                            enabled = !busy && (saved.enabled || canArm),
-                            modifier = Modifier.semantics { contentDescription = "Alarm" },
-                        )
-                    }
-                    if (saved.onceDate == null) {
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                            DayOfWeek.entries.forEach { day ->
-                                val selected = day in saved.weekdays
-                                Surface(modifier = Modifier.weight(1f), shape = MaterialTheme.shapes.extraLarge, color = if (selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent) {
-                                    Box(Modifier.fillMaxWidth().heightIn(min = 32.dp).padding(vertical = 6.dp), contentAlignment = androidx.compose.ui.Alignment.Center) {
-                                        Text(day.getDisplayName(TextStyle.NARROW, locale), style = MaterialTheme.typography.labelLarge,
-                                            color = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
-                                            textAlign = TextAlign.Center,
-                                            modifier = Modifier.fillMaxWidth().semantics { contentDescription = "${day.getDisplayName(TextStyle.FULL, locale)}, ${if (selected) "selected" else "not selected"}" })
+                    } else {
+                        if (complete || saved.enabled && !canArm) {
+                            Text(if (complete) "One-night alarm complete" else "Needs attention",
+                                style = MaterialTheme.typography.titleMedium)
+                        }
+                        Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Box(Modifier.weight(1f).heightIn(min = 48.dp).curfewSharedBounds("alarm-time").clickable(role = Role.Button, onClick = onEdit)
+                                .semantics {
+                                    contentDescription = "Edit alarm"
+                                    alarm.occurrence?.startsAt?.atZone(ZoneId.systemDefault())?.let { occurrence ->
+                                        stateDescription = "${occurrence.toLocalDate().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale))}, ${timeLabel(occurrence.toLocalTime(), context, locale)}"
+                                    }
+                                }) {
+                                DailyAlarmTime(saved.wakeTime, DateFormat.is24HourFormat(context), locale, Modifier.fillMaxWidth(), timeSizeLimit)
+                            }
+                            if (!complete) Switch(
+                                checked = saved.enabled, onCheckedChange = onToggle,
+                                enabled = !busy && (saved.enabled || canArm),
+                                modifier = Modifier.semantics { contentDescription = "Alarm" },
+                            )
+                        }
+                        if (saved.onceDate == null) {
+                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                DayOfWeek.entries.forEach { day ->
+                                    val selected = day in saved.weekdays
+                                    Surface(modifier = Modifier.weight(1f), shape = MaterialTheme.shapes.extraLarge, color = if (selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent) {
+                                        Box(Modifier.fillMaxWidth().heightIn(min = 32.dp).padding(vertical = 6.dp), contentAlignment = androidx.compose.ui.Alignment.Center) {
+                                            Text(day.getDisplayName(TextStyle.NARROW, locale), style = MaterialTheme.typography.labelLarge,
+                                                color = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+                                                textAlign = TextAlign.Center,
+                                                modifier = Modifier.fillMaxWidth().semantics { contentDescription = "${day.getDisplayName(TextStyle.FULL, locale)}, ${if (selected) "selected" else "not selected"}" })
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                    saved.onceDate?.let { date ->
-                        Text(date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale)),
-                            style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        saved.onceDate?.let { date ->
+                            Text(date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale)),
+                                style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
                     }
                 }
             }
+            Surface(shape = MaterialTheme.shapes.large, color = MaterialTheme.colorScheme.surfaceContainerLow) {
+                SettingRow(conditionLabel ?: "Check-in", if (conditionLabel == null) "Not connected" else if (!conditionVerified) "Not tested" else null,
+                    R.drawable.ic_link_rounded, onCheckIn)
+            }
+            if (error != null) TaskMessage(error, error = true)
+            if (!canArm) Button(onClick = onSetup, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Finish setup") }
         }
-        Surface(shape = MaterialTheme.shapes.large, color = MaterialTheme.colorScheme.surfaceContainerLow) {
-            SettingRow(conditionLabel ?: "Check-in", if (conditionLabel == null) "Not connected" else if (!conditionVerified) "Not tested" else null,
-                R.drawable.ic_link_rounded, onCheckIn)
-        }
-        if (error != null) TaskMessage(error, error = true)
-        if (!canArm) Button(onClick = onSetup, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Finish setup") }
     }
 }
 
 @Composable
-private fun DailyAlarmTime(time: LocalTime, use24Hour: Boolean, locale: Locale, modifier: Modifier = Modifier) {
+private fun DailyAlarmTime(time: LocalTime, use24Hour: Boolean, locale: Locale, modifier: Modifier = Modifier, maxFontSize: Float = 100f) {
     val numeric = time.format(DateTimeFormatter.ofPattern(if (use24Hour) "HH:mm" else "h:mm", locale))
     val period = if (use24Hour) null else time.format(DateTimeFormatter.ofPattern("a", locale))
     val density = LocalDensity.current
@@ -193,7 +197,7 @@ private fun DailyAlarmTime(time: LocalTime, use24Hour: Boolean, locale: Locale, 
             requireNotNull(periodWidth) + with(density) { 8.dp.toPx() }
         } else 0f
         var low = 8f
-        var high = 100f
+        var high = maxFontSize
         repeat(10) {
             val candidate = (low + high) / 2f
             val width = measurer.measure(numeric, numericStyle.copy(fontSize = candidate.sp), maxLines = 1).size.width

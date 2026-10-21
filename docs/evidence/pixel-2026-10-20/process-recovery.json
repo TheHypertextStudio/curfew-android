@@ -1,0 +1,34 @@
+{
+  "device": "Pixel 11 Pro/API37",
+  "oldPid": "30028",
+  "newPid": "30201",
+  "recoverySeconds": 1.833243000030052,
+  "before": {
+    "campaignId": "e79cc8ff-fdf5-39e8-acd2-fe0a3321c4dd",
+    "kind": "ringing",
+    "ringMillis": 120000,
+    "quietMillis": 60000,
+    "devices": [
+      "8ed77b1d-c54a-46b9-85d7-0b76864a68be"
+    ],
+    "attempt": 1,
+    "ringStartedAt": "2026-10-21T04:40:10.445024Z",
+    "ringEndsAt": "2026-10-21T04:42:10.445024Z"
+  },
+  "after": {
+    "campaignId": "e79cc8ff-fdf5-39e8-acd2-fe0a3321c4dd",
+    "kind": "ringing",
+    "ringMillis": 120000,
+    "quietMillis": 60000,
+    "devices": [
+      "8ed77b1d-c54a-46b9-85d7-0b76864a68be"
+    ],
+    "attempt": 1,
+    "ringStartedAt": "2026-10-21T04:40:10.445024Z",
+    "ringEndsAt": "2026-10-21T04:42:10.445024Z"
+  },
+  "audioRestored": true,
+  "cutoffTriggered": false,
+  "instrumentationRetainedForDelivery": false,
+  "physicalHearingForThisRunConfirmed": false
+}

@@ -63,16 +63,19 @@ internal fun SunriseScheduleEditor(
                 FilterChip(selected = weekly, onClick = { weekly = true }, label = { Text("Weekly") }, enabled = !busy, modifier = Modifier.heightIn(min = 48.dp))
             }
             if (weekly) {
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    DayOfWeek.entries.forEach { day ->
-                        val bit = 1 shl day.ordinal
-                        FilterChip(
-                            selected = weekdays and bit != 0, onClick = { weekdays = weekdays xor bit },
-                            label = { Text(day.getDisplayName(TextStyle.NARROW, locale)) }, enabled = !busy,
-                            modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp).semantics {
-                                contentDescription = "Repeat on ${day.getDisplayName(TextStyle.FULL, locale)}"
-                            },
-                        )
+                BoxWithConstraints(Modifier.fillMaxWidth()) {
+                    val daysPerRow = if (maxWidth >= 48.dp * 7 + 4.dp * 6) 7 else 4
+                    FlowRow(maxItemsInEachRow = daysPerRow, horizontalArrangement = Arrangement.spacedBy(4.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        DayOfWeek.entries.forEach { day ->
+                            val bit = 1 shl day.ordinal
+                            FilterChip(
+                                selected = weekdays and bit != 0, onClick = { weekdays = weekdays xor bit },
+                                label = { Text(day.getDisplayName(TextStyle.NARROW, locale)) }, enabled = !busy,
+                                modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp).semantics {
+                                    contentDescription = "Repeat on ${day.getDisplayName(TextStyle.FULL, locale)}"
+                                },
+                            )
+                        }
                     }
                 }
                 if (weekdays == 0) TaskMessage("Choose at least one day.", error = true)

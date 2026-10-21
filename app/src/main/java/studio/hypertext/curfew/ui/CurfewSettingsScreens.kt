@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -102,7 +103,7 @@ internal fun AlarmReadinessScreen(
                 if (next == ReadinessAction.ACKNOWLEDGE_LIMITATIONS) {
                     Text("Powering off, force-stopping, or uninstalling Curfew can prevent the alarm. Do Not Disturb and manufacturer battery settings can also affect sound and delivery.", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
-                Button(onClick = callback, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text(label) }
+                Button(onClick = callback, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text(label, textAlign = TextAlign.Center) }
             }
         }
         if (readiness.canArm) {

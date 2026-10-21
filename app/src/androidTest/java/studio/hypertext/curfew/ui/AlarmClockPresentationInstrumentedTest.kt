@@ -21,6 +21,7 @@ import studio.hypertext.curfew.alarm.AlarmRecurrencePolicy
 import studio.hypertext.curfew.persistence.CurfewDatabase
 import studio.hypertext.curfew.platform.AlarmRuntimeRepository
 import studio.hypertext.curfew.platform.AndroidAlarmClockGateway
+import studio.hypertext.curfew.platform.cleanupAlarmFixture
 
 class AlarmClockPresentationInstrumentedTest {
     @Test
@@ -58,8 +59,7 @@ class AlarmClockPresentationInstrumentedTest {
                 assertTrue("Quiet presentation must use the mapped next ring time: $expected; actual=${currentLabels()}", present())
             }
         } finally {
-            AndroidAlarmClockGateway(context).cancel(id)
-            dao.delete(id)
+            cleanupAlarmFixture(context, id)
         }
     }
 }

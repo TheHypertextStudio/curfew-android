@@ -1,0 +1,9 @@
+{
+  "device": "Pixel 11 Pro/API37",
+  "offlineBeforeAlarm": true,
+  "alarmAudioObserved": true,
+  "networkSettingsRestored": true,
+  "wirelessReconnected": true,
+  "instrumentationRetained": false,
+  "newHearingConfirmation": false
+}

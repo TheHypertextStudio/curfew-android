@@ -9,6 +9,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import java.time.Instant
 import java.util.UUID
 import kotlinx.coroutines.runBlocking
+import org.junit.Before
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
@@ -17,7 +18,7 @@ import studio.hypertext.curfew.MainActivity
 import studio.hypertext.curfew.alarm.AlarmCampaignEngine
 import studio.hypertext.curfew.alarm.AlarmCampaignState
 import studio.hypertext.curfew.alarm.AlarmRecurrencePolicy
-import studio.hypertext.curfew.persistence.CurfewDatabase
+import studio.hypertext.curfew.platform.cleanupAlarmFixture
 import studio.hypertext.curfew.platform.AlarmRuntimeRepository
 import studio.hypertext.curfew.platform.AndroidAlarmClockGateway
 
@@ -26,8 +27,13 @@ class AlarmKeyguardPresentationInstrumentedTest {
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private val id = UUID.randomUUID().toString()
 
+    @Before
+    fun requireEmptyAlarmQueue() = runBlocking {
+        check(AlarmRuntimeRepository(context).pending().isEmpty()) { "The keyguard fixture must not interrupt another alarm" }
+    }
+
     @After
-    fun removeFixture() = runBlocking { CurfewDatabase.open(context).alarmCampaignDao().delete(id) }
+    fun removeFixture() = runBlocking { cleanupAlarmFixture(context, id) }
 
     private fun keepScreenOnFlag(showAlarm: Boolean, campaignId: String? = null, expectedOn: Boolean = false): Int {
         var flags = 0
@@ -48,6 +54,26 @@ class AlarmKeyguardPresentationInstrumentedTest {
             }
         }
         return flags
+    }
+
+    @Test
+    fun fixtureCleanupCancelsItsRegisteredAlarmClock() = runBlocking {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        instrumentation.uiAutomation.executeShellCommand(
+            "appops set ${context.packageName} SCHEDULE_EXACT_ALARM allow",
+        ).use { android.os.ParcelFileDescriptor.AutoCloseInputStream(it).readBytes() }
+        val alarms = context.getSystemService(android.app.AlarmManager::class.java)
+        org.junit.Assert.assertNull("This fixture needs an empty alarm-clock queue", alarms.nextAlarmClock)
+        val at = Instant.ofEpochMilli(Instant.now().plusSeconds(3600).toEpochMilli())
+        AlarmRuntimeRepository(context).save(AlarmCampaignState.Scheduled(id, at, AlarmRecurrencePolicy.default(), setOf("fixture-device")))
+        AndroidAlarmClockGateway(context).setAlarmClock(id, at)
+        assertEquals(at.toEpochMilli(), alarms.nextAlarmClock?.triggerTime)
+        removeFixture()
+        val deadline = android.os.SystemClock.elapsedRealtime() + 2_000
+        while (alarms.nextAlarmClock != null && android.os.SystemClock.elapsedRealtime() < deadline) {
+            android.os.SystemClock.sleep(25)
+        }
+        org.junit.Assert.assertNull("Fixture cleanup must cancel its registered alarm", alarms.nextAlarmClock)
     }
 
     @Test

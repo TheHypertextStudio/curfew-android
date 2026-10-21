@@ -974,8 +974,9 @@ and account enrollment stops before opening a browser or registering a client. `
 Visible acceptance check-ins use `Morning check-in`; technical test identifiers
 stay in evidence and logs. Do not relabel or replace an already-running test.
 
-The October 20 long Pixel Doze run remains pinned to its pre-correction APK.
-These UI changes require their own CI and visual review. The alarm engine,
+The October 20 long Pixel Doze attempt used its pre-correction APK and was
+stopped before delivery. Its cleanup and rejected evidence are recorded in
+P1_ACCEPTANCE.md. These UI changes require their own CI and visual review. The alarm engine,
 permissions, persistence, protocol, and release authorization do not change.
 
 
@@ -992,3 +993,30 @@ cases and exactly one failure at the old Alarm tab. Its other API jobs also
 failed unrelated keyboard/focus cases. API33 captured a Pixel Launcher ANR,
 and API36 did not establish its service-owned playback prerequisite. Those
 failures are not silently accepted as passing behavior.
+
+## Short-window layout and fixture cleanup
+
+`TaskLayoutPolishInstrumentedTest` reproduces three reviewed defects on a
+native API34 emulator before the corrections. Its 390×235dp content viewport
+rejects a partly hidden check-in row. Its 360dp editor rejects six repeat days
+followed by Sunday alone. Its 200% text fixture rejects the left-aligned second
+line in the permission button. All three fail on the prior implementation and
+pass after the height budget, deliberate repeat wrapping, and centered text.
+The existing daily-layout suite also passes unchanged.
+
+Keyguard and clock-presentation fixtures now cancel their timer and callback
+polling, stop playback, wait for service exit, and remove saved state again
+under the scheduler lock. The second pass accounts for a transition delivered
+before cancellation. The registered-alarm regression failed first with a
+remaining AlarmClockInfo and passes after cleanup. An additional native
+regression failed before the helper rejected unrelated pending campaigns.
+The helper now refuses app-wide service shutdown around another alarm, and
+the keyguard class checks an empty queue before each case. This corrects a
+confirmed fixture leak; it does not establish the cause of the earlier CI
+window-focus failures and changes no production scheduling or audio code.
+
+The final focused run passes 26 native cases in 47.52s on the owned API34
+emulator. The Plain host suite passes 200 tests with no failures, errors, or
+skips; Plain lint and app/test APK assembly pass. Exact red/green transcripts
+remain in local `build/task-polish-{red,green}.txt`. The fresh responsive matrix
+must still be reviewed before accepting the visible corrections.

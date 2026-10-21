@@ -1,0 +1,11 @@
+{
+  "device": "Pixel 11 Pro/API37",
+  "fullScreenAccess": "allow",
+  "secureKeyguardBeforeAlarm": true,
+  "alarmAudioObserved": true,
+  "hasNotificationContentIntent": true,
+  "hasFullScreenIntent": true,
+  "automaticForegroundPresentation": true,
+  "cutoffTriggered": false,
+  "notificationTapProved": false
+}

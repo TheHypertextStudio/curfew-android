@@ -3,7 +3,7 @@
 Reader: The Android maintainer implementing Docket project `01M5AXW727EJSE5FM2H8WXJRWS`.
 Action: Complete the local Sunrise journey and collect evidence against all four feature tasks before accepting P1.
 Date: October 20, 2026.
-Status: Local implementation and acceptance testing continue. No P1 task is accepted.
+Status: Scheduling, playback/readiness, and authenticated release are accepted in Docket. Complete Pixel recovery acceptance remains open.
 
 ## Current acceptance boundary
 
@@ -11,14 +11,17 @@ Use [the requirement-by-requirement acceptance record](P1_ACCEPTANCE.md)
 to assess the four feature tasks. The chronological entries below retain
 historical failures and their candidate boundaries.
 
-The four P1 tasks remain unaccepted. The latest completed CI candidate is
-`40c9351`. The responsive follow-up passes 182 host tests per distribution,
-app/test APK builds, and Android lint. Historical suite counts below retain
-their original candidate boundaries.
-The corrected plain API33 suite passes 115 reported cases in 163.046s; the
-GMS API36 suite passes 115 in 262.452s. Six opt-in lifecycle cases require
-separate drivers. A new DND observation adds one opt-in instrumentation case;
-its three actual system-policy runs pass independently from those suites.
+The current state and exact candidate boundaries live in the acceptance record.
+The entries below preserve earlier implementation and test observations; their
+candidate status does not override current Docket acceptance. The consumer
+navigation correction at `79705cc` passes 200 local Plain host tests, lint, and
+app/test APK assembly. Test-only follow-up `530a4cf` passes all seven jobs in CI 39549812707.
+API35 required a fresh-emulator retry after window-focus failures. The later
+short-window layout and fixture-cleanup correction passes its 26 focused
+native cases, 200 Plain host tests, lint, and app/test assembly. Its complete
+matrix and CI remain separate acceptance steps.
+The long physical Doze attempt was interrupted and does not close the remaining
+Pixel acceptance criterion.
 
 The secure-lock alarm now has observed automatic presentation on API33 and
 API36. API36 denial also passes the notification fallback: audio remains

@@ -1,0 +1,12 @@
+{
+  "observedAt": "2026-10-21T05:45:28.477918+00:00",
+  "device": "Pixel 11 Pro/API37",
+  "sourceCommit": "530a4cf808b2c6aa4c4d94a5bfbf442bddc6b682",
+  "applicationSourceCommit": "79705cc879f7092a1b4d2360237bf44d9ca0b0c5",
+  "distribution": "GmsDebug",
+  "apkSha256": "5cf97d838bb977af07a938f23980da5c3033e5ae08785702b064a59687ec3cfc",
+  "installedDigestMatched": true,
+  "settingsCleared": false,
+  "foregroundLaunch": false,
+  "alarmTestStarted": false
+}

@@ -196,5 +196,17 @@ system Back, the established brand, and adaptive content layouts.
 The navigation regression checks the Settings action above the alarm content,
 the absence of the former Alarm tab, and return without saving editor changes.
 The responsive run captures daily, Settings, editor, and account screens.
-The correction changes presentation only; the current physical Doze acceptance
-continues on its immutable installed APK.
+The correction changes presentation only. Physical alarm acceptance remains
+separate from the emulated UI matrix.
+
+
+The daily clock now fits both available width and available height. Its height
+budget leaves room for the one-night date or repeat markers and the complete
+check-in row in a short window. The same component grows on taller windows;
+it does not create another phone-or-tablet layout. Enlarged text retains a
+readable minimum and the page can scroll.
+
+The editor keeps all seven repeat controls on one row when their 48dp touch
+areas fit. Narrower content uses four days followed by three rather than
+leaving Sunday alone. Permission buttons center each wrapped line at 200% text.
+These changes preserve the existing colors, shapes, navigation, and alarm state.
