@@ -1050,3 +1050,53 @@ Its scoped cleanup succeeds. Keep the physical Doze criterion open and do not
 restart the phone test without confirmed availability. The pending repeat
 harness has a pre-arming cutoff and a separate absolute phone-local deadline;
 it has not been executed and establishes no additional device behavior.
+
+## Setup state and adaptive flow repair — October 21, 2026
+
+Application source `8feb007` repairs setup navigation, persistence, loading,
+connection selection, export recreation, and short keyboard windows. Both Plain
+and GMS host suites pass 200 tests with no failures, errors, or skips. Both
+Android lint checks and debug app builds pass with one Gradle worker.
+
+The focused API34 native suite passes 87 cases. It includes cold-start loading,
+welcome-write failure, restored review drafts, late activation reconciliation,
+delayed callback selection, export through a restored Android result registry,
+Back behavior, optional opening links, repeat controls, editor save/cancel,
+large labels, adaptive fold regions, and welcome motion. The export test
+intercepts DocumentsUI launch because ActivityScenario cannot recreate its
+stopped owner while that external picker is foreground. It delivers a controlled
+result through Android's real registry and verifies the exported file. This
+establishes result restoration rather than a physical picker interaction.
+
+The new regressions failed before their repairs. Earlier broad runs found
+obsolete selectors for a single time Text and an unscoped AM selector behind a
+dialog. The tests now target the clickable numeric time and the dialog's own
+period control. The wrapped-label fixture uses a narrower viewport because the
+new form removed nested padding and its previous label fits on one line.
+
+The native setup matrix uses `scripts/capture-setup-matrix.py` on a guarded,
+task-owned API34 ARM64 emulator. It covers eight setup states in 18 profiles:
+phone, tablet, fold cover, fold inner, both orientations and themes, and narrow
+200% text. It asserts the full ordinary-text Save action before scrolling and
+the complete input bounds against navigation and the keyboard. It verifies each
+capture's destination and waits for its frame to reach the system compositor.
+Four controlled clock frames show the real shared wake-time transition.
+
+Earlier matrix attempts were rejected for font-setting normalization, obscured
+input geometry, a stale Review frame, or clamped display dimensions. The final
+record requires exact display-setting restoration and checks Android's reported
+size and every native PNG against the requested pixel dimensions. Four capture
+geometry tests exercise matching profiles and rejection of clamped displays
+and screenshots. The owned emulator uses a 1080×1920 base display so Android
+can apply every requested profile without its previous 1920px cap. Do not treat
+a rejected run as accepted visual evidence.
+The [gallery manifest](../design/android-review/native/setup-matrix/manifest.json)
+records the installed APK and application source hashes. Captures show emulated
+windows rather than physical fold hardware. Large-text views may require
+scrolling. The gallery does not establish physical hearing, Doze delivery,
+manual TalkBack, production signing, or distribution.
+
+The [verification record](evidence/setup-2026-10-21/verification.json) and retained
+red/green native outputs record the boundary. The Pixel was disconnected during
+this repair, so its earlier install remains historical evidence for its own
+recorded source.

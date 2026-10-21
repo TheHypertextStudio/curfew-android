@@ -6,10 +6,26 @@ import importlib.util
 import json
 from pathlib import Path
 import re
+import struct
 import subprocess
 import time
 
 SCENES = ('time', 'introduction', 'connection', 'keyboard', 'transfer', 'connected', 'permissions', 'review')
+
+
+def validate_display_size(output, width, height):
+    sizes = re.findall(r'(?:Physical|Override) size: (\d+)x(\d+)', output)
+    actual = tuple(map(int, sizes[-1])) if sizes else None
+    if actual != (width, height):
+        raise RuntimeError(f'Android display is {actual[0]}x{actual[1]}, requested {width}x{height}' if actual else 'Android display size is unavailable')
+
+
+def validate_png_size(png, width, height):
+    if not png.startswith(b'\x89PNG\r\n\x1a\n') or len(png) < 24:
+        raise RuntimeError('Screenshot is not a PNG with dimensions')
+    actual = struct.unpack('>II', png[16:24])
+    if actual != (width, height):
+        raise RuntimeError(f'Native screenshot is {actual[0]}x{actual[1]}, requested {width}x{height}')
 
 
 def main():
@@ -53,6 +69,8 @@ def main():
                 adb('shell', 'wm', 'density', str(density))
                 adb('shell', 'settings', 'put', 'system', 'font_scale', str(scale))
                 adb('shell', 'cmd', 'uimode', 'night', 'yes' if theme == 'dark' else 'no')
+                display_size = adb('shell', 'wm', 'size').decode()
+                validate_display_size(display_size, width, height)
                 name = key + '-' + theme
                 scenes = SCENES + (('motion-16', 'motion-96', 'motion-240', 'motion-800') if name == 'phone-portrait-light' else ())
                 for scene in scenes:
@@ -65,12 +83,11 @@ def main():
                     raise RuntimeError(name + ': native setup failed; output retained')
                 for scene in scenes:
                     pixels = adb('exec-out', 'run-as', 'studio.hypertext.curfew', 'cat', f'cache/setup-{scene}.png')
-                    if not pixels.startswith(b'\x89PNG\r\n\x1a\n'):
-                        raise RuntimeError(name + ': missing PNG for ' + scene)
+                    validate_png_size(pixels, width, height)
                     file = name + '-' + scene + '.png'
                     (args.output / file).write_bytes(pixels)
                     files.append(file)
-                records.append(dict(name=name, label=label, theme=theme, pixels=[width, height], dp=[width * 160 / density, height * 160 / density], fontScale=scale))
+                records.append(dict(name=name, label=label, theme=theme, pixels=[width, height], dp=[width * 160 / density, height * 160 / density], fontScale=scale, observedDisplaySize=display_size, pngDimensionsVerified=True))
                 (args.output / 'progress.json').write_text(json.dumps(records, indent=2) + '\n')
                 print(name + ' passed', flush=True)
     finally:

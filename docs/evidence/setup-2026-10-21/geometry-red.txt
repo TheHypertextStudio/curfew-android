@@ -1,0 +1,41 @@
+EEEE
+======================================================================
+ERROR: test_accepts_matching_override_or_physical_size (test_capture_setup_matrix.CaptureGeometryTest.test_accepts_matching_override_or_physical_size)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/williecubed/.cello-worktrees/curfew-android-sunrise-p1/scripts/test_capture_setup_matrix.py", line 18, in test_accepts_matching_override_or_physical_size
+    capture.validate_display_size('Physical size: 1080x1920\nOverride size: 1600x2560\n', 1600, 2560)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'capture' has no attribute 'validate_display_size'
+
+======================================================================
+ERROR: test_accepts_matching_png_dimensions (test_capture_setup_matrix.CaptureGeometryTest.test_accepts_matching_png_dimensions)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/williecubed/.cello-worktrees/curfew-android-sunrise-p1/scripts/test_capture_setup_matrix.py", line 28, in test_accepts_matching_png_dimensions
+    capture.validate_png_size(png, 1080, 2400)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'capture' has no attribute 'validate_png_size'
+
+======================================================================
+ERROR: test_rejects_android_size_clamping (test_capture_setup_matrix.CaptureGeometryTest.test_rejects_android_size_clamping)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/williecubed/.cello-worktrees/curfew-android-sunrise-p1/scripts/test_capture_setup_matrix.py", line 15, in test_rejects_android_size_clamping
+    capture.validate_display_size('Physical size: 320x640\nOverride size: 1080x1920\n', 1080, 2400)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'capture' has no attribute 'validate_display_size'
+
+======================================================================
+ERROR: test_rejects_wrong_png_dimensions (test_capture_setup_matrix.CaptureGeometryTest.test_rejects_wrong_png_dimensions)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/williecubed/.cello-worktrees/curfew-android-sunrise-p1/scripts/test_capture_setup_matrix.py", line 24, in test_rejects_wrong_png_dimensions
+    capture.validate_png_size(png, 1080, 2400)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'capture' has no attribute 'validate_png_size'
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.001s
+
+FAILED (errors=4)

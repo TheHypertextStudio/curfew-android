@@ -20,15 +20,15 @@ The wake-time summary retains the same shared bounds across daily, editor, and r
 
 ## Implementation and verification
 
-- [ ] Add native regressions for the navigation loop, restored review draft, resumed Back path, welcome write failure, setup deferral, form Back, restored operation state, and settings return.
-- [ ] Observe failures before changing production code.
-- [ ] Repair state ownership and loading order.
-- [ ] Replace immediate manual check-in fields with introduction, connection, transfer, and test states.
-- [ ] Verify service binding and validation without weakening authenticated release.
-- [ ] Adapt task layouts and shared transitions.
-- [ ] Run both host distributions, lint, app builds, and relevant native suites.
-- [ ] Capture and inspect phone, tablet, fold cover, and fold inner windows in both orientations and themes plus narrow enlarged text.
-- [ ] Record failures and gaps, update acceptance documentation, and commit the reviewed change.
+- [x] Add native regressions for the navigation loop, restored review draft, resumed Back path, welcome write failure, setup deferral, form Back, restored operation state, and settings return.
+- [x] Observe failures before changing production code.
+- [x] Repair state ownership and loading order.
+- [x] Replace immediate manual check-in fields with introduction, connection, transfer, and test states.
+- [x] Verify service binding and validation without weakening authenticated release.
+- [x] Adapt task layouts and shared transitions.
+- [x] Run both host distributions, lint, app builds, and relevant native suites.
+- [x] Capture and inspect phone, tablet, fold cover, and fold inner windows in both orientations and themes plus narrow enlarged text.
+- [x] Record failures and gaps, update acceptance documentation, and commit the reviewed change.
 
 ## State transition diagram
 

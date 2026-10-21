@@ -53,6 +53,7 @@ jobs:
           python3 -B ci/test-welcome-capture-runner.py
           python3 -B ci/test-welcome-root-capture.py
           python3 -B ci/test-task-matrix-capture.py
+          python3 -B -m unittest discover -s scripts -p test_capture_setup_matrix.py
       # The release build is the only one R8 minifies, and the app resolves
       # kotlinx.serialization serializers reflectively. Assembling only the debug
       # variant meant a keep-rule regression reached a device before it reached

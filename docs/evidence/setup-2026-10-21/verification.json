@@ -27,5 +27,19 @@
     "Physical Doze acceptance remains open.",
     "Production signing and distribution were not performed.",
     "Manual TalkBack was not performed."
-  ]
+  ],
+  "captureGeometryTests": {
+    "count": 4,
+    "failures": 0,
+    "redFirst": true
+  },
+  "setupMatrix": {
+    "profiles": 18,
+    "states": 8,
+    "statePngs": 144,
+    "motionFrames": 4,
+    "actualDisplayAndPngDimensionsVerified": true,
+    "settingsRestored": true,
+    "manifest": "design/android-review/native/setup-matrix/manifest.json"
+  }
 }

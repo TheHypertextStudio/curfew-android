@@ -398,3 +398,21 @@ task descriptions retain their templates and checkbox criteria. Only obsolete
 planning-only footer text changed; their three-done/one-in-progress states did
 not change. The CI artifact merge source matches the branch's application
 source, verified after fetching the PR merge ref.
+
+## Setup repair acceptance — October 21, 2026
+
+The application source at `8feb007` passes 400 host tests across Plain and GMS,
+both lint and debug-build checks, and 87 focused native API34 tests. The setup
+repair separates route restoration from transient operations, waits for durable
+connection selection, keeps existing alarm binding truthful, restores export
+identity, and gives Back a reversible path. The short keyboard arrangement
+reuses the task header beside the field and consumes frame insets once.
+
+The native setup gallery contains eight states across 18 emulated window
+profiles. The capture driver verifies Android's actual display dimensions and
+every native PNG before accepting a profile. Its manifest records the APK and
+source hashes. Earlier captures with clamped dimensions remain rejected. Native
+test outputs and build identifiers are in [setup evidence](evidence/setup-2026-10-21/).
+The complete physical Doze acceptance criterion remains unchecked. No current
+Pixel install, production release, hosted check-in service, P1b networking, or
+bedtime implementation is implied by the setup repair.
