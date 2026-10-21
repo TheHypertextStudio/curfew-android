@@ -915,3 +915,17 @@ See ONBOARDING_DESIGN.md for decisions and TESTING.md for current automated,
 rendered, and installed evidence. This follow-up remains separate from accepting
 the remaining physical recovery and accessibility requirements. The Pixel was
 not connected for installation of this candidate.
+
+## October 21 setup repair
+
+The setup repair addresses restored drafts, cold-start loading, Back navigation,
+welcome persistence, delayed connection selection, export recreation, and
+activation reconciliation. It also separates the current alarm's check-in from
+a newly selected replacement. The flow uses an adaptive purpose/work layout
+and retains shared wake-time and check-in transitions. See
+[the current onboarding behavior](ONBOARDING_DESIGN.md).
+
+These changes do not complete the open physical Doze acceptance criterion.
+They do not implement P1b networking, bedtime lockout, or a hosted consumer
+check-in service. The earlier Pixel install remains historical evidence for its
+recorded source and APK. The new setup build requires its own device update.

@@ -10,9 +10,10 @@ wake occurrence has satisfied its condition.
 
 ## Provision the connection
 
-1. The owner opens Settings, then Check-in, on the phone. The owner enters a
-   recognizable name, the operator's HTTPS service address, and an optional
-   link for completing the check-in. The owner saves the connection.
+1. The owner opens Settings, then Check-in, on the phone. The owner opens the
+   connection flow through Connect a service. The owner enters the operator's
+   HTTPS service address. Optional details hold the display name and the link
+   for opening the service when the alarm rings. The owner saves the connection.
 2. The owner chooses Save setup file and saves the private file through Android's
    document picker. The owner transfers that file directly to the trusted
    operator. It contains the generated signing secret. Do not put it in a
@@ -86,3 +87,14 @@ Those checks prove the controlled integration, not an external operator's
 production deployment or physical speaker volume. The owner and operator must
 complete step 5 with their selected service. Record physical-device results
 separately in the P1 acceptance record.
+
+## Returning to setup
+
+Set up later retains the prepared wake time without enabling the alarm. A saved
+connection stays unverified until its connection test succeeds. Saving or
+exporting its setup file does not establish readiness.
+
+When a saved alarm exists, replacing the selected connection does not rename
+or rebind that alarm. After verifying the replacement, choose Use for alarm
+and explicitly save the alarm to apply it. The active occurrence keeps its
+original authenticated release binding.

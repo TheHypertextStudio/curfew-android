@@ -50,22 +50,27 @@ internal fun SunriseScheduleEditor(
     var choosingTime by rememberSaveable { mutableStateOf(false) }
     var choosingDate by rememberSaveable { mutableStateOf(false) }
     val canSave = !busy && (callbackId ?: saved?.callbackId) != null && (canArm || saved?.enabled == false) && (!weekly || weekdays != 0)
-    TaskContent {
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    SetupTaskContent(
+        introduction = {
             FilledTonalButton(
-                onClick = { choosingTime = true }, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 88.dp).curfewSharedBounds("alarm-time"),
-            ) { Text(timeLabel(LocalTime.parse(timeText), context, locale), style = MaterialTheme.typography.headlineLarge.copy(fontFamily = MaterialTheme.typography.bodyLarge.fontFamily)) }
-        }
+                onClick = { choosingTime = true }, enabled = !busy,
+                modifier = Modifier.fillMaxWidth().heightIn(min = 120.dp).curfewSharedBounds("alarm-time"),
+                shape = MaterialTheme.shapes.extraLarge,
+            ) {
+                DailyAlarmTime(LocalTime.parse(timeText), android.text.format.DateFormat.is24HourFormat(context), locale,
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 20.dp), maxFontSize = 76f)
+            }
+        },
+    ) {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("Repeat", style = MaterialTheme.typography.labelLarge)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 FilterChip(selected = !weekly, onClick = { weekly = false }, label = { Text("One night") }, enabled = !busy, modifier = Modifier.heightIn(min = 48.dp))
                 FilterChip(selected = weekly, onClick = { weekly = true }, label = { Text("Weekly") }, enabled = !busy, modifier = Modifier.heightIn(min = 48.dp))
             }
             if (weekly) {
                 BoxWithConstraints(Modifier.fillMaxWidth()) {
-                    val daysPerRow = if (maxWidth >= 48.dp * 7 + 4.dp * 6) 7 else 4
-                    FlowRow(maxItemsInEachRow = daysPerRow, horizontalArrangement = Arrangement.spacedBy(4.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    val daysPerRow = if (maxWidth >= 48.dp * 7 + 2.dp * 6) 7 else 4
+                    FlowRow(maxItemsInEachRow = daysPerRow, horizontalArrangement = Arrangement.spacedBy(2.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         DayOfWeek.entries.forEach { day ->
                             val bit = 1 shl day.ordinal
                             FilterChip(

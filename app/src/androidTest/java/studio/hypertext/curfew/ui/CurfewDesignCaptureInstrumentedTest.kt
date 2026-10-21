@@ -136,7 +136,7 @@ class CurfewDesignCaptureInstrumentedTest {
                                 onGrantExactAlarm = {}, onGrantNotifications = {}, onRepairAlarmChannel = {},
                                 onPlayTestSound = {}, onAcknowledgeLimitations = {}, onOpenAccount = {},
                                 onEnrollAccount = {}, onRestoreRecoveryKey = {}, onAcknowledgeRecoveryKey = {},
-                                onSaveCallback = { _, _, _ -> }, sunriseAlarm = if (initialForm) null else if (oneNight) alarm.copy(schedule = alarm.schedule.copy(
+                                onSaveCallback = { _, _, _ -> "condition-1" }, sunriseAlarm = if (initialForm) null else if (oneNight) alarm.copy(schedule = alarm.schedule.copy(
                                     onceDate = LocalDate.of(2026, 10, 20), weekdays = emptySet(),
                                 )) else alarm,
                                 callbackId = if (initialForm) null else "design-check-in",

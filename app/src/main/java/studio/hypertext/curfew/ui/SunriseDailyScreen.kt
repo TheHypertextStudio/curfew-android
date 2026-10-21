@@ -53,7 +53,7 @@ internal fun CurfewHorizonMark(modifier: Modifier = Modifier.size(28.dp, 24.dp))
 
 @Composable
 internal fun TaskContent(spacing: Dp = 24.dp, verticalPadding: Dp = 20.dp, content: @Composable ColumnScope.() -> Unit) {
-    BoxWithConstraints(Modifier.fillMaxSize().imePadding()) {
+    BoxWithConstraints(Modifier.widthIn(max = 640.dp).fillMaxSize().imePadding()) {
         val gutter = if (maxWidth < 360.dp) 16.dp else 24.dp
         Column(
             Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = gutter, vertical = verticalPadding),
@@ -179,7 +179,7 @@ internal fun SunriseDailyScreen(
 }
 
 @Composable
-private fun DailyAlarmTime(time: LocalTime, use24Hour: Boolean, locale: Locale, modifier: Modifier = Modifier, maxFontSize: Float = 100f) {
+internal fun DailyAlarmTime(time: LocalTime, use24Hour: Boolean, locale: Locale, modifier: Modifier = Modifier, maxFontSize: Float = 100f) {
     val numeric = time.format(DateTimeFormatter.ofPattern(if (use24Hour) "HH:mm" else "h:mm", locale))
     val period = if (use24Hour) null else time.format(DateTimeFormatter.ofPattern("a", locale))
     val density = LocalDensity.current

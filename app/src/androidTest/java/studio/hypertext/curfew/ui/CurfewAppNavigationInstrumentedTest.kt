@@ -52,7 +52,7 @@ class CurfewAppNavigationInstrumentedTest {
     private var fullScreenRequests = 0
     private val missingActions = mutableStateOf<Set<ReadinessAction>>(emptySet())
 
-    private fun show(required: Set<ReadinessAction> = emptySet(), failSave: Boolean = false, fresh: Boolean = false, welcome: Boolean = fresh, deferredDraft: AlarmSetupDraft? = null) {
+    private fun show(required: Set<ReadinessAction> = emptySet(), failSave: Boolean = false, fresh: Boolean = false, welcome: Boolean = fresh, deferredDraft: AlarmSetupDraft? = null, replacement: Boolean = false) {
         missingActions.value = required
         compose.setContent {
             CurfewTheme {
@@ -72,12 +72,12 @@ class CurfewAppNavigationInstrumentedTest {
                     onEnrollAccount = {},
                     onRestoreRecoveryKey = {},
                     onAcknowledgeRecoveryKey = {},
-                    onSaveCallback = { _, _, _ -> },
+                    onSaveCallback = { _, _, _ -> "condition-1" },
                     sunriseAlarm = if (fresh) null else saved,
                     showWelcome = welcome,
                     setupDraft = deferredDraft,
-                    callbackId = if (hasConnection.value) "condition-1" else null,
-                    conditionLabel = if (hasConnection.value) "Morning check-in" else null,
+                    callbackId = if (replacement) "replacement" else if (hasConnection.value) "condition-1" else null,
+                    conditionLabel = if (replacement) "Replacement check-in" else if (hasConnection.value) "Morning check-in" else null,
                     alarmBusy = false,
                     alarmError = failure.value,
                     onSaveAlarm = { saves++; if (failSave) failure.value = "Could not save the alarm. Try again." },
@@ -111,7 +111,7 @@ class CurfewAppNavigationInstrumentedTest {
         compose.onNodeWithContentDescription("Back").performClick()
         compose.runOnIdle { hasConnection.value = false }
         compose.onNodeWithText("Check-in").performScrollTo().performClick()
-        compose.onNodeWithText("Save check-in").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Connect a service").performScrollTo().assertIsDisplayed()
         captureResponsiveWindow("check-in")
         compose.onNodeWithContentDescription("Back").performClick()
         compose.runOnIdle { missingActions.value = setOf(ReadinessAction.GRANT_FULL_SCREEN_ACCESS) }
@@ -283,6 +283,18 @@ class CurfewAppNavigationInstrumentedTest {
             assertEquals(1, verifiedGeneration)
             assertEquals(1, exportedGeneration)
         }
+    }
+
+    @Test
+    fun replacementDoesNotRenameTheExistingAlarmBeforeAnExplicitSave() {
+        show(replacement = true)
+        compose.onNodeWithText("Replacement check-in").assertDoesNotExist()
+        compose.onNodeWithContentDescription("Settings").performClick()
+        compose.onNodeWithText("Check-in").performClick()
+        compose.onNodeWithText("Replacement check-in").assertExists()
+        compose.onNodeWithText("Use for alarm").performScrollTo().performClick()
+        compose.onNodeWithText("Save").performScrollTo().assertExists()
+        compose.runOnIdle { assertEquals(0, saves) }
     }
 
     @Test

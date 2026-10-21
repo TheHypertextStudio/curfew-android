@@ -1,0 +1,39 @@
+Performing Streamed Install
+Success
+
+studio.hypertext.curfew.ui.CheckInScreenInstrumentedTest:
+Error in savedConnectionCanArriveAfterBusyClears(studio.hypertext.curfew.ui.CheckInScreenInstrumentedTest):
+java.lang.AssertionError: Action performScrollTo() failed.
+Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + InputText + EditableText contains 'Test connection' (ignoreCase: false))
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
+	at androidx.compose.ui.test.ActionsKt.performScrollTo(Actions.kt:82)
+	at studio.hypertext.curfew.ui.CheckInScreenInstrumentedTest.savedConnectionCanArriveAfterBusyClears(CheckInScreenInstrumentedTest.kt:99)
+
+studio.hypertext.curfew.ui.SetupFlowInstrumentedTest:
+Error in activationCommittedAfterRestorationReconcilesToDaily(studio.hypertext.curfew.ui.SetupFlowInstrumentedTest):
+java.lang.AssertionError: Assert failed: The component with ContentDescription = 'Settings' (ignoreCase: false) is not displayed!
+	at androidx.compose.ui.test.AssertionsKt.assertIsDisplayed(Assertions.kt:34)
+	at studio.hypertext.curfew.ui.SetupFlowInstrumentedTest.activationCommittedAfterRestorationReconcilesToDaily(SetupFlowInstrumentedTest.kt:121)
+
+
+Time: 2.805
+There were 2 failures:
+1) savedConnectionCanArriveAfterBusyClears(studio.hypertext.curfew.ui.CheckInScreenInstrumentedTest)
+java.lang.AssertionError: Action performScrollTo() failed.
+Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + InputText + EditableText contains 'Test connection' (ignoreCase: false))
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
+	at androidx.compose.ui.test.ActionsKt.performScrollTo(Actions.kt:82)
+	at studio.hypertext.curfew.ui.CheckInScreenInstrumentedTest.savedConnectionCanArriveAfterBusyClears(CheckInScreenInstrumentedTest.kt:99)
+2) activationCommittedAfterRestorationReconcilesToDaily(studio.hypertext.curfew.ui.SetupFlowInstrumentedTest)
+java.lang.AssertionError: Assert failed: The component with ContentDescription = 'Settings' (ignoreCase: false) is not displayed!
+	at androidx.compose.ui.test.AssertionsKt.assertIsDisplayed(Assertions.kt:34)
+	at studio.hypertext.curfew.ui.SetupFlowInstrumentedTest.activationCommittedAfterRestorationReconcilesToDaily(SetupFlowInstrumentedTest.kt:121)
+
+FAILURES!!!
+Tests run: 2,  Failures: 2

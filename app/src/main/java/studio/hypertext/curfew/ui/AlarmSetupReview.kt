@@ -42,29 +42,31 @@ internal fun AlarmSetupReview(
 ) {
     val locale = LocalConfiguration.current.locales[0]
     val context = LocalContext.current
-    TaskContent {
-        Surface(shape = MaterialTheme.shapes.extraLarge, color = MaterialTheme.colorScheme.surfaceContainerLow) {
-            Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
-                Column(Modifier.fillMaxWidth().clickable(enabled = !busy, role = Role.Button, onClick = onEdit).semantics { contentDescription = "Edit wake time" }, verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Text(timeLabel(draft.wakeTime, context, locale), style = MaterialTheme.typography.displaySmall, modifier = Modifier.curfewSharedBounds("alarm-time"))
-                    if (draft.onceDate != null) {
-                        Text(draft.onceDate.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL).withLocale(locale)), style = MaterialTheme.typography.bodyLarge)
-                    } else {
-                        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            draft.weekdays.sortedBy { it.value }.forEach { day ->
-                                Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer) {
-                                    Text(day.getDisplayName(TextStyle.SHORT, locale), modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp))
-                                }
+    SetupTaskContent(
+        introduction = {
+            Column(Modifier.fillMaxWidth().clickable(enabled = !busy, role = Role.Button, onClick = onEdit)
+                .semantics { contentDescription = "Edit wake time" }, verticalArrangement = Arrangement.spacedBy(20.dp)) {
+                Surface(modifier = Modifier.fillMaxWidth().curfewSharedBounds("alarm-time"), shape = MaterialTheme.shapes.extraLarge,
+                    color = MaterialTheme.colorScheme.secondaryContainer) {
+                    DailyAlarmTime(draft.wakeTime, android.text.format.DateFormat.is24HourFormat(context), locale,
+                        modifier = Modifier.padding(24.dp), maxFontSize = 76f)
+                }
+                if (draft.onceDate != null) {
+                    Text(draft.onceDate.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL).withLocale(locale)), style = MaterialTheme.typography.bodyLarge)
+                } else {
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        draft.weekdays.sortedBy { it.value }.forEach { day ->
+                            Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer) {
+                                Text(day.getDisplayName(TextStyle.SHORT, locale), modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp))
                             }
                         }
                     }
                 }
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Icon(painterResource(R.drawable.ic_link_rounded), contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-                    Text(conditionLabel, style = MaterialTheme.typography.titleMedium)
-                }
             }
-        }
+        },
+    ) {
+        CheckInSummary(conditionLabel, verified = true)
+        Text("The alarm rings until you check in.", color = MaterialTheme.colorScheme.onSurfaceVariant)
         if (error != null) TaskMessage(error, error = true)
         Button(onClick = onActivate, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) {
             Text(if (busy) "Turning on…" else "Turn on alarm")

@@ -31,6 +31,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOf
@@ -73,6 +75,12 @@ import studio.hypertext.curfew.alarm.SunriseSchedule
 import studio.hypertext.curfew.platform.SunriseScheduler
 import studio.hypertext.curfew.protocols.CallbackDefinition
 
+private data class SetupInputs(
+    val preferences: CurfewPreferenceState,
+    val selected: CallbackDefinition?,
+    val alarmConnection: CallbackDefinition?,
+)
+
 class MainActivity : ComponentActivity() {
     private lateinit var preferences: CurfewPreferences
     private val soundPreview by lazy { AndroidAlarmSoundPreview(this) }
@@ -103,9 +111,8 @@ class MainActivity : ComponentActivity() {
     }
     private val ownerRecovery by ownerRecoveryDelegate
     private val sunriseState by lazy {
-        sunrise.state.catch {
+        sunrise.state.onEach { sunriseReadFailed = false }.catch {
             sunriseReadFailed = true
-            sunriseError = "Couldn’t load your alarm. Restart the app before making changes."
             emit(null)
         }
     }
@@ -113,16 +120,17 @@ class MainActivity : ComponentActivity() {
     private val wakeConditionSetup by lazy { AndroidWakeConditionSetup(this) }
     private var conditionBusy by mutableStateOf(false)
     private var conditionMessage by mutableStateOf<String?>(null)
-    private var pendingVerifierExport: CallbackDefinition? = null
+    private var pendingVerifierExportId: String? = null
     private val exportVerifier = registerForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
-        val definition = pendingVerifierExport
-        pendingVerifierExport = null
-        if (uri == null || definition == null) {
+        val callbackId = pendingVerifierExportId
+        pendingVerifierExportId = null
+        if (uri == null || callbackId == null) {
             conditionMessage = "File not saved."
         } else {
             conditionBusy = true
             lifecycleScope.launch {
                 try {
+                    val definition = wakeConditionSetup.provision(callbackId)
                     withContext(Dispatchers.IO) {
                         requireNotNull(contentResolver.openOutputStream(uri, "wt")).bufferedWriter().use {
                             it.write(Json.encodeToString(definition))
@@ -141,6 +149,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         val splash = installSplashScreen()
         super.onCreate(savedInstanceState)
+        pendingVerifierExportId = savedInstanceState?.getString("pending_check_in_export")
         splash.setOnExitAnimationListener { provider ->
             if (android.animation.ValueAnimator.areAnimatorsEnabled()) {
                 provider.view.animate().alpha(0f).setDuration(180L).withEndAction { provider.remove() }.start()
@@ -173,14 +182,24 @@ class MainActivity : ComponentActivity() {
         setContent {
             @Suppress("UNUSED_EXPRESSION")
             capabilityEpoch
-            val savedAlarmResult = remember { sunriseState.map { true to it } }
+            var firstUseRetry by androidx.compose.runtime.saveable.rememberSaveable { mutableIntStateOf(0) }
+            val savedAlarmResult = remember(firstUseRetry) { sunriseState.map { true to it } }
                 .collectAsStateWithLifecycle(initialValue = false to null).value
             val savedAlarm = savedAlarmResult.second
             val firstUsePreferences = remember { FirstUsePreferences(this@MainActivity) }
-            var firstUseRetry by androidx.compose.runtime.saveable.rememberSaveable { mutableIntStateOf(0) }
             val firstUseFlow = remember(firstUsePreferences, firstUseRetry) { firstUsePreferences.loadState.map { it } }
             val firstUseLoad = firstUseFlow.collectAsStateWithLifecycle(initialValue = FirstUseLoadState.Loading).value
             val firstUse = (firstUseLoad as? FirstUseLoadState.Ready)?.state
+            val setupInputsFlow = remember(firstUseRetry) {
+                combine(preferences.state, sunriseState) { preference, alarm ->
+                    val configurations = CallbackConfigurationRepository(this@MainActivity)
+                    SetupInputs(preference,
+                        preference.selectedCallbackId?.let { configurations.find(it) },
+                        alarm?.schedule?.callbackId?.let { configurations.find(it) })
+                }.map<SetupInputs, Result<SetupInputs>?> { Result.success(it) }
+                    .catch { emit(Result.failure(it)) }
+            }
+            val setupInputsResult = setupInputsFlow.collectAsStateWithLifecycle(initialValue = null).value
             val runtime = remember { AlarmRuntimeRepository(this@MainActivity) }
             val bootId = remember(runtime) { runtime.currentBootId() }
             val campaignId = intent.getStringExtra(AndroidAlarmClockGateway.EXTRA_CAMPAIGN_ID)
@@ -198,7 +217,7 @@ class MainActivity : ComponentActivity() {
             val campaign = runtimeSnapshot?.state
             val showAlarm = campaign is AlarmCampaignState.Ringing || campaign is AlarmCampaignState.Quiet
             val initialDataReady = requestedAlarmLoaded && (showAlarm ||
-                savedAlarmResult.first && firstUseLoad != FirstUseLoadState.Loading && campaignSnapshot.first)
+                savedAlarmResult.first && firstUseLoad != FirstUseLoadState.Loading && campaignSnapshot.first && setupInputsResult != null)
             var ringingCondition by remember(campaignId) { mutableStateOf<CallbackDefinition?>(null) }
             LaunchedEffect(campaignId) {
                 ringingCondition = campaignId?.let { id ->
@@ -277,38 +296,21 @@ class MainActivity : ComponentActivity() {
                             }
                         },
                     )
-                } else if (firstUseLoad == FirstUseLoadState.Error && savedAlarm == null) {
+                } else if (sunriseReadFailed || firstUseLoad == FirstUseLoadState.Error && savedAlarm == null || setupInputsResult?.isFailure == true) {
                     Surface { FirstUseLoadErrorScreen(onRetry = { firstUseRetry++ }) }
                 } else {
-                    val preferenceState = preferences.state.collectAsStateWithLifecycle(
-                        initialValue = CurfewPreferenceState(
-                            null,
-                            false,
-                            false,
-                            false,
-                            null,
-                            false,
-                        ),
-                    ).value
+                    val inputs = requireNotNull(setupInputsResult).getOrThrow()
+                    val preferenceState = inputs.preferences
                     val readiness = currentReadiness(preferenceState)
-                    var conditionLabel by remember(preferenceState.selectedCallbackId) {
-                        mutableStateOf<String?>(null)
-                    }
-                    LaunchedEffect(preferenceState.selectedCallbackId) {
-                        conditionLabel = preferenceState.selectedCallbackId?.let {
-                            CallbackConfigurationRepository(this@MainActivity).find(it)?.displayLabel
-                        }
-                    }
+                    val conditionLabel = inputs.selected?.displayLabel
                     CurfewApp(
                         readiness = readiness,
                         showWelcome = firstUse?.needsWelcome(savedAlarm != null) == true,
                         startSetup = savedAlarm == null && firstUse?.choice == FirstUseChoice.STARTED,
                         setupDraft = firstUse?.draft.takeIf { savedAlarm == null },
-                        onWelcomeChoice = { start -> lifecycleScope.launch {
-                            runCatching {
-                                if (start) firstUsePreferences.chooseContinue() else firstUsePreferences.chooseNotNow()
-                            }.onFailure { Toast.makeText(this@MainActivity, "Couldn’t save setup. Try again.", Toast.LENGTH_LONG).show() }
-                        } },
+                        onWelcomeChoice = { start ->
+                            if (start) firstUsePreferences.chooseContinue() else firstUsePreferences.chooseNotNow()
+                        },
                         onPrepareDraft = { draft -> firstUsePreferences.saveDraft(draft) },
                         onSetupActivated = { lifecycleScope.launch { runCatching { firstUsePreferences.clearDraft() } } },
                         accountEnrolled = preferenceState.accountEnrolled,
@@ -373,15 +375,10 @@ class MainActivity : ComponentActivity() {
                         onSaveCallback = { label, endpoint, actionUrl ->
                             conditionBusy = true
                             conditionMessage = null
-                            lifecycleScope.launch {
-                                try {
-                                    wakeConditionSetup.save(label, endpoint, actionUrl)
-                                    conditionMessage = null
-                                } catch (failure: Exception) {
-                                    conditionMessage = "Couldn’t save the check-in. Check its name and address, then retry."
-                                } finally {
-                                    conditionBusy = false
-                                }
+                            try {
+                                wakeConditionSetup.save(label, endpoint, actionUrl).callbackId
+                            } finally {
+                                conditionBusy = false
                             }
                         },
                         conditionVerified = preferenceState.selectedCallbackId?.let {
@@ -394,10 +391,11 @@ class MainActivity : ComponentActivity() {
                             if (id != null && !conditionBusy) lifecycleScope.launch {
                                 conditionBusy = true
                                 try {
-                                    pendingVerifierExport = wakeConditionSetup.provision(id)
+                                    wakeConditionSetup.provision(id)
+                                    pendingVerifierExportId = id
                                     exportVerifier.launch("curfew-check-in.json")
                                 } catch (failure: Exception) {
-                                    pendingVerifierExport = null
+                                    pendingVerifierExportId = null
                                     conditionMessage = "Couldn’t read this check-in. Save it again before saving its setup file."
                                 } finally {
                                     conditionBusy = false
@@ -425,6 +423,7 @@ class MainActivity : ComponentActivity() {
                         sunriseAlarm = savedAlarm,
                         callbackId = preferenceState.selectedCallbackId,
                         conditionLabel = if (sunriseReadFailed) null else conditionLabel,
+                        alarmConditionLabel = inputs.alarmConnection?.displayLabel,
                         alarmBusy = sunriseSaving,
                         alarmError = sunriseError,
                         onSaveAlarm = ::saveSunrise,
@@ -466,6 +465,12 @@ class MainActivity : ComponentActivity() {
             setIntent(intent)
             recreate()
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        // Keep only the identity across the picker; reload secret material after its result.
+        outState.putString("pending_check_in_export", pendingVerifierExportId)
+        super.onSaveInstanceState(outState)
     }
 
     /**

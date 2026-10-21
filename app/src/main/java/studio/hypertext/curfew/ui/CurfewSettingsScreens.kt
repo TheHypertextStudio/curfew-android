@@ -48,6 +48,7 @@ internal fun AlarmReadinessScreen(
     onRaiseAlarmVolume: () -> Unit,
     onDone: () -> Unit,
     onGrantFullScreen: () -> Unit = {},
+    inSetup: Boolean = false,
 ) {
     var showLimits by rememberSaveable { mutableStateOf(false) }
     val next = listOf(
@@ -87,25 +88,18 @@ internal fun AlarmReadinessScreen(
         ReadinessAction.RAISE_ALARM_VOLUME -> "Turn up alarm volume" to onRaiseAlarmVolume
         ReadinessAction.PLAY_TEST_SOUND -> "Test alarm sound" to onPlayTestSound
         ReadinessAction.ACKNOWLEDGE_LIMITATIONS -> "I understand" to onAcknowledgeLimitations
-        null -> "Done" to onDone
+        null -> (if (inSetup) "Continue" else "Done") to onDone
     }
-    TaskContent {
-        Surface(shape = MaterialTheme.shapes.extraLarge, color = MaterialTheme.colorScheme.surfaceContainerLow) {
-            Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Icon(
-                    painterResource(if (next == null) R.drawable.ic_check_circle_rounded else R.drawable.ic_lock_rounded),
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(32.dp),
-                )
-                Text(title, style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
-                if (purpose != null) Text(purpose, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                if (next == ReadinessAction.ACKNOWLEDGE_LIMITATIONS) {
-                    Text("Powering off, force-stopping, or uninstalling Curfew can prevent the alarm. Do Not Disturb and manufacturer battery settings can also affect sound and delivery.", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-                Button(onClick = callback, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text(label, textAlign = TextAlign.Center) }
-            }
+    SetupTaskContent(
+        introduction = { SetupIntroduction(
+            if (next == null) studio.hypertext.curfew.R.drawable.ic_check_circle_rounded else studio.hypertext.curfew.R.drawable.ic_alarm_rounded,
+            title, purpose,
+        ) },
+    ) {
+        if (next == ReadinessAction.ACKNOWLEDGE_LIMITATIONS) {
+            Text("Powering off, force-stopping, or uninstalling Curfew can prevent the alarm. Do Not Disturb and manufacturer battery settings can also affect sound and delivery.", color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
+        Button(onClick = callback, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text(label, textAlign = TextAlign.Center) }
         if (readiness.canArm) {
             TextButton(onClick = onPlayTestSound, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Test alarm sound") }
         }

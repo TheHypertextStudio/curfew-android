@@ -43,6 +43,8 @@ import kotlinx.coroutines.launch
 internal fun CurfewWelcomeScreen(
     onContinue: () -> Unit,
     onNotNow: () -> Unit,
+    busy: Boolean = false,
+    error: String? = null,
     motionEnabled: Boolean = ValueAnimator.areAnimatorsEnabled(),
     posture: Posture? = null,
 ) {
@@ -68,7 +70,7 @@ internal fun CurfewWelcomeScreen(
                 Column(Modifier.fillMaxSize()) {
                     WelcomeIntroduction(brandMotion, copyMotion, Modifier.fillMaxWidth().height(with(density) { above.toDp() }), centered = true)
                     Spacer(Modifier.height(with(density) { (below - above).toDp() }))
-                    WelcomeActions(onContinue, onNotNow, copyMotion, actionMotion, Modifier.fillMaxWidth().weight(1f), centered = true)
+                    WelcomeActions(onContinue, onNotNow, copyMotion, actionMotion, busy, error, Modifier.fillMaxWidth().weight(1f), centered = true)
                 }
             } else {
                 val directive = calculatePaneScaffoldDirective(
@@ -78,7 +80,7 @@ internal fun CurfewWelcomeScreen(
                     directive = directive,
                     value = ThreePaneScaffoldValue(PaneAdaptedValue.Expanded, PaneAdaptedValue.Expanded, PaneAdaptedValue.Hidden),
                     mainPane = { AnimatedPane { WelcomeIntroduction(brandMotion, copyMotion, Modifier.fillMaxSize(), centered = true) } },
-                    supportingPane = { AnimatedPane { WelcomeActions(onContinue, onNotNow, copyMotion, actionMotion, Modifier.fillMaxSize(), centered = true) } },
+                    supportingPane = { AnimatedPane { WelcomeActions(onContinue, onNotNow, copyMotion, actionMotion, busy, error, Modifier.fillMaxSize(), centered = true) } },
                     modifier = Modifier.fillMaxSize(),
                 )
             }
@@ -96,7 +98,7 @@ internal fun CurfewWelcomeScreen(
                         WelcomeIntroduction(brandMotion, copyMotion, Modifier.fillMaxWidth())
                         Column {
                             WelcomeLandscape(sunMotion, Modifier.fillMaxWidth().height(landscapeHeight))
-                            WelcomeActions(onContinue, onNotNow, copyMotion, actionMotion, Modifier.fillMaxWidth().background(colors.secondaryContainer))
+                            WelcomeActions(onContinue, onNotNow, copyMotion, actionMotion, busy, error, Modifier.fillMaxWidth().background(colors.secondaryContainer))
                         }
                     },
                 ) { children, constraints ->
@@ -150,7 +152,7 @@ private fun WelcomeIntroduction(brandMotion: WelcomeMotion, copyMotion: WelcomeM
 }
 
 @Composable
-private fun WelcomeActions(onContinue: () -> Unit, onNotNow: () -> Unit, copyMotion: WelcomeMotion, motion: WelcomeMotion, modifier: Modifier, centered: Boolean = false) {
+private fun WelcomeActions(onContinue: () -> Unit, onNotNow: () -> Unit, copyMotion: WelcomeMotion, motion: WelcomeMotion, busy: Boolean, error: String?, modifier: Modifier, centered: Boolean = false) {
     BoxWithConstraints(modifier.testTag("welcome-actions").semantics { isTraversalGroup = true }, contentAlignment = Alignment.Center) {
         val gutter = if (maxWidth < 360.dp) 24.dp else 32.dp
         val height = if (centered) maxHeight else 0.dp
@@ -160,8 +162,9 @@ private fun WelcomeActions(onContinue: () -> Unit, onNotNow: () -> Unit, copyMot
             Text("Wind down on time. Wake up when you planned.", style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp).entrance(copyMotion, 16.dp))
-            Button(onClick = onContinue, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp).entrance(motion, 8.dp)) { Text("Get started") }
-            TextButton(onClick = onNotNow, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).entrance(motion, 8.dp)) { Text("Not now") }
+            if (error != null) TaskMessage(error, error = true)
+            Button(onClick = onContinue, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp).entrance(motion, 8.dp)) { Text(if (busy) "Saving…" else "Get started") }
+            TextButton(onClick = onNotNow, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).entrance(motion, 8.dp)) { Text("Not now") }
         }
     }
 }

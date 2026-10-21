@@ -1,0 +1,15 @@
+{
+  "plain": {
+    "path": "app/build/outputs/apk/plain/debug/app-plain-debug.apk",
+    "sha256": "f7f2d250e9a4bcf4c1ef7e1ecd0a098563462ebdba6bbd50c79dc716379c26c5"
+  },
+  "gms": {
+    "path": "app/build/outputs/apk/gms/debug/app-gms-debug.apk",
+    "sha256": "655c81e19b28c8fd9201c87d8f21b44eebf7c69741bfda9feaafb81887efa29d"
+  },
+  "test": {
+    "path": "app/build/outputs/apk/androidTest/plain/debug/app-plain-debug-androidTest.apk",
+    "sha256": "755a48a5f59b8f35cc49cda40f48e565209f14f919b62919fe9143e0d4ff6166"
+  },
+  "mainSourceSha256": "de4360f3d359a60112c3caf8330589ee5bcb47a88e30a753aeeb3688420a85e5"
+}

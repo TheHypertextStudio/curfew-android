@@ -62,8 +62,8 @@ Keep the alarm and its check-in together below the app bar, with a 12dp gap
 between their surfaces. Do not center this short group in the whole viewport.
 The centered capture separated the alarm from the brand and only moved the
 empty area above it. Do not stretch controls or add copy to fill the phone.
-Limit the daily column to 420dp on expanded windows. Other tasks keep their
-640dp limit.
+Limit the daily column to 420dp on expanded windows. Settings and account
+forms keep their 640dp limit. Setup can use two adaptive panes.
 
 Give the chosen time visual priority. Its numeric size can reach 100sp when
 width permits. Fit the time and localized period by measurement; narrow windows
@@ -112,8 +112,9 @@ expanded navigation use the same noun. Quiet intervals retain “Time to get
 up.” with the next ringing time rather than another feature-name heading.
 Do not add a second visible title or explanatory row to achieve this.
 
-Check-in setup keeps one short statement about release and lost connection.
-The optional link needs validation feedback only when invalid. Recovery
+Check-in introduces the release purpose and the compatible-service prerequisite
+before asking for an address. The optional opening link stays under Optional
+details and receives validation feedback when invalid. Recovery
 cancellation reports cancellation without claiming that a concurrent wake
 approval has not stopped the alarm. Errors identify the failed action.
 This copy pass changes no authorization or schedule behavior.
@@ -132,7 +133,11 @@ This state diagram distinguishes configuration completion from ordinary viewing.
 ```mermaid
 stateDiagram-v2
     [*] --> Detail: Open connected check-in
-    [*] --> Setup: Open missing or untested check-in
+    [*] --> Introduction: Open missing check-in
+    [*] --> Setup: Open untested check-in
+    Introduction --> Connection: Connect a service
+    Connection --> Introduction: Back
+    Connection --> Setup: Save connection
     Setup --> Completion: Verify connection
     Detail --> Replacement: Replace
     Completion --> Replacement: Replace
@@ -142,7 +147,7 @@ stateDiagram-v2
     Detail --> [*]: Back
     Setup --> [*]: Back
     Completion --> [*]: Done
-    Replacement --> [*]: Back
+    Replacement --> Detail: Back
 ```
 
 ## Scaled windows
@@ -211,3 +216,21 @@ The editor keeps all seven repeat controls on one row when their 48dp touch
 areas fit. Narrower content uses four days followed by three rather than
 leaving Sunday alone. Permission buttons center each wrapped line at 200% text.
 These changes preserve the existing colors, shapes, navigation, and alarm state.
+
+## October 21 setup layout and navigation
+
+The current setup behavior is in [ONBOARDING_DESIGN.md](ONBOARDING_DESIGN.md).
+Setup uses a flexible purpose/work arrangement. It stacks on narrow windows
+and separates into meaningful panes on wider windows and separating hinges.
+The 640dp form limit continues to apply to settings and account content.
+
+Check-in introduces the service prerequisite before exposing its connection
+address. Optional details contain the name and opening link. A verified
+replacement cannot rename or rebind an existing alarm until the owner saves
+that alarm. Back never advances through completed permissions.
+
+Shared wake-time bounds connect the main screen, editor, and review. The
+connection summary shares bounds with review when those destinations are
+adjacent. Other destination changes use the Material Expressive motion scheme.
+The task header moves beside the connection field when a short keyboard window
+cannot fit both vertically. The header appears once.

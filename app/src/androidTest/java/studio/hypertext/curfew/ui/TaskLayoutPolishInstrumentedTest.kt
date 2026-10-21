@@ -70,7 +70,7 @@ class TaskLayoutPolishInstrumentedTest {
             val density = LocalDensity.current.density
             CompositionLocalProvider(LocalDensity provides Density(density, 2f)) {
                 CurfewTheme {
-                    Box(Modifier.size(320.dp, 650.dp)) {
+                    Box(Modifier.size(240.dp, 650.dp)) {
                         AlarmReadinessScreen(
                             AlarmReadiness(false, setOf(ReadinessAction.GRANT_FULL_SCREEN_ACCESS), emptySet(), AlarmPresentation.FULL_SCREEN),
                             {}, {}, {}, {}, {}, {}, {}, {},

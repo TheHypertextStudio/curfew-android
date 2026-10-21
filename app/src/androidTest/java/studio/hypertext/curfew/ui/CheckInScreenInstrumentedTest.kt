@@ -26,11 +26,13 @@ class CheckInScreenInstrumentedTest {
         compose.setContent {
             CurfewTheme {
                 CheckInScreen(callback.value, callback.value?.let { "Morning check-in" }, false, busy.value, null,
-                    onSave = { _, _, _ -> saves++; busy.value = true }, onExport = {}, onVerify = {}, onDone = {})
+                    onSave = { _, _, _ -> saves++; busy.value = true; "condition-1" }, onExport = {}, onVerify = {}, onDone = {})
             }
         }
         compose.onNodeWithText("Test connection").assertDoesNotExist()
-        compose.onNodeWithText("Name").performTextInput("Morning check-in")
+        compose.onNodeWithText("Connect a service").performScrollTo().performClick()
+        compose.onNodeWithText("Optional details").performScrollTo().performClick()
+        compose.onNodeWithText("Name").performScrollTo().performTextInput("Morning check-in")
         compose.onNodeWithText("Service address").performTextInput("https://wake.example.test/check-in")
         Espresso.closeSoftKeyboard()
         compose.onNodeWithText("Save check-in").performScrollTo().performClick()
@@ -47,12 +49,14 @@ class CheckInScreenInstrumentedTest {
         compose.setContent {
             CurfewTheme {
                 CheckInScreen(null, null, false, false, null,
-                    onSave = { _, _, action -> savedAction = action }, onExport = {}, onVerify = {}, onDone = {})
+                    onSave = { _, _, action -> savedAction = action; "condition-1" }, onExport = {}, onVerify = {}, onDone = {})
             }
         }
-        compose.onNodeWithText("Name").performTextInput("Morning check-in")
+        compose.onNodeWithText("Connect a service").performScrollTo().performClick()
+        compose.onNodeWithText("Optional details").performScrollTo().performClick()
+        compose.onNodeWithText("Name").performScrollTo().performTextInput("Morning check-in")
         compose.onNodeWithText("Service address").performTextInput("https://wake.example.test/check-in")
-        compose.onNodeWithText("Check-in link (optional)").performTextInput("morning-checkin://start")
+        compose.onNodeWithText("Check-in link (optional)").performScrollTo().performTextInput("morning-checkin://start")
         compose.onNodeWithText("Save check-in").performScrollTo().assertIsEnabled().performClick()
         compose.runOnIdle { assertEquals("morning-checkin://start", savedAction) }
     }
@@ -63,19 +67,51 @@ class CheckInScreenInstrumentedTest {
         compose.setContent {
             CurfewTheme {
                 CheckInScreen(null, null, false, false, message.value,
-                    onSave = { _, _, _ -> saves++; message.value = "Could not save check-in. Try again." },
+                    onSave = { _, _, _ -> saves++; message.value = "Could not save check-in. Try again."; throw java.io.IOException("storage") },
                     onExport = {}, onVerify = {}, onDone = {})
             }
         }
-        compose.onNodeWithText("Name").performTextInput("Morning check-in")
+        compose.onNodeWithText("Connect a service").performScrollTo().performClick()
+        compose.onNodeWithText("Optional details").performScrollTo().performClick()
+        compose.onNodeWithText("Name").performScrollTo().performTextInput("Morning check-in")
         compose.onNodeWithText("Service address").performTextInput("https://wake.example.test/check-in")
         Espresso.closeSoftKeyboard()
         compose.waitForIdle()
         compose.onNodeWithText("Save check-in").performScrollTo().assertIsEnabled().performClick()
         compose.runOnIdle { assertEquals(1, saves) }
-        compose.onNodeWithText("Could not save check-in. Try again.").assertExists()
+        compose.onNodeWithText("Couldn’t save the check-in. Try again.").assertExists()
         compose.onNodeWithText("Save check-in").performScrollTo().assertIsEnabled().performClick()
         compose.runOnIdle { assertEquals(2, saves) }
+    }
+
+    @Test
+    fun savedConnectionCanArriveAfterBusyClears() {
+        val callback = mutableStateOf<String?>(null)
+        val busy = mutableStateOf(false)
+        compose.setContent { CurfewTheme {
+            CheckInScreen(callback.value, callback.value?.let { "Saved check-in" }, false, busy.value, null,
+                { _, _, _ -> busy.value = true; "saved" }, {}, {}, {})
+        } }
+        compose.onNodeWithText("Connect a service").performScrollTo().performClick()
+        compose.onNodeWithText("Service address").performTextInput("https://wake.example.test/check-in")
+        Espresso.closeSoftKeyboard()
+        compose.onNodeWithText("Save check-in").performScrollTo().performClick()
+        compose.runOnIdle { busy.value = false }
+        compose.runOnIdle { callback.value = "saved" }
+        compose.onNodeWithText("Test connection").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun relativeOpeningLinksCannotBeSaved() {
+        compose.setContent {
+            CurfewTheme { CheckInScreen(null, null, false, false, null, { _, _, _ -> "condition-1" }, {}, {}, {}) }
+        }
+        compose.onNodeWithText("Connect a service").performScrollTo().performClick()
+        compose.onNodeWithText("Service address").performTextInput("https://wake.example.test/check-in")
+        compose.onNodeWithText("Optional details").performScrollTo().performClick()
+        compose.onNodeWithText("Check-in link (optional)").performTextInput("/relative/path")
+        Espresso.closeSoftKeyboard()
+        compose.onNodeWithText("Save check-in").performScrollTo().assertIsNotEnabled()
     }
 
     @Test
@@ -84,7 +120,7 @@ class CheckInScreenInstrumentedTest {
             CurfewTheme {
                 CheckInScreen("condition-1", "Morning check-in", true, false,
                     "Couldn’t save the setup file. Try again.",
-                    onSave = { _, _, _ -> }, onExport = {}, onVerify = {}, onDone = {})
+                    onSave = { _, _, _ -> "condition-1" }, onExport = {}, onVerify = {}, onDone = {})
             }
         }
         compose.onNodeWithText("Connected").assertIsDisplayed()
@@ -100,7 +136,7 @@ class CheckInScreenInstrumentedTest {
         compose.setContent {
             CurfewTheme {
                 CheckInScreen("condition-1", "Morning check-in", verified.value, false, null,
-                    onSave = { _, _, _ -> }, onExport = { exports++ },
+                    onSave = { _, _, _ -> "condition-1" }, onExport = { exports++ },
                     onVerify = { verified.value = true }, onDone = { completions++ })
             }
         }

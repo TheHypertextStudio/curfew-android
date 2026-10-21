@@ -21,6 +21,9 @@ import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.assertIsEnabled
@@ -50,6 +53,13 @@ class SunriseScheduleEditorInstrumentedTest {
     private val alarm = SavedSunriseAlarm(schedule, SunriseOccurrence(
         "morning-1", LocalDate.of(2026, 10, 20), Instant.parse("2026-10-20T14:00:00Z"),
     ))
+
+    private fun timeControl(time: LocalTime): SemanticsNodeInteraction {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val locale = context.resources.configuration.locales[0]
+        val numeric = time.format(DateTimeFormatter.ofPattern(if (android.text.format.DateFormat.is24HourFormat(context)) "HH:mm" else "h:mm", locale))
+        return compose.onNode(hasText(numeric) and hasClickAction())
+    }
 
     @Test
     fun savingRequiresAConfiguredReleaseCondition() {
@@ -82,7 +92,7 @@ class SunriseScheduleEditorInstrumentedTest {
         compose.setContent {
             EditorFixture { SunriseScheduleEditor(alarm, "condition-1", true, false, null, {}, {}) }
         }
-        compose.onNodeWithText(timeLabel(schedule.wakeTime, context, context.resources.configuration.locales[0]))
+        timeControl(schedule.wakeTime)
             .performScrollTo().performClick()
         compose.onNodeWithText("Done").assertIsDisplayed()
         compose.onNodeWithText("Cancel").assertIsDisplayed().performClick()
@@ -122,7 +132,7 @@ class SunriseScheduleEditorInstrumentedTest {
             .performScrollTo().performClick()
         enterDate(chosenDate)
         compose.onNodeWithText("Done").performClick()
-        compose.onNodeWithText(timeLabel(initialTime, context, locale)).performScrollTo().performClick()
+        timeControl(initialTime).performScrollTo().performClick()
         confirmTime(8, 15)
         compose.onNodeWithText(chosenDate.format(format)).performScrollTo().assertIsDisplayed()
         val instrumentation = InstrumentationRegistry.getInstrumentation()
@@ -150,7 +160,7 @@ class SunriseScheduleEditorInstrumentedTest {
                 SunriseScheduleEditor(null, "condition-1", true, false, null, { saved = it }, {})
             }
         }
-        compose.onNodeWithText(timeLabel(LocalTime.of(7, 0), context, locale)).performScrollTo().performClick()
+        timeControl(LocalTime.of(7, 0)).performScrollTo().performClick()
         confirmTime(0, 0)
         compose.onNodeWithText("Save").performScrollTo().performClick()
         compose.runOnIdle {
@@ -213,7 +223,7 @@ class SunriseScheduleEditorInstrumentedTest {
         compose.onAllNodes(hasSetTextAction())[1].performTextReplacement(minute.toString().padStart(2, '0'))
         if (!use24Hour) {
             val label = LocalTime.of(hour, minute).format(DateTimeFormatter.ofPattern("a", context.resources.configuration.locales[0]))
-            compose.onNodeWithText(label, useUnmergedTree = true).performClick()
+            compose.onNode(hasText(label) and hasAnyAncestor(isDialog()), useUnmergedTree = true).performClick()
         }
     }
 
@@ -226,7 +236,7 @@ class SunriseScheduleEditorInstrumentedTest {
         var saved: SunriseSchedule? = null
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         compose.setContent { EditorFixture { SunriseScheduleEditor(alarm, "condition-1", true, false, null, { saved = it }, {}) } }
-        compose.onNodeWithText(timeLabel(schedule.wakeTime, context, context.resources.configuration.locales[0])).performScrollTo().performClick()
+        timeControl(schedule.wakeTime).performScrollTo().performClick()
         confirmTime(8, 15)
         compose.runOnIdle { assertEquals(null, saved) }
         compose.onNodeWithText("Save").performScrollTo().performClick()
@@ -237,7 +247,7 @@ class SunriseScheduleEditorInstrumentedTest {
         var saved: SunriseSchedule? = null
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         compose.setContent { EditorFixture { SunriseScheduleEditor(alarm, "condition-1", true, false, null, { saved = it }, {}) } }
-        compose.onNodeWithText(timeLabel(schedule.wakeTime, context, context.resources.configuration.locales[0])).performScrollTo().performClick()
+        timeControl(schedule.wakeTime).performScrollTo().performClick()
         enterTime(8, 15)
         compose.onNodeWithText("Cancel").performClick()
         compose.onNodeWithText("Save").performScrollTo().performClick()

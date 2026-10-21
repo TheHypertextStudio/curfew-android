@@ -2,7 +2,7 @@
 
 Reader: The Curfew Android designer and maintainer.
 Action: Verify the implemented flow and keep the remaining service work separate.
-Date: October 20, 2026.
+Date: October 21, 2026.
 Status: The flow and responsive welcome pass CI verification and the complete native screenshot review. Physical acceptance and the consumer service remain open.
 
 A new owner sees Welcome before access requests or an empty alarm screen. The
@@ -48,8 +48,9 @@ flowchart TD
 
 The app skips requirements that are already satisfied. Back preserves the
 previous task. Repeated repairs return to the existing destination instead of
-accumulating duplicate route keys. Completing the last readiness requirement
-moves to Review without another first-use success checklist.
+accumulating duplicate route keys. Completing the last readiness requirement enables Continue. The owner advances
+explicitly. Entering a completed readiness screen through Back never advances
+the flow.
 
 ### Welcome
 
@@ -121,7 +122,9 @@ appear in ordinary logs or inline diagnostics.
 
 A successful connection test establishes a usable authenticated connection. It
 does not establish that tomorrow's wake condition is met. Failed, unavailable,
-pending, invalid, or expired responses cannot complete verification. Returning
+unauthenticated, invalid, or expired responses cannot complete verification.
+A valid signed pending response can verify the connection without releasing
+an alarm occurrence. Returning
 to an already verified connection during setup still offers Continue.
 
 This integration remains the principal consumer product gap. There is no
@@ -250,3 +253,49 @@ The following requirements remain separate from local implementation:
 The Mac references are GettingStartedModels.swift and GettingStartedView.swift
 in the Curfew repository. The Android behavior builds on the existing schedule,
 readiness, verification, and [owner-recovery contracts](OWNER_RECOVERY.md).
+
+## State and navigation repairs on October 21
+
+The coordinator saves its draft with the route stack. A cold resume includes
+an editor beneath the current setup destination. Transient save flags do not
+survive recreation. A matching enabled saved alarm reconciles an interrupted
+activation to the main screen without issuing another activation.
+
+Welcome awaits durable choice persistence before navigation. A failed write
+keeps Welcome visible with retry. Main waits for real preferences and loaded
+connection definitions before choosing a first-use destination. Alarm-read
+failures show retry instead of pretending that no alarm exists.
+
+Check-in starts with its purpose and the requirement for an existing compatible
+service. Connect a service opens the form. Back returns to the introduction or
+saved connection before leaving the task. Set up later preserves the prepared
+time and persists the deferred choice without enabling an alarm. The connection
+save operation returns an identity. The form waits for that identity and its
+label to arrive before switching to transfer and verification. A completed
+spinner alone cannot mark the save successful.
+
+The existing alarm retains its own check-in name when the selected connection
+changes. A verified replacement offers Use for alarm. That opens the editor
+and requires an explicit Save before changing the alarm's binding. Replacing a
+connection never releases an occurrence already underway.
+
+Export persists only the pending callback identity across recreation. The result
+handler reloads the still-selected definition before writing the file. Secret
+material never enters the Activity saved-state bundle.
+
+Setup uses one adaptive purpose/work composition. Compact windows place the
+purpose above the action group. Wider windows give each region a pane.
+Material's hinge information keeps vertical and horizontal fold regions clear.
+Enlarged text and keyboard-constrained content can scroll. The wake-time
+summary shares bounds across the main screen, editor, and review. The connected
+check-in summary shares bounds with review. Other navigation uses Compose
+transitions with the Material Expressive motion scheme.
+
+The consumer service remains outside this repair. The app does not invent a
+provider catalog, hosted check-in, keyholder portal, or QR provisioning flow.
+
+In a short window with the keyboard open, the same task header moves beside the
+connection form. The field retains enough height for its full label and border.
+The frame consumes its applied insets before child screens apply IME padding.
+Settings and account forms retain their readable width limit; setup uses the
+available panes rather than inheriting that form limit.

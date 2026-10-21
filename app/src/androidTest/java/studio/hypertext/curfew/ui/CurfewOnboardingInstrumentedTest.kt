@@ -126,7 +126,7 @@ class CurfewOnboardingInstrumentedTest {
         compose.setContent {
             CaptureTheme {
                 CheckInScreen("saved-id", "Morning check-in", true, false, null,
-                    { _, _, _ -> }, {}, {}, onDone = { next++ }, inSetup = true)
+                    { _, _, _ -> "condition-1" }, {}, {}, onDone = { next++ }, inSetup = true)
             }
         }
         compose.onNodeWithText("Continue").performScrollTo().performClick()
