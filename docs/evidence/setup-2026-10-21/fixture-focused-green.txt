@@ -2,7 +2,7 @@ Performing Streamed Install
 Success
 Performing Streamed Install
 Success
-seed 
+seed
 studio.hypertext.curfew.callback.SunriseReleaseJourneyInstrumentedTest:.
 
 Time: 6.262
@@ -11,7 +11,7 @@ OK (1 test)
 
 
 
-focused 
+focused
 studio.hypertext.curfew.ui.SetupColdStartInstrumentedTest:....
 studio.hypertext.curfew.ui.AlarmSoundCheckJourneyInstrumentedTest:....
 studio.hypertext.curfew.ui.CurfewDesignCaptureInstrumentedTest:.........
