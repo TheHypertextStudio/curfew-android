@@ -15,6 +15,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import studio.hypertext.curfew.readiness.AlarmPresentation
@@ -31,7 +32,7 @@ class CurfewOnboardingInstrumentedTest {
         compose.onNodeWithText("Couldn’t load setup").assertIsDisplayed()
         compose.onNodeWithText("Try again").performScrollTo().performClick()
         compose.runOnIdle { assertEquals(1, retries) }
-        compose.onNodeWithText("Set up alarm").assertDoesNotExist()
+        compose.onNodeWithText("Get started").assertDoesNotExist()
         compose.onNodeWithText("Reset").assertDoesNotExist()
     }
 
@@ -41,9 +42,13 @@ class CurfewOnboardingInstrumentedTest {
         compose.setContent {
             CaptureTheme { CurfewWelcomeScreen(onContinue = { continued++ }, onNotNow = { deferred++ }) }
         }
-        compose.onNodeWithText("Welcome to Curfew").assertIsDisplayed()
+        compose.onNodeWithText("Your nights.\nYour mornings.").assertIsDisplayed()
+        val wordmark = compose.onNodeWithText("Curfew").fetchSemanticsNode().boundsInRoot
+        val viewport = compose.onRoot().fetchSemanticsNode().boundsInRoot
+        val introduction = compose.onNodeWithText("Your nights.\nYour mornings.").fetchSemanticsNode().boundsInRoot
+        assertTrue("Welcome branding belongs to the centered introduction", kotlin.math.abs(wordmark.center.x - introduction.center.x) < viewport.width * .08f)
         capture("welcome")
-        compose.onNodeWithText("Set up alarm").performScrollTo().performClick()
+        compose.onNodeWithText("Get started").performScrollTo().performClick()
         compose.onNodeWithText("Not now").performScrollTo().performClick()
         compose.runOnIdle { assertEquals(1, continued); assertEquals(1, deferred) }
         compose.onNodeWithText("Turn on alarm").assertDoesNotExist()

@@ -243,9 +243,9 @@ class CurfewAppNavigationInstrumentedTest {
     @Test
     fun firstUseChoosesTimeWithoutSavingBeforeTheExplicitReviewAction() {
         show(fresh = true)
-        compose.onNodeWithText("Welcome to Curfew").assertIsDisplayed()
+        compose.onNodeWithText("Your nights.\nYour mornings.").assertIsDisplayed()
         compose.onNodeWithContentDescription("Alarm navigation").assertDoesNotExist()
-        compose.onNodeWithText("Set up alarm").performClick()
+        compose.onNodeWithText("Get started").performClick()
         compose.onNodeWithText("Weekly").performClick()
         compose.onNodeWithText("Continue").performScrollTo().performClick()
         compose.onNodeWithText("Turn on alarm").performScrollTo().assertIsDisplayed()

@@ -1,4 +1,8 @@
 import java.security.MessageDigest
+import com.github.jk1.license.License
+import com.github.jk1.license.PomData
+import com.github.jk1.license.filter.DependencyFilter
+import groovy.json.JsonSlurper
 
 plugins {
     id("com.android.application")
@@ -101,6 +105,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material3.adaptive)
+    implementation(libs.androidx.compose.material3.adaptive.layout)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.datastore.preferences)
@@ -130,6 +135,27 @@ licenseReport {
     configurations = arrayOf("plainReleaseRuntimeClasspath", "gmsReleaseRuntimeClasspath")
     allowedLicensesFile = layout.projectDirectory.file("../config/allowed-licenses.json")
     excludeOwnGroup = true
+    val metadata = JsonSlurper().parse(layout.projectDirectory.file("../config/license-metadata.json").asFile) as Map<*, *>
+    val modules = (metadata["modules"] as List<*>).map { it as Map<*, *> }
+    // The normalizer only transforms existing licenses; these resolved modules have none.
+    // Supply the licenses verified in their exact Google Maven POMs without allowing unknowns.
+    filters = arrayOf(DependencyFilter { data ->
+        data.configurations.flatMap { it.dependencies }.forEach { dependency ->
+            val verified = modules.singleOrNull {
+                it["group"] == dependency.group && it["name"] == dependency.name && it["version"] == dependency.version
+            }
+            if (verified != null && dependency.poms.all { it.licenses.isEmpty() } &&
+                dependency.manifests.all { it.licenses.isEmpty() } && dependency.licenseFiles.isEmpty()
+            ) {
+                dependency.poms.add(PomData().apply {
+                    name = dependency.name
+                    projectUrl = verified["sourcePom"] as String
+                    licenses = mutableSetOf(License(verified["license"] as String, verified["licenseUrl"] as String))
+                })
+            }
+        }
+        data
+    })
 }
 
 tasks.register("verifyPlainRuntimeIsolation") {

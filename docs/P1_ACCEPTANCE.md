@@ -216,3 +216,27 @@ establish production signing or store readiness. Local verification is in
 USB inventory, adb, and wireless discovery show no connected Pixel. The owner
 has a pending reconnection request. This remains a physical acceptance blocker;
 the passing CI matrix does not replace the phone's remaining checks.
+
+
+## Welcome design follow-up
+
+The welcome introduces both bedtime Curfew and morning Sunrise. Each connected
+Android device is an enforcement endpoint. This follow-up changes presentation;
+it does not implement bedtime enforcement or coordinated network actuation.
+
+One shared introduction and commitment/action group adapt through Material 3
+Adaptive panes. Book and tabletop hinge arrangements keep each region useful.
+The scene stays continuous, the entrance runs once, and the native window now
+follows the device theme alongside Compose. The launcher preserves the Mac
+icon’s full sun and dusk palette within Android adaptive layers.
+
+The current portrait candidate passes both app/test builds and 195 host tests
+per distribution. Both lint tasks passed before the last portrait adjustment.
+The final lint, native tests, and refreshed screenshot matrix remain pending CI.
+See TESTING.md for failing-first logs and the rejected local emulator runs.
+
+The API35 CI job exports 18 installed windows, four synthetic posture fixtures,
+eight launcher-mask previews, source provenance, and matching APKs. The previous
+local matrix is marked as preceding the final layout. It is not final acceptance.
+Emulator proof does not replace physical alarm, TalkBack, or hardware hinge
+acceptance. The connected-Pixel recovery criterion above remains open.

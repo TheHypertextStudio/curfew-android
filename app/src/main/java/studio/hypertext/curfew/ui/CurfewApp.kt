@@ -4,7 +4,7 @@ import studio.hypertext.curfew.alarm.AlarmSetupDraft
 
 import kotlinx.coroutines.launch
 import androidx.compose.animation.SharedTransitionLayout
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.material3.adaptive.navigationsuite.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.saveable.listSaver
@@ -166,7 +166,7 @@ fun CurfewApp(
         else -> "Curfew"
     }
     val rootDestination = destination == "daily" || destination == "settings"
-    val adaptiveType = NavigationSuiteScaffoldDefaults.navigationSuiteType(currentWindowAdaptiveInfo())
+    val adaptiveType = NavigationSuiteScaffoldDefaults.navigationSuiteType(currentWindowAdaptiveInfoV2())
     NavigationSuiteScaffold(
         navigationSuiteType = if (rootDestination) adaptiveType else NavigationSuiteType.None,
         navigationItems = {
@@ -182,6 +182,7 @@ fun CurfewApp(
         },
     ) {
         Scaffold(
+            contentWindowInsets = if (destination == "welcome") WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal) else ScaffoldDefaults.contentWindowInsets,
             topBar = {
                 if (destination != "welcome") TopAppBar(
                     title = {
@@ -239,7 +240,7 @@ fun CurfewApp(
                             val canArm = readiness.canArm && callbackId != null && conditionLabel != null && conditionVerified
                             CompositionLocalProvider(LocalCurfewMotion provides CurfewMotionScope(sharedScope, LocalNavAnimatedContentScope.current)) {
                                 Box(Modifier.fillMaxSize().semantics { paneTitle = when (route) { "daily" -> "Alarm"; "readiness" -> "Alarm setup"; "edit" -> "Wake time"; "check-in" -> "Check-in"; "review" -> "Your alarm"; "settings" -> "Settings"; "account" -> "Account"; else -> "Welcome to Curfew" } }, contentAlignment = Alignment.TopCenter) {
-                                    Box(Modifier.widthIn(max = if (route == "daily") 420.dp else 640.dp).fillMaxSize()) {
+                                    Box(if (route == "welcome") Modifier.fillMaxSize() else Modifier.widthIn(max = if (route == "daily") 420.dp else 640.dp).fillMaxSize()) {
                                         when (route) {
                                             "welcome" -> CurfewWelcomeScreen(
                                                 onContinue = { onWelcomeChoice(true); setupMode = true; open("edit") },

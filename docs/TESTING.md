@@ -839,3 +839,74 @@ including final deferral and verified-connection Back behavior. Both verificatio
 jobs and published release evidence pass. All three published artifact hashes
 match, and the PR merge source tree matches the branch head. APKs are unsigned;
 this is build evidence rather than a production-signing claim.
+
+
+## Welcome composition, adaptive layout, and device appearance
+
+The welcome presents bedtime and waking up together. One introduction and one
+commitment/action group stack on narrow windows and use Material 3 Adaptive
+panes on wide windows. Official posture information excludes vertical hinges.
+A separating horizontal hinge places useful content above and below it. Native
+night-qualified resources follow the device theme alongside Compose.
+
+The logo grows continuously with readable pane width and available height.
+Compact portraits and short windows retain their compact treatment. Portrait
+layout measures the scene and commitment first, then centers the introduction
+in the remaining height. Enlarged text can expand into the existing scroller.
+
+Failing-first logs include `build/welcome-red-native.txt`,
+`build/welcome-centered-red-native.txt`, `build/welcome-motion-red-build.txt`,
+`build/welcome-landscape-red.txt`, and `build/welcome-adaptive-red-build.txt`.
+The source-icon correction failed two assertions in
+`build/icon-brand-red-native.txt`. The native night theme failed first in
+`build/device-theme-red-native.txt`. Larger-window brand emphasis failed first
+in `build/welcome-brand-red-native.txt` and passed before the subsequent
+posture-test process exit.
+
+The portrait guard first fails against an earlier accepted native phone XML
+in `build/welcome-portrait-baseline-red.txt`. Its wordmark starts at 200px in a
+2400px-tall capture. The guard rejects that top-pinned placement on tall,
+normal-text portrait phones. This is a saved native baseline, not a new live
+capture or final acceptance.
+
+The current portrait candidate builds both app/test distributions and passes
+195 host tests per distribution. Logs are `build/welcome-portrait-build.txt`
+and `build/welcome-portrait-host-checks.txt`. Both lint tasks passed before the
+last portrait adjustment in `build/welcome-brand-final-build.txt`. License and
+plain-runtime isolation pass in `build/welcome-adaptive-license-check.txt`.
+The current portrait lint and native matrix remain pending CI.
+
+Before the final brand/portrait adjustments, API36 Plain passed 32 native
+cases in `build/welcome-adaptive-native.txt` and API36 GMS passed 11 focused
+cases in `build/welcome-adaptive-gms-native.txt`. Those results retain their
+source boundary. They do not verify the final layout.
+
+The API35 CI job now exports native motion frames, four synthetic book/tabletop
+fixtures, eight launcher-mask previews, and 18 installed MainActivity windows.
+Phone, tablet, fold cover, and fold inner windows cover both orientations and
+themes. Narrow 200% text covers both themes. The driver checks fresh loaded
+accessibility roots, pane separation, portrait placement, and action
+reachability. It verifies restoration of size, density, font scale, and night
+mode. Its manifest records the installed APK hash, source commit, and API.
+The uploaded artifact also includes the matching app/test APKs.
+
+`scripts/capture-welcome-matrix.py` refuses physical phones and unknown AVDs.
+The CI runner names its disposable API35 fixture `Sunrise_Design_API35`.
+Synthetic Posture/HingeInfo fixtures establish geometry only; they do not
+verify hardware callbacks. The motion test controls the Compose clock with a
+known duration scale, checks interaction during entrance, and tests disabled
+motion. The GIF preview may loop; the app entrance runs once per composition.
+
+Failed local runs contribute no accepted current captures. API36 reported an
+onStartJob ANR with 95.43% CPU pressure, 99% total CPU, and 52% IRQ time.
+Android could not collect Java or native stacks. Cold software and host-GPU
+boots then showed System UI ANRs. Logs are `build/welcome-brand-exit-info.txt`,
+`build/welcome-brand-anr-system.txt`, `build/welcome-portrait-red.txt`, and
+`build/welcome-portrait-placement-red.txt`. The Mac then reported 15.4GB swap
+and about 6.9GB compressed memory. Local emulators and the idle Gradle daemon
+were stopped. Full remaining verification and capture run in CI.
+
+The previous local screenshot matrix is marked as preceding the final changes.
+It must be replaced and reviewed after the CI artifact passes its manifest and
+image checks. Manual TalkBack, physical reduced motion, hardware posture
+changes, and remaining physical alarm acceptance stay open.

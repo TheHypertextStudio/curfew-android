@@ -1,6 +1,13 @@
 # Curfew for Android
 
-Curfew for Android is Curfew's wake device. macOS can synchronize state and take part in release checks, but it does not claim to wake a sleeping user.
+Curfew for Android participates in the Curfew device network. Bedtime lockout
+(Curfew) and morning wake-up (Sunrise) are equal parts of the product. A connected
+Android device must carry out the owner's plans on that device.
+
+This P1 branch implements local Sunrise delivery. Bedtime enforcement and
+coordinated cross-device actuation remain separate acceptance work. macOS can
+synchronize state and take part in release checks, but it does not claim to wake
+a sleeping user.
 
 The default campaign rings for two minutes, stays quiet for one minute, and repeats until a verified callback release or a fresh authorized override arrives. There is no ordinary dismiss or snooze action.
 

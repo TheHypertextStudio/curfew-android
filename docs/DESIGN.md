@@ -166,8 +166,21 @@ splitting a normal word such as “Morning” across lines at 240dp/200% text.
 
 ## First use and navigation
 
-The first launch welcomes the owner before exposing setup requirements. Wake
-time, service connection, required Android access, sound rehearsal, and explicit
+The first launch uses the home page’s cream canvas and continuous sun/horizon
+composition. It introduces bedtime and waking up with one wordmark, one headline, one
+commitment, and two choices. The same introduction and action components stack
+on phones and share two adaptive panes on wider windows. Each pane scrolls
+when enlarged text needs space. Separating hinges divide meaningful content
+rather than cutting through controls. The background stays continuous. The logo grows with readable pane width and
+available height, rather than switching between fixed device sizes.
+
+Every connected Android device must enforce its owner’s commitments locally.
+Android is not a remote-only controller. This P1 implementation still covers
+local Sunrise; bedtime enforcement and coordinated network actuation require
+separate acceptance. Both Compose surfaces and native windows follow the
+device’s light/dark setting while retaining Curfew’s palette.
+
+Wake time, service connection, required Android access, sound rehearsal, and explicit
 activation form one flow. Continue saves a draft without enabling it. Saved
 alarms skip the introduction. Settings offers Alarm setup for later repairs;
 the page shows the current missing action and its purpose.

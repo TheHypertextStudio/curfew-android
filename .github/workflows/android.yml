@@ -117,6 +117,7 @@ jobs:
       - uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api }}
+          avd-name: ${{ matrix.api == 35 && 'Sunrise_Design_API35' || 'test' }}
           # These tests use the IME, SystemUI, and platform alarm media.
           target: google_apis
           arch: x86_64
@@ -125,7 +126,20 @@ jobs:
           ram-size: 1536M
           disable-animations: true
           working-directory: curfew-android
-          script: ./ci/run-instrumented-tests.sh ${{ matrix.distribution }} ${{ matrix.api }}
+          script: |
+            ./ci/run-instrumented-tests.sh ${{ matrix.distribution }} ${{ matrix.api }}
+            if [ "${{ matrix.api }}" = "35" ]; then
+              python3 -B scripts/capture-welcome-matrix.py --serial emulator-5554 --output build/welcome-ci --include-native-fixtures
+            fi
+      - uses: actions/upload-artifact@v7
+        if: always() && matrix.api == 35
+        with:
+          name: curfew-welcome-native
+          path: |
+            curfew-android/build/welcome-ci/
+            curfew-android/app/build/outputs/apk/plain/debug/app-plain-debug.apk
+            curfew-android/app/build/outputs/apk/androidTest/plain/debug/app-plain-debug-androidTest.apk
+          if-no-files-found: warn
 
   release-evidence:
     runs-on: ubuntu-latest

@@ -4,6 +4,8 @@
     <color name="launch_horizon">#29221F</color>
     <style name="Theme.Curfew" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:windowBackground">@color/launch_canvas</item>
+        <item name="android:colorAccent">@color/curfew_primary</item>
+        <item name="android:forceDarkAllowed">false</item>
     </style>
     <style name="Theme.Curfew.Starting" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/launch_canvas</item>

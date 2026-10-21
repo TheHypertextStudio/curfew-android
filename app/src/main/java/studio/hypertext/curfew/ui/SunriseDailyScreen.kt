@@ -40,9 +40,9 @@ import studio.hypertext.curfew.alarm.SavedSunriseAlarm
 import studio.hypertext.curfew.alarm.SunriseSchedule
 
 @Composable
-internal fun CurfewHorizonMark() {
+internal fun CurfewHorizonMark(modifier: Modifier = Modifier.size(28.dp, 24.dp)) {
     val ink = MaterialTheme.colorScheme.onSurface
-    Canvas(Modifier.size(28.dp, 24.dp)) {
+    Canvas(modifier) {
         val scale = minOf(size.width / 48f, size.height / 36f)
         val left = (size.width - 48f * scale) / 2f
         val top = (size.height - 36f * scale) / 2f

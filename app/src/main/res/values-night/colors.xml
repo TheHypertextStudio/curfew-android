@@ -1,2 +1,2 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources><color name="launch_canvas">#1E1A20</color><color name="launch_horizon">#F6EEE3</color></resources>
+<resources><color name="launch_canvas">#1E1A20</color><color name="launch_horizon">#F6EEE3</color><color name="curfew_primary">#FFB58E</color></resources>

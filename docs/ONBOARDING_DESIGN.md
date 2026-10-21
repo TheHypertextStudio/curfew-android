@@ -3,7 +3,7 @@
 Reader: The Curfew Android designer and maintainer.
 Action: Verify the implemented flow and keep the remaining service work separate.
 Date: October 20, 2026.
-Status: The flow is implemented locally. Device acceptance and the consumer service remain open.
+Status: The flow and responsive welcome are implemented locally. Final welcome verification runs in CI. Device acceptance and the consumer service remain open.
 
 A new owner sees Welcome before access requests or an empty alarm screen. The
 owner chooses a wake time, connects a check-in, grants required Android access,
@@ -14,7 +14,9 @@ draft. It cannot schedule an alarm.
 
 Curfew enforces a choice made ahead of time. The Mac's first-run sequence puts
 schedule choices before permissions and explicit activation. Android follows
-that commitment model for waking up. It keeps the cream and ink surfaces,
+that commitment model for bedtime and waking up. A connected Android device
+is an enforcement endpoint in the Curfew network. It must carry out its owner’s
+plans on that device. Sunrise is one capability within this broader product. It keeps the cream and ink surfaces,
 ember actions, horizon mark, Calistoga display type, and Hanken text roles.
 Android uses native Material 3 Expressive controls and Material Symbols.
 
@@ -51,11 +53,50 @@ moves to Review without another first-use success checklist.
 
 ### Welcome
 
-Welcome shows the Curfew artwork, one heading, and one consequence:
-“Your alarm keeps ringing until you complete your check-in.” The actions are
-Set up alarm and Not now. Neither action enables an alarm or grants access.
-The introduction choice persists separately from readiness and schedule state.
-Existing saved alarms bypass Welcome.
+Welcome introduces both bedtime Curfew and morning Sunrise. The headline is
+“Your nights. Your mornings.” The supporting copy is “Wind down on time. Wake
+up when you planned.” The actions are Get started and Not now. There is one
+wordmark, one introduction, and one commitment/action group. Neither action
+enables an alarm or grants access. The introduction choice persists separately
+from readiness and schedule state. Existing saved alarms bypass Welcome.
+
+The same components change placement as the window changes. In paired layouts,
+the symbol and wordmark grow together with readable pane width and available
+height. Their growth is continuous and bounded. Compact portrait phones and
+short windows retain the compact treatment; enlarged text reduces available
+space before any brand enlargement. A narrow window
+stacks the introduction above the shared sun/horizon scene and commitment.
+It measures the scene and actions first, then centers the introduction in the
+remaining height. Enlarged text can expand the composition into its existing
+scroll container. The layout does not pin the headline to the top or add a fixed
+top spacer.
+Wider windows place the introduction and commitment next to each other with
+Material 3 Adaptive 1.3.0's SupportingPaneScaffold. The background remains one
+continuous scene. The app adds no second title, duplicate description, or new
+feature selector to fill space. Enlarged text can scroll within a constrained
+pane while the other pane remains usable.
+
+The production layout reads currentWindowAdaptiveInfoV2, including Android's
+posture and hinge bounds. Material's pane scaffold keeps book-mode content on
+opposite sides of vertical hinges. For a separating horizontal hinge, the app
+uses the reported upper/lower regions for introduction and commitment. The
+current pane scaffold does not itself partition those horizontal hinge regions.
+Each region has useful content, and no text or action crosses the hinge. The
+cover display retains the complete narrow layout. A resized or folded window
+keeps the existing entrance state and renders one instance of each section.
+
+The surface extends behind the navigation bar while controls respect its inset.
+A one-shot entrance uses the current Material 3 Expressive motion scheme. The
+wordmark appears first, the copy follows after 45ms, the sun rises behind the
+horizon after 80ms, and the actions settle after 120ms. Spatial motion uses the
+scheme's default spring; opacity uses its fast effects spec. Controls remain
+usable during the entrance. System-disabled animators show the final composition
+immediately. Compose handles the system duration scale for enabled motion.
+The app adds no looping animation or wait before continuing.
+
+This P1 flow currently opens wake-time setup after Get started. Bedtime setup
+and coordinated actuation remain separate work. The welcome describes Curfew's
+whole purpose without displaying controls for unimplemented capabilities.
 
 ### Wake time and days
 
@@ -147,6 +188,16 @@ failure never becomes a fresh installation and never resets preferences. Retry
 recollects the same store. Existing saved alarms do not depend on a successful
 optional introduction read. The public error offers retry without diagnostics
 or a destructive reset.
+
+## Device appearance
+
+The shared CurfewTheme reads the device's current light/dark setting. Native
+window themes now select matching light and dark parents, canvas colors, and
+brand accents. The earlier native parent was fixed to light even when Compose
+used dark colors. Android's automatic force-dark does not recolor Curfew's
+explicit palette. The launch screen uses its night-qualified canvas and horizon.
+System bars use the platform's automatic light/dark treatment. Brand colors stay
+consistent within each mode; wallpaper colors are not enabled implicitly.
 
 ## Native navigation and motion
 
