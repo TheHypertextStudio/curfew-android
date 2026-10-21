@@ -230,13 +230,18 @@ The scene stays continuous, the entrance runs once, and the native window now
 follows the device theme alongside Compose. The launcher preserves the Mac
 icon’s full sun and dusk palette within Android adaptive layers.
 
-The current portrait candidate passes both app/test builds and 195 host tests
-per distribution. Both lint tasks passed before the last portrait adjustment.
-The final lint, native tests, and refreshed screenshot matrix remain pending CI.
-See TESTING.md for failing-first logs and the rejected local emulator runs.
+The final runtime `f867f51` passes all seven jobs in CI run 39529921160.
+Both distributions build and pass 195 host tests each, both lint tasks pass,
+and API33/34/35/36 instrumentation succeeds. API35 reports 143 passing cases
+and seven guarded opt-in skips. See TESTING.md for failing-first evidence.
 
-The API35 CI job exports 18 installed windows, four synthetic posture fixtures,
-eight launcher-mask previews, source provenance, and matching APKs. The previous
-local matrix is marked as preceding the final layout. It is not final acceptance.
-Emulator proof does not replace physical alarm, TalkBack, or hardware hinge
-acceptance. The connected-Pixel recovery criterion above remains open.
+The reviewed matrix in `design/android-review/native/welcome-matrix/` contains
+18 installed window/theme profiles, four synthetic posture fixtures, eight
+launcher-mask previews, and native entrance frames. Both actions fit in the
+first viewport in all 18 profiles, including 200% text. PNG decoding, source-tree
+identity, installed APK hash, and device-settings restoration checks pass.
+Independent visual review found no clipping, collision, or unresolved placement.
+
+Emulator proof does not replace physical alarm, TalkBack, reduced-motion, or
+hardware hinge acceptance. The connected-Pixel recovery criterion above remains
+open. This evidence update changes no runtime source or alarm behavior.

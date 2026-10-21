@@ -874,7 +874,12 @@ The current portrait candidate builds both app/test distributions and passes
 and `build/welcome-portrait-host-checks.txt`. Both lint tasks passed before the
 last portrait adjustment in `build/welcome-brand-final-build.txt`. License and
 plain-runtime isolation pass in `build/welcome-adaptive-license-check.txt`.
-The current portrait lint and native matrix remain pending CI.
+CI run 39529921160 passes all seven jobs for runtime
+`f867f51d974a4b60358f658246901decc7b5121f`, including both lint tasks and
+API33/34/35/36 instrumentation. The API35 runner reports 150 cases: 143 pass
+and seven guarded opt-in acceptance cases skip. The captured merge commit
+`8e49fcbb52c074eac4daea0e70528233a3477bfe` has the same source tree as the
+runtime head (`d071807875086eec3ad3748aaca6cd35df16cbc2`).
 
 Before the final brand/portrait adjustments, API36 Plain passed 32 native
 cases in `build/welcome-adaptive-native.txt` and API36 GMS passed 11 focused
@@ -904,14 +909,21 @@ boots then showed System UI ANRs. Logs are `build/welcome-brand-exit-info.txt`,
 `build/welcome-brand-anr-system.txt`, `build/welcome-portrait-red.txt`, and
 `build/welcome-portrait-placement-red.txt`. The Mac then reported 15.4GB swap
 and about 6.9GB compressed memory. Local emulators and the idle Gradle daemon
-were stopped. Full remaining verification and capture run in CI.
+were stopped. The remaining verification and capture ran in CI.
 
-The previous local screenshot matrix is marked as preceding the final changes.
-It must be replaced and reviewed after the CI artifact passes its manifest and
-image checks. Manual TalkBack, physical reduced motion, hardware posture
-changes, and remaining physical alarm acceptance stay open.
+The reviewed current matrix is in
+`design/android-review/native/welcome-matrix/`. All 18 installed profiles show
+both actions in the first viewport, including both 200% text profiles. Every PNG
+decodes, settings restoration succeeds, and the downloaded APK matches manifest
+SHA256 `382a4ea668c236c20e25afeb84ba6137aa0f981cb5c7ac1478d01f8dd9d1c6ea`.
+The final portrait wordmark starts at 286px instead of the baseline's 200px.
+An independent designer reviewed all 18 views, four synthetic posture fixtures,
+and eight icon masks without finding a concrete visual defect. Manual TalkBack,
+physical reduced motion, hardware posture changes, and remaining physical alarm
+acceptance stay open.
 
-The first CI capture attempt passed all 150 API34 native tests, then failed
+The first CI capture attempt completed API34 instrumentation (143 passed and
+seven guarded cases skipped), then failed
 because emulator-runner executes each input line as a separate shell command.
 `ci/run-instrumented-and-capture.sh` now keeps the conditional capture step in
 one shell invocation. Three fixture tests fail before the wrapper exists and

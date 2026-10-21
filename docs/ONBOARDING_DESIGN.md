@@ -3,7 +3,7 @@
 Reader: The Curfew Android designer and maintainer.
 Action: Verify the implemented flow and keep the remaining service work separate.
 Date: October 20, 2026.
-Status: The flow and responsive welcome are implemented locally. Final welcome verification runs in CI. Device acceptance and the consumer service remain open.
+Status: The flow and responsive welcome pass CI verification and the complete native screenshot review. Physical acceptance and the consumer service remain open.
 
 A new owner sees Welcome before access requests or an empty alarm screen. The
 owner chooses a wake time, connects a check-in, grants required Android access,
