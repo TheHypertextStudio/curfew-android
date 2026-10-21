@@ -70,7 +70,7 @@ class SunriseReleaseJourneyInstrumentedTest {
         var callbackId: String? = null
         LocalHttpsVerifier().use { verifier ->
             try {
-                val definition = setup.save("Fixture morning check-in", verifier.endpoint, null)
+                val definition = setup.save("Morning check-in", verifier.endpoint, null)
                 callbackId = definition.callbackId
                 verifier.definition = definition
                 assertTrue(setup.verify(definition.callbackId))
@@ -110,7 +110,7 @@ class SunriseReleaseJourneyInstrumentedTest {
                 await("authenticated release stops foreground playback") {
                     runtime.load(id) is AlarmCampaignState.Satisfied && !ringingNotification() && !alarmAudioIsActive()
                 }
-                assertEquals("Fixture morning check-in", (runtime.load(id) as AlarmCampaignState.Satisfied).conditionLabel)
+                assertEquals("Morning check-in", (runtime.load(id) as AlarmCampaignState.Satisfied).conditionLabel)
                 assertEquals(null, scheduler.state.first()?.occurrence)
                 assertNotNull(scheduler.state.first()?.completedThrough)
                 assertTrue("Expected actual TLS callback exchanges", verifier.requests.get() >= 11)

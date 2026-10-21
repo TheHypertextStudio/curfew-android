@@ -60,12 +60,33 @@ def capture_accessibility_root(adb, name, output):
     raise RuntimeError(name + ': Android did not provide a fresh accessibility root; diagnostics saved')
 
 
+def capture_task_windows(adb, name, output):
+    for scene in ('daily', 'editor', 'settings', 'account', 'check-in', 'readiness'):
+        adb('shell', 'run-as', 'studio.hypertext.curfew', 'rm', '-f', f'cache/responsive-{scene}.png')
+    result = adb('shell', 'am', 'instrument', '-w', '-e', 'class',
+        'studio.hypertext.curfew.ui.CurfewAppNavigationInstrumentedTest#scaledWindowKeepsDailyAndEditorActionsReachable',
+        'studio.hypertext.curfew.test/androidx.test.runner.AndroidJUnitRunner')
+    (output / (name + '-tasks.txt')).write_bytes(result)
+    if not re.search(rb'^OK \(1 tests?\)$', result, re.MULTILINE):
+        raise RuntimeError(name + ': task navigation failed')
+    files = []
+    for scene in ('daily', 'editor', 'settings', 'account', 'check-in', 'readiness'):
+        pixels = adb('exec-out', 'run-as', 'studio.hypertext.curfew', 'cat', f'cache/responsive-{scene}.png')
+        if not pixels.startswith(b'\x89PNG\r\n\x1a\n'):
+            raise RuntimeError(name + ': missing native PNG for ' + scene)
+        filename = name + '-' + scene + '.png'
+        (output / filename).write_bytes(pixels)
+        files.append(filename)
+    return files
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--adb', default='adb')
     parser.add_argument('--serial', required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--include-native-fixtures', action='store_true')
+    parser.add_argument('--include-task-fixtures', action='store_true')
     parser.add_argument('--only', action='append', choices=[p[0] for p in PROFILES])
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
@@ -96,6 +117,7 @@ def main():
     font = adb('shell', 'settings', 'get', 'system', 'font_scale').decode().strip()
     night = adb('shell', 'cmd', 'uimode', 'night').decode().split(':')[-1].strip()
     records = []
+    task_files = []
 
     def capture(name):
         xml, root = capture_accessibility_root(adb, name, args.output)
@@ -141,6 +163,8 @@ def main():
                                     dp=[width * 160 / density, height * 160 / density], fontScale=scale,
                                     firstViewportActions=actions_visible))
                 (args.output / 'progress.json').write_text(json.dumps(records, indent=2) + '\n')
+                if args.include_task_fixtures:
+                    task_files += capture_task_windows(adb, name, args.output)
                 print(name + ' passed', flush=True)
     finally:
         adb('shell', 'am', 'force-stop', 'studio.hypertext.curfew')
@@ -155,7 +179,7 @@ def main():
         restored = all(adb('shell', 'wm', key).decode() == original[key] for key in original)
         restored = restored and adb('shell', 'settings', 'get', 'system', 'font_scale').decode().strip() == font
         restored = restored and adb('shell', 'cmd', 'uimode', 'night').decode().split(':')[-1].strip() == night
-        manifest = dict(avd=avd, apiLevel=api_level, sourceCommit=source_commit, sourceDirty=source_dirty, installedApkSha256=apk_digest, nativeFixtures=native_files, physicalDevice=False, postureSimulation=False, restored=restored, captures=records)
+        manifest = dict(avd=avd, apiLevel=api_level, sourceCommit=source_commit, sourceDirty=source_dirty, installedApkSha256=apk_digest, nativeFixtures=native_files, taskFixtures=task_files, physicalDevice=False, postureSimulation=False, restored=restored, captures=records)
         (args.output / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
         if not restored:
             raise RuntimeError('Emulator profile restoration failed')
@@ -164,11 +188,29 @@ def main():
                     f'{r["dp"][0]:.0f} × {r["dp"][1]:.0f} dp</figcaption>'
                     f'<a href="{r["name"]}.png"><img src="{r["name"]}.png" alt="{html.escape(r["label"])}"></a></figure>'
                     for r in records)
+    task_link = '<p><a href="tasks.html">Task screenshot matrix</a></p>' if task_files else ''
+    scene_titles = {'daily': 'Alarm', 'editor': 'Wake time', 'settings': 'Settings', 'account': 'Account', 'check-in': 'Check-in', 'readiness': 'Alarm setup'}
+    if task_files:
+        task_cards = ''.join(
+            '<section id="' + scene + '"><h2>' + html.escape(scene_titles[scene]) + '</h2><main>' +
+            ''.join('<figure><figcaption>' + html.escape(r['label']) + ' · ' + r['theme'] +
+                f" · {r['dp'][0]:.0f} × {r['dp'][1]:.0f} dp</figcaption>" +
+                '<a href="' + r['name'] + '-' + scene + '.png"><img loading="lazy" src="' +
+                r['name'] + '-' + scene + '.png" alt="' + html.escape(r['label'] + ' ' + scene) + '"></a></figure>'
+                for r in records) + '</main></section>'
+            for scene in ('daily', 'editor', 'settings', 'account', 'check-in', 'readiness'))
+        (args.output / 'tasks.html').write_text('<!doctype html><meta charset="utf-8"><title>Curfew task review</title>'
+            '<style>body{margin:32px;background:#eee9e1;color:#29221f;font:16px system-ui}'
+            'main{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}'
+            'figure{margin:0;background:#fbf7ef;padding:16px}img{width:100%;height:640px;object-fit:contain}'
+            'figcaption{margin-bottom:16px}@media(max-width:720px){main{grid-template-columns:1fr}}</style>'
+            '<h1>Curfew task review</h1><p>Native Compose task fixtures on emulated windows. '
+            'These captures do not establish physical fold posture, system permission behavior, or hearing.</p>' + task_cards)
     (args.output / 'index.html').write_text('<!doctype html><meta charset="utf-8"><title>Curfew welcome review</title>'
         '<style>body{margin:32px;background:#eee9e1;color:#29221f;font:16px system-ui}main{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}'
         'figure{margin:0;background:#fbf7ef;padding:16px}figcaption{margin-bottom:16px}img{width:100%;height:640px;object-fit:contain}'
         '@media(max-width:720px){main{grid-template-columns:1fr}img{height:auto}}</style>'
-        '<h1>Curfew welcome review</h1><p>Actual installed Android captures across emulated windows. '
+        '<h1>Curfew welcome review</h1>' + task_link + '<p>Actual installed Android captures across emulated windows. '
         'Fold cover and inner sizes do not establish hinge posture behavior or physical-device acceptance. Click an image for its full resolution.</p><main>' + cards + '</main>')
 
 

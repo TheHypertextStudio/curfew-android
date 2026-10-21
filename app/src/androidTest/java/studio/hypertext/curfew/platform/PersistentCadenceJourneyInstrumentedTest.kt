@@ -98,7 +98,7 @@ class PersistentCadenceJourneyInstrumentedTest {
         var callbackId: String? = null
         try {
             val definition = LocalHttpsVerifier().use { verifier ->
-                setup.save("Cadence fixture check-in", verifier.endpoint, null).also {
+                setup.save("Morning check-in", verifier.endpoint, null).also {
                     callbackId = it.callbackId
                     verifier.definition = it
                     assertTrue(setup.verify(it.callbackId))
@@ -156,7 +156,7 @@ class PersistentCadenceJourneyInstrumentedTest {
         var campaignId: String? = null
         try {
             val definition = LocalHttpsVerifier().use { verifier ->
-                setup.save("Process recovery fixture", verifier.endpoint, null).also {
+                setup.save("Morning check-in", verifier.endpoint, null).also {
                     callbackId = it.callbackId
                     verifier.definition = it
                     assertTrue(setup.verify(it.callbackId))

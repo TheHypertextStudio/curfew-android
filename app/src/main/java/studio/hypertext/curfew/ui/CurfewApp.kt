@@ -4,11 +4,10 @@ import studio.hypertext.curfew.alarm.AlarmSetupDraft
 
 import kotlinx.coroutines.launch
 import androidx.compose.animation.SharedTransitionLayout
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
-import androidx.compose.material3.adaptive.navigationsuite.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.saveable.listSaver
-import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.LocalNavAnimatedContentScope
@@ -30,7 +29,7 @@ import studio.hypertext.curfew.alarm.SavedSunriseAlarm
 import studio.hypertext.curfew.alarm.SunriseSchedule
 import studio.hypertext.curfew.readiness.AlarmReadiness
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun CurfewApp(
     readiness: AlarmReadiness,
@@ -165,172 +164,169 @@ fun CurfewApp(
         "review" -> "Your alarm"
         else -> "Curfew"
     }
-    val rootDestination = destination == "daily" || destination == "settings"
-    val adaptiveType = NavigationSuiteScaffoldDefaults.navigationSuiteType(currentWindowAdaptiveInfoV2())
-    NavigationSuiteScaffold(
-        navigationSuiteType = if (rootDestination) adaptiveType else NavigationSuiteType.None,
-        navigationItems = {
-            listOf("daily" to "Alarm", "settings" to "Settings").forEach { (route, label) ->
-                NavigationSuiteItem(
-                    selected = destination == route,
-                    onClick = { setupMode = false; daily(); if (route != "daily") open(route) },
-                    icon = { Icon(painterResource(if (route == "daily") R.drawable.ic_alarm_rounded else R.drawable.ic_settings_rounded), null) },
-                    label = { Text(label) },
-                    modifier = Modifier.semantics { contentDescription = if (route == "daily") "Alarm navigation" else "Settings" },
-                )
-            }
-        },
-    ) {
-        Scaffold(
-            contentWindowInsets = if (destination == "welcome") WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal) else ScaffoldDefaults.contentWindowInsets,
-            topBar = {
-                if (destination != "welcome") TopAppBar(
-                    title = {
-                        if (destination == "daily") Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            CurfewHorizonMark()
-                            Text(title, style = MaterialTheme.typography.headlineSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        } else Text(title, maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.semantics { heading() })
-                    },
-                    navigationIcon = {
-                        if (!rootDestination) IconButton(onClick = { back() }) {
-                            Icon(painterResource(R.drawable.ic_arrow_back_rounded), "Back")
+    Scaffold(
+        contentWindowInsets = if (destination == "welcome") WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal) else ScaffoldDefaults.contentWindowInsets,
+        topBar = {
+            if (destination != "welcome") TopAppBar(
+                title = {
+                    if (destination == "daily") Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        CurfewHorizonMark()
+                        Text(title, style = MaterialTheme.typography.headlineSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    } else Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.semantics { heading() })
+                },
+                navigationIcon = {
+                    if (destination != "daily") IconButton(onClick = { back() }) {
+                        Icon(painterResource(R.drawable.ic_arrow_back_rounded), "Back")
+                    }
+                },
+                actions = {
+                    if (destination == "daily") TooltipBox(
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+                        tooltip = {
+                            PlainTooltip(Modifier.semantics {
+                                // Explicit semantics work around Material tooltip announcement bug b/496338253.
+                                liveRegion = LiveRegionMode.Assertive
+                                paneTitle = "Settings"
+                            }) { Text("Settings") }
+                        },
+                        state = rememberTooltipState(),
+                    ) {
+                        FilledTonalIconButton(
+                            onClick = { setupMode = false; open("settings") },
+                            shapes = IconButtonDefaults.shapes(),
+                            colors = IconButtonDefaults.filledTonalIconButtonColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                contentColor = MaterialTheme.colorScheme.onSurface,
+                            ),
+                            modifier = Modifier.padding(end = 8.dp),
+                        ) {
+                            Icon(painterResource(R.drawable.ic_settings_rounded), "Settings")
                         }
-                    },
-                )
-            },
-        ) { padding ->
-            SharedTransitionLayout {
-                val sharedScope = this
-                NavDisplay(
-                    backStack = backStack,
-                    onBack = { back() },
-                    modifier = Modifier.fillMaxSize().padding(padding),
-                    entryProvider = { route ->
-                        NavEntry(route) {
-                            val onGrantExactAlarm by onGrantExactAlarmState
-                            val onGrantNotifications by onGrantNotificationsState
-                            val onRepairAlarmChannel by onRepairAlarmChannelState
-                            val onPlayTestSound by onPlayTestSoundState
-                            val onAcknowledgeLimitations by onAcknowledgeLimitationsState
-                            val onOpenAccount by onOpenAccountState
-                            val onEnrollAccount by onEnrollAccountState
-                            val onRestoreRecoveryKey by onRestoreRecoveryKeyState
-                            val onAcknowledgeRecoveryKey by onAcknowledgeRecoveryKeyState
-                            val onSaveCallback by onSaveCallbackState
-                            val onSaveAlarm by onSaveAlarmState
-                            val onToggleAlarm by onToggleAlarmState
-                            val onRaiseAlarmVolume by onRaiseAlarmVolumeState
-                            val onGrantFullScreen by onGrantFullScreenState
-                            val onExportCondition by onExportConditionState
-                            val onVerifyCondition by onVerifyConditionState
-                            val onWelcomeChoice by onWelcomeChoiceState
-                            val onPrepareDraft by onPrepareDraftState
-                            val readiness by readinessState
-                            val callbackId by callbackState
-                            val conditionLabel by labelState
-                            val conditionVerified by verifiedState
-                            val sunriseAlarm by alarmState
-                            val alarmBusy by busyState
-                            val alarmError by errorState
-                            val conditionBusy by conditionBusyState
-                            val conditionMessage by conditionMessageState
-                            val accountRecoveryState by recoveryState
-                            val accountEnrolled by enrolledState
-                            val accountSignedIn by signedInState
-                            val canArm = readiness.canArm && callbackId != null && conditionLabel != null && conditionVerified
-                            CompositionLocalProvider(LocalCurfewMotion provides CurfewMotionScope(sharedScope, LocalNavAnimatedContentScope.current)) {
-                                Box(Modifier.fillMaxSize().semantics { paneTitle = when (route) { "daily" -> "Alarm"; "readiness" -> "Alarm setup"; "edit" -> "Wake time"; "check-in" -> "Check-in"; "review" -> "Your alarm"; "settings" -> "Settings"; "account" -> "Account"; else -> "Welcome to Curfew" } }, contentAlignment = Alignment.TopCenter) {
-                                    Box(if (route == "welcome") Modifier.fillMaxSize() else Modifier.widthIn(max = if (route == "daily") 420.dp else 640.dp).fillMaxSize()) {
-                                        when (route) {
-                                            "welcome" -> CurfewWelcomeScreen(
-                                                onContinue = { onWelcomeChoice(true); setupMode = true; open("edit") },
-                                                onNotNow = { onWelcomeChoice(false); setupMode = false; daily() },
-                                            )
-                                            "edit" -> SunriseScheduleEditor(
-                                                sunriseAlarm, callbackId, canArm, alarmBusy || saving || preparing, alarmError ?: setupError,
-                                                onSave = { saving = true; onSaveAlarm(it) },
-                                                onFinishSetup = { open(if (readiness.canArm) "check-in" else "readiness") },
-                                                setupMode = setupMode && sunriseAlarm == null,
-                                                initialDraft = draft,
-                                                onPrepare = { prepared -> scope.launch {
-                                                    preparing = true
-                                                    setupError = null
-                                                    try {
-                                                        onPrepareDraft(prepared)
-                                                        draft = prepared
-                                                        nextSetupTask()
-                                                    } catch (_: java.io.IOException) {
-                                                        setupError = "Couldn’t save setup. Try again."
-                                                    } finally { preparing = false }
-                                                } },
-                                            )
-                                            "readiness" -> AlarmReadinessScreen(
-                                                readiness, onGrantExactAlarm, onGrantNotifications, onRepairAlarmChannel,
-                                                onPlayTestSound, onAcknowledgeLimitations, onRaiseAlarmVolume,
-                                                onDone = {
-                                                    if (setupMode) nextSetupTask()
-                                                    else if (!conditionVerified) open("check-in") else back()
-                                                },
-                                                onGrantFullScreen = onGrantFullScreen,
-                                            )
-                                            "check-in" -> CheckInScreen(
-                                                callbackId, conditionLabel, conditionVerified, conditionBusy, conditionMessage,
-                                                onSaveCallback, onExportCondition, onVerifyCondition,
-                                                onDone = { if (setupMode) nextSetupTask() else back() },
-                                                inSetup = setupMode,
-                                            )
-                                            "review" -> draft?.let { prepared ->
-                                                AlarmSetupReview(prepared, conditionLabel ?: "Check-in", alarmBusy || saving, alarmError ?: setupError, onEdit = { open("edit") }) {
-                                                    if (!canArm) nextSetupTask()
-                                                    else {
-                                                        val schedule = prepared.toSchedule(requireNotNull(callbackId))
-                                                        if (schedule.nextOccurrence(java.time.Instant.now(), java.time.ZoneId.systemDefault()) == null) {
-                                                            setupError = "Choose a future wake time."
-                                                        } else {
-                                                            setupError = null
-                                                            saving = true
-                                                            onSaveAlarm(schedule)
-                                                        }
+                    }
+                },
+            )
+        },
+    ) { padding ->
+        SharedTransitionLayout {
+            val sharedScope = this
+            NavDisplay(
+                backStack = backStack,
+                onBack = { back() },
+                modifier = Modifier.fillMaxSize().padding(padding),
+                entryProvider = { route ->
+                    NavEntry(route) {
+                        val onGrantExactAlarm by onGrantExactAlarmState
+                        val onGrantNotifications by onGrantNotificationsState
+                        val onRepairAlarmChannel by onRepairAlarmChannelState
+                        val onPlayTestSound by onPlayTestSoundState
+                        val onAcknowledgeLimitations by onAcknowledgeLimitationsState
+                        val onOpenAccount by onOpenAccountState
+                        val onEnrollAccount by onEnrollAccountState
+                        val onRestoreRecoveryKey by onRestoreRecoveryKeyState
+                        val onAcknowledgeRecoveryKey by onAcknowledgeRecoveryKeyState
+                        val onSaveCallback by onSaveCallbackState
+                        val onSaveAlarm by onSaveAlarmState
+                        val onToggleAlarm by onToggleAlarmState
+                        val onRaiseAlarmVolume by onRaiseAlarmVolumeState
+                        val onGrantFullScreen by onGrantFullScreenState
+                        val onExportCondition by onExportConditionState
+                        val onVerifyCondition by onVerifyConditionState
+                        val onWelcomeChoice by onWelcomeChoiceState
+                        val onPrepareDraft by onPrepareDraftState
+                        val readiness by readinessState
+                        val callbackId by callbackState
+                        val conditionLabel by labelState
+                        val conditionVerified by verifiedState
+                        val sunriseAlarm by alarmState
+                        val alarmBusy by busyState
+                        val alarmError by errorState
+                        val conditionBusy by conditionBusyState
+                        val conditionMessage by conditionMessageState
+                        val accountRecoveryState by recoveryState
+                        val accountEnrolled by enrolledState
+                        val accountSignedIn by signedInState
+                        val canArm = readiness.canArm && callbackId != null && conditionLabel != null && conditionVerified
+                        CompositionLocalProvider(LocalCurfewMotion provides CurfewMotionScope(sharedScope, LocalNavAnimatedContentScope.current)) {
+                            Box(Modifier.fillMaxSize().semantics { paneTitle = when (route) { "daily" -> "Alarm"; "readiness" -> "Alarm setup"; "edit" -> "Wake time"; "check-in" -> "Check-in"; "review" -> "Your alarm"; "settings" -> "Settings"; "account" -> "Account"; else -> "Welcome to Curfew" } }, contentAlignment = Alignment.TopCenter) {
+                                Box(if (route == "welcome") Modifier.fillMaxSize() else Modifier.widthIn(max = if (route == "daily") 420.dp else 640.dp).fillMaxSize()) {
+                                    when (route) {
+                                        "welcome" -> CurfewWelcomeScreen(
+                                            onContinue = { onWelcomeChoice(true); setupMode = true; open("edit") },
+                                            onNotNow = { onWelcomeChoice(false); setupMode = false; daily() },
+                                        )
+                                        "edit" -> SunriseScheduleEditor(
+                                            sunriseAlarm, callbackId, canArm, alarmBusy || saving || preparing, alarmError ?: setupError,
+                                            onSave = { saving = true; onSaveAlarm(it) },
+                                            onFinishSetup = { open(if (readiness.canArm) "check-in" else "readiness") },
+                                            setupMode = setupMode && sunriseAlarm == null,
+                                            initialDraft = draft,
+                                            onPrepare = { prepared -> scope.launch {
+                                                preparing = true
+                                                setupError = null
+                                                try {
+                                                    onPrepareDraft(prepared)
+                                                    draft = prepared
+                                                    nextSetupTask()
+                                                } catch (_: java.io.IOException) {
+                                                    setupError = "Couldn’t save setup. Try again."
+                                                } finally { preparing = false }
+                                            } },
+                                        )
+                                        "readiness" -> AlarmReadinessScreen(
+                                            readiness, onGrantExactAlarm, onGrantNotifications, onRepairAlarmChannel,
+                                            onPlayTestSound, onAcknowledgeLimitations, onRaiseAlarmVolume,
+                                            onDone = {
+                                                if (setupMode) nextSetupTask()
+                                                else if (!conditionVerified) open("check-in") else back()
+                                            },
+                                            onGrantFullScreen = onGrantFullScreen,
+                                        )
+                                        "check-in" -> CheckInScreen(
+                                            callbackId, conditionLabel, conditionVerified, conditionBusy, conditionMessage,
+                                            onSaveCallback, onExportCondition, onVerifyCondition,
+                                            onDone = { if (setupMode) nextSetupTask() else back() },
+                                            inSetup = setupMode,
+                                        )
+                                        "review" -> draft?.let { prepared ->
+                                            AlarmSetupReview(prepared, conditionLabel ?: "Check-in", alarmBusy || saving, alarmError ?: setupError, onEdit = { open("edit") }) {
+                                                if (!canArm) nextSetupTask()
+                                                else {
+                                                    val schedule = prepared.toSchedule(requireNotNull(callbackId))
+                                                    if (schedule.nextOccurrence(java.time.Instant.now(), java.time.ZoneId.systemDefault()) == null) {
+                                                        setupError = "Choose a future wake time."
+                                                    } else {
+                                                        setupError = null
+                                                        saving = true
+                                                        onSaveAlarm(schedule)
                                                     }
                                                 }
                                             }
-                                            "settings" -> CurfewSettingsScreen(
-                                                conditionLabel, conditionVerified, readiness.canArm, accountSignedIn,
-                                                onCheckIn = { open("check-in") }, onReadiness = { open("readiness") }, onAccount = { open("account") },
-                                            )
-                                            "account" -> CurfewAccountScreen(
-                                                accountEnrolled, accountSignedIn, accountRecoveryState, onOpenAccount,
-                                                onEnrollAccount, onRestoreRecoveryKey, onAcknowledgeRecoveryKey,
-                                            )
-                                            else -> SunriseDailyScreen(
-                                                sunriseAlarm, conditionLabel, conditionVerified, canArm, alarmBusy, alarmError,
-                                                onEdit = { setupMode = sunriseAlarm == null; open("edit") },
-                                                onCheckIn = { open("check-in") },
-                                                onSetup = {
-                                                    setupMode = sunriseAlarm == null
-                                                    if (setupMode) nextSetupTask() else open(if (readiness.canArm) "check-in" else "readiness")
-                                                },
-                                                onToggle = onToggleAlarm,
-                                            )
                                         }
+                                        "settings" -> CurfewSettingsScreen(
+                                            conditionLabel, conditionVerified, readiness.canArm, accountSignedIn,
+                                            onCheckIn = { open("check-in") }, onReadiness = { open("readiness") }, onAccount = { open("account") },
+                                        )
+                                        "account" -> CurfewAccountScreen(
+                                            accountEnrolled, accountSignedIn, accountRecoveryState, onOpenAccount,
+                                            onEnrollAccount, onRestoreRecoveryKey, onAcknowledgeRecoveryKey,
+                                        )
+                                        else -> SunriseDailyScreen(
+                                            sunriseAlarm, conditionLabel, conditionVerified, canArm, alarmBusy, alarmError,
+                                            onEdit = { setupMode = sunriseAlarm == null; open("edit") },
+                                            onCheckIn = { open("check-in") },
+                                            onSetup = {
+                                                setupMode = sunriseAlarm == null
+                                                if (setupMode) nextSetupTask() else open(if (readiness.canArm) "check-in" else "readiness")
+                                            },
+                                            onToggle = onToggleAlarm,
+                                        )
                                     }
                                 }
                             }
                         }
-                    },
-                )
-            }
-        }
-    }
-}
-
-@Composable
-internal fun CurfewCard(title: String, content: @Composable () -> Unit) {
-    Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)) {
-        Column(Modifier.padding(20.dp)) {
-            Text(title, style = MaterialTheme.typography.headlineSmall, modifier = Modifier.semantics { heading() })
-            Spacer(Modifier.height(12.dp))
-            content()
+                    }
+                },
+            )
         }
     }
 }

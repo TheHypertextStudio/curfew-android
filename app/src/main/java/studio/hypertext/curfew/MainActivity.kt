@@ -1,5 +1,7 @@
 package studio.hypertext.curfew
 
+import studio.hypertext.curfew.ui.alarmSaveError
+
 import android.Manifest
 import android.content.Intent
 import android.net.Uri
@@ -336,7 +338,7 @@ class MainActivity : ComponentActivity() {
                                 }.onFailure {
                                     Toast.makeText(
                                         this@MainActivity,
-                                        "Account enrollment is temporarily unavailable.",
+                                        "Couldn’t connect your account. Try again.",
                                         Toast.LENGTH_LONG,
                                     ).show()
                                 }
@@ -393,7 +395,7 @@ class MainActivity : ComponentActivity() {
                                 conditionBusy = true
                                 try {
                                     pendingVerifierExport = wakeConditionSetup.provision(id)
-                                    exportVerifier.launch("curfew-verifier.json")
+                                    exportVerifier.launch("curfew-check-in.json")
                                 } catch (failure: Exception) {
                                     pendingVerifierExport = null
                                     conditionMessage = "Couldn’t read this check-in. Save it again before saving its setup file."
@@ -500,9 +502,9 @@ class MainActivity : ComponentActivity() {
                         when (state) {
                             AccountRecoveryState.Ready -> "Signed in."
                             AccountRecoveryState.EnterRecoveryKey ->
-                                "Signed in. Enter your Curfew Recovery Key to restore sync."
+                                "Signed in. Enter your Curfew Recovery Key to restore your settings."
                             is AccountRecoveryState.SaveRecoveryKey ->
-                                "Signed in. Save your Curfew Recovery Key before sync begins."
+                                "Signed in. Save your Curfew Recovery Key to protect your settings."
                         },
                         Toast.LENGTH_LONG,
                     ).show()
@@ -578,10 +580,8 @@ class MainActivity : ComponentActivity() {
                     enabled = requireNotNull(enabled),
                 ) ?: return@launch
                 sunrise.save(desired)
-            } catch (failure: IllegalArgumentException) {
-                sunriseError = failure.message ?: "Choose a future date and time."
             } catch (failure: Exception) {
-                sunriseError = "Couldn’t save the alarm. Check alarm access, sound, and your check-in."
+                sunriseError = alarmSaveError(failure)
             } finally {
                 sunriseSaving = false
             }

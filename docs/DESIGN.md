@@ -151,13 +151,6 @@ as whole chips when they cannot share a row. Do not reduce the owner's text
 size to retain a fixed arrangement. The brand and task titles use one line
 with ellipsis; accessibility retains their full names.
 
-The permanent navigation requires at least 840dp width, 480dp content height,
-and 600dp width after accounting for enlarged text. Other windows retain the
-same Settings and Back paths as a phone. The permanent list scrolls, and its
-labels use native single-line overflow. The daily 420dp and task 640dp limits
-still apply. These rules change presentation only; they do not save a draft,
-change an alarm, or release an active occurrence.
-
 Setting rows give the saved name priority over a decorative leading icon.
 When the row width divided by text scale falls below 180dp, omit that icon.
 Keep the chevron, full-row action, and unchanged text size. This avoids
@@ -185,9 +178,9 @@ activation form one flow. Continue saves a draft without enabling it. Saved
 alarms skip the introduction. Settings offers Alarm setup for later repairs;
 the page shows the current missing action and its purpose.
 
-The shell uses Jetpack Navigation 3 and Material 3 Expressive adaptive navigation,
-with a compact short bar or wide rail only on main destinations. Shared wake-time
-bounds connect the alarm, editor, and review. The Android system splash uses the
+The shell uses Jetpack Navigation 3 and a Material 3 Expressive top app bar.
+Settings is a tonal icon action on the main screen, with Back on task screens.
+Shared wake-time bounds connect the alarm, editor, and review. The Android system splash uses the
 Curfew canvas and animated horizon without an artificial wait. See
 [the first-use design and remaining service gap](ONBOARDING_DESIGN.md).
 

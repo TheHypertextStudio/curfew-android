@@ -949,3 +949,31 @@ extraction. The red log is `build/welcome-root-diagnostics-red.txt`.
 `ci/test-welcome-root-capture.py`, the three capture-sequencing cases, the four
 existing driver cases, actionlint, and diff whitespace checks pass. No app source
 changed. Further CI capture evidence must establish the new head's result.
+
+
+## Consumer navigation and test identity
+
+`settingsIsATopBarActionAndBackReturnsToTheAlarm` requires Settings above the
+alarm content, removes tab semantics, and checks return without saving.
+The API35 capture job runs the task journey in all 18 welcome-matrix profiles.
+It saves daily, editor, Settings, account, check-in, and readiness PNGs for each profile, including
+both themes and 200% text. These are rendered native UI fixtures on emulated
+windows. They do not establish physical fold posture or speaker behavior.
+The capture driver rejects failed instrumentation before reading any image.
+
+`AlarmSaveErrorTest` permits the known future-date correction and replaces
+unrecognized validation/storage messages with a consumer retry message.
+It prevents internal identifiers and storage paths from appearing as errors.
+
+Use `./gradlew assemblePlainDebug assemblePlainDebugAndroidTest
+-Pcurfew.acceptance=true --max-workers=1 --no-parallel` for future isolated
+physical acceptance builds. The application ID ends in `.acceptance`, and the
+launcher label is `Curfew Test`. Normal builds retain `Curfew`. The flag does
+not alter release identity. Its callback scheme is isolated from normal Curfew,
+and account enrollment stops before opening a browser or registering a client. `ci/check-apk-identity.py` checks actual APK metadata.
+Visible acceptance check-ins use `Morning check-in`; technical test identifiers
+stay in evidence and logs. Do not relabel or replace an already-running test.
+
+The October 20 long Pixel Doze run remains pinned to its pre-correction APK.
+These UI changes require their own CI and visual review. The alarm engine,
+permissions, persistence, protocol, and release authorization do not change.

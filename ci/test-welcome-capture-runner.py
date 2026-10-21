@@ -32,6 +32,7 @@ class WelcomeCaptureRunnerTest(unittest.TestCase):
         result, arguments = self.run_fixture(35)
         self.assertEqual(0, result.returncode, result.stderr)
         self.assertIn('--include-native-fixtures', arguments)
+        self.assertIn('--include-task-fixtures', arguments)
         self.assertIn('emulator-5554', arguments)
 
     def test_other_api_does_not_run_capture(self):

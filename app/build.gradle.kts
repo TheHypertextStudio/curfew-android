@@ -20,6 +20,7 @@ android {
 
     defaultConfig {
         applicationId = "studio.hypertext.curfew"
+        manifestPlaceholders["oauthRedirectScheme"] = "studio.hypertext.curfew"
         minSdk = 33
         targetSdk = 36
         versionCode = 1
@@ -60,6 +61,13 @@ android {
     }
 
     buildTypes {
+        debug {
+            if (providers.gradleProperty("curfew.acceptance").orNull == "true") {
+                applicationIdSuffix = ".acceptance"
+                manifestPlaceholders["oauthRedirectScheme"] = "studio.hypertext.curfew.acceptance"
+                resValue("string", "app_name", "Curfew Test")
+            }
+        }
         release {
             isMinifyEnabled = true
             isShrinkResources = true
@@ -82,6 +90,7 @@ android {
     }
     buildFeatures {
         compose = true
+        resValues = true
     }
 }
 
@@ -95,7 +104,6 @@ dependencies {
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.navigation3.ui)
-    implementation(libs.androidx.compose.material3.navigation.suite)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)

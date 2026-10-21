@@ -3,6 +3,7 @@ package studio.hypertext.curfew.ui
 import androidx.test.espresso.Espresso
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -16,6 +17,29 @@ import studio.hypertext.curfew.ui.theme.CurfewTheme
 
 class CheckInScreenInstrumentedTest {
     @get:Rule val compose = createComposeRule()
+
+    @Test
+    fun saveWaitsForPersistenceBeforeOfferingConnectionActions() {
+        val busy = mutableStateOf(false)
+        val callback = mutableStateOf<String?>(null)
+        var saves = 0
+        compose.setContent {
+            CurfewTheme {
+                CheckInScreen(callback.value, callback.value?.let { "Morning check-in" }, false, busy.value, null,
+                    onSave = { _, _, _ -> saves++; busy.value = true }, onExport = {}, onVerify = {}, onDone = {})
+            }
+        }
+        compose.onNodeWithText("Test connection").assertDoesNotExist()
+        compose.onNodeWithText("Name").performTextInput("Morning check-in")
+        compose.onNodeWithText("Service address").performTextInput("https://wake.example.test/check-in")
+        Espresso.closeSoftKeyboard()
+        compose.onNodeWithText("Save check-in").performScrollTo().performClick()
+        compose.onNodeWithText("Saving…").assertIsNotEnabled()
+        compose.runOnIdle { assertEquals(1, saves); callback.value = "condition-1" }
+        compose.onNodeWithText("Save setup file").performScrollTo().assertIsNotEnabled()
+        compose.runOnIdle { busy.value = false }
+        compose.onNodeWithText("Test connection").performScrollTo().assertIsEnabled()
+    }
 
     @Test
     fun checkInPreservesOpaqueAppLinks() {

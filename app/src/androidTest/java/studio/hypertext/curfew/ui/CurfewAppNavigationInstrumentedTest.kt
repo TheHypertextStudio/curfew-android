@@ -43,6 +43,7 @@ class CurfewAppNavigationInstrumentedTest {
         SunriseOccurrence("morning-1", LocalDate.of(2026, 10, 20), Instant.parse("2026-10-20T14:00:00Z")),
     )
     private val failure = mutableStateOf<String?>(null)
+    private val hasConnection = mutableStateOf(true)
     private var saves = 0
     private val callbackGeneration = mutableStateOf(0)
     private var verifiedGeneration = -1
@@ -75,14 +76,14 @@ class CurfewAppNavigationInstrumentedTest {
                     sunriseAlarm = if (fresh) null else saved,
                     showWelcome = welcome,
                     setupDraft = deferredDraft,
-                    callbackId = "condition-1",
-                    conditionLabel = "Morning check-in",
+                    callbackId = if (hasConnection.value) "condition-1" else null,
+                    conditionLabel = if (hasConnection.value) "Morning check-in" else null,
                     alarmBusy = false,
                     alarmError = failure.value,
                     onSaveAlarm = { saves++; if (failSave) failure.value = "Could not save the alarm. Try again." },
                     onToggleAlarm = {},
                     onRaiseAlarmVolume = { volumeRequests++; missingActions.value = emptySet() },
-                    conditionVerified = true,
+                    conditionVerified = hasConnection.value,
                     onVerifyCondition = { verifiedGeneration = generation },
                     onExportCondition = { exportedGeneration = generation },
                 )
@@ -107,6 +108,16 @@ class CurfewAppNavigationInstrumentedTest {
         compose.onAllNodesWithText("Account").onLast().performScrollTo().performClick()
         compose.onNodeWithText("Sign in").performScrollTo().assertIsDisplayed()
         captureResponsiveWindow("account")
+        compose.onNodeWithContentDescription("Back").performClick()
+        compose.runOnIdle { hasConnection.value = false }
+        compose.onNodeWithText("Check-in").performScrollTo().performClick()
+        compose.onNodeWithText("Save check-in").performScrollTo().assertIsDisplayed()
+        captureResponsiveWindow("check-in")
+        compose.onNodeWithContentDescription("Back").performClick()
+        compose.runOnIdle { missingActions.value = setOf(ReadinessAction.GRANT_FULL_SCREEN_ACCESS) }
+        compose.onNodeWithText("Alarm setup").performScrollTo().performClick()
+        compose.onNodeWithText("Allow alarm screen").performScrollTo().assertIsDisplayed()
+        captureResponsiveWindow("readiness")
         compose.runOnIdle { assertEquals(0, saves) }
     }
 

@@ -202,10 +202,10 @@ consistent within each mode; wallpaper colors are not enabled implicitly.
 ## Native navigation and motion
 
 The shell uses Jetpack Navigation 3 1.2.0 with a saved back stack and per-entry
-state. Material 3's adaptive navigation suite uses its Expressive short
-navigation bar on phones and wide navigation rail on larger windows. Alarm
-and Settings are the main destinations. Focused tasks retain Back navigation
-without unrelated main-navigation controls.
+state. The main screen uses Material 3's top app bar with an Expressive tonal
+Settings icon button and a native tooltip. Settings and focused tasks retain
+Back navigation. The app has one main destination, so it has no bottom bar
+or rail. Adaptive content and shared transitions remain independent of navigation.
 
 Navigation entries read current Compose state and callbacks. They must not
 retain permission values, save errors, or service callbacks captured when the

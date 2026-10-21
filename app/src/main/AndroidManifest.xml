@@ -39,7 +39,7 @@
                 <data
                     android:host="oauth"
                     android:path="/callback"
-                    android:scheme="studio.hypertext.curfew" />
+                    android:scheme="${oauthRedirectScheme}" />
             </intent-filter>
         </activity>
 
