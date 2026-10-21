@@ -1,0 +1,69 @@
+{
+  "runId": 39565347115,
+  "url": "https://github.com/TheHypertextStudio/curfew-android/actions/runs/39565347115",
+  "result": "failure",
+  "headCommit": "8e6956854bdac17060600f6cc05739cc23ef8bf6",
+  "mergeCommit": "a3eb7b8a27012aee461069da1cd4ee9852aa2c13",
+  "applicationSourceMatches": "8feb00731a3251635e4ebafa8166c20eb2ce966b",
+  "appSourceTree": "0c01b94c11cf7eff149948348aa02b580d89f098",
+  "hostVerification": {
+    "Plain": "pass",
+    "GMS": "pass"
+  },
+  "releaseEvidence": "pass",
+  "native": [
+    {
+      "profile": "API35 Plain",
+      "testsReported": 177,
+      "failures": 5,
+      "failedCases": [
+        "setupExplainsTheSoundCheckPurpose(studio.hypertext.curfew.ui.AlarmSoundCheckJourneyInstrumentedTest):",
+        "capturePlatformTimePicker(studio.hypertext.curfew.ui.CurfewDesignCaptureInstrumentedTest):",
+        "captureKeyboardServiceForm(studio.hypertext.curfew.ui.CurfewDesignCaptureInstrumentedTest):",
+        "keyboardKeepsBackAndTheServiceAddressVisible(studio.hypertext.curfew.ui.SetupColdStartInstrumentedTest):",
+        "verifiedDraftStartsAtPermissionsInsteadOfConnectionSetup(studio.hypertext.curfew.ui.SetupColdStartInstrumentedTest):"
+      ]
+    },
+    {
+      "profile": "API34 GMS",
+      "testsReported": 177,
+      "failures": 4,
+      "failedCases": [
+        "capturePlatformTimePicker(studio.hypertext.curfew.ui.CurfewDesignCaptureInstrumentedTest):",
+        "captureKeyboardServiceForm(studio.hypertext.curfew.ui.CurfewDesignCaptureInstrumentedTest):",
+        "keyboardKeepsBackAndTheServiceAddressVisible(studio.hypertext.curfew.ui.SetupColdStartInstrumentedTest):",
+        "verifiedDraftStartsAtPermissionsInsteadOfConnectionSetup(studio.hypertext.curfew.ui.SetupColdStartInstrumentedTest):"
+      ]
+    },
+    {
+      "profile": "API33 Plain",
+      "testsReported": 177,
+      "failures": 5,
+      "failedCases": [
+        "cancelingDoesNotCompleteSetupAndStopsPreview(studio.hypertext.curfew.ui.AlarmSoundCheckJourneyInstrumentedTest):",
+        "capturePlatformTimePicker(studio.hypertext.curfew.ui.CurfewDesignCaptureInstrumentedTest):",
+        "captureKeyboardServiceForm(studio.hypertext.curfew.ui.CurfewDesignCaptureInstrumentedTest):",
+        "keyboardKeepsBackAndTheServiceAddressVisible(studio.hypertext.curfew.ui.SetupColdStartInstrumentedTest):",
+        "verifiedDraftStartsAtPermissionsInsteadOfConnectionSetup(studio.hypertext.curfew.ui.SetupColdStartInstrumentedTest):"
+      ]
+    },
+    {
+      "profile": "API36 GMS",
+      "testsReported": 177,
+      "failures": 4,
+      "failedCases": [
+        "capturePlatformTimePicker(studio.hypertext.curfew.ui.CurfewDesignCaptureInstrumentedTest):",
+        "captureKeyboardServiceForm(studio.hypertext.curfew.ui.CurfewDesignCaptureInstrumentedTest):",
+        "keyboardKeepsBackAndTheServiceAddressVisible(studio.hypertext.curfew.ui.SetupColdStartInstrumentedTest):",
+        "verifiedDraftStartsAtPermissionsInsteadOfConnectionSetup(studio.hypertext.curfew.ui.SetupColdStartInstrumentedTest):"
+      ]
+    }
+  ],
+  "diagnosis": [
+    "Time-picker capture still selected the removed combined time/period Text.",
+    "Keyboard capture still expected an initially visible optional name field.",
+    "Cold-start fixtures inherited the completed schedule saved by an earlier release journey.",
+    "Sound-check activity fixture queried navigation before asynchronous startup completed."
+  ],
+  "physicalAcceptance": "Pixel absent; no physical test ran."
+}

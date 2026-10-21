@@ -24,6 +24,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
+import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -40,7 +42,6 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
-import java.util.Locale
 import java.util.concurrent.atomic.AtomicInteger
 import org.json.JSONArray
 import org.json.JSONObject
@@ -100,9 +101,9 @@ class CurfewDesignCaptureInstrumentedTest {
                 }
                 compose.onNodeWithText(destination).performScrollTo().performClick()
             }
+            if (initialForm) compose.onNodeWithText("Connect a service").performScrollTo().performClick()
             if (withKeyboard) {
-                compose.onNodeWithText("Name").performScrollTo().performTextInput("Morning check-in")
-                compose.onNodeWithText("Service address").performScrollTo().performClick()
+                compose.onNodeWithText("Service address").performScrollTo().performClick().performTextInput("https://wake.example.test/check-in")
                 compose.runOnIdle { keyboard?.show() }
                 compose.waitUntil(5_000) { imeBottom.get() > 0 }
             }
@@ -155,7 +156,10 @@ class CurfewDesignCaptureInstrumentedTest {
         compose.onNodeWithContentDescription("Edit alarm").performClick()
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val locale = context.resources.configuration.locales[0]
-        if (time) compose.onNodeWithText(timeLabel(LocalTime.of(7, 0), context, locale)).performClick()
+        if (time) {
+            val numeric = LocalTime.of(7, 0).format(DateTimeFormatter.ofPattern(if (android.text.format.DateFormat.is24HourFormat(context)) "HH:mm" else "h:mm", locale))
+            compose.onNode(hasText(numeric) and hasClickAction()).performClick()
+        }
         else compose.onNodeWithText(LocalDate.of(2026, 10, 20).format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL).withLocale(locale))).performClick()
         compose.waitForIdle()
         val automation = InstrumentationRegistry.getInstrumentation().uiAutomation

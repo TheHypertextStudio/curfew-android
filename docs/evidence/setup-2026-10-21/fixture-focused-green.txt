@@ -1,0 +1,26 @@
+Performing Streamed Install
+Success
+Performing Streamed Install
+Success
+seed 
+studio.hypertext.curfew.callback.SunriseReleaseJourneyInstrumentedTest:.
+
+Time: 6.262
+
+OK (1 test)
+
+
+
+focused 
+studio.hypertext.curfew.ui.SetupColdStartInstrumentedTest:....
+studio.hypertext.curfew.ui.AlarmSoundCheckJourneyInstrumentedTest:....
+studio.hypertext.curfew.ui.CurfewDesignCaptureInstrumentedTest:.........
+
+Time: 51.825
+
+OK (17 tests)
+
+
+s_glBindAttribLocation: bind attrib 0 name position
+s_glBindAttribLocation: bind attrib 1 name color
+s_glBindAttribLocation: bind attrib 2 name localCoord

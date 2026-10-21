@@ -4,6 +4,7 @@ import android.media.AudioAttributes
 import android.media.AudioManager
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onAllNodesWithText
@@ -44,6 +45,10 @@ class AlarmSoundCheckJourneyInstrumentedTest {
         preferences.setTestSoundConfirmed(false)
         preferences.acknowledgeLimitations()
         compose.activityRule.scenario.recreate()
+        compose.waitUntil(10_000) {
+            compose.onAllNodesWithContentDescription("Settings").fetchSemanticsNodes().isNotEmpty()
+        }
+        compose.onNodeWithContentDescription("Settings").assertIsDisplayed()
     }
 
     @After fun restore() = runBlocking {

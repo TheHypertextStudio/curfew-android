@@ -1100,3 +1100,38 @@ The [verification record](evidence/setup-2026-10-21/verification.json) and retai
 red/green native outputs record the boundary. The Pixel was disconnected during
 this repair, so its earlier install remains historical evidence for its own
 recorded source.
+
+
+## Complete-suite fixture correction — October 21, 2026
+
+CI run `39565347115` passes Plain/GMS host verification and release assembly,
+but fails native instrumentation on API33–36. Each reports 177 cases. API34/36
+report four failures; API33/35 also expose a sound-check startup race. The
+[retained failure record](evidence/setup-2026-10-21/ci-fixture-failures.json)
+identifies the cases without treating the failed run as green.
+
+Two capture fixtures still selected the old combined time Text or an initially
+visible Name field. They now select the numeric time action and follow Connect
+a service before entering its required address. Their captures retain the
+original picker and keyboard checks.
+
+The earlier release journey intentionally proves that completion retains its
+schedule. The cold-start tests incorrectly assumed that no saved schedule
+existed afterward. They now snapshot, clear, and restore the shared journals
+around each case, then assert that the no-alarm precondition holds. Isolation
+refuses an outstanding occurrence and runs only on disposable emulators or the
+isolated acceptance package. Instrumentation accesses the existing singleton
+stores rather than creating a conflicting second DataStore or exposing a
+production reset API. Restoration also runs after failed assertions, so test
+drafts and selected callback IDs cannot escape the fixture. The sound-check
+fixture waits for the loaded merged Settings action after recreating Main.
+
+After seeding a completed alarm with the actual TLS release journey, all 17
+focused cases pass on the owned API34 emulator in 51.825s. Both distributions'
+test APKs compile. The complete API34 run then reports 177 cases: 170 pass,
+seven guarded acceptance cases skip, and none fail. A source review found a
+further reset-helper safety gap: a pending runtime campaign can exist without
+a saved schedule. Its new regression fails before a pending-queue guard and
+passes afterward. All 18 affected cases pass with that guard in 51.317s. The
+replacement API33–36 CI run remains pending. Application source stays at
+`8feb007`; the reviewed setup matrix is unchanged.

@@ -2,7 +2,7 @@
 
 Reader: The Curfew owner and Android maintainer accepting Docket project `01M5AXW727EJSE5FM2H8WXJRWS`.
 Action: Check each requirement against its evidence before accepting any of the four feature tasks.
-Snapshot: October 20, 2026, Pacific. P1 remains unaccepted.
+Snapshot: October 21, 2026, Pacific. P1 remains unaccepted.
 
 The scope comes from `Documentation/alarm-delivery-plan.md` and
 `Documentation/android-mvp.md` in the Curfew repository. P1 means local
@@ -16,11 +16,12 @@ removes a hardware requirement that exceeded the first working-alarm goal.
 ## Current decision
 
 Scheduling, playback/readiness, and authenticated release are done in Docket.
-Recovery remains in progress for its connected-Pixel Doze criterion. Both
-runtime CI 39553434419 and current-head CI 39554867813 pass all seven jobs.
-The latter includes 18 complete API35 capture profiles, 108 task PNGs, clean
-source, a matching installed APK hash, and restored emulator settings. The
-reviewed API34 task gallery keeps its separate visual-review boundary.
+Recovery remains in progress for its connected-Pixel Doze criterion. The
+latest application repair is `8feb007`. Its local and API34 setup checks appear
+in the October 21 section below. Earlier CI runs `39553434419` and
+`39554867813` establish their recorded candidates rather than the latest app.
+The latter includes 18 complete API35 capture profiles and 108 task PNGs. The
+reviewed API34 task and setup galleries retain their separate boundaries.
 
 The latest Pixel light-Doze attempt was canceled before sound after Android
 recorded a tap wake. Its cleanup is verified, but it does not prove unattended
@@ -416,3 +417,22 @@ test outputs and build identifiers are in [setup evidence](evidence/setup-2026-1
 The complete physical Doze acceptance criterion remains unchecked. No current
 Pixel install, production release, hosted check-in service, P1b networking, or
 bedtime implementation is implied by the setup repair.
+
+
+## Complete-suite CI boundary — October 21, 2026
+
+CI run `39565347115` passes both host verification jobs and release evidence.
+Its API33–36 native jobs fail on obsolete capture selectors, inherited completed
+schedule state in cold-start fixtures, and a sound-check startup timing race.
+The release artifact checksums match their files. The fetched CI merge
+`a3eb7b8` has the same application-source tree as `8feb007`, and the protocol
+revision matches the published `v0.0.13` tag. The artifacts remain unsigned.
+
+The fixture corrections pass all 17 focused native cases after the controlled
+TLS release journey seeds the same completed schedule. The complete API34 run
+reports 177 cases with 170 passes, seven guarded skips, and no failures. A
+separate pending-campaign reset-safety regression fails before its guard and
+passes afterward; all 18 affected cases pass with the final guard. Replacement
+API33–36 CI still requires acceptance. This changes test isolation and
+selectors, not the application or alarm contract. The disconnected Pixel's
+physical Doze criterion remains open.

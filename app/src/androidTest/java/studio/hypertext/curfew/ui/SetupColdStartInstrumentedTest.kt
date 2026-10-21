@@ -5,6 +5,8 @@ import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
 import kotlinx.coroutines.runBlocking
+import org.junit.Before
+import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 import studio.hypertext.curfew.MainActivity
@@ -17,6 +19,10 @@ import java.time.LocalTime
 
 class SetupColdStartInstrumentedTest {
     @get:Rule val compose = createEmptyComposeRule()
+    private val journals = SetupJournalFixture(InstrumentationRegistry.getInstrumentation().targetContext)
+
+    @Before fun isolateJournals(): Unit = runBlocking { journals.isolate() }
+    @After fun restoreJournals(): Unit = runBlocking { journals.restore() }
 
     @Test fun exportRetainsItsIdentityAcrossRecreation(): Unit = runBlocking {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
