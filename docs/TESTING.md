@@ -1272,3 +1272,32 @@ covers all ten setup states across eighteen profiles with 180 native state
 PNGs and four controlled transition frames. Actual Android dimensions and
 all PNG dimensions match; exact display settings restore. Its source and APK
 hashes differ from the earlier gallery and remain recorded separately.
+
+
+## Notification ownership and recreated-screen readiness — October 21, 2026
+
+Run `39582873446` passes both verification jobs, release evidence, API33,
+and API34. API35 fails one cold-start recreation assertion. API36 first
+selects an older same-channel notification, then teardown stops the new
+foreground-service start before promotion. Android terminates the process.
+The service already promotes before disk work; this record does not establish
+a production service defect.
+
+A seeded stale notification reproduces the label mismatch before the selector
+correction. The fixture now waits for its occurrence's PendingIntent. Its
+stale notification has a separate tag and PendingIntent, and a pending-alarm
+guard runs before mutations. Synchronized cleanup waits for service shutdown.
+Nested cleanup releases fixture-owned resources even if that guard refuses
+cleanup. The audio-focus fixture uses the same synchronized teardown. The
+cold-start fixture waits for the merged destination after recreation and keeps
+its original navigation assertions.
+
+The intermediate complete API36 Play Store ARM64 suite reports 193 cases in
+177.812s: 186 passes, seven guarded skips, and no failures. That run precedes
+the final fixture safety revision. All seven affected cases pass on the exact
+final source in 4.558s. Both test APKs build and both Android lint variants
+pass. Independent source review finds no remaining concrete issue.
+[Red, targeted, and complete-suite records](evidence/check-in-2026-10-21/notification-fixture-verification.json)
+retain exact source boundaries and test APK hashes. No app code, screenshot,
+stored data, or protocol changes. Reverting changes only test isolation.
+Replacement x86_64 CI and physical Pixel Doze remain separate requirements.

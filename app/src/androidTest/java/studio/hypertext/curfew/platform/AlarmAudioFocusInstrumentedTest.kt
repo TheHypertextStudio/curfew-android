@@ -22,8 +22,6 @@ import studio.hypertext.curfew.MainActivity
 import studio.hypertext.curfew.alarm.AlarmCampaignEngine
 import studio.hypertext.curfew.alarm.AlarmCampaignState
 import studio.hypertext.curfew.alarm.AlarmRecurrencePolicy
-import studio.hypertext.curfew.callback.CallbackPollScheduler
-import studio.hypertext.curfew.persistence.CurfewDatabase
 
 class AlarmAudioFocusInstrumentedTest {
     private val context = ApplicationProvider.getApplicationContext<Context>()
@@ -77,10 +75,7 @@ class AlarmAudioFocusInstrumentedTest {
             }
         } finally {
             audio.abandonAudioFocusRequest(competingFocus)
-            context.stopService(Intent(context, PerpetualAlarmService::class.java))
-            AndroidAlarmClockGateway(context).cancel(id)
-            CallbackPollScheduler.cancel(context, id)
-            CurfewDatabase.open(context).alarmCampaignDao().delete(id)
+            cleanupAlarmFixture(context, id)
         }
     }
 }

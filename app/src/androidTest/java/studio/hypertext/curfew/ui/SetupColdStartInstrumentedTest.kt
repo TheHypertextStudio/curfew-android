@@ -152,7 +152,10 @@ class SetupColdStartInstrumentedTest {
                 compose.onNodeWithText("I have a service").assertDoesNotExist()
                 compose.onNodeWithText("Alarm setup").assertExists()
                 scenario.recreate()
+                compose.waitUntil(10_000) { compose.onAllNodesWithText("Alarm setup").fetchSemanticsNodes().isNotEmpty() }
                 compose.onNodeWithText("Alarm setup").assertExists()
+                compose.onNodeWithText("Connection details").assertDoesNotExist()
+                compose.onNodeWithText("I have a service").assertDoesNotExist()
             }
         } finally {
             firstUse.chooseNotNow(); firstUse.clearDraft(); configurations.delete(connection.callbackId)

@@ -449,3 +449,18 @@ passes afterward; all 18 affected cases pass with the final guard. Replacement
 API33–36 CI still requires acceptance. This changes test isolation and
 selectors, not the application or alarm contract. The disconnected Pixel's
 physical Doze criterion remains open.
+
+
+## Notification fixture acceptance — October 21, 2026
+
+Run `39582873446` passes five jobs but remains failed. API35 exposes a
+recreation-readiness assertion; API36 exposes notification ownership and
+foreground-start teardown races in fixtures. Their correction changes tests
+only. The application and reviewed startup matrix remain at `085d3b2`.
+
+The intermediate local complete suite reports 186 passes and seven guarded
+skips. The exact final fixture revision passes all seven affected cases. Both
+Android lint variants and test APK builds pass. The
+[fixture record](evidence/check-in-2026-10-21/notification-fixture-verification.json)
+separates those runs. Replacement CI still requires acceptance. Consumer
+check-in availability and uninterrupted physical Pixel Doze remain open.
