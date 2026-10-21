@@ -28,8 +28,12 @@ import studio.hypertext.curfew.persistence.CurfewDatabase
 class AlarmAudioFocusInstrumentedTest {
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private val audio = context.getSystemService(AudioManager::class.java)
-    private fun audioActive() = audio.activePlaybackConfigurations.any {
-        it.audioAttributes.usage == AudioAttributes.USAGE_ALARM
+    private fun audioActive(): Boolean {
+        val dump = InstrumentationRegistry.getInstrumentation().uiAutomation
+            .executeShellCommand("dumpsys audio").use {
+                android.os.ParcelFileDescriptor.AutoCloseInputStream(it).readBytes().toString(Charsets.UTF_8)
+            }
+        return hasStartedAlarmPlayer(dump, context.applicationInfo.uid)
     }
 
     private fun await(description: String, predicate: () -> Boolean) {

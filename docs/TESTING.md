@@ -977,3 +977,18 @@ stay in evidence and logs. Do not relabel or replace an already-running test.
 The October 20 long Pixel Doze run remains pinned to its pre-correction APK.
 These UI changes require their own CI and visual review. The alarm engine,
 permissions, persistence, protocol, and release authorization do not change.
+
+
+The audio-focus fixture now requires a started `USAGE_ALARM` player owned by
+Curfew's installed UID. Its earlier global playback predicate could accept
+SystemUI's alarm-channel notification before Curfew's service player started.
+Three evidence-parser cases reject notification, paused, non-alarm, missing
+player-section, and UID-prefix matches. The focus test still requires actual
+pause, gain, and unchanged occurrence state. It changes no production audio
+behavior and does not establish perceived speaker output.
+
+Test-only CI run 39548194457 supplies the navigation red on API35: 150 reported
+cases and exactly one failure at the old Alarm tab. Its other API jobs also
+failed unrelated keyboard/focus cases. API33 captured a Pixel Launcher ANR,
+and API36 did not establish its service-owned playback prerequisite. Those
+failures are not silently accepted as passing behavior.
