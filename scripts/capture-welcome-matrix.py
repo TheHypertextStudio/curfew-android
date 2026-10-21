@@ -51,6 +51,8 @@ def capture_accessibility_root(adb, name, output):
         '-failed.png': ('exec-out', 'screencap', '-p'),
         '-windows.txt': ('shell', 'dumpsys', 'window', 'windows'),
         '-exit-info.txt': ('shell', 'dumpsys', 'activity', 'exit-info', 'studio.hypertext.curfew'),
+        '-system-ui-exit-info.txt': ('shell', 'dumpsys', 'activity', 'exit-info', 'com.android.systemui'),
+        '-crash-log.txt': ('shell', 'logcat', '-b', 'crash', '-d', '-v', 'threadtime'),
     }
     for suffix, command in diagnostics.items():
         try:

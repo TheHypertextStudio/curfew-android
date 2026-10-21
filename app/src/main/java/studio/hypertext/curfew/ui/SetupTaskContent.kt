@@ -72,10 +72,13 @@ internal fun SetupTaskContent(posture: Posture? = null, introduction: @Composabl
                 modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()),
             ) { children, constraints ->
                 val work = children[1].measure(constraints.copy(minHeight = 0))
-                val purpose = children[0].measure(constraints.copy(minHeight = (viewport.roundToPx() - work.height).coerceAtLeast(0)))
-                layout(constraints.maxWidth, purpose.height + work.height) {
-                    purpose.placeRelative(0, 0)
-                    work.placeRelative(0, purpose.height)
+                val purpose = children[0].measure(constraints.copy(minHeight = 0))
+                val contentHeight = purpose.height + work.height
+                val height = maxOf(viewport.roundToPx(), contentHeight)
+                val top = (height - contentHeight) / 2
+                layout(constraints.maxWidth, height) {
+                    purpose.placeRelative(0, top)
+                    work.placeRelative(0, top + purpose.height)
                 }
             }
         }

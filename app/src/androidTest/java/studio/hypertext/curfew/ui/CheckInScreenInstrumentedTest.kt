@@ -2,6 +2,17 @@ package studio.hypertext.curfew.ui
 
 import androidx.test.espresso.Espresso
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.*
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.toPixelMap
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsEnabled
@@ -19,6 +30,85 @@ class CheckInScreenInstrumentedTest {
     @get:Rule val compose = createComposeRule()
 
     @Test
+    fun enlargedTextBringsTheFailureAndRetryIntoViewTogether() {
+        val error = mutableStateOf<String?>(null)
+        compose.setContent {
+            val density = LocalDensity.current
+            CompositionLocalProvider(LocalDensity provides Density(density.density, 2f)) {
+                CurfewTheme {
+                    Box(Modifier.width(320.dp).height(700.dp).testTag("deferral-viewport")) {
+                        CheckInScreen(null, null, false, false, null, { _, _, _ -> "unused" }, {}, {}, {},
+                            inSetup = true, onDefer = { error.value = "Couldn’t save setup. Try again." }, deferError = error.value)
+                    }
+                }
+            }
+        }
+        compose.onNodeWithText("Save for later").performScrollTo().performClick()
+        val errorBounds = compose.onNodeWithText("Couldn’t save setup. Try again.").getUnclippedBoundsInRoot()
+        val retryBounds = compose.onNodeWithText("Save for later").getUnclippedBoundsInRoot()
+        val viewport = compose.onNodeWithTag("deferral-viewport").getUnclippedBoundsInRoot()
+        org.junit.Assert.assertTrue("The complete error and retry must fit after failure: $errorBounds, $retryBounds, $viewport",
+            errorBounds.top >= viewport.top && retryBounds.bottom <= viewport.bottom)
+    }
+
+    @Test
+    fun fileHandoffHasPriorityBeforeTesting() {
+        var primary = 0
+        var exports = 0
+        val saved = mutableStateOf(false)
+        compose.setContent { CurfewTheme {
+            primary = MaterialTheme.colorScheme.primary.toArgb()
+            CheckInScreen("saved", "Morning check-in", false, false, null, { _, _, _ -> "saved" }, { exports++ }, {}, {}, setupFileSaved = saved.value)
+        } }
+        val pixels = compose.onNodeWithText("Save setup file").performScrollTo().captureToImage().toPixelMap()
+        assertEquals("The first required action must use the primary container", primary, pixels[pixels.width / 2, 8].toArgb())
+        compose.onNodeWithText("Save setup file").performClick()
+        compose.runOnIdle { assertEquals(1, exports) }
+        val pending = compose.onNodeWithText("Save setup file").captureToImage().toPixelMap()
+        assertEquals("Opening the picker is not a completed export", primary, pending[pending.width / 2, 8].toArgb())
+        compose.runOnIdle { saved.value = true }
+        val ready = compose.onNodeWithText("Test connection").performScrollTo().captureToImage().toPixelMap()
+        assertEquals("Testing becomes the next action only after export succeeds", primary, ready[ready.width / 2, 8].toArgb())
+        compose.onNodeWithText("Connected").assertDoesNotExist()
+        compose.onNodeWithText("Continue").assertDoesNotExist()
+    }
+
+    @Test
+    fun missingServiceExplainsThePrerequisiteAndOffersASafeExit() {
+        var deferred = 0
+        var saves = 0
+        compose.setContent { CurfewTheme {
+            CheckInScreen(null, null, false, false, null,
+                onSave = { _, _, _ -> saves++; "unused" }, onExport = {}, onVerify = {}, onDone = {},
+                inSetup = true, onDefer = { deferred++ })
+        } }
+        compose.onNodeWithText("A check-in service is required").assertExists()
+        compose.onNodeWithText("Curfew doesn’t include a check-in service yet.").assertExists()
+        compose.onNodeWithText("Service address").assertDoesNotExist()
+        compose.onNodeWithText("Save for later").performScrollTo().performClick()
+        compose.runOnIdle { assertEquals(1, deferred); assertEquals(0, saves) }
+        compose.onNodeWithText("I have a service").performScrollTo().performClick()
+        compose.onNodeWithText("Ask the person running your service for its Curfew connection address. A normal website address won’t work.").assertExists()
+        compose.onNodeWithText("Service address").assertExists()
+    }
+
+    @Test
+    fun untestedConnectionExplainsWhoNeedsThePrivateFileBeforeTesting() {
+        var exports = 0
+        var tests = 0
+        compose.setContent { CurfewTheme {
+            CheckInScreen("saved", "Morning check-in", false, false, null,
+                onSave = { _, _, _ -> "saved" }, onExport = { exports++ }, onVerify = { tests++ }, onDone = {})
+        } }
+        compose.onNodeWithText("Give the setup file to the person running your service. After they install it, test the connection.").assertExists()
+        compose.onNodeWithText("Save setup file").performScrollTo().performClick()
+        compose.onNodeWithText("Test connection").performScrollTo().performClick()
+        compose.runOnIdle { assertEquals(1, exports); assertEquals(1, tests) }
+        compose.onNodeWithText("Connected").assertDoesNotExist()
+        compose.onNodeWithText("Continue").assertDoesNotExist()
+    }
+
+    @Test
     fun saveWaitsForPersistenceBeforeOfferingConnectionActions() {
         val busy = mutableStateOf(false)
         val callback = mutableStateOf<String?>(null)
@@ -30,7 +120,7 @@ class CheckInScreenInstrumentedTest {
             }
         }
         compose.onNodeWithText("Test connection").assertDoesNotExist()
-        compose.onNodeWithText("Connect a service").performScrollTo().performClick()
+        compose.onNodeWithText("I have a service").performScrollTo().performClick()
         compose.onNodeWithText("Optional details").performScrollTo().performClick()
         compose.onNodeWithText("Name").performScrollTo().performTextInput("Morning check-in")
         compose.onNodeWithText("Service address").performTextInput("https://wake.example.test/check-in")
@@ -52,7 +142,7 @@ class CheckInScreenInstrumentedTest {
                     onSave = { _, _, action -> savedAction = action; "condition-1" }, onExport = {}, onVerify = {}, onDone = {})
             }
         }
-        compose.onNodeWithText("Connect a service").performScrollTo().performClick()
+        compose.onNodeWithText("I have a service").performScrollTo().performClick()
         compose.onNodeWithText("Optional details").performScrollTo().performClick()
         compose.onNodeWithText("Name").performScrollTo().performTextInput("Morning check-in")
         compose.onNodeWithText("Service address").performTextInput("https://wake.example.test/check-in")
@@ -71,7 +161,7 @@ class CheckInScreenInstrumentedTest {
                     onExport = {}, onVerify = {}, onDone = {})
             }
         }
-        compose.onNodeWithText("Connect a service").performScrollTo().performClick()
+        compose.onNodeWithText("I have a service").performScrollTo().performClick()
         compose.onNodeWithText("Optional details").performScrollTo().performClick()
         compose.onNodeWithText("Name").performScrollTo().performTextInput("Morning check-in")
         compose.onNodeWithText("Service address").performTextInput("https://wake.example.test/check-in")
@@ -92,7 +182,7 @@ class CheckInScreenInstrumentedTest {
             CheckInScreen(callback.value, callback.value?.let { "Saved check-in" }, false, busy.value, null,
                 { _, _, _ -> busy.value = true; "saved" }, {}, {}, {})
         } }
-        compose.onNodeWithText("Connect a service").performScrollTo().performClick()
+        compose.onNodeWithText("I have a service").performScrollTo().performClick()
         compose.onNodeWithText("Service address").performTextInput("https://wake.example.test/check-in")
         Espresso.closeSoftKeyboard()
         compose.onNodeWithText("Save check-in").performScrollTo().performClick()
@@ -106,7 +196,7 @@ class CheckInScreenInstrumentedTest {
         compose.setContent {
             CurfewTheme { CheckInScreen(null, null, false, false, null, { _, _, _ -> "condition-1" }, {}, {}, {}) }
         }
-        compose.onNodeWithText("Connect a service").performScrollTo().performClick()
+        compose.onNodeWithText("I have a service").performScrollTo().performClick()
         compose.onNodeWithText("Service address").performTextInput("https://wake.example.test/check-in")
         compose.onNodeWithText("Optional details").performScrollTo().performClick()
         compose.onNodeWithText("Check-in link (optional)").performTextInput("/relative/path")

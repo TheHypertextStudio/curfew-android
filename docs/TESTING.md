@@ -1135,3 +1135,58 @@ a saved schedule. Its new regression fails before a pending-queue guard and
 passes afterward. All 18 affected cases pass with that guard in 51.317s. The
 replacement API33–36 CI run remains pending. Application source stays at
 `8feb007`; the reviewed setup matrix is unchanged.
+
+## Check-in usability correction — October 21, 2026
+
+The next product review rejects the assumption that a clean service form is a
+usable consumer flow. Curfew supplies no check-in service. The prerequisite
+screen now discloses that gap, offers Save for later with the alarm off, and
+identifies the person who supplies the connection address and installs the
+private setup file. Consumer approval remains a launch blocker.
+
+The new native regressions first fail on missing prerequisite disclosure,
+missing operator handoff, and a 318dp gap between compact guidance and its
+action. A failure-path review then catches invisible deferral errors and no
+pending-write feedback. The retry regression also catches Back skipping the
+saved time after resuming setup. Each failure precedes its repair. Choice
+errors now stay separate from editor errors, actions disable during the write,
+and resuming a draft restores the editor beneath the next setup task.
+
+Both distributions pass 200 host tests, Android lint, and debug app/test builds.
+The final focused installed API36 Play Store ARM64 run passes 55 tests in
+92.736s. Sixteen host capture-tool checks pass. The exact build hashes and
+red/green outputs are in [check-in evidence](evidence/check-in-2026-10-21/).
+These results do not establish physical Pixel acceptance or consumer readiness.
+
+CI `39568431033` passes API33 and API34 native jobs. API35 passes its 178
+reported native cases, then captures an Android System UI crash dialog over
+Curfew. API36 has one keyboard-capture timeout. The previous keyboard fixture
+passes three local runs, so that exact CI timeout is not reproduced locally.
+The fixture now waits for the old keyboard to close before replacing its
+composition, checks actual window IME visibility, and cleans up on failure.
+Three focused repaired runs pass. The final 55-case run also passes all nine
+design-capture cases. CI uses x86_64 Google APIs images; the local check uses
+ARM64 Play Store. Do not erase that distinction.
+
+The cause of the API35 System UI crash remains unknown. Failed captures now
+retain System UI exit information and the crash log buffer. This diagnostic
+change is not a claim that the System UI crash is fixed.
+
+The rendered follow-up review found a partial error and hidden retry action at
+200% text, plus testing emphasized before the private-file handoff. Both new
+regressions fail before repair. The error and retry now share a
+[BringIntoViewRequester](https://developer.android.com/reference/kotlin/androidx/compose/foundation/relocation/BringIntoViewRequester)
+region. Saving the file has priority until Android reports a successful write.
+Opening or canceling the picker does not advance that state. The saved file's
+nonsecret callback identity survives recreation; the real registry-result test
+checks the file contents, action priority, and a second activity recreation.
+Export does not imply operator installation or authenticated verification.
+
+The final replacement gallery contains ten states across eighteen emulated
+profiles: 180 state PNGs and four controlled transition frames. All 184 match
+the requested dimensions, current source hash, and installed GMS APK. Exact
+display settings restore. Codex and the independent designer reviewed all
+thirty contact sheets between them. The clean replacement follows a rejected
+incomplete run with an emulator graphics-context/ADB failure; no partial or
+invalid images enter the accepted gallery. See the
+[current gallery](../design/android-review/native/check-in-matrix/README.md).

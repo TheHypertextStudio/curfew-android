@@ -7,6 +7,13 @@ Status: Scheduling, playback/readiness, and authenticated release are accepted i
 
 ## Current acceptance boundary
 
+The October 21 usability review identifies a separate consumer launch blocker:
+ordinary users have no supplied check-in service. P1's authenticated integration
+requires an existing operator-run service. Do not present technical acceptance
+of that integration as consumer launch readiness. The check-in prerequisite
+screen now provides a draft-only exit before its manual connection flow.
+Trusted-person approval still requires a real invitation and approval product.
+
 [The acceptance record](P1_ACCEPTANCE.md) maps the four feature tasks to
 observed results. Application source `961ae1f` passes all seven jobs in CI
 39553434419 after the API35 capture retry. Evidence commit `0919d57` passes

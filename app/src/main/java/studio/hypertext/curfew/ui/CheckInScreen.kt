@@ -2,6 +2,8 @@ package studio.hypertext.curfew.ui
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.listSaver
@@ -46,14 +48,17 @@ internal fun CheckInScreen(
     inSetup: Boolean = false,
     state: CheckInState = rememberCheckInState(),
     onDefer: (() -> Unit)? = null,
+    deferBusy: Boolean = false,
+    deferError: String? = null,
     onUseForAlarm: (() -> Unit)? = null,
     inlineHeader: (@Composable () -> Unit)? = null,
+    setupFileSaved: Boolean = false,
 ) {
     val scope = rememberCoroutineScope()
     var submitting by remember { mutableStateOf(false) }
     var saveError by remember { mutableStateOf<String?>(null) }
     val waiting = submitting || state.pendingId != null
-    val working = busy || waiting
+    val working = busy || waiting || deferBusy
     val connected = callbackId != null && savedLabel != null
     val endpointValid = validServiceAddress(state.endpoint)
     val actionValid = state.actionUrl.isBlank() || runCatching { java.net.URI(state.actionUrl.trim()).isAbsolute }.getOrDefault(false)
@@ -67,7 +72,7 @@ internal fun CheckInScreen(
     }
     when {
         state.editing -> SetupTaskContent(
-            introduction = { if (inlineHeader != null) inlineHeader() else SetupIntroduction(R.drawable.ic_link_rounded, "Connect your service", "Use the connection address supplied by your check-in service.") },
+            introduction = { if (inlineHeader != null) inlineHeader() else SetupIntroduction(R.drawable.ic_link_rounded, "Connect your service", "Ask the person running your service for its Curfew connection address. A normal website address won’t work.") },
         ) {
             OutlinedTextField(state.endpoint, { state.endpoint = it }, label = { Text("Service address") }, enabled = !working,
                 supportingText = if (state.endpoint.isNotBlank() && !endpointValid) { { Text("Enter an HTTPS address.") } } else null,
@@ -105,14 +110,14 @@ internal fun CheckInScreen(
             introduction = {
                 CheckInSummary(requireNotNull(savedLabel), verified)
                 if (!verified) {
-                    Text("Add the setup file to your service so it can confirm your check-in.", style = MaterialTheme.typography.bodyLarge)
+                    Text("Give the setup file to the person running your service. After they install it, test the connection.", style = MaterialTheme.typography.bodyLarge)
                     Text("Keep the file private. It allows your service to stop the alarm.", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             },
         ) {
             if (!verified) {
-                OutlinedButton(onClick = onExport, enabled = !working, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)) { Text("Save setup file") }
-                Button(onClick = { state.completing = true; onVerify() }, enabled = !working, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text(if (busy) "Checking…" else "Test connection") }
+                CheckInAction("Save setup file", primary = !setupFileSaved, enabled = !working, onClick = onExport)
+                CheckInAction(if (busy) "Checking…" else "Test connection", primary = setupFileSaved, enabled = !working) { state.completing = true; onVerify() }
             }
             if (message != null) TaskMessage(message)
             if (verified && (state.completing || inSetup)) Button(onClick = { state.completing = false; onDone() }, enabled = !working, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text(if (inSetup) "Continue" else "Done") }
@@ -128,13 +133,33 @@ internal fun CheckInScreen(
             }
         }
         else -> SetupTaskContent(
-            introduction = { SetupIntroduction(R.drawable.ic_link_rounded, "Wake up. Check in.", "Your check-in tells Curfew when to stop the alarm.") },
+            introduction = { SetupIntroduction(R.drawable.ic_link_rounded, "A check-in service is required", "The alarm keeps ringing until your service confirms you’re up.") },
         ) {
-            Text("You’ll need a compatible service and its connection address.", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Button(onClick = { state.editing = true }, enabled = !working, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Connect a service") }
-            if (inSetup && onDefer != null) TextButton(onClick = onDefer, enabled = !working, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Set up later") }
+            Text("Curfew doesn’t include a check-in service yet.", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            if (inSetup && onDefer != null) {
+                Text("Save your wake time for later. The alarm will stay off.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                val retryRegion = remember { BringIntoViewRequester() }
+                Column(Modifier.fillMaxWidth().bringIntoViewRequester(retryRegion), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    if (deferError != null) TaskMessage(deferError, error = true)
+                    Button(onClick = onDefer, enabled = !working, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text(if (deferBusy) "Saving…" else "Save for later") }
+                }
+                LaunchedEffect(deferError) {
+                    if (deferError != null) {
+                        withFrameNanos { }
+                        retryRegion.bringIntoView()
+                    }
+                }
+            }
+            OutlinedButton(onClick = { state.editing = true }, enabled = !working, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)) { Text("I have a service") }
         }
     }
+}
+
+@Composable
+private fun CheckInAction(label: String, primary: Boolean, enabled: Boolean, onClick: () -> Unit) {
+    val modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)
+    if (primary) Button(onClick, modifier, enabled) { Text(label) }
+    else OutlinedButton(onClick, modifier, enabled) { Text(label) }
 }
 
 private fun validServiceAddress(value: String): Boolean = runCatching {

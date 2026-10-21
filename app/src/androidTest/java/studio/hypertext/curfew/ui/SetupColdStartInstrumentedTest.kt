@@ -1,6 +1,7 @@
 package studio.hypertext.curfew.ui
 
 import androidx.compose.ui.test.*
+import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
@@ -32,7 +33,6 @@ class SetupColdStartInstrumentedTest {
         firstUse.chooseNotNow(); firstUse.clearDraft()
         val connection = configurations.save("Export check-in", "https://export.example.test/wake", null)
         preferences.selectCallback(connection.callbackId)
-        preferences.markCallbackVerifiedIfSelected(connection.callbackId)
         val uri = requireNotNull(context.contentResolver.insert(android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI,
             android.content.ContentValues().apply {
                 put(android.provider.MediaStore.MediaColumns.DISPLAY_NAME, "curfew-export-test.json")
@@ -47,7 +47,8 @@ class SetupColdStartInstrumentedTest {
                 compose.waitUntil(10_000) { compose.onAllNodesWithContentDescription("Settings").fetchSemanticsNodes().isNotEmpty() }
                 compose.onNodeWithContentDescription("Settings").performClick()
                 compose.onNodeWithText("Check-in").performClick()
-                compose.onNodeWithText("Connection details").performScrollTo().performClick()
+                val initialAction = compose.onNodeWithText("Save setup file").performScrollTo().captureToImage().toPixelMap()
+                val primaryColor = initialAction[initialAction.width / 2, 8]
                 var requestCode = 0
                 scenario.onActivity { activity ->
                     val saved = android.os.Bundle()
@@ -64,6 +65,13 @@ class SetupColdStartInstrumentedTest {
                 compose.waitUntil(5_000) {
                     runCatching { context.contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText().contains(connection.callbackId) } == true }.getOrDefault(false)
                 }
+                compose.onNodeWithText("Connected").assertDoesNotExist()
+                val nextAction = compose.onNodeWithText("Test connection").performScrollTo().captureToImage().toPixelMap()
+                org.junit.Assert.assertEquals(primaryColor, nextAction[nextAction.width / 2, 8])
+                scenario.recreate()
+                compose.waitUntil(5_000) { compose.onAllNodesWithText("Test connection").fetchSemanticsNodes().isNotEmpty() }
+                val restoredAction = compose.onNodeWithText("Test connection").performScrollTo().captureToImage().toPixelMap()
+                org.junit.Assert.assertEquals(primaryColor, restoredAction[restoredAction.width / 2, 8])
             }
         } finally {
             instrumentation.removeMonitor(monitor)
@@ -77,8 +85,8 @@ class SetupColdStartInstrumentedTest {
         FirstUsePreferences(context).saveDraft(AlarmSetupDraft("keyboard", LocalTime.of(7, 0), LocalDate.now().plusDays(1), emptySet()))
         CurfewPreferences(context).selectCallback("missing-keyboard-fixture")
         ActivityScenario.launch(MainActivity::class.java).use { scenario ->
-            compose.waitUntil(10_000) { compose.onAllNodesWithText("Connect a service").fetchSemanticsNodes().isNotEmpty() }
-            compose.onNodeWithText("Connect a service").performScrollTo().performClick()
+            compose.waitUntil(10_000) { compose.onAllNodesWithText("I have a service").fetchSemanticsNodes().isNotEmpty() }
+            compose.onNodeWithText("I have a service").performScrollTo().performClick()
             compose.onNodeWithText("Service address").performScrollTo().performClick().performTextInput("https://wake.example.test/check-in")
             compose.onNodeWithContentDescription("Back").assertIsDisplayed()
             val back = compose.onNodeWithContentDescription("Back").fetchSemanticsNode().boundsInRoot
@@ -132,7 +140,7 @@ class SetupColdStartInstrumentedTest {
             ActivityScenario.launch(MainActivity::class.java).use { scenario ->
                 compose.waitUntil(10_000) { compose.onAllNodesWithContentDescription("Back").fetchSemanticsNodes().isNotEmpty() }
                 compose.onNodeWithText("Connection details").assertDoesNotExist()
-                compose.onNodeWithText("Connect a service").assertDoesNotExist()
+                compose.onNodeWithText("I have a service").assertDoesNotExist()
                 compose.onNodeWithText("Alarm setup").assertExists()
                 scenario.recreate()
                 compose.onNodeWithText("Alarm setup").assertExists()

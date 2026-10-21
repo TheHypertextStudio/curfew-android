@@ -29,6 +29,9 @@ class WelcomeRootCaptureTest(unittest.TestCase):
             self.assertEqual(OTHER, (out / 'fixture-dark-failed.xml').read_bytes())
             self.assertEqual(b'PNG fixture', (out / 'fixture-dark-failed.png').read_bytes())
             self.assertIn(b'Activity exit information', (out / 'fixture-dark-exit-info.txt').read_bytes())
+            self.assertIn(b'Activity exit information', (out / 'fixture-dark-system-ui-exit-info.txt').read_bytes())
+            self.assertTrue((out / 'fixture-dark-crash-log.txt').is_file())
+            self.assertIn(('shell', 'logcat', '-b', 'crash', '-d', '-v', 'threadtime'), calls)
             self.assertEqual(5, sum(p[:3] == ('shell', 'rm', '-f') for p in calls))
 
     def test_null_dump_cannot_reuse_an_old_root_and_a_fresh_root_can_succeed(self):

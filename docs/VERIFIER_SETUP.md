@@ -3,7 +3,8 @@
 Reader: The owner and operator connecting an existing HTTPS wake verifier.
 Action: Provision and test one verifier before enabling a Sunrise alarm.
 
-P1 uses an external service to confirm the owner's check-in. Curfew does not
+P1 uses an external service to confirm the owner's check-in. This is an advanced
+integration, not a supplied consumer check-in method. Curfew does not
 supply a hosted keyholder portal. The operator must provide an HTTPS endpoint
 that implements the pinned callback contract and decides when that particular
 wake occurrence has satisfied its condition.
@@ -11,7 +12,7 @@ wake occurrence has satisfied its condition.
 ## Provision the connection
 
 1. The owner opens Settings, then Check-in, on the phone. The owner opens the
-   connection flow through Connect a service. The owner enters the operator's
+   connection flow through I have a service. The owner enters the operator's
    HTTPS service address. Optional details hold the display name and the link
    for opening the service when the alarm rings. The owner saves the connection.
 2. The owner chooses Save setup file and saves the private file through Android's
@@ -90,7 +91,7 @@ separately in the P1 acceptance record.
 
 ## Returning to setup
 
-Set up later retains the prepared wake time without enabling the alarm. A saved
+Save for later retains the prepared wake time without enabling the alarm. A saved
 connection stays unverified until its connection test succeeds. Saving or
 exporting its setup file does not establish readiness.
 

@@ -402,6 +402,13 @@ source, verified after fetching the PR merge ref.
 
 ## Setup repair acceptance — October 21, 2026
 
+The subsequent usability review establishes that this integration does not
+provide a consumer approval method. An ordinary user cannot finish it without
+an existing operator-run compatible service. Consumer launch remains blocked
+even if the technical P1 gates pass. The correction states that requirement,
+retains a draft without turning on an alarm, and makes the private-file handoff
+explicit. It does not add trusted-person approval or a hosted service.
+
 The application source at `8feb007` passes 400 host tests across Plain and GMS,
 both lint and debug-build checks, and 87 focused native API34 tests. The setup
 repair separates route restoration from transient operations, waits for durable

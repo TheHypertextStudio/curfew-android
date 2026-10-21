@@ -1,0 +1,60 @@
+Performing Streamed Install
+Success
+
+studio.hypertext.curfew.ui.CheckInScreenInstrumentedTest:
+Error in missingServiceExplainsThePrerequisiteAndOffersASafeExit(studio.hypertext.curfew.ui.CheckInScreenInstrumentedTest):
+java.lang.AssertionError: Failed: assertExists.
+Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + InputText + EditableText contains 'A check-in service is required' (ignoreCase: false))
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.assertExists(SemanticsNodeInteraction.kt:125)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.assertExists$default(SemanticsNodeInteraction.kt:124)
+	at studio.hypertext.curfew.ui.CheckInScreenInstrumentedTest.missingServiceExplainsThePrerequisiteAndOffersASafeExit(CheckInScreenInstrumentedTest.kt:30)
+
+Error in untestedConnectionExplainsWhoNeedsThePrivateFileBeforeTesting(studio.hypertext.curfew.ui.CheckInScreenInstrumentedTest):
+java.lang.AssertionError: Failed: assertExists.
+Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + InputText + EditableText contains 'Give the setup file to the person running your service. After they install it, test the connection.' (ignoreCase: false))
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.assertExists(SemanticsNodeInteraction.kt:125)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.assertExists$default(SemanticsNodeInteraction.kt:124)
+	at studio.hypertext.curfew.ui.CheckInScreenInstrumentedTest.untestedConnectionExplainsWhoNeedsThePrivateFileBeforeTesting(CheckInScreenInstrumentedTest.kt:48)
+
+studio.hypertext.curfew.ui.SetupPostureInstrumentedTest:
+Error in compactPurposeAndActionStayTogether(studio.hypertext.curfew.ui.SetupPostureInstrumentedTest):
+java.lang.AssertionError: The action must stay beside its prerequisite: DpRect(left=16.0.dp, top=298.0.dp, right=180.0.dp, bottom=322.0.dp), DpRect(left=16.0.dp, top=640.0.dp, right=151.0.dp, bottom=680.0.dp)
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at studio.hypertext.curfew.ui.SetupPostureInstrumentedTest.compactPurposeAndActionStayTogether(SetupPostureInstrumentedTest.kt:35)
+
+
+Time: 1.151
+There were 3 failures:
+1) missingServiceExplainsThePrerequisiteAndOffersASafeExit(studio.hypertext.curfew.ui.CheckInScreenInstrumentedTest)
+java.lang.AssertionError: Failed: assertExists.
+Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + InputText + EditableText contains 'A check-in service is required' (ignoreCase: false))
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.assertExists(SemanticsNodeInteraction.kt:125)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.assertExists$default(SemanticsNodeInteraction.kt:124)
+	at studio.hypertext.curfew.ui.CheckInScreenInstrumentedTest.missingServiceExplainsThePrerequisiteAndOffersASafeExit(CheckInScreenInstrumentedTest.kt:30)
+2) untestedConnectionExplainsWhoNeedsThePrivateFileBeforeTesting(studio.hypertext.curfew.ui.CheckInScreenInstrumentedTest)
+java.lang.AssertionError: Failed: assertExists.
+Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + InputText + EditableText contains 'Give the setup file to the person running your service. After they install it, test the connection.' (ignoreCase: false))
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.assertExists(SemanticsNodeInteraction.kt:125)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.assertExists$default(SemanticsNodeInteraction.kt:124)
+	at studio.hypertext.curfew.ui.CheckInScreenInstrumentedTest.untestedConnectionExplainsWhoNeedsThePrivateFileBeforeTesting(CheckInScreenInstrumentedTest.kt:48)
+3) compactPurposeAndActionStayTogether(studio.hypertext.curfew.ui.SetupPostureInstrumentedTest)
+java.lang.AssertionError: The action must stay beside its prerequisite: DpRect(left=16.0.dp, top=298.0.dp, right=180.0.dp, bottom=322.0.dp), DpRect(left=16.0.dp, top=640.0.dp, right=151.0.dp, bottom=680.0.dp)
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at studio.hypertext.curfew.ui.SetupPostureInstrumentedTest.compactPurposeAndActionStayTogether(SetupPostureInstrumentedTest.kt:35)
+
+FAILURES!!!
+Tests run: 3,  Failures: 3

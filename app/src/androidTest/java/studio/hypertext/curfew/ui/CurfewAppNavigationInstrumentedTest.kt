@@ -111,7 +111,7 @@ class CurfewAppNavigationInstrumentedTest {
         compose.onNodeWithContentDescription("Back").performClick()
         compose.runOnIdle { hasConnection.value = false }
         compose.onNodeWithText("Check-in").performScrollTo().performClick()
-        compose.onNodeWithText("Connect a service").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("I have a service").performScrollTo().assertIsDisplayed()
         captureResponsiveWindow("check-in")
         compose.onNodeWithContentDescription("Back").performClick()
         compose.runOnIdle { missingActions.value = setOf(ReadinessAction.GRANT_FULL_SCREEN_ACCESS) }

@@ -4,6 +4,13 @@ Reader: Curfew's Android designer and maintainer.
 Action: Implement and review the complete local Sunrise experience before accepting P1.
 Status: The native replacement is in progress. The older configuration scroll is not the accepted product design.
 
+Consumer launch is blocked on a usable approval method. The current check-in
+integration needs an operator running a compatible HTTPS service. Curfew does
+not provide that service. A cleaner form does not resolve this prerequisite.
+The [check-in correction](superpowers/plans/2026-10-21-check-in-prerequisites.md)
+records the supported flow and the missing consumer path. Earlier visual
+reviews establish rendering only; they do not establish consumer usability.
+
 Curfew supplies the cream, ink, ember, Calistoga, Hanken Grotesk, and horizon identity. Material 3 Expressive supplies the native controls, shapes, type roles, motion, and interaction conventions. Use official Material Symbols Rounded. Do not draw substitute platform icons or recreate native controls to make a browser mockup look Android-like.
 
 The replacement uses Material 3 `1.5.0-beta01` and its required Compose `1.12.0` dependency line. The stable Material 3 `1.4.0` artifact keeps Expressive APIs internal. The public beta therefore replaces the old baseline rather than bypassing Kotlin visibility. Its compile SDK is 37; minimum and target SDK decisions remain separate. Build and installed checks must cover both distributions after this dependency change.

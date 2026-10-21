@@ -70,6 +70,7 @@ fun CurfewApp(
     conditionMessage: String? = null,
     onExportCondition: () -> Unit = {},
     onVerifyCondition: () -> Unit = {},
+    conditionSetupFileSaved: Boolean = false,
 ) {
     val onGrantExactAlarmState = rememberUpdatedState(onGrantExactAlarm)
     val onGrantNotificationsState = rememberUpdatedState(onGrantNotifications)
@@ -89,6 +90,7 @@ fun CurfewApp(
     val onVerifyConditionState = rememberUpdatedState(onVerifyCondition)
     val onWelcomeChoiceState = rememberUpdatedState(onWelcomeChoice)
     val onPrepareDraftState = rememberUpdatedState(onPrepareDraft)
+    val setupFileSavedState = rememberUpdatedState(conditionSetupFileSaved)
     val readinessState = rememberUpdatedState(readiness)
     val callbackState = rememberUpdatedState(callbackId)
     val labelState = rememberUpdatedState(conditionLabel)
@@ -108,6 +110,7 @@ fun CurfewApp(
     var draft by rememberSaveable(stateSaver = AlarmSetupDraftSaver) { mutableStateOf(setupDraft) }
     val checkInState = rememberCheckInState()
     var setupError by remember { mutableStateOf<String?>(null) }
+    var choiceError by remember { mutableStateOf<String?>(null) }
     val initial = when {
         showWelcome -> "welcome"
         startSetup && setupDraft != null -> if (!conditionVerified || callbackId == null || conditionLabel == null) "check-in" else if (!readiness.canArm) "readiness" else "review"
@@ -174,14 +177,14 @@ fun CurfewApp(
     fun chooseWelcome(start: Boolean) {
         if (preparing) return
         preparing = true
-        setupError = null
+        choiceError = null
         scope.launch {
             try {
                 onWelcomeChoiceState.value(start)
                 setupMode = start
                 if (start) open("edit") else daily()
             } catch (_: java.io.IOException) {
-                setupError = "Couldn’t save setup. Try again."
+                choiceError = "Couldn’t save setup. Try again."
             } finally { preparing = false }
         }
     }
@@ -300,7 +303,7 @@ fun CurfewApp(
                                         "welcome" -> CurfewWelcomeScreen(
                                             onContinue = { chooseWelcome(true) },
                                             onNotNow = { chooseWelcome(false) },
-                                            busy = preparing, error = setupError,
+                                            busy = preparing, error = choiceError,
                                         )
                                         "edit" -> SunriseScheduleEditor(
                                             sunriseAlarm, callbackId, canArm, alarmBusy || saving || preparing, alarmError ?: setupError,
@@ -337,6 +340,8 @@ fun CurfewApp(
                                             inSetup = setupMode, state = checkInState,
                                             inlineHeader = if (compactKeyboardState.value) taskTopBarState.value else null,
                                             onDefer = { chooseWelcome(false) },
+                                            deferBusy = preparing, deferError = choiceError,
+                                            setupFileSaved = setupFileSavedState.value,
                                             onUseForAlarm = if (sunriseAlarm != null && sunriseAlarm?.schedule?.callbackId != callbackId && conditionVerified) ({ open("edit") }) else null,
                                         )
                                         "review" -> draft?.let { prepared ->
@@ -370,7 +375,10 @@ fun CurfewApp(
                                             onCheckIn = { open("check-in") },
                                             onSetup = {
                                                 setupMode = sunriseAlarm == null
-                                                if (setupMode) nextSetupTask() else open(if (sunriseAlarm?.schedule?.callbackId != callbackId) "edit" else if (readiness.canArm) "check-in" else "readiness")
+                                                if (setupMode) {
+                                                    if (draft != null) open("edit")
+                                                    nextSetupTask()
+                                                } else open(if (sunriseAlarm?.schedule?.callbackId != callbackId) "edit" else if (readiness.canArm) "check-in" else "readiness")
                                             },
                                             onToggle = onToggleAlarm,
                                         )

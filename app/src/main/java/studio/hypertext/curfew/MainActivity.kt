@@ -121,6 +121,7 @@ class MainActivity : ComponentActivity() {
     private var conditionBusy by mutableStateOf(false)
     private var conditionMessage by mutableStateOf<String?>(null)
     private var pendingVerifierExportId: String? = null
+    private var exportedVerifierId by mutableStateOf<String?>(null)
     private val exportVerifier = registerForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
         val callbackId = pendingVerifierExportId
         pendingVerifierExportId = null
@@ -136,6 +137,7 @@ class MainActivity : ComponentActivity() {
                             it.write(Json.encodeToString(definition))
                         }
                     }
+                    exportedVerifierId = callbackId
                     conditionMessage = "Setup file saved."
                 } catch (failure: Exception) {
                     conditionMessage = "Couldn’t save the setup file. Choose another location and try again."
@@ -150,6 +152,7 @@ class MainActivity : ComponentActivity() {
         val splash = installSplashScreen()
         super.onCreate(savedInstanceState)
         pendingVerifierExportId = savedInstanceState?.getString("pending_check_in_export")
+        exportedVerifierId = savedInstanceState?.getString("saved_check_in_export")
         splash.setOnExitAnimationListener { provider ->
             if (android.animation.ValueAnimator.areAnimatorsEnabled()) {
                 provider.view.animate().alpha(0f).setDuration(180L).withEndAction { provider.remove() }.start()
@@ -386,6 +389,7 @@ class MainActivity : ComponentActivity() {
                         } ?: false,
                         conditionBusy = conditionBusy,
                         conditionMessage = conditionMessage,
+                        conditionSetupFileSaved = exportedVerifierId != null && exportedVerifierId == preferenceState.selectedCallbackId,
                         onExportCondition = {
                             val id = preferenceState.selectedCallbackId
                             if (id != null && !conditionBusy) lifecycleScope.launch {
@@ -414,7 +418,7 @@ class MainActivity : ComponentActivity() {
                                         "Your check-in changed. Test the connection again."
                                     }
                                 } catch (failure: Exception) {
-                                    conditionMessage = "Couldn’t confirm the connection. Check the service setup, then retry."
+                                    conditionMessage = "Couldn’t connect. Ask the person running your service to check its setup, then try again."
                                 } finally {
                                     conditionBusy = false
                                 }
@@ -470,6 +474,7 @@ class MainActivity : ComponentActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         // Keep only the identity across the picker; reload secret material after its result.
         outState.putString("pending_check_in_export", pendingVerifierExportId)
+        outState.putString("saved_check_in_export", exportedVerifierId)
         super.onSaveInstanceState(outState)
     }
 

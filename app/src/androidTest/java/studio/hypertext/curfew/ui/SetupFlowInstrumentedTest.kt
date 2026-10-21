@@ -13,17 +13,20 @@ import studio.hypertext.curfew.ui.theme.CurfewTheme
 import java.io.IOException
 import java.time.LocalDate
 import java.time.LocalTime
+import kotlinx.coroutines.CompletableDeferred
 
 class SetupFlowInstrumentedTest {
     @get:Rule val compose = createComposeRule()
     private val required = mutableStateOf<Set<ReadinessAction>>(emptySet())
     private var choices = 0
     private var saves = 0
+    private var failDeferral = true
     private val alarm = mutableStateOf<studio.hypertext.curfew.alarm.SavedSunriseAlarm?>(null)
     private val draft = AlarmSetupDraft("draft", LocalTime.of(7, 0), LocalDate.now().plusDays(1), emptySet())
 
     private fun show(welcome: Boolean = false, resume: Boolean = true, draft: AlarmSetupDraft? = this.draft,
-                     failChoice: Boolean = false, verified: Boolean = true, restoration: StateRestorationTester? = null) {
+                     failChoice: Boolean = false, verified: Boolean = true, restoration: StateRestorationTester? = null,
+                     retryableDeferral: Boolean = false, choiceGate: CompletableDeferred<Unit>? = null) {
         val content: @Composable () -> Unit = {
             CurfewTheme {
                 CurfewApp(
@@ -35,7 +38,7 @@ class SetupFlowInstrumentedTest {
                     callbackId = if (verified) "connection" else null, conditionLabel = if (verified) "Morning check-in" else null,
                     alarmBusy = false, alarmError = null, onSaveAlarm = { saves++ }, onToggleAlarm = {},
                     showWelcome = welcome, startSetup = resume, setupDraft = draft, conditionVerified = verified,
-                    onWelcomeChoice = { choices++; if (failChoice) throw IOException("disk") },
+                    onWelcomeChoice = { choices++; choiceGate?.await(); if (failChoice || (retryableDeferral && failDeferral)) throw IOException("disk") },
                     onGrantFullScreen = { required.value = emptySet() },
                 )
             }
@@ -86,18 +89,43 @@ class SetupFlowInstrumentedTest {
     @Test fun checkInStartsWithPurposeAndCanDeferWithoutAnAlarm() {
         show(verified = false)
         compose.onNodeWithText("Service address").assertDoesNotExist()
-        compose.onNodeWithText("Connect a service").performScrollTo().assertIsDisplayed()
-        compose.onNodeWithText("Set up later").performScrollTo().performClick()
+        compose.onNodeWithText("I have a service").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Save for later").performScrollTo().performClick()
+        compose.onNodeWithText("No alarm set").assertExists()
+        compose.runOnIdle { assertEquals(0, saves) }
+    }
+
+    @Test fun failedDeferralKeepsDraftAndOffersAVisibleRetry() {
+        show(verified = false, retryableDeferral = true)
+        compose.onNodeWithText("Save for later").performScrollTo().performClick()
+        compose.onNodeWithText("Couldn’t save setup. Try again.").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Save for later").assertIsEnabled()
+        compose.runOnIdle { assertEquals(0, saves); failDeferral = false }
+        compose.onNodeWithText("Save for later").performScrollTo().performClick()
+        compose.onNodeWithText("No alarm set").assertExists()
+        compose.onNodeWithText("Finish setup").performScrollTo().performClick()
+        compose.onNodeWithContentDescription("Back").performClick()
+        compose.onNodeWithText("One night").performScrollTo().assertIsDisplayed()
+        compose.runOnIdle { assertEquals(2, choices); assertEquals(0, saves) }
+    }
+
+    @Test fun savingDeferralDisablesTheCompetingServiceAction() {
+        val gate = CompletableDeferred<Unit>()
+        show(verified = false, choiceGate = gate)
+        compose.onNodeWithText("Save for later").performScrollTo().performClick()
+        compose.onNodeWithText("Saving…").assertIsNotEnabled()
+        compose.onNodeWithText("I have a service").assertIsNotEnabled()
+        compose.runOnIdle { assertEquals(1, choices); gate.complete(Unit) }
         compose.onNodeWithText("No alarm set").assertExists()
         compose.runOnIdle { assertEquals(0, saves) }
     }
 
     @Test fun backFromManualConnectionReturnsToItsIntroduction() {
         show(verified = false)
-        compose.onNodeWithText("Connect a service").performScrollTo().performClick()
+        compose.onNodeWithText("I have a service").performScrollTo().performClick()
         compose.onNodeWithText("Service address").assertExists()
         compose.onNodeWithContentDescription("Back").performClick()
-        compose.onNodeWithText("Connect a service").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("I have a service").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Service address").assertDoesNotExist()
     }
 
@@ -129,6 +157,6 @@ class SetupFlowInstrumentedTest {
         compose.onNodeWithText("Alarm setup").performClick()
         compose.onNodeWithText("Done").performScrollTo().performClick()
         compose.onNodeWithText("Account").assertExists()
-        compose.onNodeWithText("Connect a service").assertDoesNotExist()
+        compose.onNodeWithText("I have a service").assertDoesNotExist()
     }
 }

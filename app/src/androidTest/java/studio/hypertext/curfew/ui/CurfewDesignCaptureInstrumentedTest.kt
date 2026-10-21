@@ -21,6 +21,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.focus.FocusManager
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.test.espresso.Espresso
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
@@ -62,6 +68,8 @@ class CurfewDesignCaptureInstrumentedTest {
     private var frame by mutableStateOf(Frame())
     private val imeBottom = AtomicInteger()
     private var keyboard: SoftwareKeyboardController? = null
+    private var focusManager: FocusManager? = null
+    private var composeView: android.view.View? = null
     private val alarm = SavedSunriseAlarm(
         SunriseSchedule("design-alarm", LocalTime.of(7, 0), null, java.time.DayOfWeek.entries.take(5).toSet(), true, "design-check-in"),
         SunriseOccurrence("design-morning", LocalDate.of(2026, 10, 20), Instant.parse("2026-10-20T14:00:00Z")),
@@ -84,40 +92,56 @@ class CurfewDesignCaptureInstrumentedTest {
         val manifest = JSONArray()
         compose.setContent { Fixture(initialForm, required) }
         var generation = 0
-        for (dark in listOf(false, true)) for (width in listOf(320, 390)) for (scale in listOf(1f, 2f)) {
-            compose.runOnIdle {
-                keyboard?.hide()
-                frame = Frame(++generation, dark, width, scale)
-            }
-            compose.waitForIdle()
-            if (scene == "editor") {
-                compose.onNodeWithContentDescription("Edit alarm").performClick()
-            } else if (scene != "daily") {
-                compose.onNodeWithContentDescription("Settings").performClick()
-                val destination = when (scene) {
-                    "readiness" -> "Alarm setup"
-                    "account" -> "Account"
-                    else -> "Check-in"
+        java.io.Closeable { closeKeyboard() }.use {
+            for (dark in listOf(false, true)) for (width in listOf(320, 390)) for (scale in listOf(1f, 2f)) {
+                closeKeyboard()
+                compose.runOnIdle {
+                    frame = Frame(++generation, dark, width, scale)
                 }
-                compose.onNodeWithText(destination).performScrollTo().performClick()
+                compose.waitForIdle()
+                if (scene == "editor") {
+                    compose.onNodeWithContentDescription("Edit alarm").performClick()
+                } else if (scene != "daily") {
+                    compose.onNodeWithContentDescription("Settings").performClick()
+                    val destination = when (scene) {
+                        "readiness" -> "Alarm setup"
+                        "account" -> "Account"
+                        else -> "Check-in"
+                    }
+                    compose.onNodeWithText(destination).performScrollTo().performClick()
+                }
+                if (initialForm) compose.onNodeWithText("I have a service").performScrollTo().performClick()
+                if (withKeyboard) {
+                    compose.onNodeWithText("Service address").performScrollTo().performClick().performTextInput("https://wake.example.test/check-in")
+                    compose.runOnIdle { keyboard?.show() }
+                    try {
+                        compose.waitUntil(5_000) { platformImeVisible() && imeBottom.get() > 0 }
+                    } catch (failure: androidx.compose.ui.test.ComposeTimeoutException) {
+                        throw AssertionError("IME did not appear for dark=$dark width=$width scale=$scale; visible=${platformImeVisible()} inset=${imeBottom.get()}", failure)
+                    }
+                }
+                compose.waitForIdle()
+                val name = "$scene-${if (dark) "dark" else "light"}-$width-font${(scale * 100).toInt()}.png"
+                val bitmap = compose.onRoot().captureToImage().asAndroidBitmap()
+                output.resolve(name).outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
+                manifest.put(JSONObject().put("name", name).put("contentWidthDp", width).put("fontScale", scale)
+                    .put("dark", dark).put("bitmapWidthPx", bitmap.width).put("bitmapHeightPx", bitmap.height)
+                    .put("imeBottomPx", imeBottom.get()).put("syntheticFixture", true))
             }
-            if (initialForm) compose.onNodeWithText("Connect a service").performScrollTo().performClick()
-            if (withKeyboard) {
-                compose.onNodeWithText("Service address").performScrollTo().performClick().performTextInput("https://wake.example.test/check-in")
-                compose.runOnIdle { keyboard?.show() }
-                compose.waitUntil(5_000) { imeBottom.get() > 0 }
-            }
-            compose.waitForIdle()
-            val name = "$scene-${if (dark) "dark" else "light"}-$width-font${(scale * 100).toInt()}.png"
-            val bitmap = compose.onRoot().captureToImage().asAndroidBitmap()
-            output.resolve(name).outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
-            manifest.put(JSONObject().put("name", name).put("contentWidthDp", width).put("fontScale", scale)
-                .put("dark", dark).put("bitmapWidthPx", bitmap.width).put("bitmapHeightPx", bitmap.height)
-                .put("imeBottomPx", imeBottom.get()).put("syntheticFixture", true))
-            compose.runOnIdle { keyboard?.hide() }
+            output.resolve("$scene-manifest.json").writeText(manifest.toString(2))
         }
-        output.resolve("$scene-manifest.json").writeText(manifest.toString(2))
     }
+
+    private fun platformImeVisible(): Boolean = composeView?.let {
+        ViewCompat.getRootWindowInsets(it)?.isVisible(WindowInsetsCompat.Type.ime())
+    } == true
+
+    private fun closeKeyboard() {
+        compose.runOnIdle { focusManager?.clearFocus(force = true); keyboard?.hide() }
+        Espresso.closeSoftKeyboard()
+        compose.waitUntil(5_000) { !platformImeVisible() && imeBottom.get() == 0 }
+    }
+
     @Composable
     private fun Fixture(initialForm: Boolean, required: Set<ReadinessAction>, oneNight: Boolean = false) {
             val host = LocalContext.current.componentActivity()
@@ -126,8 +150,10 @@ class CurfewDesignCaptureInstrumentedTest {
             val density = LocalDensity.current
             CompositionLocalProvider(LocalDensity provides Density(density.density, current.scale)) {
                 val controller = LocalSoftwareKeyboardController.current
+                val focus = LocalFocusManager.current
+                val view = LocalView.current
                 val inset = WindowInsets.ime.getBottom(LocalDensity.current)
-                SideEffect { keyboard = controller; imeBottom.set(inset) }
+                SideEffect { keyboard = controller; focusManager = focus; composeView = view; imeBottom.set(inset) }
                 key(current.generation) {
                     CurfewTheme(darkTheme = current.dark, dynamicColor = false) {
                         Box(Modifier.width(current.width.dp).fillMaxHeight()) {

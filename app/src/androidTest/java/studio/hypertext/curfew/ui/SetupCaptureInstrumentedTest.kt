@@ -30,6 +30,7 @@ class SetupCaptureInstrumentedTest {
     @Test fun setupUsesTheAvailableWindowWithoutActivatingAnAlarm() {
         val callback = mutableStateOf<String?>(null)
         val verified = mutableStateOf(false)
+        val exported = mutableStateOf(false)
         val required = mutableStateOf(setOf(ReadinessAction.GRANT_FULL_SCREEN_ACCESS))
         compose.setContent { CurfewTheme {
             CurfewApp(
@@ -43,12 +44,20 @@ class SetupCaptureInstrumentedTest {
                 alarmBusy = false, alarmError = null, onSaveAlarm = { saves++ }, onToggleAlarm = {},
                 startSetup = true, conditionVerified = verified.value,
                 onVerifyCondition = { verified.value = true }, onGrantFullScreen = { required.value = emptySet() },
+                onWelcomeChoice = { throw java.io.IOException("capture storage failure") },
+                onExportCondition = { exported.value = true }, conditionSetupFileSaved = exported.value,
             )
         } }
         capture("time")
         compose.onNodeWithText("Continue").performScrollTo().performClick()
         capture("introduction")
-        compose.onNodeWithText("Connect a service").performScrollTo().performClick()
+        compose.onNodeWithText("Save for later").performScrollTo().performClick()
+        capture("defer-error")
+        val errorBounds = compose.onNodeWithText("Couldn’t save setup. Try again.").getUnclippedBoundsInRoot()
+        val retryBounds = compose.onNodeWithText("Save for later").getUnclippedBoundsInRoot()
+        val viewport = compose.onRoot().getUnclippedBoundsInRoot()
+        org.junit.Assert.assertTrue("The full error and retry must be visible after failure", errorBounds.top >= viewport.top && retryBounds.bottom <= viewport.bottom)
+        compose.onNodeWithText("I have a service").performScrollTo().performClick()
         capture("connection")
         if (compose.activity.resources.configuration.fontScale < 1.5f) {
             val action = compose.onNodeWithText("Save check-in").getUnclippedBoundsInRoot()
@@ -72,6 +81,8 @@ class SetupCaptureInstrumentedTest {
         Espresso.closeSoftKeyboard()
         compose.onNodeWithText("Save check-in").performScrollTo().performClick()
         capture("transfer")
+        compose.onNodeWithText("Save setup file").performScrollTo().performClick()
+        capture("test-ready")
         compose.onNodeWithText("Test connection").performScrollTo().performClick()
         capture("connected")
         compose.onNodeWithText("Continue").performScrollTo().performClick()
@@ -93,9 +104,11 @@ class SetupCaptureInstrumentedTest {
     private fun capture(scene: String) {
         val expected = when (scene) {
             "time" -> "One night"
-            "introduction" -> "Connect a service"
+            "introduction" -> "I have a service"
+            "defer-error" -> "Couldn’t save setup. Try again."
             "connection", "keyboard" -> "Service address"
             "transfer" -> "Test connection"
+            "test-ready" -> "Test connection"
             "connected" -> "Connected"
             "permissions" -> "Allow alarm screen"
             "review" -> "Turn on alarm"

@@ -1,0 +1,36 @@
+Performing Streamed Install
+Success
+Performing Streamed Install
+Success
+
+studio.hypertext.curfew.ui.CheckInScreenInstrumentedTest:.........
+studio.hypertext.curfew.ui.SetupPostureInstrumentedTest:...
+studio.hypertext.curfew.ui.SetupFlowInstrumentedTest:
+Error in failedDeferralKeepsDraftAndOffersAVisibleRetry(studio.hypertext.curfew.ui.SetupFlowInstrumentedTest):
+java.lang.AssertionError: Action performScrollTo() failed.
+Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + InputText + EditableText contains 'One night' (ignoreCase: false))
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
+	at androidx.compose.ui.test.ActionsKt.performScrollTo(Actions.kt:82)
+	at studio.hypertext.curfew.ui.SetupFlowInstrumentedTest.failedDeferralKeepsDraftAndOffersAVisibleRetry(SetupFlowInstrumentedTest.kt:108)
+..........
+studio.hypertext.curfew.ui.CurfewAppNavigationInstrumentedTest:................
+studio.hypertext.curfew.ui.SetupCaptureInstrumentedTest:.
+studio.hypertext.curfew.ui.CurfewDesignCaptureInstrumentedTest:.........
+
+Time: 88.601
+There was 1 failure:
+1) failedDeferralKeepsDraftAndOffersAVisibleRetry(studio.hypertext.curfew.ui.SetupFlowInstrumentedTest)
+java.lang.AssertionError: Action performScrollTo() failed.
+Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + InputText + EditableText contains 'One night' (ignoreCase: false))
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
+	at androidx.compose.ui.test.ActionsKt.performScrollTo(Actions.kt:82)
+	at studio.hypertext.curfew.ui.SetupFlowInstrumentedTest.failedDeferralKeepsDraftAndOffersAVisibleRetry(SetupFlowInstrumentedTest.kt:108)
+
+FAILURES!!!
+Tests run: 49,  Failures: 1

@@ -11,6 +11,7 @@ import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.unit.dp
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -21,6 +22,18 @@ class SetupPostureInstrumentedTest {
     @get:Rule val compose = createComposeRule()
     private var origin = Offset.Zero
     private var hinge = Rect.Zero
+    @Test fun compactPurposeAndActionStayTogether() {
+        compose.setContent { CurfewTheme {
+            Box(Modifier.width(320.dp).height(700.dp)) {
+                SetupTaskContent(introduction = { Text("Check-in prerequisite") }) {
+                    Button(onClick = {}) { Text("Save for later") }
+                }
+            }
+        } }
+        val purpose = compose.onNodeWithText("Check-in prerequisite").getUnclippedBoundsInRoot()
+        val action = compose.onNodeWithText("Save for later").getUnclippedBoundsInRoot()
+        assertTrue("The action must stay beside its prerequisite: $purpose, $action", action.top - purpose.bottom < 96.dp)
+    }
     private fun show(book: Boolean) {
         compose.setContent {
             val window = LocalWindowInfo.current.containerSize

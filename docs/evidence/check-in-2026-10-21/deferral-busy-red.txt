@@ -1,0 +1,33 @@
+Performing Streamed Install
+Success
+
+studio.hypertext.curfew.ui.SetupFlowInstrumentedTest:
+Error in savingDeferralDisablesTheCompetingServiceAction(studio.hypertext.curfew.ui.SetupFlowInstrumentedTest):
+java.lang.AssertionError: Failed to assert the following: (is not enabled)
+Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + InputText + EditableText contains 'Saving…' (ignoreCase: false))
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
+	at androidx.compose.ui.test.AssertionsKt.assert(Assertions.kt:291)
+	at androidx.compose.ui.test.AssertionsKt.assert$default(Assertions.kt:283)
+	at androidx.compose.ui.test.AssertionsKt.assertIsNotEnabled(Assertions.kt:67)
+	at studio.hypertext.curfew.ui.SetupFlowInstrumentedTest.savingDeferralDisablesTheCompetingServiceAction(SetupFlowInstrumentedTest.kt:116)
+
+
+Time: 0.754
+There was 1 failure:
+1) savingDeferralDisablesTheCompetingServiceAction(studio.hypertext.curfew.ui.SetupFlowInstrumentedTest)
+java.lang.AssertionError: Failed to assert the following: (is not enabled)
+Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + InputText + EditableText contains 'Saving…' (ignoreCase: false))
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
+	at androidx.compose.ui.test.AssertionsKt.assert(Assertions.kt:291)
+	at androidx.compose.ui.test.AssertionsKt.assert$default(Assertions.kt:283)
+	at androidx.compose.ui.test.AssertionsKt.assertIsNotEnabled(Assertions.kt:67)
+	at studio.hypertext.curfew.ui.SetupFlowInstrumentedTest.savingDeferralDisablesTheCompetingServiceAction(SetupFlowInstrumentedTest.kt:116)
+
+FAILURES!!!
+Tests run: 1,  Failures: 1

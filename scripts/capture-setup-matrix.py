@@ -10,7 +10,7 @@ import struct
 import subprocess
 import time
 
-SCENES = ('time', 'introduction', 'connection', 'keyboard', 'transfer', 'connected', 'permissions', 'review')
+SCENES = ('time', 'introduction', 'defer-error', 'connection', 'keyboard', 'transfer', 'test-ready', 'connected', 'permissions', 'review')
 
 
 def validate_display_size(output, width, height):
