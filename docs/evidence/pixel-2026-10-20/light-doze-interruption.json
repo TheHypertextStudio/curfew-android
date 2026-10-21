@@ -1,0 +1,24 @@
+{
+  "sourceCommit": "0919d57ede19c2724e279cc4de979c5da3ed851e",
+  "device": "Pixel 11 Pro/API37",
+  "accepted": false,
+  "mode": "forced light Doze",
+  "idleObservedFrom": "2026-10-21T06:28:08Z",
+  "lastIdleObservation": "2026-10-21T06:29:08Z",
+  "screenWakeObservedAt": "2026-10-21T06:29:11Z",
+  "powerLogReason": "WAKE_REASON_TAP",
+  "scheduledAt": "2026-10-21T06:29:21.265860Z",
+  "canceledBeforeDelivery": true,
+  "alarmAudioObserved": false,
+  "cleanup": {
+    "normalCurfewPresent": true,
+    "isolatedPackagesRemoved": true,
+    "normalIdleRestored": true,
+    "idleThresholdUnchanged": true,
+    "normalSettingsCleared": false,
+    "cleanupCommandErrors": []
+  },
+  "normalAppUnchanged": true,
+  "applicationSourceCommit": "961ae1fee8a565c9d6166d5afc268bdefe0ddbb9",
+  "appSha256": "63710fd78ebc1d4ac8a7074f86fefef57a51c343357dccba4eabbce2a9830cc5"
+}

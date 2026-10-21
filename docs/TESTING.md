@@ -1033,6 +1033,20 @@ API33/34/36 native jobs. API35 reports OK for 158 cases, including seven guarded
 skips, in 236.952s. Its later welcome screenshot step fails at the landscape
 dark profile. The retained PNG and XML show Android's “System UI keeps
 stopping” dialog. This is a failed capture run; it is not a failed UI contract
-or accepted screenshot evidence. A fresh-emulator retry remains pending.
+or accepted screenshot evidence. The fresh-emulator retry passes.
 The separately reviewed API34 task matrix retains its own source/APK/settings
 record. The task-owned remote emulator and cache were removed after capture.
+
+
+CI 39553434419 now passes all seven jobs after that API35 retry. Current-head
+run 39554867813 also passes all seven jobs on its first attempt. Its artifact
+contains 18 profiles and 108 task PNGs with clean source, matching installed
+APK hash, and restored emulator settings. The earlier failed capture remains
+rejected; a green retry does not change what its original result established.
+
+The October 20 short Pixel run enters forced light Doze but ends early when
+Android records a tap wake. It never reaches alarm delivery and is rejected.
+Its scoped cleanup succeeds. Keep the physical Doze criterion open and do not
+restart the phone test without confirmed availability. The pending repeat
+harness has a pre-arming cutoff and a separate absolute phone-local deadline;
+it has not been executed and establishes no additional device behavior.

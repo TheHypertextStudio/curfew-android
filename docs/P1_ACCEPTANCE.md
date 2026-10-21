@@ -2,7 +2,7 @@
 
 Reader: The Curfew owner and Android maintainer accepting Docket project `01M5AXW727EJSE5FM2H8WXJRWS`.
 Action: Check each requirement against its evidence before accepting any of the four feature tasks.
-Snapshot: October 20, 2026. P1 remains unaccepted.
+Snapshot: October 20, 2026, Pacific. P1 remains unaccepted.
 
 The scope comes from `Documentation/alarm-delivery-plan.md` and
 `Documentation/android-mvp.md` in the Curfew repository. P1 means local
@@ -13,7 +13,22 @@ P1 acceptance uses the connected Pixel. Non-Pixel testing belongs to later
 compatibility work and does not gate this milestone. This scope correction
 removes a hardware requirement that exceeded the first working-alarm goal.
 
-## Evidence boundaries
+## Current decision
+
+Scheduling, playback/readiness, and authenticated release are done in Docket.
+Recovery remains in progress for its connected-Pixel Doze criterion. Both
+runtime CI 39553434419 and current-head CI 39554867813 pass all seven jobs.
+The latter includes 18 complete API35 capture profiles, 108 task PNGs, clean
+source, a matching installed APK hash, and restored emulator settings. The
+reviewed API34 task gallery keeps its separate visual-review boundary.
+
+The latest Pixel light-Doze attempt was canceled before sound after Android
+recorded a tap wake. Its cleanup is verified, but it does not prove unattended
+Doze delivery. Local and WillieStudio discovery now show no Pixel, and direct
+reconnection returns no route to host. No new test is running. The remaining
+availability question must be answered before another physical attempt.
+
+## Earlier candidate evidence boundaries
 
 Application runtime `204cfbf` contains the lock-screen notification fix.
 Later commits through `07ceb3f` add acceptance tests, drivers, documentation,
@@ -107,15 +122,18 @@ idle, and allowed-full-screen automatic presentation remain open.
 | Preserve concurrent disable and time edits during recovery | Installed Room concurrency regressions fail with the old split read/save and pass with one transaction; timer restoration holds the schedule mutex | API33 installed proof; independent read-only review confirmed the lock order |
 | Avoid duplicate ringing and unrelated release | Service-isolation tests, completion interruption tests, controller and Room guards | Automated and installed emulator |
 | Deliver after standby on the corrected notification runtime | Completed 65-minute API36 driver: scheduled `2026-10-20T15:13:31.268582Z`, audio observed at `15:13:35.992585Z`, same first-attempt bounds | Notification-runtime candidate before the later atomic-recovery and consumer changes; five-second polling, successful cleanup, no physical hearing claim |
-| Complete the required connected-Pixel journey | Short physical records below establish heard sound, screen-off delivery, process recovery, offline audio, and denied-full-screen notification on their earlier candidate | Open: the complete current-candidate Pixel matrix, including onboarding, allowed-full-screen presentation, deep idle, and manual accessibility |
+| Complete the required connected-Pixel checks | Physical records below establish heard sound, secure locked presentation, full-screen Settings return, process recovery, offline audio/reconnection, and authenticated release at their recorded candidate boundaries | Open: uninterrupted Pixel Doze delivery. Deep-idle delivery and manual TalkBack are not claimed |
 | Publish task updates with Codex attribution through Docket | Connector update `01M5DFQN5WBS8JWWZ8D4J5V3HC`, verified by `get_updates` | Origin reports `performerKind=agent`, `performerName=Codex`, and no human author; task acceptance remains open |
 
 ## Remaining acceptance work
 
-Finish the remaining connected-Pixel recovery/presentation checks and manual
-accessibility review. The current runtime candidate passed its CI matrix.
-The owner already confirmed speaker output. Another manufacturer's phone is
-not required. The earlier standby observation retains its candidate boundary.
+Finish the installed Pixel Doze-delivery check. The literal requirement names
+Doze rather than a particular sleep duration or mode. A forced light-Doze run
+must establish screen-off idle and unattended alarm audio for the same saved
+occurrence. It does not establish deep-idle or natural overnight delivery.
+The owner already confirmed speaker output on the earlier unchanged audio
+runtime. Another manufacturer's phone is not required. Manual TalkBack and
+production signing/store release remain unverified and are not claimed here.
 
 Docket accepted scheduling, authenticated release, and playback/readiness. The
 complete connected-Pixel recovery task remains open. Project update
@@ -353,3 +371,30 @@ reviewed native task matrix, current CI boundary, Pixel installation, and
 remaining Doze criterion. Read-back confirms Codex agent origin and null human
 author fields. The normal Pixel installation now matches runtime 961ae1f and
 preserved settings without taking the foreground. No test alarm was started.
+
+
+## Interrupted short Pixel Doze check
+
+The current-source isolated GMS APK entered forced light Doze at
+2026-10-21T06:28:08Z with screen off and no charging. The log retained IDLE
+through 06:29:08Z. Android recorded `WAKE_REASON_TAP` at 06:29:11Z, before
+the chosen 06:29:21.265860Z alarm. The driver canceled before delivery and
+observed no alarm audio. The power event does not identify who or what tapped.
+This attempt does not close the recovery criterion.
+
+The cleanup record confirms both isolated packages are gone, ordinary idle
+is restored, and the minimum-alarm-distance setting is unchanged. Normal
+Curfew remains installed and its settings were not cleared. The sanitized
+record is `docs/evidence/pixel-2026-10-20/light-doze-interruption.json`.
+Current-head CI and capture verification are recorded in
+`docs/evidence/native-2026-10-20/ci-current.json`. No application code changes
+in this evidence update.
+
+
+Docket update 01M5EK34C797WD1RZBKETBP9KJ records both green CI runs, the
+rejected short Doze check, successful cleanup, and the disconnected Pixel.
+Read-back confirms Codex agent origin with null human author fields. The four
+task descriptions retain their templates and checkbox criteria. Only obsolete
+planning-only footer text changed; their three-done/one-in-progress states did
+not change. The CI artifact merge source matches the branch's application
+source, verified after fetching the PR merge ref.

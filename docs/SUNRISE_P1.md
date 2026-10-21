@@ -1,58 +1,33 @@
 # Sunrise P1 implementation and acceptance
 
-Reader: The Android maintainer implementing Docket project `01M5AXW727EJSE5FM2H8WXJRWS`.
-Action: Complete the local Sunrise journey and collect evidence against all four feature tasks before accepting P1.
-Date: October 20, 2026.
-Status: Scheduling, playback/readiness, and authenticated release are accepted in Docket. Complete Pixel recovery acceptance remains open.
+Reader: The Android maintainer accepting Docket project `01M5AXW727EJSE5FM2H8WXJRWS`.
+Action: Finish the remaining connected-Pixel Doze check before accepting P1.
+Date: October 20, 2026, Pacific.
+Status: Scheduling, playback/readiness, and authenticated release are accepted in Docket. Pixel recovery acceptance remains open.
 
 ## Current acceptance boundary
 
-Use [the requirement-by-requirement acceptance record](P1_ACCEPTANCE.md)
-to assess the four feature tasks. The chronological entries below retain
-historical failures and their candidate boundaries.
+[The acceptance record](P1_ACCEPTANCE.md) maps the four feature tasks to
+observed results. Application source `961ae1f` passes all seven jobs in CI
+39553434419 after the API35 capture retry. Evidence commit `0919d57` passes
+all seven jobs in CI 39554867813 on its first run. The app source is unchanged
+between those commits. Both distributions pass 200 host tests and Android lint.
+The 108-image task matrix passes full independent review across 18 profiles.
 
-The current state and exact candidate boundaries live in the acceptance record.
-The entries below preserve earlier implementation and test observations; their
-candidate status does not override current Docket acceptance. The consumer
-navigation correction at `79705cc` passes 200 local Plain host tests, lint, and
-app/test APK assembly. Test-only follow-up `530a4cf` passes all seven jobs in CI 39549812707.
-API35 required a fresh-emulator retry after window-focus failures. The later
-short-window layout and fixture-cleanup correction passes its 26 focused
-native cases, 200 Plain host tests, lint, and app/test assembly. Its 108-capture matrix passes full independent review across 18 profiles.
-Final CI remains a separate acceptance step.
-The long physical Doze attempt was interrupted and does not close the remaining
-Pixel acceptance criterion.
+The latest physical attempt establishes forced light Doze on the Pixel with
+the display off and no charger. Android then records a tap wake at 06:29:11Z,
+ten seconds before the alarm. The driver cancels before delivery. Cleanup
+removes the isolated packages and restores ordinary idle policy. This is
+rejected Doze-delivery evidence. The Pixel is now absent from local and
+WillieStudio ADB discovery, and direct reconnection fails with no route to host.
 
-The secure-lock alarm now has observed automatic presentation on API33 and
-API36. API36 denial also passes the notification fallback: audio remains
-active, a real notification opens Android's PIN prompt, and authentication
-opens the unchanged ringing occurrence. The drivers restore original access,
-clear the temporary PIN, remove the scoped alarm, and restore the unlocked
-screen. [Testing instructions](TESTING.md) record the exact runs and limits.
-
-The local implementation also has separate installed evidence for actual
-HTTPS release, persistent offline cadence, deliberate credential recovery,
-process death, app relaunch, package replacement, reboot after first unlock,
-wall-clock changes, and a future timezone round trip. Each historical entry
-below retains its exact candidate boundary. The 65-minute Doze observation
-on runtime `843ac01` completed with first-attempt audio and successful cleanup;
-it is not a still-running job or physical speaker evidence.
-
-CI runs `39436437575` (`21f3c9e`) and `39437430362` (`07ceb3f`) now pass
-every job, including both verification variants, release evidence, and
-API33/34/35/36 instrumentation. Earlier five-minute timeouts remain failed
-historical results. Runs `39440146825` (`23e4963`) and `39443372382`
-(`902ffd7`) also pass all jobs. The consumer pass at `3906ac7` passed all
-seven jobs in run `39447168226`. The responsive follow-up at `40c9351` passed all seven jobs in run
-`39490702571`. The subsequent identity correction needs its own CI result. The corrected-notification standby observation has now completed;
-its exact candidate boundary is recorded below.
-
-Physical Pixel/non-Pixel acceptance, actual speaker hearing, manufacturer
-behavior, and Docket publication remain open. October 20 local and
-WillieStudio ADB inventories contain only emulators. Docket exposes no
-callable connector tools, and plugin discovery returned no matching plugin.
-No P1 task or Android MVP acceptance follows from the automated results.
-The older progress entries below are historical evidence, not current status.
+The remaining P1 gate is an uninterrupted installed Pixel Doze-delivery check.
+The existing hearing, TLS release, locked presentation, offline ringing, and
+process-loss observations retain their candidate boundaries in the acceptance
+record. Manual TalkBack, deep-idle delivery, natural overnight standby, and
+production distribution remain unverified. P1b and bedtime MVP work remain
+separate. Earlier progress entries below preserve historical observations;
+they do not override this status.
 
 ## Decision
 
