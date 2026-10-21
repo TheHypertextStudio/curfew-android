@@ -14,6 +14,18 @@ OTHER = b'<hierarchy><node text="Unrelated screen" /></hierarchy>'
 
 
 class WelcomeRootCaptureTest(unittest.TestCase):
+    def test_a_valid_root_does_not_hide_a_system_ui_splash_crash(self):
+        crash = b'FATAL EXCEPTION: wmshell.splashscreen\nProcess: com.android.systemui, PID: 901\nNullPointerException: SurfacePackage.release\n'
+        def adb(*parts):
+            if parts[:2] == ('exec-out', 'cat'): return WELCOME
+            if parts[:3] == ('shell', 'logcat', '-b'): return crash
+            return b''
+        with tempfile.TemporaryDirectory() as directory:
+            out = Path(directory)
+            with self.assertRaisesRegex(RuntimeError, 'System UI or Curfew crashed'):
+                capture.capture_accessibility_root(adb, 'fixture-light', out)
+            self.assertEqual(crash, (out / 'fixture-light-crash-log.txt').read_bytes())
+
     def test_failure_keeps_the_last_root_screenshot_and_activity_diagnostics(self):
         calls = []
         def adb(*parts):

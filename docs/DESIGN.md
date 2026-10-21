@@ -194,7 +194,10 @@ the page shows the current missing action and its purpose.
 The shell uses Jetpack Navigation 3 and a Material 3 Expressive top app bar.
 Settings is a tonal icon action on the main screen, with Back on task screens.
 Shared wake-time bounds connect the alarm, editor, and review. The Android system splash uses the
-Curfew canvas and animated horizon without an artificial wait. See
+Curfew canvas and animated horizon without an artificial wait. Android owns
+splash dismissal; the app does not request a copied splash view for an extra
+exit fade. The activity explicitly resizes for the keyboard so Android does
+not pan task navigation off screen. See
 [the first-use design and remaining service gap](ONBOARDING_DESIGN.md).
 
 

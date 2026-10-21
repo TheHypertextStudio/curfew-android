@@ -11,6 +11,15 @@ import studio.hypertext.curfew.MainActivity
 
 class ModernAppShellInstrumentedTest {
     @Test
+    fun launcherResizesForTheKeyboardInsteadOfPanningNavigation() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val info = context.packageManager.getActivityInfo(ComponentName(context, MainActivity::class.java), 0)
+        assertEquals("The keyboard must leave task navigation on screen",
+            android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE,
+            info.softInputMode and android.view.WindowManager.LayoutParams.SOFT_INPUT_MASK_ADJUST)
+    }
+
+    @Test
     fun launcherUsesTheSystemSplashTheme() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val info = context.packageManager.getActivityInfo(ComponentName(context, MainActivity::class.java), 0)

@@ -88,6 +88,15 @@ class SetupColdStartInstrumentedTest {
             compose.waitUntil(10_000) { compose.onAllNodesWithText("I have a service").fetchSemanticsNodes().isNotEmpty() }
             compose.onNodeWithText("I have a service").performScrollTo().performClick()
             compose.onNodeWithText("Service address").performScrollTo().performClick().performTextInput("https://wake.example.test/check-in")
+            compose.waitUntil(5_000) {
+                var keyboardVisible = false
+                scenario.onActivity { activity ->
+                    val insets = androidx.core.view.ViewCompat.getRootWindowInsets(activity.window.decorView)
+                    keyboardVisible = insets?.isVisible(androidx.core.view.WindowInsetsCompat.Type.ime()) == true &&
+                        insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.ime()).bottom > 0
+                }
+                keyboardVisible
+            }
             compose.onNodeWithContentDescription("Back").assertIsDisplayed()
             val back = compose.onNodeWithContentDescription("Back").fetchSemanticsNode().boundsInRoot
             org.junit.Assert.assertTrue("The keyboard must not pan Back above the screen", back.top >= 0f)

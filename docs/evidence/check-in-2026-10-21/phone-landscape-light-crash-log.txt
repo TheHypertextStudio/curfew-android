@@ -1,0 +1,21 @@
+--------- beginning of crash
+10-21 09:58:47.937   901  1017 E AndroidRuntime: FATAL EXCEPTION: wmshell.splashscreen
+10-21 09:58:47.937   901  1017 E AndroidRuntime: Process: com.android.systemui, PID: 901
+10-21 09:58:47.937   901  1017 E AndroidRuntime: java.lang.NullPointerException: Attempt to invoke virtual method 'void android.view.SurfaceControlViewHost$SurfacePackage.release()' on a null object reference
+10-21 09:58:47.937   901  1017 E AndroidRuntime: 	at android.window.SplashScreenView.onCopied(SplashScreenView.java:428)
+10-21 09:58:47.937   901  1017 E AndroidRuntime: 	at com.android.wm.shell.startingsurface.StartingWindowController$$ExternalSyntheticLambda0.run(go/retraceme 2affaa3798c2c8bbee3b481cb73ba41bdb6ef6846da601c9baa6a3ad5af735e3:152)
+10-21 09:58:47.937   901  1017 E AndroidRuntime: 	at android.os.Handler.handleCallback(Handler.java:959)
+10-21 09:58:47.937   901  1017 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:100)
+10-21 09:58:47.937   901  1017 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:232)
+10-21 09:58:47.937   901  1017 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:317)
+10-21 09:58:47.937   901  1017 E AndroidRuntime: 	at android.os.HandlerThread.run(HandlerThread.java:85)
+10-21 09:58:58.636  6631  6648 E AndroidRuntime: FATAL EXCEPTION: wmshell.splashscreen
+10-21 09:58:58.636  6631  6648 E AndroidRuntime: Process: com.android.systemui, PID: 6631
+10-21 09:58:58.636  6631  6648 E AndroidRuntime: java.lang.NullPointerException: Attempt to invoke virtual method 'void android.view.SurfaceControlViewHost$SurfacePackage.release()' on a null object reference
+10-21 09:58:58.636  6631  6648 E AndroidRuntime: 	at android.window.SplashScreenView.onCopied(SplashScreenView.java:428)
+10-21 09:58:58.636  6631  6648 E AndroidRuntime: 	at com.android.wm.shell.startingsurface.StartingWindowController$$ExternalSyntheticLambda0.run(go/retraceme 2affaa3798c2c8bbee3b481cb73ba41bdb6ef6846da601c9baa6a3ad5af735e3:152)
+10-21 09:58:58.636  6631  6648 E AndroidRuntime: 	at android.os.Handler.handleCallback(Handler.java:959)
+10-21 09:58:58.636  6631  6648 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:100)
+10-21 09:58:58.636  6631  6648 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:232)
+10-21 09:58:58.636  6631  6648 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:317)
+10-21 09:58:58.636  6631  6648 E AndroidRuntime: 	at android.os.HandlerThread.run(HandlerThread.java:85)

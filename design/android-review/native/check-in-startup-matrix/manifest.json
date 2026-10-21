@@ -1,0 +1,507 @@
+{
+  "avd": "curfew-onboarding-startup-20261021",
+  "apiLevel": 36,
+  "installedApkSha256": "ac445269e540f0e1667f454a840b88c723748d78bc898b6f77e73ace27c61ff2",
+  "physicalDevice": false,
+  "postureSimulation": false,
+  "captures": [
+    {
+      "name": "phone-portrait-light",
+      "label": "Phone \u00b7 portrait",
+      "theme": "light",
+      "pixels": [
+        1080,
+        2400
+      ],
+      "dp": [
+        360.0,
+        800.0
+      ],
+      "fontScale": 1.0,
+      "observedDisplaySize": "Physical size: 1080x1920\nOverride size: 1080x2400\n",
+      "pngDimensionsVerified": true
+    },
+    {
+      "name": "phone-portrait-dark",
+      "label": "Phone \u00b7 portrait",
+      "theme": "dark",
+      "pixels": [
+        1080,
+        2400
+      ],
+      "dp": [
+        360.0,
+        800.0
+      ],
+      "fontScale": 1.0,
+      "observedDisplaySize": "Physical size: 1080x1920\nOverride size: 1080x2400\n",
+      "pngDimensionsVerified": true
+    },
+    {
+      "name": "phone-landscape-light",
+      "label": "Phone \u00b7 landscape",
+      "theme": "light",
+      "pixels": [
+        2400,
+        1080
+      ],
+      "dp": [
+        800.0,
+        360.0
+      ],
+      "fontScale": 1.0,
+      "observedDisplaySize": "Physical size: 1080x1920\nOverride size: 2400x1080\n",
+      "pngDimensionsVerified": true
+    },
+    {
+      "name": "phone-landscape-dark",
+      "label": "Phone \u00b7 landscape",
+      "theme": "dark",
+      "pixels": [
+        2400,
+        1080
+      ],
+      "dp": [
+        800.0,
+        360.0
+      ],
+      "fontScale": 1.0,
+      "observedDisplaySize": "Physical size: 1080x1920\nOverride size: 2400x1080\n",
+      "pngDimensionsVerified": true
+    },
+    {
+      "name": "tablet-portrait-light",
+      "label": "Tablet \u00b7 portrait",
+      "theme": "light",
+      "pixels": [
+        1600,
+        2560
+      ],
+      "dp": [
+        800.0,
+        1280.0
+      ],
+      "fontScale": 1.0,
+      "observedDisplaySize": "Physical size: 1080x1920\nOverride size: 1600x2560\n",
+      "pngDimensionsVerified": true
+    },
+    {
+      "name": "tablet-portrait-dark",
+      "label": "Tablet \u00b7 portrait",
+      "theme": "dark",
+      "pixels": [
+        1600,
+        2560
+      ],
+      "dp": [
+        800.0,
+        1280.0
+      ],
+      "fontScale": 1.0,
+      "observedDisplaySize": "Physical size: 1080x1920\nOverride size: 1600x2560\n",
+      "pngDimensionsVerified": true
+    },
+    {
+      "name": "tablet-landscape-light",
+      "label": "Tablet \u00b7 landscape",
+      "theme": "light",
+      "pixels": [
+        2560,
+        1600
+      ],
+      "dp": [
+        1280.0,
+        800.0
+      ],
+      "fontScale": 1.0,
+      "observedDisplaySize": "Physical size: 1080x1920\nOverride size: 2560x1600\n",
+      "pngDimensionsVerified": true
+    },
+    {
+      "name": "tablet-landscape-dark",
+      "label": "Tablet \u00b7 landscape",
+      "theme": "dark",
+      "pixels": [
+        2560,
+        1600
+      ],
+      "dp": [
+        1280.0,
+        800.0
+      ],
+      "fontScale": 1.0,
+      "observedDisplaySize": "Physical size: 1080x1920\nOverride size: 2560x1600\n",
+      "pngDimensionsVerified": true
+    },
+    {
+      "name": "cover-portrait-light",
+      "label": "Fold cover \u00b7 portrait",
+      "theme": "light",
+      "pixels": [
+        1080,
+        2520
+      ],
+      "dp": [
+        360.0,
+        840.0
+      ],
+      "fontScale": 1.0,
+      "observedDisplaySize": "Physical size: 1080x1920\nOverride size: 1080x2520\n",
+      "pngDimensionsVerified": true
+    },
+    {
+      "name": "cover-portrait-dark",
+      "label": "Fold cover \u00b7 portrait",
+      "theme": "dark",
+      "pixels": [
+        1080,
+        2520
+      ],
+      "dp": [
+        360.0,
+        840.0
+      ],
+      "fontScale": 1.0,
+      "observedDisplaySize": "Physical size: 1080x1920\nOverride size: 1080x2520\n",
+      "pngDimensionsVerified": true
+    },
+    {
+      "name": "cover-landscape-light",
+      "label": "Fold cover \u00b7 landscape",
+      "theme": "light",
+      "pixels": [
+        2520,
+        1080
+      ],
+      "dp": [
+        840.0,
+        360.0
+      ],
+      "fontScale": 1.0,
+      "observedDisplaySize": "Physical size: 1080x1920\nOverride size: 2520x1080\n",
+      "pngDimensionsVerified": true
+    },
+    {
+      "name": "cover-landscape-dark",
+      "label": "Fold cover \u00b7 landscape",
+      "theme": "dark",
+      "pixels": [
+        2520,
+        1080
+      ],
+      "dp": [
+        840.0,
+        360.0
+      ],
+      "fontScale": 1.0,
+      "observedDisplaySize": "Physical size: 1080x1920\nOverride size: 2520x1080\n",
+      "pngDimensionsVerified": true
+    },
+    {
+      "name": "inner-portrait-light",
+      "label": "Fold inner \u00b7 portrait",
+      "theme": "light",
+      "pixels": [
+        1536,
+        1720
+      ],
+      "dp": [
+        768.0,
+        860.0
+      ],
+      "fontScale": 1.0,
+      "observedDisplaySize": "Physical size: 1080x1920\nOverride size: 1536x1720\n",
+      "pngDimensionsVerified": true
+    },
+    {
+      "name": "inner-portrait-dark",
+      "label": "Fold inner \u00b7 portrait",
+      "theme": "dark",
+      "pixels": [
+        1536,
+        1720
+      ],
+      "dp": [
+        768.0,
+        860.0
+      ],
+      "fontScale": 1.0,
+      "observedDisplaySize": "Physical size: 1080x1920\nOverride size: 1536x1720\n",
+      "pngDimensionsVerified": true
+    },
+    {
+      "name": "inner-landscape-light",
+      "label": "Fold inner \u00b7 landscape",
+      "theme": "light",
+      "pixels": [
+        1720,
+        1536
+      ],
+      "dp": [
+        860.0,
+        768.0
+      ],
+      "fontScale": 1.0,
+      "observedDisplaySize": "Physical size: 1080x1920\nOverride size: 1720x1536\n",
+      "pngDimensionsVerified": true
+    },
+    {
+      "name": "inner-landscape-dark",
+      "label": "Fold inner \u00b7 landscape",
+      "theme": "dark",
+      "pixels": [
+        1720,
+        1536
+      ],
+      "dp": [
+        860.0,
+        768.0
+      ],
+      "fontScale": 1.0,
+      "observedDisplaySize": "Physical size: 1080x1920\nOverride size: 1720x1536\n",
+      "pngDimensionsVerified": true
+    },
+    {
+      "name": "large-text-light",
+      "label": "Phone \u00b7 200% text",
+      "theme": "light",
+      "pixels": [
+        960,
+        2100
+      ],
+      "dp": [
+        320.0,
+        700.0
+      ],
+      "fontScale": 2.0,
+      "observedDisplaySize": "Physical size: 1080x1920\nOverride size: 960x2100\n",
+      "pngDimensionsVerified": true
+    },
+    {
+      "name": "large-text-dark",
+      "label": "Phone \u00b7 200% text",
+      "theme": "dark",
+      "pixels": [
+        960,
+        2100
+      ],
+      "dp": [
+        320.0,
+        700.0
+      ],
+      "fontScale": 2.0,
+      "observedDisplaySize": "Physical size: 1080x1920\nOverride size: 960x2100\n",
+      "pngDimensionsVerified": true
+    }
+  ],
+  "files": [
+    "phone-portrait-light-time.png",
+    "phone-portrait-light-introduction.png",
+    "phone-portrait-light-defer-error.png",
+    "phone-portrait-light-connection.png",
+    "phone-portrait-light-keyboard.png",
+    "phone-portrait-light-transfer.png",
+    "phone-portrait-light-test-ready.png",
+    "phone-portrait-light-connected.png",
+    "phone-portrait-light-permissions.png",
+    "phone-portrait-light-review.png",
+    "phone-portrait-light-motion-16.png",
+    "phone-portrait-light-motion-96.png",
+    "phone-portrait-light-motion-240.png",
+    "phone-portrait-light-motion-800.png",
+    "phone-portrait-dark-time.png",
+    "phone-portrait-dark-introduction.png",
+    "phone-portrait-dark-defer-error.png",
+    "phone-portrait-dark-connection.png",
+    "phone-portrait-dark-keyboard.png",
+    "phone-portrait-dark-transfer.png",
+    "phone-portrait-dark-test-ready.png",
+    "phone-portrait-dark-connected.png",
+    "phone-portrait-dark-permissions.png",
+    "phone-portrait-dark-review.png",
+    "phone-landscape-light-time.png",
+    "phone-landscape-light-introduction.png",
+    "phone-landscape-light-defer-error.png",
+    "phone-landscape-light-connection.png",
+    "phone-landscape-light-keyboard.png",
+    "phone-landscape-light-transfer.png",
+    "phone-landscape-light-test-ready.png",
+    "phone-landscape-light-connected.png",
+    "phone-landscape-light-permissions.png",
+    "phone-landscape-light-review.png",
+    "phone-landscape-dark-time.png",
+    "phone-landscape-dark-introduction.png",
+    "phone-landscape-dark-defer-error.png",
+    "phone-landscape-dark-connection.png",
+    "phone-landscape-dark-keyboard.png",
+    "phone-landscape-dark-transfer.png",
+    "phone-landscape-dark-test-ready.png",
+    "phone-landscape-dark-connected.png",
+    "phone-landscape-dark-permissions.png",
+    "phone-landscape-dark-review.png",
+    "tablet-portrait-light-time.png",
+    "tablet-portrait-light-introduction.png",
+    "tablet-portrait-light-defer-error.png",
+    "tablet-portrait-light-connection.png",
+    "tablet-portrait-light-keyboard.png",
+    "tablet-portrait-light-transfer.png",
+    "tablet-portrait-light-test-ready.png",
+    "tablet-portrait-light-connected.png",
+    "tablet-portrait-light-permissions.png",
+    "tablet-portrait-light-review.png",
+    "tablet-portrait-dark-time.png",
+    "tablet-portrait-dark-introduction.png",
+    "tablet-portrait-dark-defer-error.png",
+    "tablet-portrait-dark-connection.png",
+    "tablet-portrait-dark-keyboard.png",
+    "tablet-portrait-dark-transfer.png",
+    "tablet-portrait-dark-test-ready.png",
+    "tablet-portrait-dark-connected.png",
+    "tablet-portrait-dark-permissions.png",
+    "tablet-portrait-dark-review.png",
+    "tablet-landscape-light-time.png",
+    "tablet-landscape-light-introduction.png",
+    "tablet-landscape-light-defer-error.png",
+    "tablet-landscape-light-connection.png",
+    "tablet-landscape-light-keyboard.png",
+    "tablet-landscape-light-transfer.png",
+    "tablet-landscape-light-test-ready.png",
+    "tablet-landscape-light-connected.png",
+    "tablet-landscape-light-permissions.png",
+    "tablet-landscape-light-review.png",
+    "tablet-landscape-dark-time.png",
+    "tablet-landscape-dark-introduction.png",
+    "tablet-landscape-dark-defer-error.png",
+    "tablet-landscape-dark-connection.png",
+    "tablet-landscape-dark-keyboard.png",
+    "tablet-landscape-dark-transfer.png",
+    "tablet-landscape-dark-test-ready.png",
+    "tablet-landscape-dark-connected.png",
+    "tablet-landscape-dark-permissions.png",
+    "tablet-landscape-dark-review.png",
+    "cover-portrait-light-time.png",
+    "cover-portrait-light-introduction.png",
+    "cover-portrait-light-defer-error.png",
+    "cover-portrait-light-connection.png",
+    "cover-portrait-light-keyboard.png",
+    "cover-portrait-light-transfer.png",
+    "cover-portrait-light-test-ready.png",
+    "cover-portrait-light-connected.png",
+    "cover-portrait-light-permissions.png",
+    "cover-portrait-light-review.png",
+    "cover-portrait-dark-time.png",
+    "cover-portrait-dark-introduction.png",
+    "cover-portrait-dark-defer-error.png",
+    "cover-portrait-dark-connection.png",
+    "cover-portrait-dark-keyboard.png",
+    "cover-portrait-dark-transfer.png",
+    "cover-portrait-dark-test-ready.png",
+    "cover-portrait-dark-connected.png",
+    "cover-portrait-dark-permissions.png",
+    "cover-portrait-dark-review.png",
+    "cover-landscape-light-time.png",
+    "cover-landscape-light-introduction.png",
+    "cover-landscape-light-defer-error.png",
+    "cover-landscape-light-connection.png",
+    "cover-landscape-light-keyboard.png",
+    "cover-landscape-light-transfer.png",
+    "cover-landscape-light-test-ready.png",
+    "cover-landscape-light-connected.png",
+    "cover-landscape-light-permissions.png",
+    "cover-landscape-light-review.png",
+    "cover-landscape-dark-time.png",
+    "cover-landscape-dark-introduction.png",
+    "cover-landscape-dark-defer-error.png",
+    "cover-landscape-dark-connection.png",
+    "cover-landscape-dark-keyboard.png",
+    "cover-landscape-dark-transfer.png",
+    "cover-landscape-dark-test-ready.png",
+    "cover-landscape-dark-connected.png",
+    "cover-landscape-dark-permissions.png",
+    "cover-landscape-dark-review.png",
+    "inner-portrait-light-time.png",
+    "inner-portrait-light-introduction.png",
+    "inner-portrait-light-defer-error.png",
+    "inner-portrait-light-connection.png",
+    "inner-portrait-light-keyboard.png",
+    "inner-portrait-light-transfer.png",
+    "inner-portrait-light-test-ready.png",
+    "inner-portrait-light-connected.png",
+    "inner-portrait-light-permissions.png",
+    "inner-portrait-light-review.png",
+    "inner-portrait-dark-time.png",
+    "inner-portrait-dark-introduction.png",
+    "inner-portrait-dark-defer-error.png",
+    "inner-portrait-dark-connection.png",
+    "inner-portrait-dark-keyboard.png",
+    "inner-portrait-dark-transfer.png",
+    "inner-portrait-dark-test-ready.png",
+    "inner-portrait-dark-connected.png",
+    "inner-portrait-dark-permissions.png",
+    "inner-portrait-dark-review.png",
+    "inner-landscape-light-time.png",
+    "inner-landscape-light-introduction.png",
+    "inner-landscape-light-defer-error.png",
+    "inner-landscape-light-connection.png",
+    "inner-landscape-light-keyboard.png",
+    "inner-landscape-light-transfer.png",
+    "inner-landscape-light-test-ready.png",
+    "inner-landscape-light-connected.png",
+    "inner-landscape-light-permissions.png",
+    "inner-landscape-light-review.png",
+    "inner-landscape-dark-time.png",
+    "inner-landscape-dark-introduction.png",
+    "inner-landscape-dark-defer-error.png",
+    "inner-landscape-dark-connection.png",
+    "inner-landscape-dark-keyboard.png",
+    "inner-landscape-dark-transfer.png",
+    "inner-landscape-dark-test-ready.png",
+    "inner-landscape-dark-connected.png",
+    "inner-landscape-dark-permissions.png",
+    "inner-landscape-dark-review.png",
+    "large-text-light-time.png",
+    "large-text-light-introduction.png",
+    "large-text-light-defer-error.png",
+    "large-text-light-connection.png",
+    "large-text-light-keyboard.png",
+    "large-text-light-transfer.png",
+    "large-text-light-test-ready.png",
+    "large-text-light-connected.png",
+    "large-text-light-permissions.png",
+    "large-text-light-review.png",
+    "large-text-dark-time.png",
+    "large-text-dark-introduction.png",
+    "large-text-dark-defer-error.png",
+    "large-text-dark-connection.png",
+    "large-text-dark-keyboard.png",
+    "large-text-dark-transfer.png",
+    "large-text-dark-test-ready.png",
+    "large-text-dark-connected.png",
+    "large-text-dark-permissions.png",
+    "large-text-dark-review.png"
+  ],
+  "restored": true,
+  "originalSettings": {
+    "size": "Physical size: 1080x1920\n",
+    "density": "Physical density: 420\n",
+    "font": "1.0",
+    "night": "no"
+  },
+  "restoredSettings": {
+    "size": "Physical size: 1080x1920\n",
+    "density": "Physical density: 420\n",
+    "font": "1.0",
+    "night": "no"
+  },
+  "sourceBaseCommit": "6eb558b8d3e260436748216f4518bf8b784b8d3e",
+  "sourceMainSha256": "1bc755cb6437b7d57dc90b758353b700036425aa5673e00e976ef695c53450f1",
+  "builtFromUncommittedChanges": true,
+  "captureTool": "scripts/capture-setup-matrix.py",
+  "captureOrigin": "Owned remote API36 Play Store ARM64 emulator",
+  "keyboardEvidence": "Full Android window including system IME, after visible IME insets; other captures are settled full windows.",
+  "motionEvidence": "Controlled Compose clock at 16, 96, 240, and 800ms during actual Review to Wake time navigation.",
+  "consumerReadiness": "Blocked: no supplied check-in service. This gallery reviews the honest advanced integration and draft-only exit, not a consumer approval method.",
+  "firstViewport": "Normal-text connection form asserts that its full Save button fits before any scroll. Other primary actions are scrolled into view before touch when needed.",
+  "rejectedRuns": "Earlier CI39579943603 native suite passed API35 before System UI splash-copy crashes invalidated its matrix. Current owned capture follows the system-managed splash and explicit resize correction.",
+  "reviewStatus": "Root reviewed all10 light sheets and motion. Independent reviewer checked all20 dark/accessibility sheets and four full images; no concrete rendered regression. Advanced setup presentation only; consumer launch remains blocked."
+}

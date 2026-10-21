@@ -1227,3 +1227,48 @@ finds no lost profile coverage or weakened keyboard/picker assertions.
 [Retained red/green records](evidence/check-in-2026-10-21/ci-fixture-verification.json)
 include the failed readiness experiment and final APK hashes. Replacement
 x86_64 CI and physical Pixel Doze retain separate acceptance requirements.
+
+
+## System splash and real-window keyboard correction — October 21, 2026
+
+Run `39579943603` passes both verification jobs, release evidence, API33, and
+API34. API35 passes all 192 reported native cases, then its matrix records
+two System UI crashes in `SplashScreenView.onCopied()` on a null
+`SurfacePackage`. The retained crash buffer identifies the framework method;
+the exact OS race remains unproven. The incomplete capture is rejected.
+API36 passes the eight isolated keyboard profiles but fails the real-activity
+check when Back moves off screen.
+
+The activity always registered a custom splash exit, including an immediate
+remove when animations were disabled. It now calls `installSplashScreen()`
+without an exit listener. Android removes the splash when the app can draw.
+The branded animated icon and Compose entrance animations remain. Only the
+app-owned 180ms exit fade is removed. AndroidX documents this
+[default dismissal behavior](https://github.com/androidx/androidx/blob/androidx-main/core/core-splashscreen/src/main/java/androidx/core/splashscreen/SplashScreen.kt).
+Independent review confirms that the change avoids requesting the client
+exit callback; it does not claim to fix Android's internal implementation.
+
+The real activity also left keyboard adjustment unspecified, while the setup
+capture fixture explicitly requested resize. The new installed manifest
+regression fails with expected 16 and actual 0 before repair. The manifest
+now declares `adjustResize`. The real-activity test waits for a visible IME
+and positive inset before checking Back and the complete input field. The
+original CI failure and the new deterministic manifest failure precede the
+correction. A separate host regression first fails when a valid screen tree
+hides a System UI crash; the driver now rejects that capture and keeps its
+diagnostics instead of accepting the screen.
+
+Both distributions pass 200 host tests, both Android lint checks, and both
+debug app/test builds. Ten installed API36 Play Store ARM64 startup,
+recreation, keyboard, entrance-motion, and setup-capture tests pass in
+14.069s. All 17 host capture checks pass. See
+[startup evidence](evidence/check-in-2026-10-21/startup-verification.json).
+The x86_64 CI matrix and physical Pixel Doze still require their own results.
+This change adds no persistence or protocol migration. Reverting it restores
+the custom splash transfer and unspecified keyboard adjustment.
+
+The [refreshed startup/keyboard gallery](../design/android-review/native/check-in-startup-matrix/README.md)
+covers all ten setup states across eighteen profiles with 180 native state
+PNGs and four controlled transition frames. Actual Android dimensions and
+all PNG dimensions match; exact display settings restore. Its source and APK
+hashes differ from the earlier gallery and remain recorded separately.

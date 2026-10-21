@@ -17,11 +17,14 @@ removes a hardware requirement that exceeded the first working-alarm goal.
 
 Scheduling, playback/readiness, and authenticated release are done in Docket.
 Recovery remains in progress for its connected-Pixel Doze criterion. The
-latest application repair is `3e55de0`. Its check-in prerequisite, draft
-deferral, and native 18-profile gallery appear in
-[evidence/check-in-2026-10-21](evidence/check-in-2026-10-21/). CI run
-`39575965473` passes both verification jobs, release evidence, and API33–35.
-API36 fails two UI fixtures. P1 remains unaccepted. Earlier CI runs `39553434419` and
+current startup correction follows `6eb558b`. It gives Android ownership of
+splash dismissal and explicitly resizes the real activity for the keyboard.
+Both local host/lint/build variants and ten installed API36 focused cases
+pass. CI `39579943603` remains failed: API35's complete native suite passes
+before a System UI splash-copy crash in capture, and API36 fails the real
+keyboard/Back check. The retained failure and red-first correction appear in
+[evidence/check-in-2026-10-21](evidence/check-in-2026-10-21/).
+P1 remains unaccepted. Earlier CI runs `39553434419` and
 `39554867813` establish their recorded candidates rather than the latest app.
 The latter includes 18 complete API35 capture profiles and 108 task PNGs. The
 reviewed API34 task and setup galleries retain their separate boundaries.

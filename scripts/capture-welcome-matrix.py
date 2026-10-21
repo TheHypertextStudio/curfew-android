@@ -33,6 +33,7 @@ def capture_accessibility_root(adb, name, output):
     # A display change can briefly leave Android without an accessibility root.
     # Each attempt removes the dump so an old screen cannot validate this one.
     xml = None
+    failure_message = 'Android did not provide a fresh accessibility root'
     for _ in range(5):
         adb('shell', 'rm', '-f', '/data/local/tmp/curfew-welcome.xml')
         try:
@@ -42,6 +43,10 @@ def capture_accessibility_root(adb, name, output):
             labels = {n.get('text') for n in root.iter('node')}
             expected = 'Get started' if name.endswith('-actions') else 'Your nights.\nYour mornings.'
             if expected in labels:
+                crash = adb('shell', 'logcat', '-b', 'crash', '-d', '-v', 'threadtime')
+                if b'FATAL EXCEPTION' in crash and re.search(rb'Process: (com\.android\.systemui|studio\.hypertext\.curfew),', crash):
+                    failure_message = 'System UI or Curfew crashed during capture'
+                    break
                 return xml, root
         except (subprocess.CalledProcessError, ET.ParseError):
             continue
@@ -59,7 +64,7 @@ def capture_accessibility_root(adb, name, output):
             (output / (name + suffix)).write_bytes(adb(*command))
         except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as failure:
             (output / (name + suffix + '.error.txt')).write_text(str(failure))
-    raise RuntimeError(name + ': Android did not provide a fresh accessibility root; diagnostics saved')
+    raise RuntimeError(name + ': ' + failure_message + '; diagnostics saved')
 
 
 def capture_task_windows(adb, name, output):

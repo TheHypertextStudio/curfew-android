@@ -149,15 +149,10 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        val splash = installSplashScreen()
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         pendingVerifierExportId = savedInstanceState?.getString("pending_check_in_export")
         exportedVerifierId = savedInstanceState?.getString("saved_check_in_export")
-        splash.setOnExitAnimationListener { provider ->
-            if (android.animation.ValueAnimator.areAnimatorsEnabled()) {
-                provider.view.animate().alpha(0f).setDuration(180L).withEndAction { provider.remove() }.start()
-            } else provider.remove()
-        }
         enableEdgeToEdge()
         PerpetualAlarmService.ensureChannels(this)
         WakeSyncScheduler.install(this)
