@@ -1,0 +1,47 @@
+{
+  "conclusion": "success",
+  "headSha": "5d35c93ae32382581f1f9f8f05fc513ed1667bc7",
+  "jobs": [
+    {
+      "name": "release-evidence",
+      "conclusion": "success",
+      "databaseId": 120256190957
+    },
+    {
+      "name": "verify (Plain)",
+      "conclusion": "success",
+      "databaseId": 120256191158
+    },
+    {
+      "name": "instrumented (34, Gms)",
+      "conclusion": "success",
+      "databaseId": 120256191166
+    },
+    {
+      "name": "instrumented (36, Gms)",
+      "conclusion": "success",
+      "databaseId": 120256191184
+    },
+    {
+      "name": "instrumented (35, Plain)",
+      "conclusion": "success",
+      "databaseId": 120256191212
+    },
+    {
+      "name": "verify (Gms)",
+      "conclusion": "success",
+      "databaseId": 120256191344
+    },
+    {
+      "name": "instrumented (33, Plain)",
+      "conclusion": "success",
+      "databaseId": 120256191431
+    }
+  ],
+  "status": "completed",
+  "physicalPixelDoze": {
+    "disposition": "owner-waived",
+    "passed": false,
+    "executedByContinuation": false
+  }
+}

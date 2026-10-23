@@ -31,22 +31,26 @@ CURFEW_PROTOCOLS_CHECKOUT="$PWD/../curfew-protocols" ./gradlew \
 
 This is a normal build, not a physical-device test command. The README lists minified release, dependency isolation, SBOM, provenance, checksum, and license checks. Follow AGENTS.md and the failing-test-first process for executable changes.
 
-## 1. Finish P1 verification and acceptance
+## 1. Technical P1 acceptance
 
-P1 is local Sunrise: one-night/weekly scheduling, persistent audible ringing, one authenticated release method, and lifecycle recovery. No further missing P1 feature was identified in the independent completion audit. P1 is still unaccepted.
+Technical local Sunrise P1 is accepted with explicit physical Pixel Doze
+testing excluded by the owner. This is a waiver, not a Doze pass. The prior
+interrupted attempts remain rejected and the reference driver stays unexecuted.
+See [P1_ACCEPTANCE.md](P1_ACCEPTANCE.md) for source-boundary evidence and the
+remaining launch limitations.
 
-- [ ] Observe the current Android 13 CI retry. Run `gh run watch 39587495741 --exit-status`. Attempt 2 was live at handoff. The other six jobs were green. The first attempt failed after a `Pixel Launcher isn't responding` dialog obscured the UI and subsequent focus assertions failed. App and test sources match the earlier fully green run. If the retry fails, inspect its first failure and Android diagnostics before changing app code. Do not treat a rerun as proof until it is terminal and inspected.
-- [ ] Reconnect and identify the physical Pixel through ADB. The last discovery on both originating Macs found no device or mDNS service. Do not reuse an old network endpoint or assume a previous phone-local process is still running.
-- [ ] Build isolated GMS acceptance app and test APKs from the current source with `-Pcurfew.acceptance=true`. Verify application ID `studio.hypertext.curfew.acceptance` and its `.test` package before installing. The installed normal app uses `studio.hypertext.curfew` and must retain its data.
-- [ ] Complete uninterrupted physical forced-light-Doze delivery for the saved occurrence. Establish screen off, no charging, and light state IDLE before delivery. Instrumentation must finish before delivery. Observe UID-scoped `USAGE_ALARM` audio and confirm the original occurrence, first attempt, scheduled start, and default 120-second ring bounds. A touch or early wake invalidates the unattended observation.
-- [ ] Arm an independent phone-local cutoff before scheduling. Stop isolated playback within five seconds even if the host or ADB disconnects. Keep the owner informed of the short unattended interval and audible test. Restore idle state, remove only isolated packages and owned processes, and verify that ordinary Curfew and its settings remain intact. Do not change the device's minimum-alarm-distance policy to manufacture a pass.
-- [ ] Record source commit, installed APK hash, device/OS, idle timeline, schedule identity, actual audio observation, interruption status, and cleanup verification. Update [P1_ACCEPTANCE.md](P1_ACCEPTANCE.md) and the evidence directory. Keep forced light Doze distinct from deep Doze, natural overnight standby, and a new hearing confirmation.
-- [ ] Reconnect the native Docket connector, publish a Codex-attributed update, and read it back. Keep recovery in progress and its physical criterion unchecked until evidence passes. Update the literal Markdown checkboxes. Do not use a signed-in browser to impersonate the owner.
-- [ ] After those gates pass, reconcile the four task states, project acceptance, and PR description. Prepare the PR for final review. Do not merge or claim a production release from this handoff alone.
+- [x] The Android 13 retry and all seven jobs in its run pass.
+- [x] The continuation source also passes all seven jobs in CI.
+- [x] Native Docket access is restored; the Codex-attributed update is read back.
+- [x] The handoff archive is transferred over SSH and verified by matching hashes.
+- [x] Isolated GMS acceptance app/test APKs assemble against pinned protocols.
+- [x] Explicit physical Pixel Doze testing is excluded from acceptance by owner
+  direction. This checkbox records scope reconciliation, not test execution.
 
-The tracked `scripts/accept-doze-emulator.py` is restricted to its disposable AVD and is not a Pixel driver. Preserve its guard. The tracked instrumentation entry points are `PersistentCadenceJourneyInstrumentedTest#prepareProcessLossFixture` with `persistentCadenceAcceptance=true` and `fixtureDelaySeconds`, and `#cleanupInterruptedFixture`. Read their fixture guards before use. The actual test runner package changes for an isolated build; the test class namespace does not.
-
-The last physical light-Doze driver is local ignored output at `build/p1-final/0919d57/light-doze.py`. It was built for an earlier source, paths, APKs, and phone identity. It did not produce an accepted Doze result. The transfer archive contains a text reference with its old device identifier removed. Port and review the driver before running it; do not execute that reference unchanged or drop its watchdog and cleanup checks. Earlier attempts were interrupted and remain rejected. A non-Pixel phone and a 75-minute run are not required for the scoped forced-light-Doze criterion.
+No new phone test was run or alarm armed. Manual TalkBack, current-build
+physical UX, natural overnight standby, production signing, and distribution
+remain separate gates. Keep PR18 for final review; do not infer production or
+installer publication permission from technical P1 acceptance.
 
 ## 2. Supply a consumer check-in method
 

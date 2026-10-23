@@ -2,7 +2,7 @@
 
 Reader: The Curfew owner and Android maintainer accepting Docket project `01M5AXW727EJSE5FM2H8WXJRWS`.
 Action: Check each requirement against its evidence before accepting any of the four feature tasks.
-Snapshot: October 21, 2026, Pacific. P1 remains unaccepted.
+Current technical P1 decision: accepted with explicit Pixel Doze testing excluded by the owner.
 
 The scope comes from `Documentation/alarm-delivery-plan.md` and
 `Documentation/android-mvp.md` in the Curfew repository. P1 means local
@@ -15,31 +15,28 @@ removes a hardware requirement that exceeded the first working-alarm goal.
 
 ## Current decision
 
-Scheduling, playback/readiness, and authenticated release are done in Docket.
-Recovery remains in progress for its connected-Pixel Doze criterion. Candidate
-`172d951` passes all seven jobs in CI `39585385215`. Both distribution
-verification jobs, release evidence, and API33–36 native jobs are green. Each
-native job reports 186 passes, seven guarded skips, and no failures. API35's
-complete capture restores settings and retains 18 welcome profiles, 108 task
-PNGs, and 11 additional native fixtures. All 126 profile PNG dimensions match
-their manifest. The [accepted CI record](evidence/check-in-2026-10-21/ci-accepted-39585385215.json)
-retains exact source and artifact boundaries.
+Technical local Sunrise P1 is accepted with the owner's explicit exclusion of
+physical Pixel Doze testing. This is a scope waiver, not a passed Doze test.
+The earlier interrupted attempts remain rejected. No further explicit Pixel
+Doze run is required or scheduled.
 
-The application source remains at `085d3b2`; `172d951` corrects notification
-ownership and recreation timing in fixtures. The locally reviewed 180-image
-setup gallery keeps its separate recorded APK and source hashes. Release
-artifact hashes match and the merge application's tree matches the candidate.
-Both release APKs remain unsigned. Earlier failed runs remain historical
-evidence, not the current decision. P1 remains unaccepted until the physical
-gate passes. The originating final Docket update was refused for MCP authentication.
-Native connector access has since been restored; the continuation update was
-read back with Codex agent attribution and no human author.
+All seven jobs pass in CI `39905434602` at `5d35c93`. Application and test
+sources remain identical to `172d951`; subsequent changes record acceptance
+and the handoff. Both isolated GMS acceptance APKs also assemble successfully
+from this continuation checkout against protocol `0.0.13`. They have not been
+installed or run by this continuation.
 
-The latest Pixel light-Doze attempt was canceled before sound after Android
-recorded a tap wake. Its cleanup is verified, but it does not prove unattended
-Doze delivery. Local and WillieStudio discovery now show no Pixel, and direct
-reconnection returns no route to host. No new test is running. The remaining
-availability question must be answered before another physical attempt.
+The recorded physical checks below retain their source boundaries: audible
+sound, locked-screen/fallback presentation, offline audio and reconnection,
+process recovery, and authenticated release. The owner has removed only the
+remaining explicit Pixel Doze test. This does not establish natural overnight
+standby, deep Doze, manual TalkBack, a fresh complete physical UX review, or
+production signing. The release APKs remain unsigned.
+
+Consumer check-in availability, P1b networking, bedtime enforcement, and launch
+validation remain separate incomplete deliverables. P1's external verifier
+path is not a supplied consumer service. Production activation and public
+installer publication remain held.
 
 ## Earlier candidate evidence boundaries
 
@@ -135,27 +132,17 @@ idle, and allowed-full-screen automatic presentation remain open.
 | Preserve concurrent disable and time edits during recovery | Installed Room concurrency regressions fail with the old split read/save and pass with one transaction; timer restoration holds the schedule mutex | API33 installed proof; independent read-only review confirmed the lock order |
 | Avoid duplicate ringing and unrelated release | Service-isolation tests, completion interruption tests, controller and Room guards | Automated and installed emulator |
 | Deliver after standby on the corrected notification runtime | Completed 65-minute API36 driver: scheduled `2026-10-20T15:13:31.268582Z`, audio observed at `15:13:35.992585Z`, same first-attempt bounds | Notification-runtime candidate before the later atomic-recovery and consumer changes; five-second polling, successful cleanup, no physical hearing claim |
-| Complete the required connected-Pixel checks | Physical records below establish heard sound, secure locked presentation, full-screen Settings return, process recovery, offline audio/reconnection, and authenticated release at their recorded candidate boundaries | Open: uninterrupted Pixel Doze delivery. Deep-idle delivery and manual TalkBack are not claimed |
+| Complete the required connected-Pixel checks | Physical records below establish heard sound, secure locked presentation, full-screen Settings return, process recovery, offline audio/reconnection, and authenticated release at their recorded candidate boundaries | Explicit Pixel Doze testing waived by the owner; no Doze pass claimed. Deep-idle delivery and manual TalkBack are not established |
 | Publish task updates with Codex attribution through Docket | Connector update `01M5DFQN5WBS8JWWZ8D4J5V3HC`, verified by `get_updates` | Origin reports `performerKind=agent`, `performerName=Codex`, and no human author; task acceptance remains open |
 
 ## Remaining acceptance work
 
-Finish the installed Pixel Doze-delivery check. The literal requirement names
-Doze rather than a particular sleep duration or mode. A forced light-Doze run
-must establish screen-off idle and unattended alarm audio for the same saved
-occurrence. It does not establish deep-idle or natural overnight delivery.
-The owner already confirmed speaker output on the earlier unchanged audio
-runtime. Another manufacturer's phone is not required. Manual TalkBack and
-production signing/store release remain unverified and are not claimed here.
-
-Docket accepted scheduling, authenticated release, and playback/readiness. The
-complete connected-Pixel recovery task remains open. Project update
-`01M5DV3JA1CKY0G850XAGNYQQR` and readiness comments
-`01M5DVAK97P2FA1XK5P4C04M1N` and `01M5DVSJ4C0JGB7JX72ZM9ZPJ2`
-record the evidence with verified Codex attribution and no human author.
-A fresh isolated install then exposed concurrent encrypted-key and device-ID
-creation races. The new native regressions failed before correction. The
-reliability follow-up and its installed results are recorded in TESTING.md.
+Explicit physical Pixel Doze testing is excluded by the owner. Historical
+interrupted observations remain rejected and cannot be cited as a pass.
+Manual TalkBack, current-build physical UX, natural overnight standby, and
+production signing/store release remain broader launch gates. Consumer
+check-in, P1b networking, and bedtime enforcement remain required product
+work. The technical P1 decision does not complete the Android MVP.
 
 ## Short Pixel release journey — October 20, 2026
 
@@ -494,3 +481,12 @@ reported the same SHA-256. The reference Pixel driver remains unexecuted.
 No alarm was armed, package installed, device setting changed, or application
 source modified by this continuation. PR18 remains a draft. Consumer check-in,
 P1b, bedtime, signing, and physical UX remain distinct outstanding work.
+
+
+## Owner-directed Doze exclusion — October 23, 2026
+
+The owner directed “forget about pixel doze explicit testing” and requested
+continuation. Only that explicit test is waived. No idle state, phone setting,
+package, or audible alarm was changed by this continuation. The phone-local
+driver remains unexecuted in ignored build storage. Its cutoff was not armed.
+The source and release constraints above remain in effect.
