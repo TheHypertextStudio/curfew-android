@@ -91,9 +91,12 @@ PLACE_SCENES = ('place-intro', 'place-code', 'place-ready', 'place-error', 'plac
 
 
 def capture_place_windows(adb, name, output):
+    # Revoke before instrumentation starts: Android may kill an app when its
+    # permission is revoked. This driver already requires an owned disposable AVD.
+    adb('shell', 'pm', 'revoke', 'studio.hypertext.curfew', 'android.permission.CAMERA')
     for scene in PLACE_SCENES:
         adb('shell', 'run-as', 'studio.hypertext.curfew', 'rm', '-f', f'cache/responsive-{scene}.png')
-    result = adb('shell', 'am', 'instrument', '-w', '-e', 'class',
+    result = adb('shell', 'am', 'instrument', '-w', '-e', 'curfew.place.capture', 'true', '-e', 'class',
         'studio.hypertext.curfew.ui.PlaceCheckInCaptureInstrumentedTest#capturePlaces',
         'studio.hypertext.curfew.test/androidx.test.runner.AndroidJUnitRunner')
     (output / (name + '-place.txt')).write_bytes(result)

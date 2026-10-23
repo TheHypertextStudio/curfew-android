@@ -1355,3 +1355,20 @@ own data. `PlaceCheckInCaptureInstrumentedTest` adds five actual Compose scenes
 to the existing eighteen-profile task gallery. Review every generated scene
 before claiming responsive UI acceptance. Camera capture and physical TalkBack
 remain distinct from fixture renders and host tests. See [the feature contract](PLACE_CHECK_IN.md).
+
+
+`SunriseReleaseJourneyInstrumentedTest.enrolledPlaceCodeReleasesActualPlaybackWithoutAVerifier`
+arms the real AlarmManager occurrence with a local enrollment, observes actual
+foreground alarm audio and notification state, rejects a wrong code, then applies
+the matching code and observes playback termination and durable completion. It
+uses an isolated emulator, grants fixture readiness, starts no HTTPS verifier,
+and refuses live account or pending-alarm data. This verifies the release path,
+not physical camera optics, human wakefulness or audible speaker delivery.
+
+
+The place capture fixture runs only through its explicit driver argument. The
+owned disposable emulator driver revokes camera access before starting that
+instrumentation process, rather than revoking permission from inside the app
+under test. Android may terminate the app during revocation. Functional suites
+can therefore exercise real camera readiness independently, and the capture
+still asserts an actual denied permission before rendering its denial scene.

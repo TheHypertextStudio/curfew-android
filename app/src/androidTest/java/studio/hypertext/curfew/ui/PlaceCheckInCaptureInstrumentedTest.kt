@@ -22,12 +22,12 @@ class PlaceCheckInCaptureInstrumentedTest {
     @Test fun capturePlaces() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val context = instrumentation.targetContext
-        val granted = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
+        org.junit.Assume.assumeTrue("Run through the owned native matrix driver",
+            InstrumentationRegistry.getArguments().getString("curfew.place.capture") == "true")
+        org.junit.Assert.assertEquals("The driver must deny camera access before starting instrumentation",
+            PackageManager.PERMISSION_DENIED, ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA))
         val draft = PlaceCheckIn.create("Bathroom")
         var scene by mutableStateOf("place-intro")
-        fun shell(command: String) = instrumentation.uiAutomation.executeShellCommand(command).close()
-        try {
-            if (granted) shell("pm revoke ${context.packageName} android.permission.CAMERA")
             compose.runOnUiThread { compose.activity.enableEdgeToEdge() }
             compose.setContent { CurfewTheme { Surface {
                 if (scene == "place-camera-denied") PlaceScanScreen("Bathroom", {}, {})
@@ -58,8 +58,5 @@ class PlaceCheckInCaptureInstrumentedTest {
                 Thread.sleep(150) // Allow the submitted frame to reach the system screenshot.
                 file.outputStream().use { instrumentation.uiAutomation.takeScreenshot().compress(Bitmap.CompressFormat.PNG, 100, it) }
             }
-        } finally {
-            if (granted) shell("pm grant ${context.packageName} android.permission.CAMERA")
-        }
     }
 }
