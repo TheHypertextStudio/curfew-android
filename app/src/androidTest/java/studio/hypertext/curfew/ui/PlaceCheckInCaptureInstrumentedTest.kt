@@ -50,6 +50,10 @@ class PlaceCheckInCaptureInstrumentedTest {
                 compose.waitUntil(5_000) { compose.onAllNodesWithText(expected).fetchSemanticsNodes().isNotEmpty() }
                 if (next == "place-code" || next == "place-error") compose.waitUntil(5_000) { compose.onAllNodesWithContentDescription("Your Bathroom check-in code").fetchSemanticsNodes().isNotEmpty() }
                 compose.waitForIdle()
+                if (next == "place-error") {
+                    compose.onNodeWithText("Couldn’t save the code. Choose another location and try again.").assertIsDisplayed()
+                    compose.onNodeWithText("Save code").assertIsDisplayed()
+                }
                 val file = context.cacheDir.resolve("responsive-$next.png")
                 Thread.sleep(150) // Allow the submitted frame to reach the system screenshot.
                 file.outputStream().use { instrumentation.uiAutomation.takeScreenshot().compress(Bitmap.CompressFormat.PNG, 100, it) }

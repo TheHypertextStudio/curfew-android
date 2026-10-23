@@ -92,7 +92,12 @@ internal fun PlaceCheckInSetup(
 ) {
     var name by rememberSaveable { mutableStateOf("Bathroom") }
     val retryRegion = remember { BringIntoViewRequester() }
-    LaunchedEffect(error) { if (error != null) { withFrameNanos { }; retryRegion.bringIntoView() } }
+    val bitmap by produceState<android.graphics.Bitmap?>(null, draft?.payload) {
+        value = draft?.let { withContext(Dispatchers.Default) { PlaceCodeImage.create(it.payload, 512) } }
+    }
+    // QR generation changes the measured content height. Reveal the retry action
+    // after that layout, rather than scrolling to its earlier placeholder position.
+    LaunchedEffect(error, bitmap) { if (error != null) { withFrameNanos { }; retryRegion.bringIntoView() } }
     SetupTaskContent(introduction = {
         SetupIntroduction(R.drawable.ic_link_rounded,
             if (draft != null) "Put your code away from bed" else if (enrollment != null) enrollment.label else "Scan a code away from bed",
@@ -103,9 +108,6 @@ internal fun PlaceCheckInSetup(
     }) {
         when {
             draft != null -> {
-                val bitmap by produceState<android.graphics.Bitmap?>(null, draft.payload) {
-                    value = withContext(Dispatchers.Default) { PlaceCodeImage.create(draft.payload, 512) }
-                }
                 bitmap?.let { Image(it.asImageBitmap(), "Your ${draft.enrollment.label} check-in code", Modifier.widthIn(max = 200.dp).fillMaxWidth().aspectRatio(1f).background(Color.White).padding(8.dp)) }
                 Text("Copies work too. Keep your code private.", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Column(Modifier.fillMaxWidth().bringIntoViewRequester(retryRegion)) {

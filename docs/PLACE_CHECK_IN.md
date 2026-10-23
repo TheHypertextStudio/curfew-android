@@ -78,3 +78,9 @@ reports that tomorrow needs attention and schedules the existing repair path.
 Rollback requires turning off schedules bound to a local code before returning
 to an older app; older builds cannot verify this new local condition. No remote
 schema, server deployment, production activation or installer release is needed.
+
+
+Rendered error recovery keeps its message and Save/Print retry actions in one
+scroll target. That target is revealed again when asynchronous QR generation
+changes the layout; otherwise the enlarged-text view can stop above the retry
+buttons. The native matrix asserts both the error and Save code remain visible.
