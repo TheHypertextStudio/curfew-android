@@ -1,0 +1,39 @@
+{
+  "protocolVersion": "0.0.13",
+  "red": {
+    "tests": 5,
+    "failures": 2,
+    "reasons": [
+      "expired grant was accepted",
+      "future grant was accepted"
+    ]
+  },
+  "green": {
+    "tests": 5,
+    "failures": 0
+  },
+  "hostSuites": {
+    "Plain": {
+      "tests": 204,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "Gms": {
+      "tests": 204,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "androidLint": {
+    "plain": "PASS",
+    "gms": "PASS"
+  },
+  "debugAppAndTestApks": {
+    "plain": "PASS",
+    "gms": "PASS"
+  },
+  "physicalDeviceExecution": false,
+  "networkAcceptanceComplete": false
+}
