@@ -49,7 +49,7 @@ class WelcomeAdaptiveInstrumentedTest {
             )
             CurfewTheme(darkTheme = darkMode.value) { Surface(Modifier.fillMaxSize()) {
                 Box(Modifier.fillMaxSize().onGloballyPositioned { origin = it.positionInWindow() }) {
-                    CurfewWelcomeScreen({ continued++ }, {}, motionEnabled = false, posture = posture)
+                    CurfewWelcomeScreen({ continued++ }, motionEnabled = false, posture = posture)
                     if (postureKind.value != 0) Canvas(Modifier.fillMaxSize()) {
                         drawRect(Color.Black, Offset(bounds.left - origin.x, bounds.top - origin.y), bounds.size)
                     }
@@ -90,7 +90,7 @@ class WelcomeAdaptiveInstrumentedTest {
             compose.runOnIdle { postureKind.value = kind }
             compose.onAllNodesWithText("Your nights.\nYour mornings.").assertCountEquals(1)
             compose.onAllNodesWithText("Get started").assertCountEquals(1)
-            compose.onAllNodesWithText("Not now").assertCountEquals(1)
+            compose.onAllNodesWithText("Not now").assertCountEquals(0)
         }
         compose.onNodeWithText("Get started").performScrollTo().performClick()
         compose.runOnIdle { assertEquals(1, continued) }
@@ -100,7 +100,7 @@ class WelcomeAdaptiveInstrumentedTest {
         val dimensions = mutableStateOf(320 to 700)
         compose.setContent {
             CurfewTheme { Surface(Modifier.requiredSize(dimensions.value.first.dp, dimensions.value.second.dp)) {
-                CurfewWelcomeScreen({}, {}, motionEnabled = false, posture = Posture())
+                CurfewWelcomeScreen({}, motionEnabled = false, posture = Posture())
             } }
         }
         fun brandWidth() = compose.onNodeWithText("Curfew").fetchSemanticsNode().size.width.toFloat()
@@ -112,6 +112,20 @@ class WelcomeAdaptiveInstrumentedTest {
         assertTrue("A large tablet must give the brand more visual weight", tablet >= phone * 1.5f)
         compose.runOnIdle { dimensions.value = 800 to 320 }
         assertTrue("Short phone windows must retain compact branding", brandWidth() <= phone * 1.1f)
+    }
+
+    @Test fun portraitTabletKeepsIntroductionAndActionInOneColumn() {
+        compose.setContent {
+            CurfewTheme { Surface(Modifier.requiredSize(800.dp, 1280.dp)) {
+                CurfewWelcomeScreen({}, motionEnabled = false, posture = Posture())
+            } }
+        }
+        val intro = compose.onNodeWithTag("welcome-introduction").getUnclippedBoundsInRoot()
+        val actions = compose.onNodeWithTag("welcome-actions").getUnclippedBoundsInRoot()
+        assertTrue("Portrait tablet actions follow the introduction", actions.top >= intro.bottom)
+        assertEquals("Both sections use the same column", intro.left, actions.left)
+        assertEquals("Both sections use the same column width", intro.right - intro.left, actions.right - actions.left)
+        compose.onAllNodesWithText("Get started").assertCountEquals(1)
     }
 
     private fun capture(name: String) {

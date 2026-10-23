@@ -1322,3 +1322,8 @@ Independent completion review finds no additional unimplemented P1 feature
 requirement. Uninterrupted physical Pixel Doze remains unchecked, and the final
 Codex Docket update remains unpublished because native MCP authentication is
 required. No physical test is running.
+
+## Screenshot catalog
+
+See [SCREENSHOT_CATALOG.md](SCREENSHOT_CATALOG.md) for the maintained production-UI matrix,
+native onboarding capture, failure handling, and local/CI update commands.

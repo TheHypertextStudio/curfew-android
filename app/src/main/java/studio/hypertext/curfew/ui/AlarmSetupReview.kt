@@ -44,6 +44,7 @@ internal fun AlarmSetupReview(
     val context = LocalContext.current
     SetupTaskContent(
         introduction = {
+            SetupIntroduction(R.drawable.ic_alarm_rounded, "Review your alarm", "Check your wake time and check-in before turning the alarm on.")
             Column(Modifier.fillMaxWidth().clickable(enabled = !busy, role = Role.Button, onClick = onEdit)
                 .semantics { contentDescription = "Edit wake time" }, verticalArrangement = Arrangement.spacedBy(20.dp)) {
                 Surface(modifier = Modifier.fillMaxWidth().curfewSharedBounds("alarm-time"), shape = MaterialTheme.shapes.extraLarge,

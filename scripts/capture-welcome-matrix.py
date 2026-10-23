@@ -2,6 +2,7 @@
 """Capture the installed Welcome on a disposable Sunrise emulator; restore its profile."""
 import argparse
 import html
+import hashlib
 import json
 from pathlib import Path
 import re
@@ -87,10 +88,27 @@ def capture_task_windows(adb, name, output):
     return files
 
 
+def capture_fingerprint(installed_apk):
+    root = Path(__file__).resolve().parents[1]
+    contract = root / 'config/screenshots/coverage.json'
+    apk = root / 'app/build/outputs/apk/plain/debug/app-plain-debug.apk'
+    if not apk.is_file() or hashlib.sha256(apk.read_bytes()).hexdigest() != installed_apk:
+        raise RuntimeError('Installed app differs from the local build. Build and install the current app before capture.')
+    reviewed = json.loads(contract.read_text())['reviewedSources']
+    for name, digest in reviewed.items():
+        source = root / name
+        if hashlib.sha256(source.read_bytes()).hexdigest() != digest:
+            raise RuntimeError('Review changed UI sources before capturing native screens: ' + name)
+        if 'src/screenshotTest/' not in name and source.stat().st_mtime > apk.stat().st_mtime:
+            raise RuntimeError('Rebuild with assemblePlainDebug --rerun-tasks to establish a fresh APK after this source timestamp changed: ' + name)
+    return hashlib.sha256(contract.read_bytes()).hexdigest()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--adb', default='adb')
     parser.add_argument('--serial', required=True)
+    parser.add_argument('--expected-avd', help='Exact task-owned curfew-onboarding-* AVD name')
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--include-native-fixtures', action='store_true')
     parser.add_argument('--include-task-fixtures', action='store_true')
@@ -102,10 +120,16 @@ def main():
         return subprocess.check_output([args.adb, '-s', args.serial, *parts], timeout=60)
 
     avd = adb('emu', 'avd', 'name').decode().splitlines()[0].strip()
-    if avd not in ('Sunrise_API33', 'Sunrise_API36', 'Sunrise_Design_API35') or adb('shell', 'getprop', 'ro.kernel.qemu').strip() != b'1':
+    allowed = ('Sunrise_API33', 'Sunrise_API36', 'Sunrise_Design_API35')
+    if args.expected_avd:
+        if not args.expected_avd.startswith('curfew-onboarding-'):
+            raise RuntimeError('Expected AVD must be a task-owned curfew-onboarding-* emulator.')
+        allowed = (args.expected_avd,)
+    if avd not in allowed or adb('shell', 'getprop', 'ro.kernel.qemu').strip() != b'1':
         raise RuntimeError('This reset-and-capture tool only accepts the owned disposable Sunrise emulators.')
     apk_path = adb('shell', 'pm', 'path', 'studio.hypertext.curfew').decode().splitlines()[0].removeprefix('package:').strip()
     apk_digest = adb('shell', 'sha256sum', apk_path).decode().split()[0]
+    coverage_digest = capture_fingerprint(apk_digest)
     source_commit = subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode().strip()
     source_dirty = bool(subprocess.check_output(['git', 'status', '--porcelain', '--untracked-files=no']).strip())
     api_level = int(adb('shell', 'getprop', 'ro.build.version.sdk').strip())
@@ -150,7 +174,7 @@ def main():
                 labels = capture(name)
                 if not {'Curfew', 'Your nights.\nYour mornings.'} <= labels:
                     raise RuntimeError(name + ': welcome did not load')
-                if width * 160 / density >= 600 and scale == 1.0:
+                if width > height and width * 160 / density / max(scale, 1) >= 600:
                     nodes = ET.fromstring((args.output / (name + '.xml')).read_bytes())
                     title = next(n for n in nodes.iter('node') if n.get('text') == 'Your nights.\nYour mornings.')
                     action = next(n for n in nodes.iter('node') if n.get('text') == 'Get started')
@@ -159,12 +183,14 @@ def main():
                     if title_bounds[2] > action_bounds[0]:
                         raise RuntimeError(name + ': introduction and actions did not adapt into distinct panes')
                 validate_portrait_placement(ET.fromstring((args.output / (name + '.xml')).read_bytes()), width, height, density, scale, name)
-                actions_visible = {'Get started', 'Not now'} <= labels
+                if 'Not now' in labels:
+                    raise RuntimeError(name + ': onboarding must have only its primary action')
+                actions_visible = 'Get started' in labels
                 if scale == 1.0 and not actions_visible:
                     raise RuntimeError(name + ': setup actions require unnecessary scrolling')
                 if not actions_visible:
                     adb('shell', 'input', 'swipe', str(width // 2), str(height * 4 // 5), str(width // 2), str(height // 5), '400')
-                    if not {'Get started', 'Not now'} <= capture(name + '-actions'):
+                    if 'Get started' not in capture(name + '-actions'):
                         raise RuntimeError(name + ': setup actions are unreachable')
                 records.append(dict(name=name, label=label, theme=theme, pixels=[width, height],
                                     dp=[width * 160 / density, height * 160 / density], fontScale=scale,
@@ -186,7 +212,7 @@ def main():
         restored = all(adb('shell', 'wm', key).decode() == original[key] for key in original)
         restored = restored and adb('shell', 'settings', 'get', 'system', 'font_scale').decode().strip() == font
         restored = restored and adb('shell', 'cmd', 'uimode', 'night').decode().split(':')[-1].strip() == night
-        manifest = dict(avd=avd, apiLevel=api_level, sourceCommit=source_commit, sourceDirty=source_dirty, installedApkSha256=apk_digest, nativeFixtures=native_files, taskFixtures=task_files, physicalDevice=False, postureSimulation=False, restored=restored, captures=records)
+        manifest = dict(coverageContractSha256=coverage_digest, avd=avd, apiLevel=api_level, sourceCommit=source_commit, sourceDirty=source_dirty, installedApkSha256=apk_digest, nativeFixtures=native_files, taskFixtures=task_files, physicalDevice=False, postureSimulation=False, restored=restored, captures=records)
         (args.output / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
         if not restored:
             raise RuntimeError('Emulator profile restoration failed')

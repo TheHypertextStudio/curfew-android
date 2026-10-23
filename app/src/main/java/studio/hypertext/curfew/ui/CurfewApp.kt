@@ -43,6 +43,9 @@ fun CurfewApp(
     onGrantNotifications: () -> Unit,
     onRepairAlarmChannel: () -> Unit,
     onPlayTestSound: () -> Unit,
+    soundCheckState: studio.hypertext.curfew.readiness.AlarmSoundCheckState = studio.hypertext.curfew.readiness.AlarmSoundCheckState.CLOSED,
+    onConfirmSound: () -> Unit = {},
+    onCancelSound: () -> Unit = {},
     onAcknowledgeLimitations: () -> Unit,
     onOpenAccount: () -> Unit,
     onEnrollAccount: () -> Unit,
@@ -76,6 +79,9 @@ fun CurfewApp(
     val onGrantNotificationsState = rememberUpdatedState(onGrantNotifications)
     val onRepairAlarmChannelState = rememberUpdatedState(onRepairAlarmChannel)
     val onPlayTestSoundState = rememberUpdatedState(onPlayTestSound)
+    val liveSoundCheckState = rememberUpdatedState(soundCheckState)
+    val onConfirmSoundState = rememberUpdatedState(onConfirmSound)
+    val onCancelSoundState = rememberUpdatedState(onCancelSound)
     val onAcknowledgeLimitationsState = rememberUpdatedState(onAcknowledgeLimitations)
     val onOpenAccountState = rememberUpdatedState(onOpenAccount)
     val onEnrollAccountState = rememberUpdatedState(onEnrollAccount)
@@ -170,21 +176,20 @@ fun CurfewApp(
             else if (!setupMode) {
                 saving = false
                 draft = null
-                daily()
             }
         }
     }
-    fun chooseWelcome(start: Boolean) {
+    fun deferSetup() {
         if (preparing) return
         preparing = true
         choiceError = null
         scope.launch {
             try {
-                onWelcomeChoiceState.value(start)
-                setupMode = start
-                if (start) open("edit") else daily()
+                onWelcomeChoiceState.value(false)
+                setupMode = false
+                daily()
             } catch (_: java.io.IOException) {
-                choiceError = "Couldn’t save setup. Try again."
+                choiceError = "Couldn’t save your wake time. Try again."
             } finally { preparing = false }
         }
     }
@@ -269,6 +274,9 @@ fun CurfewApp(
                         val onGrantNotifications by onGrantNotificationsState
                         val onRepairAlarmChannel by onRepairAlarmChannelState
                         val onPlayTestSound by onPlayTestSoundState
+                        val soundCheckState by liveSoundCheckState
+                        val onConfirmSound by onConfirmSoundState
+                        val onCancelSound by onCancelSoundState
                         val onAcknowledgeLimitations by onAcknowledgeLimitationsState
                         val onOpenAccount by onOpenAccountState
                         val onEnrollAccount by onEnrollAccountState
@@ -299,11 +307,10 @@ fun CurfewApp(
                         CompositionLocalProvider(LocalCurfewMotion provides CurfewMotionScope(sharedScope, LocalNavAnimatedContentScope.current)) {
                             Box(Modifier.fillMaxSize().semantics { paneTitle = when (route) { "daily" -> "Alarm"; "readiness" -> "Alarm setup"; "edit" -> "Wake time"; "check-in" -> "Check-in"; "review" -> "Your alarm"; "settings" -> "Settings"; "account" -> "Account"; else -> "Welcome to Curfew" } }, contentAlignment = Alignment.TopCenter) {
                                 Box(if (route == "welcome") Modifier.fillMaxSize() else if (route == "daily") Modifier.widthIn(max = 420.dp).fillMaxSize() else Modifier.fillMaxSize()) {
+                                    if (route != "readiness") AlarmSoundCheckDialog(soundCheckState, onConfirmSound, onPlayTestSound, onCancelSound)
                                     when (route) {
                                         "welcome" -> CurfewWelcomeScreen(
-                                            onContinue = { chooseWelcome(true) },
-                                            onNotNow = { chooseWelcome(false) },
-                                            busy = preparing, error = choiceError,
+                                            onContinue = { setupMode = true; open("edit") },
                                         )
                                         "edit" -> SunriseScheduleEditor(
                                             sunriseAlarm, callbackId, canArm, alarmBusy || saving || preparing, alarmError ?: setupError,
@@ -319,7 +326,7 @@ fun CurfewApp(
                                                     draft = prepared
                                                     nextSetupTask()
                                                 } catch (_: java.io.IOException) {
-                                                    setupError = "Couldn’t save setup. Try again."
+                                                    setupError = "Couldn’t save your wake time. Try again."
                                                 } finally { preparing = false }
                                             } },
                                         )
@@ -327,11 +334,16 @@ fun CurfewApp(
                                             readiness, onGrantExactAlarm, onGrantNotifications, onRepairAlarmChannel,
                                             onPlayTestSound, onAcknowledgeLimitations, onRaiseAlarmVolume,
                                             onDone = {
-                                                if (setupMode) nextSetupTask()
-                                                else back()
+                                                if (setupMode) {
+                                                    backStack.remove("readiness")
+                                                    nextSetupTask()
+                                                } else back()
                                             },
                                             onGrantFullScreen = onGrantFullScreen,
                                             inSetup = setupMode,
+                                            soundState = soundCheckState,
+                                            onConfirmSound = onConfirmSound,
+                                            onCancelSound = onCancelSound,
                                         )
                                         "check-in" -> CheckInScreen(
                                             callbackId, conditionLabel, conditionVerified, conditionBusy, conditionMessage,
@@ -339,7 +351,7 @@ fun CurfewApp(
                                             onDone = { if (setupMode) nextSetupTask() else back() },
                                             inSetup = setupMode, state = checkInState,
                                             inlineHeader = if (compactKeyboardState.value) taskTopBarState.value else null,
-                                            onDefer = { chooseWelcome(false) },
+                                            onDefer = { deferSetup() },
                                             deferBusy = preparing, deferError = choiceError,
                                             setupFileSaved = setupFileSavedState.value,
                                             onUseForAlarm = if (sunriseAlarm != null && sunriseAlarm?.schedule?.callbackId != callbackId && conditionVerified) ({ open("edit") }) else null,

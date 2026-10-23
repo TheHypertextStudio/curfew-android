@@ -58,15 +58,15 @@ class AlarmSoundCheckJourneyInstrumentedTest {
 
     private fun awaitConfirmationPrompt() {
         compose.waitUntil(10_000) {
-            compose.onAllNodesWithText("Did you hear the alarm?").fetchSemanticsNodes().isNotEmpty()
+            compose.onAllNodesWithText("Did you hear it?").fetchSemanticsNodes().isNotEmpty()
         }
-        compose.onNodeWithText("Did you hear the alarm?").assertIsDisplayed()
+        compose.onNodeWithText("Did you hear it?").assertIsDisplayed()
     }
 
     private fun openAndPlay() {
         compose.onNodeWithContentDescription("Settings").performClick()
         compose.onNodeWithText("Alarm setup").performClick()
-        compose.onNodeWithText("Test alarm sound").performScrollTo().performClick()
+        compose.onNodeWithText("Play alarm preview").performScrollTo().performClick()
         compose.waitUntil(5_000) { audio.activePlaybackConfigurations.any { it.audioAttributes.usage == AudioAttributes.USAGE_ALARM } }
         awaitConfirmationPrompt()
         assertFalse(runBlocking { preferences.state.first().testSoundCompleted })
@@ -79,27 +79,27 @@ class AlarmSoundCheckJourneyInstrumentedTest {
     @Test fun setupExplainsTheSoundCheckPurpose() {
         compose.onNodeWithContentDescription("Settings").performClick()
         compose.onNodeWithText("Alarm setup").performClick()
-        compose.onNodeWithText("Check the sound").assertIsDisplayed()
-        compose.onNodeWithText("Test alarm sound").assertIsDisplayed()
+        compose.onNodeWithText("Try your alarm").assertIsDisplayed()
+        compose.onNodeWithText("Play alarm preview").assertIsDisplayed()
     }
 
     @Test fun playbackNeedsConfirmationAndRemainsAvailableAfterward() {
         openAndPlay()
         compose.onNodeWithText("I heard it").performClick()
         compose.waitUntil(5_000) { runBlocking { preferences.state.first().testSoundCompleted } }
-        compose.onNodeWithText("Did you hear the alarm?").assertDoesNotExist()
+        compose.onNodeWithText("Did you hear it?").assertDoesNotExist()
         compose.onNodeWithText("Test alarm sound").performScrollTo().performClick()
         awaitConfirmationPrompt()
-        compose.onNodeWithText("Not now").performClick()
+        compose.onNodeWithText("Close preview").performClick()
         assertTrue(runBlocking { preferences.state.first().testSoundCompleted })
     }
 
     @Test fun cancelingDoesNotCompleteSetupAndStopsPreview() {
         openAndPlay()
-        compose.onNodeWithText("Not now").performClick()
+        compose.onNodeWithText("Close preview").performClick()
         compose.waitUntil(5_000) { audio.activePlaybackConfigurations.none { it.audioAttributes.usage == AudioAttributes.USAGE_ALARM } }
         assertFalse(runBlocking { preferences.state.first().testSoundCompleted })
-        compose.onNodeWithText("Test alarm sound").assertIsDisplayed()
+        compose.onNodeWithText("Play alarm preview").assertIsDisplayed()
     }
 
     @Test fun leavingTheAppCannotConfirmOrKeepPlaying() {
@@ -108,6 +108,6 @@ class AlarmSoundCheckJourneyInstrumentedTest {
         compose.waitUntil(5_000) { audio.activePlaybackConfigurations.none { it.audioAttributes.usage == AudioAttributes.USAGE_ALARM } }
         assertFalse(runBlocking { preferences.state.first().testSoundCompleted })
         compose.activityRule.scenario.moveToState(Lifecycle.State.RESUMED)
-        compose.onNodeWithText("Did you hear the alarm?").assertDoesNotExist()
+        compose.onNodeWithText("Did you hear it?").assertDoesNotExist()
     }
 }

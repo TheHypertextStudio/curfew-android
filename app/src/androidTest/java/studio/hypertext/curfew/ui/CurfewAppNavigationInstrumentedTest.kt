@@ -98,10 +98,10 @@ class CurfewAppNavigationInstrumentedTest {
         compose.onNodeWithContentDescription("Edit alarm").assertIsDisplayed()
         captureResponsiveWindow("daily")
         compose.onNodeWithContentDescription("Edit alarm").performClick()
-        compose.onNodeWithText("Weekly").performScrollTo().assertIsDisplayed().performClick()
+        compose.onNodeWithText("Repeat").performScrollTo().assertIsDisplayed().performClick()
         compose.onNodeWithContentDescription("Repeat on Sunday").performScrollTo().assertIsDisplayed()
         captureResponsiveWindow("editor")
-        compose.onNodeWithText("Save").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Save alarm").performScrollTo().assertIsDisplayed()
         compose.onNodeWithContentDescription("Back").performClick()
         compose.onNodeWithContentDescription("Settings").performClick()
         captureResponsiveWindow("settings")
@@ -111,7 +111,7 @@ class CurfewAppNavigationInstrumentedTest {
         compose.onNodeWithContentDescription("Back").performClick()
         compose.runOnIdle { hasConnection.value = false }
         compose.onNodeWithText("Check-in").performScrollTo().performClick()
-        compose.onNodeWithText("I have a service").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Connect a service").performScrollTo().assertIsDisplayed()
         captureResponsiveWindow("check-in")
         compose.onNodeWithContentDescription("Back").performClick()
         compose.runOnIdle { missingActions.value = setOf(ReadinessAction.GRANT_FULL_SCREEN_ACCESS) }
@@ -166,10 +166,10 @@ class CurfewAppNavigationInstrumentedTest {
     fun editBackDiscardsAllDraftChanges() {
         show()
         compose.onNodeWithContentDescription("Edit alarm").performClick()
-        compose.onNodeWithText("Weekly").performClick()
+        compose.onNodeWithText("Repeat").performClick()
         compose.onNodeWithContentDescription("Back").performClick()
         compose.onNodeWithContentDescription("Edit alarm").performClick()
-        compose.onNodeWithText("One night").assertIsSelected()
+        compose.onNodeWithText("Once").assertIsSelected()
         compose.runOnIdle { assertEquals(0, saves) }
     }
 
@@ -177,11 +177,11 @@ class CurfewAppNavigationInstrumentedTest {
     fun failedSaveKeepsDraftAndEditorOpen() {
         show(failSave = true)
         compose.onNodeWithContentDescription("Edit alarm").performClick()
-        compose.onNodeWithText("Weekly").performClick()
-        compose.onNodeWithText("Save").performClick()
+        compose.onNodeWithText("Repeat").performClick()
+        compose.onNodeWithText("Save alarm").performScrollTo().performClick()
         compose.onNodeWithText("Could not save the alarm. Try again.").assertIsDisplayed()
-        compose.onNodeWithText("Weekly").assertIsSelected()
-        compose.onNodeWithText("Save").assertIsDisplayed()
+        compose.onNodeWithText("Repeat").assertIsSelected()
+        compose.onNodeWithText("Save alarm").assertIsDisplayed()
         compose.runOnIdle { assertEquals(1, saves) }
     }
 
@@ -198,11 +198,11 @@ class CurfewAppNavigationInstrumentedTest {
     fun setupReturnsToTheDraftAndBackStillLeavesTheEditor() {
         show(required = setOf(ReadinessAction.RAISE_ALARM_VOLUME))
         compose.onNodeWithContentDescription("Edit alarm").performClick()
-        compose.onNodeWithText("Weekly").performClick()
-        compose.onNodeWithText("Finish setup").performClick()
+        compose.onNodeWithText("Repeat").performClick()
+        compose.onNodeWithText("Continue alarm setup").performScrollTo().performClick()
         compose.onNodeWithText("Turn up alarm volume").performScrollTo().assertIsDisplayed().performClick()
         compose.onNodeWithText("Done").performScrollTo().assertIsDisplayed().performClick()
-        compose.onNodeWithText("Weekly").assertIsSelected()
+        compose.onNodeWithText("Repeat").assertIsSelected()
         compose.onNodeWithContentDescription("Back").performClick()
         compose.onNodeWithContentDescription("Edit alarm").assertIsDisplayed()
         compose.runOnIdle { assertEquals(0, saves) }
@@ -212,8 +212,8 @@ class CurfewAppNavigationInstrumentedTest {
     fun anUnchangedSaveCanFinishWithoutAnIntermediateBusyFrame() {
         show()
         compose.onNodeWithContentDescription("Edit alarm").performClick()
-        compose.onNodeWithText("Save").performClick()
-        compose.onNodeWithContentDescription("Edit alarm").assertIsDisplayed()
+        compose.onNodeWithText("Save alarm").performScrollTo().performClick()
+        compose.onNodeWithText("Save alarm").assertIsDisplayed()
         compose.runOnIdle { assertEquals(1, saves) }
     }
 
@@ -250,7 +250,7 @@ class CurfewAppNavigationInstrumentedTest {
         compose.onNodeWithContentDescription("Settings").assertDoesNotExist()
         compose.onNodeWithContentDescription("Back").assertIsDisplayed().performClick()
         compose.onNodeWithContentDescription("Edit alarm").assertIsDisplayed().performClick()
-        compose.onNodeWithText("Weekly").performClick()
+        compose.onNodeWithText("Repeat").performClick()
         compose.onNodeWithContentDescription("Back").performClick()
         compose.onNodeWithContentDescription("Settings").assertIsDisplayed()
         compose.onNodeWithContentDescription("Edit alarm").assertIsDisplayed()
@@ -263,7 +263,7 @@ class CurfewAppNavigationInstrumentedTest {
         compose.onNodeWithText("Your nights.\nYour mornings.").assertIsDisplayed()
         compose.onNodeWithContentDescription("Alarm navigation").assertDoesNotExist()
         compose.onNodeWithText("Get started").performClick()
-        compose.onNodeWithText("Weekly").performClick()
+        compose.onNodeWithText("Repeat").performClick()
         compose.onNodeWithText("Continue").performScrollTo().performClick()
         compose.onNodeWithText("Turn on alarm").performScrollTo().assertIsDisplayed()
         compose.runOnIdle { assertEquals(0, saves) }
@@ -293,7 +293,7 @@ class CurfewAppNavigationInstrumentedTest {
         compose.onNodeWithText("Check-in").performClick()
         compose.onNodeWithText("Replacement check-in").assertExists()
         compose.onNodeWithText("Use for alarm").performScrollTo().performClick()
-        compose.onNodeWithText("Save").performScrollTo().assertExists()
+        compose.onNodeWithText("Save alarm").performScrollTo().assertExists()
         compose.runOnIdle { assertEquals(0, saves) }
     }
 

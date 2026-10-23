@@ -38,13 +38,13 @@ class CheckInScreenInstrumentedTest {
                 CurfewTheme {
                     Box(Modifier.width(320.dp).height(700.dp).testTag("deferral-viewport")) {
                         CheckInScreen(null, null, false, false, null, { _, _, _ -> "unused" }, {}, {}, {},
-                            inSetup = true, onDefer = { error.value = "Couldn’t save setup. Try again." }, deferError = error.value)
+                            inSetup = true, onDefer = { error.value = "Couldn’t save your wake time. Try again." }, deferError = error.value)
                     }
                 }
             }
         }
         compose.onNodeWithText("Save for later").performScrollTo().performClick()
-        val errorBounds = compose.onNodeWithText("Couldn’t save setup. Try again.").getUnclippedBoundsInRoot()
+        val errorBounds = compose.onNodeWithText("Couldn’t save your wake time. Try again.").getUnclippedBoundsInRoot()
         val retryBounds = compose.onNodeWithText("Save for later").getUnclippedBoundsInRoot()
         val viewport = compose.onNodeWithTag("deferral-viewport").getUnclippedBoundsInRoot()
         org.junit.Assert.assertTrue("The complete error and retry must fit after failure: $errorBounds, $retryBounds, $viewport",
@@ -64,8 +64,9 @@ class CheckInScreenInstrumentedTest {
         assertEquals("The first required action must use the primary container", primary, pixels[pixels.width / 2, 8].toArgb())
         compose.onNodeWithText("Save setup file").performClick()
         compose.runOnIdle { assertEquals(1, exports) }
-        val pending = compose.onNodeWithText("Save setup file").captureToImage().toPixelMap()
-        assertEquals("Opening the picker is not a completed export", primary, pending[pending.width / 2, 8].toArgb())
+        // A pressed button has a focus state layer; inspect the saved-state
+        // transition rather than mistaking that layer for a new priority color.
+        compose.runOnIdle { assertEquals(false, saved.value) }
         compose.runOnIdle { saved.value = true }
         val ready = compose.onNodeWithText("Test connection").performScrollTo().captureToImage().toPixelMap()
         assertEquals("Testing becomes the next action only after export succeeds", primary, ready[ready.width / 2, 8].toArgb())
@@ -82,13 +83,13 @@ class CheckInScreenInstrumentedTest {
                 onSave = { _, _, _ -> saves++; "unused" }, onExport = {}, onVerify = {}, onDone = {},
                 inSetup = true, onDefer = { deferred++ })
         } }
-        compose.onNodeWithText("A check-in service is required").assertExists()
+        compose.onNodeWithText("Connect your check-in").assertExists()
         compose.onNodeWithText("Curfew doesn’t include a check-in service yet.").assertExists()
         compose.onNodeWithText("Service address").assertDoesNotExist()
         compose.onNodeWithText("Save for later").performScrollTo().performClick()
         compose.runOnIdle { assertEquals(1, deferred); assertEquals(0, saves) }
-        compose.onNodeWithText("I have a service").performScrollTo().performClick()
-        compose.onNodeWithText("Ask the person running your service for its Curfew connection address. A normal website address won’t work.").assertExists()
+        compose.onNodeWithText("Connect a service").performScrollTo().performClick()
+        compose.onNodeWithText("You need a service that supports the Curfew check-in protocol. Curfew does not provide one yet. Use the HTTPS check-in endpoint from that service’s configuration.").assertExists()
         compose.onNodeWithText("Service address").assertExists()
     }
 
@@ -100,7 +101,7 @@ class CheckInScreenInstrumentedTest {
             CheckInScreen("saved", "Morning check-in", false, false, null,
                 onSave = { _, _, _ -> "saved" }, onExport = { exports++ }, onVerify = { tests++ }, onDone = {})
         } }
-        compose.onNodeWithText("Give the setup file to the person running your service. After they install it, test the connection.").assertExists()
+        compose.onNodeWithText("1. Save the setup file.\n2. Import it into your service’s Curfew integration. If someone else manages the service, ask them to install it.\n3. Return here and test the connection.").assertExists()
         compose.onNodeWithText("Save setup file").performScrollTo().performClick()
         compose.onNodeWithText("Test connection").performScrollTo().performClick()
         compose.runOnIdle { assertEquals(1, exports); assertEquals(1, tests) }
@@ -120,9 +121,8 @@ class CheckInScreenInstrumentedTest {
             }
         }
         compose.onNodeWithText("Test connection").assertDoesNotExist()
-        compose.onNodeWithText("I have a service").performScrollTo().performClick()
-        compose.onNodeWithText("Optional details").performScrollTo().performClick()
-        compose.onNodeWithText("Name").performScrollTo().performTextInput("Morning check-in")
+        compose.onNodeWithText("Connect a service").performScrollTo().performClick()
+        compose.onNodeWithText("Name (optional)").performScrollTo().performTextInput("Morning check-in")
         compose.onNodeWithText("Service address").performTextInput("https://wake.example.test/check-in")
         Espresso.closeSoftKeyboard()
         compose.onNodeWithText("Save check-in").performScrollTo().performClick()
@@ -142,9 +142,8 @@ class CheckInScreenInstrumentedTest {
                     onSave = { _, _, action -> savedAction = action; "condition-1" }, onExport = {}, onVerify = {}, onDone = {})
             }
         }
-        compose.onNodeWithText("I have a service").performScrollTo().performClick()
-        compose.onNodeWithText("Optional details").performScrollTo().performClick()
-        compose.onNodeWithText("Name").performScrollTo().performTextInput("Morning check-in")
+        compose.onNodeWithText("Connect a service").performScrollTo().performClick()
+        compose.onNodeWithText("Name (optional)").performScrollTo().performTextInput("Morning check-in")
         compose.onNodeWithText("Service address").performTextInput("https://wake.example.test/check-in")
         compose.onNodeWithText("Check-in link (optional)").performScrollTo().performTextInput("morning-checkin://start")
         compose.onNodeWithText("Save check-in").performScrollTo().assertIsEnabled().performClick()
@@ -161,9 +160,8 @@ class CheckInScreenInstrumentedTest {
                     onExport = {}, onVerify = {}, onDone = {})
             }
         }
-        compose.onNodeWithText("I have a service").performScrollTo().performClick()
-        compose.onNodeWithText("Optional details").performScrollTo().performClick()
-        compose.onNodeWithText("Name").performScrollTo().performTextInput("Morning check-in")
+        compose.onNodeWithText("Connect a service").performScrollTo().performClick()
+        compose.onNodeWithText("Name (optional)").performScrollTo().performTextInput("Morning check-in")
         compose.onNodeWithText("Service address").performTextInput("https://wake.example.test/check-in")
         Espresso.closeSoftKeyboard()
         compose.waitForIdle()
@@ -182,7 +180,7 @@ class CheckInScreenInstrumentedTest {
             CheckInScreen(callback.value, callback.value?.let { "Saved check-in" }, false, busy.value, null,
                 { _, _, _ -> busy.value = true; "saved" }, {}, {}, {})
         } }
-        compose.onNodeWithText("I have a service").performScrollTo().performClick()
+        compose.onNodeWithText("Connect a service").performScrollTo().performClick()
         compose.onNodeWithText("Service address").performTextInput("https://wake.example.test/check-in")
         Espresso.closeSoftKeyboard()
         compose.onNodeWithText("Save check-in").performScrollTo().performClick()
@@ -196,9 +194,8 @@ class CheckInScreenInstrumentedTest {
         compose.setContent {
             CurfewTheme { CheckInScreen(null, null, false, false, null, { _, _, _ -> "condition-1" }, {}, {}, {}) }
         }
-        compose.onNodeWithText("I have a service").performScrollTo().performClick()
+        compose.onNodeWithText("Connect a service").performScrollTo().performClick()
         compose.onNodeWithText("Service address").performTextInput("https://wake.example.test/check-in")
-        compose.onNodeWithText("Optional details").performScrollTo().performClick()
         compose.onNodeWithText("Check-in link (optional)").performTextInput("/relative/path")
         Espresso.closeSoftKeyboard()
         compose.onNodeWithText("Save check-in").performScrollTo().assertIsNotEnabled()

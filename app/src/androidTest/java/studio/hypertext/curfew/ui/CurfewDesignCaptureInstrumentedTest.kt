@@ -129,7 +129,7 @@ class CurfewDesignCaptureInstrumentedTest {
                     }
                     compose.onNodeWithText(destination).performScrollTo().performClick()
                 }
-                if (initialForm) compose.onNodeWithText("I have a service").performScrollTo().performClick()
+                if (initialForm) compose.onNodeWithText("Connect a service").performScrollTo().performClick()
                 if (withKeyboard) {
                     try {
                         compose.waitUntil(5_000) { compose.runOnIdle { composeView?.hasWindowFocus() == true } }

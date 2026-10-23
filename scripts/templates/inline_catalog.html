@@ -1,0 +1,75 @@
+<div id="curfew-native-catalog">
+  <div class="viz-controls">
+    <label class="form-label">Screen<select class="form-select" data-field="screen"></select></label>
+    <label class="form-label">State<select class="form-select" data-field="state"></select></label>
+    <label class="form-label">Form factor<select class="form-select" data-field="device"></select></label>
+    <label class="form-label">Appearance<select class="form-select" data-field="appearance"><option value="light">Light</option><option value="dark">Dark</option></select></label>
+    <label class="form-label">View<select class="form-select" data-field="position"></select></label>
+    <label class="form-label">Search<input class="form-control" data-field="search" type="search" placeholder="Find a screen or state"></label>
+  </div>
+  <div class="viz-row">
+    <button class="btn btn-primary" type="button" data-action="present">Present</button>
+    <button class="btn" type="button" data-action="previous">Previous</button>
+    <span class="text-small tabular-nums" data-role="count" aria-live="polite"></span>
+    <button class="btn" type="button" data-action="next">Next</button>
+    <button class="btn" type="button" data-action="close" hidden>Close presentation</button>
+    <label class="form-label">Preview size<select class="form-select" data-role="size"><option value="520">Fit</option><option value="850">Large</option><option value="1200">Extra large</option></select></label>
+  </div>
+  <div data-role="captures"></div>
+  <div class="text-small text-muted" data-role="keys" hidden>Tab / → next · Shift+Tab / ← previous · Escape close</div>
+  <label class="form-label">Full-resolution capture folder<input class="form-control" type="file" webkitdirectory multiple data-role="folder"></label>
+  <div class="text-small text-muted" data-role="files" aria-live="polite">Embedded previews · Choose screenshot-catalog for all captures.</div>
+</div>
+<style>
+#curfew-native-catalog [data-role="captures"]{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:20px;margin:16px 0}
+#curfew-native-catalog[data-presenting="true"] [data-role="captures"]{display:block}
+#curfew-native-catalog figure{margin:0;min-width:0}
+#curfew-native-catalog img{display:block;width:100%;height:280px;object-fit:contain}
+#curfew-native-catalog[data-presenting="true"] img{height:var(--capture-height,520px)}
+#curfew-native-catalog figcaption{margin-top:8px;overflow-wrap:anywhere}
+#curfew-native-catalog .capture-missing{display:grid;place-items:center;min-height:160px;color:var(--muted-foreground)}
+</style>
+<script type="application/json" id="curfew-native-catalog-data">__CATALOG_DATA__</script>
+<script>
+(()=>{
+const root=document.getElementById('curfew-native-catalog');
+const data=JSON.parse(document.getElementById('curfew-native-catalog-data').textContent);
+const get=selector=>root.querySelector(selector), controls=[...root.querySelectorAll('[data-field]')];
+const fields=Object.fromEntries(controls.map(control=>[control.dataset.field,control]));
+const rows=data.captures.map((c,index)=>({index,state:c[0],device:c[1],appearance:c[2],position:c[3],image:c[4],title:data.states[c[0]][0],screen:data.states[c[0]][1],deviceLabel:data.devices[c[1]][0],width:data.devices[c[1]][1],height:data.devices[c[1]][2]}));
+const files=new Map(), urls=[]; let page=0,slide=0,presenting=false;
+const pageSize=12;
+function options(field,values){const select=fields[field];select.replaceChildren();const all=document.createElement('option');all.value='';all.textContent='All';select.append(all);for(const [value,label] of values){const option=document.createElement('option');option.value=value;option.textContent=label;select.append(option);}}
+options('screen',[...new Set(rows.map(r=>r.screen))].map(s=>[s,s]));
+options('state',Object.entries(data.states).map(([id,value])=>[id,value[0]]));
+options('device',Object.entries(data.devices).map(([id,value])=>[id,value[0]]));
+options('position',[...new Set(rows.map(r=>r.position))].map(p=>[p,p]));
+function matches(row){return ['screen','state','device','appearance','position'].every(field=>!fields[field].value||row[field]===fields[field].value)&&[row.title,row.screen,row.state,row.deviceLabel].join(' ').toLowerCase().includes(fields.search.value.trim().toLowerCase());}
+function remember(){const selected=rows.filter(matches)[presenting?slide:page*pageSize];if(window.openai?.setWidgetState)window.openai.setWidgetState({modelContent:{capture:selected?{state:selected.state,device:selected.device,appearance:selected.appearance,position:selected.position}:null},privateContent:{filters:Object.fromEntries(controls.map(c=>[c.dataset.field,c.value])),presenting,slide,page}}).catch(()=>{});}
+function render(){const matchesRows=rows.filter(matches),length=matchesRows.length;page=Math.max(0,Math.min(page,Math.ceil(length/pageSize)-1));slide=Math.max(0,Math.min(slide,length-1));
+while(urls.length)URL.revokeObjectURL(urls.pop());
+root.dataset.presenting=String(presenting);get('[data-role="keys"]').hidden=!presenting;get('[data-action="close"]').hidden=!presenting;get('[data-action="present"]').hidden=presenting;
+const start=presenting?slide:page*pageSize,visible=matchesRows.slice(start,start+(presenting?1:pageSize));
+get('[data-role="count"]').textContent=length?`${start+1}${presenting?'':'–'+(start+visible.length)} / ${length}`:'No matching captures';
+get('[data-action="previous"]').disabled=start===0;get('[data-action="next"]').disabled=start+visible.length>=length;get('[data-action="present"]').disabled=length===0;
+const container=get('[data-role="captures"]');container.replaceChildren();
+for(const row of visible){const figure=document.createElement('figure'),caption=document.createElement('figcaption');caption.className='text-small';caption.textContent=`${row.title} · ${row.deviceLabel} · ${row.width} × ${row.height} dp · ${row.appearance} · ${row.position}`;
+const file=files.get(row.image);let src=data.embedded[row.image];if(file){src=URL.createObjectURL(file);urls.push(src);}
+if(src){const image=document.createElement('img');image.src=src;image.alt=caption.textContent;figure.append(image);}else{const missing=document.createElement('div');missing.className='capture-missing text-small';missing.textContent='Choose the capture folder to view this image';figure.append(missing);}
+figure.append(caption);container.append(figure);}}
+for(const control of controls)control.addEventListener(control.type==='search'?'input':'change',()=>{page=slide=0;render();remember();});
+function move(direction){if(presenting)slide+=direction;else page+=direction;render();remember();}
+get('[data-action="previous"]').addEventListener('click',()=>move(-1));get('[data-action="next"]').addEventListener('click',()=>move(1));
+get('[data-action="present"]').addEventListener('click',()=>{presenting=true;slide=page*pageSize;render();get('[data-action="close"]').focus();remember();});
+function close(){presenting=false;page=Math.floor(slide/pageSize);render();get('[data-action="present"]').focus();remember();}
+get('[data-action="close"]').addEventListener('click',close);
+root.addEventListener('keydown',event=>{if(!presenting||['INPUT','SELECT','TEXTAREA'].includes(event.target.tagName))return;if(event.key==='Escape'){event.preventDefault();close();}else if(['Tab','ArrowRight','ArrowLeft'].includes(event.key)){event.preventDefault();move(event.key==='ArrowLeft'||event.key==='Tab'&&event.shiftKey?-1:1);}});
+get('[data-role="size"]').addEventListener('change',event=>root.style.setProperty('--capture-height',event.target.value+'px'));
+let folderRequest=0;
+get('[data-role="folder"]').addEventListener('change',async event=>{const request=++folderRequest;files.clear();render();const selected=[...event.target.files];const manifest=selected.find(file=>file.name==='manifest.json'&&file.webkitRelativePath.split('/').length===2);try{if(!manifest)throw new Error('Choose the screenshot-catalog folder containing manifest.json');const text=await manifest.text();const current=JSON.parse(text);const hash=async value=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value)))].map(byte=>byte.toString(16).padStart(2,'0')).join('');if(request!==folderRequest)return;if(!current.complete||await hash(text)!==data.catalogManifestSha256)throw new Error('This folder contains a different capture version');if(data.nativeManifestSha256){const native=selected.find(file=>file.webkitRelativePath.split('/').slice(1).join('/')==='native/manifest.json');if(!native||await hash(await native.text())!==data.nativeManifestSha256)throw new Error('Native captures do not match this catalog');}if(request!==folderRequest)return;}catch(error){if(request!==folderRequest)return;get('[data-role="files"]').textContent=error.message;return;}for(const file of selected){const parts=file.webkitRelativePath.split('/');const nativeIndex=parts.indexOf('native'),imageIndex=parts.indexOf('images');if(imageIndex<0)continue;const key=parts.slice(nativeIndex>=0?nativeIndex:imageIndex).join('/');files.set(key,file);}
+const count=rows.filter(row=>files.has(row.image)).length;get('[data-role="files"]').textContent=`${count} / ${rows.length} full-resolution captures connected`;render();});
+function restore(state){const saved=state?.privateContent;if(saved){for(const control of controls){const value=saved.filters?.[control.dataset.field];if(typeof value==='string'&&(control.tagName!=='SELECT'||[...control.options].some(o=>o.value===value)))control.value=value;}presenting=!!saved.presenting;slide=Number.isInteger(saved.slide)?saved.slide:0;page=Number.isInteger(saved.page)?saved.page:0;}render();}
+window.addEventListener('openai:set_globals',event=>restore(event.detail?.globals?.widgetState));
+restore(window.openai?.widgetState);
+})();
+</script>

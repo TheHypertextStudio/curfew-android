@@ -56,7 +56,7 @@ internal fun TaskContent(spacing: Dp = 24.dp, verticalPadding: Dp = 20.dp, conte
     BoxWithConstraints(Modifier.widthIn(max = 640.dp).fillMaxSize().imePadding()) {
         val gutter = if (maxWidth < 360.dp) 16.dp else 24.dp
         Column(
-            Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = gutter, vertical = verticalPadding),
+            Modifier.fillMaxSize().verticalScroll(rememberScrollState(LocalTaskInitialScroll.current)).padding(horizontal = gutter, vertical = verticalPadding),
             verticalArrangement = Arrangement.spacedBy(spacing), content = content,
         )
     }

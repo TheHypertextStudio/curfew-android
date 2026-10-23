@@ -37,6 +37,7 @@ internal fun SunriseScheduleEditor(
     setupMode: Boolean = false,
     initialDraft: AlarmSetupDraft? = null,
     onPrepare: (AlarmSetupDraft) -> Unit = {},
+    initialWeekdayMask: Int? = null,
 ) {
     val saved = alarm?.schedule
     val context = LocalContext.current
@@ -46,14 +47,22 @@ internal fun SunriseScheduleEditor(
     var weekly by rememberSaveable { mutableStateOf(initialDraft?.let { it.onceDate == null } ?: (saved != null && saved.onceDate == null)) }
     var dateText by rememberSaveable { mutableStateOf((initialDraft?.onceDate ?: saved?.onceDate ?: nextSunriseDate(LocalTime.parse(timeText))).toString()) }
     var dateExplicitlyChosen by rememberSaveable { mutableStateOf(initialDraft?.onceDate != null || saved?.onceDate != null) }
-    var weekdays by rememberSaveable { mutableIntStateOf((initialDraft?.weekdays ?: saved?.weekdays)?.takeIf { it.isNotEmpty() }?.fold(0) { mask, day -> mask or (1 shl day.ordinal) } ?: 127) }
+    var weekdays by rememberSaveable { mutableIntStateOf(initialWeekdayMask ?: (initialDraft?.weekdays ?: saved?.weekdays)?.takeIf { it.isNotEmpty() }?.fold(0) { mask, day -> mask or (1 shl day.ordinal) } ?: 127) }
     var choosingTime by rememberSaveable { mutableStateOf(false) }
     var choosingDate by rememberSaveable { mutableStateOf(false) }
+    var submitted by remember { mutableStateOf<SunriseSchedule?>(null) }
+    val savedSnapshot = submitted != null && !busy && error == null && alarm?.schedule == submitted
+    val unsavedChanges = submitted?.let { it.wakeTime.toString() != timeText || (it.onceDate == null) != weekly ||
+        if (weekly) it.weekdays != DayOfWeek.entries.filter { day -> weekdays and (1 shl day.ordinal) != 0 }.toSet() else it.onceDate.toString() != dateText } ?: false
     val canSave = !busy && (callbackId ?: saved?.callbackId) != null && (canArm || saved?.enabled == false) && (!weekly || weekdays != 0)
     SetupTaskContent(
         introduction = {
+            SetupIntroduction(studio.hypertext.curfew.R.drawable.ic_alarm_rounded,
+                if (setupMode) "When do you want to wake up?" else "Edit your alarm",
+                "Choose a wake time and the days your alarm should ring.")
+            Text("Wake time", style = MaterialTheme.typography.titleMedium)
             FilledTonalButton(
-                onClick = { choosingTime = true }, enabled = !busy,
+                onClick = { choosingTime = true }, enabled = !busy || !setupMode,
                 modifier = Modifier.fillMaxWidth().heightIn(min = 120.dp).curfewSharedBounds("alarm-time"),
                 shape = MaterialTheme.shapes.extraLarge,
             ) {
@@ -62,21 +71,23 @@ internal fun SunriseScheduleEditor(
             }
         },
     ) {
+        Text("Schedule", style = MaterialTheme.typography.titleMedium)
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                FilterChip(selected = !weekly, onClick = { weekly = false }, label = { Text("One night") }, enabled = !busy, modifier = Modifier.heightIn(min = 48.dp))
-                FilterChip(selected = weekly, onClick = { weekly = true }, label = { Text("Weekly") }, enabled = !busy, modifier = Modifier.heightIn(min = 48.dp))
+                FilterChip(selected = !weekly, onClick = { weekly = false }, label = { Text("Once") }, enabled = !busy || !setupMode, modifier = Modifier.heightIn(min = 48.dp))
+                FilterChip(selected = weekly, onClick = { weekly = true }, label = { Text("Repeat") }, enabled = !busy || !setupMode, modifier = Modifier.heightIn(min = 48.dp))
             }
             if (weekly) {
                 BoxWithConstraints(Modifier.fillMaxWidth()) {
-                    val daysPerRow = if (maxWidth >= 48.dp * 7 + 2.dp * 6) 7 else 4
-                    FlowRow(maxItemsInEachRow = daysPerRow, horizontalArrangement = Arrangement.spacedBy(2.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    val dayWidth = maxWidth
+                    val daysPerRow = if (maxWidth >= 72.dp * 7 + 8.dp * 6) 7 else if (maxWidth >= 72.dp * 4 + 8.dp * 3) 4 else 3
+                    FlowRow(maxItemsInEachRow = daysPerRow, horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         DayOfWeek.entries.forEach { day ->
                             val bit = 1 shl day.ordinal
                             FilterChip(
                                 selected = weekdays and bit != 0, onClick = { weekdays = weekdays xor bit },
-                                label = { Text(day.getDisplayName(TextStyle.NARROW, locale)) }, enabled = !busy,
-                                modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp).semantics {
+                                label = { Text(day.getDisplayName(TextStyle.SHORT, locale)) }, enabled = !busy || !setupMode,
+                                modifier = Modifier.width((dayWidth - 8.dp * (daysPerRow - 1)) / daysPerRow).heightIn(min = 52.dp).semantics {
                                     contentDescription = "Repeat on ${day.getDisplayName(TextStyle.FULL, locale)}"
                                 },
                             )
@@ -86,29 +97,36 @@ internal fun SunriseScheduleEditor(
                 if (weekdays == 0) TaskMessage("Choose at least one day.", error = true)
             } else {
                 OutlinedButton(
-                    onClick = { choosingDate = true }, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
+                    onClick = { choosingDate = true }, enabled = !busy || !setupMode, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
                 ) { Text(LocalDate.parse(dateText).format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL).withLocale(locale))) }
             }
         }
+        if (savedSnapshot) TaskMessage(if (unsavedChanges) "Previous changes saved. You have unsaved changes." else "Alarm saved.")
+        if (busy) LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         if (error != null) TaskMessage(error, error = true)
-        if (!setupMode && !canArm && saved?.enabled != false) {
-            TextButton(onClick = onFinishSetup, enabled = !busy) { Text("Finish setup") }
-        }
         Button(
             onClick = {
+                if (!setupMode && !canArm && saved?.enabled != false) {
+                    onFinishSetup()
+                    return@Button
+                }
                 val time = LocalTime.parse(timeText)
                 val date = if (weekly) null else LocalDate.parse(dateText)
                 val days = if (weekly) DayOfWeek.entries.filter { weekdays and (1 shl it.ordinal) != 0 }.toSet() else emptySet()
                 if (setupMode) onPrepare(AlarmSetupDraft(id, time, date, days))
-                else onSave(SunriseSchedule(id, time, date, days, saved?.enabled ?: true, requireNotNull(callbackId ?: saved?.callbackId)))
-            }, enabled = if (setupMode) !busy && (!weekly || weekdays != 0) else canSave, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
-        ) { Text(if (busy) "Saving…" else if (setupMode) "Continue" else "Save") }
+                else {
+                    val snapshot = SunriseSchedule(id, time, date, days, saved?.enabled ?: true, requireNotNull(callbackId ?: saved?.callbackId))
+                    submitted = snapshot
+                    onSave(snapshot)
+                }
+            }, enabled = if (setupMode) !busy && (!weekly || weekdays != 0) else if (!canArm && saved?.enabled != false) !busy else canSave, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
+        ) { Text(if (busy) "Saving…" else if (setupMode) "Continue" else if (!canArm && saved?.enabled != false) "Continue alarm setup" else "Save alarm") }
     }
-    if (choosingTime) AlarmTimePicker(LocalTime.parse(timeText), onCancel = { choosingTime = false }) { time ->
+    if (choosingTime) AlarmTimePicker(LocalTime.parse(timeText), onCancel = { choosingTime = false }, onDone = { time ->
         timeText = time.toString()
         if (!dateExplicitlyChosen) dateText = nextSunriseDate(time).toString()
         choosingTime = false
-    }
+    })
     if (choosingDate) AlarmDatePicker(LocalDate.parse(dateText), onCancel = { choosingDate = false }) { date ->
         dateText = date.toString()
         dateExplicitlyChosen = true

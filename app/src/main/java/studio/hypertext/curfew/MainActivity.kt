@@ -247,11 +247,6 @@ class MainActivity : ComponentActivity() {
             }
             CurfewTheme {
                 val soundCheckState = soundCheck.state.collectAsStateWithLifecycle().value
-                AlarmSoundCheckDialog(soundCheckState,
-                    onConfirm = { lifecycleScope.launch { soundCheck.confirm() } },
-                    onReplay = ::playTestSound,
-                    onCancel = ::cancelTestSound,
-                )
                 if (!initialDataReady) {
                     Surface(modifier = androidx.compose.ui.Modifier.fillMaxSize()) {
                         androidx.compose.foundation.layout.Box(contentAlignment = androidx.compose.ui.Alignment.Center) {
@@ -302,6 +297,9 @@ class MainActivity : ComponentActivity() {
                     val readiness = currentReadiness(preferenceState)
                     val conditionLabel = inputs.selected?.displayLabel
                     CurfewApp(
+                        soundCheckState = soundCheckState,
+                        onConfirmSound = { lifecycleScope.launch { soundCheck.confirm() } },
+                        onCancelSound = ::cancelTestSound,
                         readiness = readiness,
                         showWelcome = firstUse?.needsWelcome(savedAlarm != null) == true,
                         startSetup = savedAlarm == null && firstUse?.choice == FirstUseChoice.STARTED,

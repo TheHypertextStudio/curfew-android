@@ -50,11 +50,10 @@ class SetupFlowInstrumentedTest {
         required.value = setOf(ReadinessAction.GRANT_FULL_SCREEN_ACCESS)
         show()
         compose.onNodeWithText("Allow alarm screen").performScrollTo().performClick()
-        compose.onNodeWithText("Continue").performScrollTo().performClick()
         compose.onNodeWithText("Turn on alarm").performScrollTo().assertIsDisplayed()
         compose.onNodeWithContentDescription("Back").performClick()
         compose.onNodeWithText("Turn on alarm").assertDoesNotExist()
-        compose.onNodeWithText("Continue").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Once").performScrollTo().assertIsDisplayed()
         compose.runOnIdle { assertEquals(0, saves) }
     }
 
@@ -62,7 +61,7 @@ class SetupFlowInstrumentedTest {
         val restore = StateRestorationTester(compose)
         show(welcome = true, resume = false, draft = null, restoration = restore)
         compose.onNodeWithText("Get started").performClick()
-        compose.onNodeWithText("Weekly").performScrollTo().performClick()
+        compose.onNodeWithText("Repeat").performScrollTo().performClick()
         compose.onNodeWithText("Continue").performScrollTo().performClick()
         compose.onNodeWithText("Turn on alarm").performScrollTo().assertExists()
         restore.emulateSavedInstanceStateRestore()
@@ -74,22 +73,22 @@ class SetupFlowInstrumentedTest {
         show()
         compose.onNodeWithText("Turn on alarm").performScrollTo().assertIsDisplayed()
         compose.onNodeWithContentDescription("Back").performClick()
-        compose.onNodeWithText("One night").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Once").performScrollTo().assertIsDisplayed()
     }
 
-    @Test fun failedWelcomeWriteKeepsWelcomeAndAllowsRetry() {
+    @Test fun welcomeAdvancesWithoutWritingPreferences() {
         show(welcome = true, resume = false, draft = null, failChoice = true)
         compose.onNodeWithText("Get started").performClick()
-        compose.onNodeWithText("Your nights.\nYour mornings.").assertExists()
-        compose.onNodeWithText("Couldn’t save setup. Try again.").assertExists()
-        compose.onNodeWithText("Get started").performScrollTo().performClick()
-        compose.runOnIdle { assertEquals(2, choices) }
+        compose.onNodeWithText("Once").assertExists()
+        compose.onNodeWithText("Couldn’t save your wake time. Try again.").assertDoesNotExist()
+        compose.onNodeWithText("Not now").assertDoesNotExist()
+        compose.runOnIdle { assertEquals(0, choices) }
     }
 
     @Test fun checkInStartsWithPurposeAndCanDeferWithoutAnAlarm() {
         show(verified = false)
         compose.onNodeWithText("Service address").assertDoesNotExist()
-        compose.onNodeWithText("I have a service").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Connect a service").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Save for later").performScrollTo().performClick()
         compose.onNodeWithText("No alarm set").assertExists()
         compose.runOnIdle { assertEquals(0, saves) }
@@ -98,14 +97,14 @@ class SetupFlowInstrumentedTest {
     @Test fun failedDeferralKeepsDraftAndOffersAVisibleRetry() {
         show(verified = false, retryableDeferral = true)
         compose.onNodeWithText("Save for later").performScrollTo().performClick()
-        compose.onNodeWithText("Couldn’t save setup. Try again.").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Couldn’t save your wake time. Try again.").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Save for later").assertIsEnabled()
         compose.runOnIdle { assertEquals(0, saves); failDeferral = false }
         compose.onNodeWithText("Save for later").performScrollTo().performClick()
         compose.onNodeWithText("No alarm set").assertExists()
         compose.onNodeWithText("Finish setup").performScrollTo().performClick()
         compose.onNodeWithContentDescription("Back").performClick()
-        compose.onNodeWithText("One night").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Once").performScrollTo().assertIsDisplayed()
         compose.runOnIdle { assertEquals(2, choices); assertEquals(0, saves) }
     }
 
@@ -114,7 +113,7 @@ class SetupFlowInstrumentedTest {
         show(verified = false, choiceGate = gate)
         compose.onNodeWithText("Save for later").performScrollTo().performClick()
         compose.onNodeWithText("Saving…").assertIsNotEnabled()
-        compose.onNodeWithText("I have a service").assertIsNotEnabled()
+        compose.onNodeWithText("Connect a service").assertIsNotEnabled()
         compose.runOnIdle { assertEquals(1, choices); gate.complete(Unit) }
         compose.onNodeWithText("No alarm set").assertExists()
         compose.runOnIdle { assertEquals(0, saves) }
@@ -122,10 +121,10 @@ class SetupFlowInstrumentedTest {
 
     @Test fun backFromManualConnectionReturnsToItsIntroduction() {
         show(verified = false)
-        compose.onNodeWithText("I have a service").performScrollTo().performClick()
+        compose.onNodeWithText("Connect a service").performScrollTo().performClick()
         compose.onNodeWithText("Service address").assertExists()
         compose.onNodeWithContentDescription("Back").performClick()
-        compose.onNodeWithText("I have a service").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Connect a service").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Service address").assertDoesNotExist()
     }
 
@@ -157,6 +156,6 @@ class SetupFlowInstrumentedTest {
         compose.onNodeWithText("Alarm setup").performClick()
         compose.onNodeWithText("Done").performScrollTo().performClick()
         compose.onNodeWithText("Account").assertExists()
-        compose.onNodeWithText("I have a service").assertDoesNotExist()
+        compose.onNodeWithText("Connect a service").assertDoesNotExist()
     }
 }

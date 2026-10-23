@@ -53,22 +53,30 @@ class SetupCaptureInstrumentedTest {
         capture("introduction")
         compose.onNodeWithText("Save for later").performScrollTo().performClick()
         capture("defer-error")
-        val errorBounds = compose.onNodeWithText("Couldn’t save setup. Try again.").getUnclippedBoundsInRoot()
+        val errorBounds = compose.onNodeWithText("Couldn’t save your wake time. Try again.").getUnclippedBoundsInRoot()
         val retryBounds = compose.onNodeWithText("Save for later").getUnclippedBoundsInRoot()
         val viewport = compose.onRoot().getUnclippedBoundsInRoot()
         org.junit.Assert.assertTrue("The full error and retry must be visible after failure", errorBounds.top >= viewport.top && retryBounds.bottom <= viewport.bottom)
-        compose.onNodeWithText("I have a service").performScrollTo().performClick()
+        compose.onNodeWithText("Connect a service").performScrollTo().performClick()
         capture("connection")
-        if (compose.activity.resources.configuration.fontScale < 1.5f) {
-            val action = compose.onNodeWithText("Save check-in").getUnclippedBoundsInRoot()
-            val root = compose.onRoot().getUnclippedBoundsInRoot()
-            org.junit.Assert.assertTrue("The full Save action must fit before scrolling", action.bottom <= root.bottom)
-        }
+        // Short windows and visible connection details can require scrolling.
+        // The entire submit action must be reachable within the viewport.
+        compose.onNodeWithText("Save check-in").performScrollTo()
+        val action = compose.onNodeWithText("Save check-in").getUnclippedBoundsInRoot()
+        val connectionViewport = compose.onRoot().getUnclippedBoundsInRoot()
+        org.junit.Assert.assertTrue("The full Save action must be reachable", action.top >= connectionViewport.top && action.bottom <= connectionViewport.bottom)
         compose.onNodeWithText("Service address").performScrollTo().performClick().performTextInput("https://wake.example.test/check-in")
         compose.waitUntil(5_000) {
             androidx.core.view.ViewCompat.getRootWindowInsets(compose.activity.window.decorView)?.isVisible(androidx.core.view.WindowInsetsCompat.Type.ime()) == true
         }
-        Thread.sleep(300)
+        // IME visibility precedes the final scroll/resize frame on some profiles.
+        // Wait for the same whole-field invariant asserted below, rather than a fixed delay.
+        compose.waitUntil(5_000) {
+            val bounds = compose.onNode(hasSetTextAction() and hasText("Service address")).getUnclippedBoundsInRoot()
+            val insets = androidx.core.view.ViewCompat.getRootWindowInsets(compose.activity.window.decorView)
+            val bottom = insets?.getInsets(androidx.core.view.WindowInsetsCompat.Type.ime())?.bottom ?: 0
+            bottom > 0 && bounds.bottom.value <= (compose.activity.window.decorView.height - bottom) / compose.activity.resources.displayMetrics.density
+        }
         val input = compose.onNode(hasSetTextAction() and hasText("Service address")).getUnclippedBoundsInRoot()
         val back = compose.onNodeWithContentDescription("Back").getUnclippedBoundsInRoot()
         val density = compose.activity.resources.displayMetrics.density
@@ -81,18 +89,30 @@ class SetupCaptureInstrumentedTest {
         Espresso.closeSoftKeyboard()
         compose.onNodeWithText("Save check-in").performScrollTo().performClick()
         capture("transfer")
+        if (compose.activity.resources.configuration.fontScale >= 1.5f) {
+            compose.onNodeWithText("Test connection").performScrollTo()
+            capture("transfer-actions")
+        }
         compose.onNodeWithText("Save setup file").performScrollTo().performClick()
         capture("test-ready")
+        if (compose.activity.resources.configuration.fontScale >= 1.5f) {
+            compose.onNodeWithText("Test connection").performScrollTo()
+            capture("test-ready-actions")
+        }
         compose.onNodeWithText("Test connection").performScrollTo().performClick()
         capture("connected")
         compose.onNodeWithText("Continue").performScrollTo().performClick()
         capture("permissions")
         compose.onNodeWithText("Allow alarm screen").performScrollTo().performClick()
-        compose.onNodeWithText("Continue").performScrollTo().performClick()
         capture("review")
+        if (compose.activity.resources.configuration.fontScale >= 1.5f) {
+            compose.onNodeWithText("Turn on alarm").performScrollTo()
+            capture("review-actions")
+        }
         // Capture the actual shared wake-time transition with the navigation clock controlled.
+        compose.onNodeWithContentDescription("Edit wake time").performScrollTo()
         compose.mainClock.autoAdvance = false
-        compose.onNodeWithContentDescription("Edit wake time").performScrollTo().performClick()
+        compose.onNodeWithContentDescription("Edit wake time").performClick()
         for (time in listOf(16L, 96L, 240L, 800L)) {
             compose.mainClock.advanceTimeBy(if (time == 16L) 16 else if (time == 96L) 80 else if (time == 240L) 144 else 560)
             capture("motion-$time")
@@ -103,15 +123,15 @@ class SetupCaptureInstrumentedTest {
 
     private fun capture(scene: String) {
         val expected = when (scene) {
-            "time" -> "One night"
-            "introduction" -> "I have a service"
-            "defer-error" -> "Couldn’t save setup. Try again."
+            "time" -> "Once"
+            "introduction" -> "Connect a service"
+            "defer-error" -> "Couldn’t save your wake time. Try again."
             "connection", "keyboard" -> "Service address"
-            "transfer" -> "Test connection"
-            "test-ready" -> "Test connection"
+            "transfer", "transfer-actions" -> "Test connection"
+            "test-ready", "test-ready-actions" -> "Test connection"
             "connected" -> "Connected"
             "permissions" -> "Allow alarm screen"
-            "review" -> "Turn on alarm"
+            "review", "review-actions" -> "Turn on alarm"
             else -> null
         }
         if (expected != null) {

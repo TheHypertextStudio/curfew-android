@@ -36,7 +36,7 @@ class ResponsiveAlarmLayoutInstrumentedTest {
                 }
             }
         }
-        for (label in listOf("One night", "Weekly")) {
+        for (label in listOf("Once", "Repeat")) {
             val node = compose.onNodeWithText(label).performScrollTo()
             val results = mutableListOf<androidx.compose.ui.text.TextLayoutResult>()
             node.performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(results) }
@@ -48,6 +48,6 @@ class ResponsiveAlarmLayoutInstrumentedTest {
             val root = compose.onRoot().fetchSemanticsNode().boundsInRoot
             assertTrue("$label must fit inside its window: $bounds / $root", bounds.right <= root.right && bounds.left >= root.left)
         }
-        compose.onNodeWithText("Save").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Save alarm").performScrollTo().assertIsDisplayed()
     }
 }

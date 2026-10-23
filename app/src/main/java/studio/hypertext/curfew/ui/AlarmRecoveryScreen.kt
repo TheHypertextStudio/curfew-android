@@ -77,8 +77,9 @@ fun AlarmRecoveryScreen(
     onCancelHold: () -> Unit,
     onConfirm: () -> Unit,
     onSecuritySettings: () -> Unit,
+    initialReason: String = "",
 ) {
-    var reason by rememberSaveable { mutableStateOf("") }
+    var reason by rememberSaveable { mutableStateOf(initialReason) }
     val trimmed = reason.trim()
     val length = trimmed.codePointCount(0, trimmed.length)
     Scaffold(
@@ -117,7 +118,7 @@ fun AlarmRecoveryScreen(
         },
     ) { padding ->
         Column(
-            Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(24.dp),
+            Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState(LocalTaskInitialScroll.current)).padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
             if (credentialAvailable) {

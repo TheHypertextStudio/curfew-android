@@ -72,16 +72,15 @@ internal fun CheckInScreen(
     }
     when {
         state.editing -> SetupTaskContent(
-            introduction = { if (inlineHeader != null) inlineHeader() else SetupIntroduction(R.drawable.ic_link_rounded, "Connect your service", "Ask the person running your service for its Curfew connection address. A normal website address won’t work.") },
+            introduction = { if (inlineHeader != null) inlineHeader() else SetupIntroduction(R.drawable.ic_link_rounded, "Connect a check-in service", "You need a service that supports the Curfew check-in protocol. Curfew does not provide one yet. Use the HTTPS check-in endpoint from that service’s configuration.") },
         ) {
             OutlinedTextField(state.endpoint, { state.endpoint = it }, label = { Text("Service address") }, enabled = !working,
                 supportingText = if (state.endpoint.isNotBlank() && !endpointValid) { { Text("Enter an HTTPS address.") } } else null,
                 isError = state.endpoint.isNotBlank() && !endpointValid,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri, imeAction = ImeAction.Next),
                 singleLine = true, modifier = Modifier.fillMaxWidth())
-            TextButton(onClick = { state.optionalDetails = !state.optionalDetails }, enabled = !working) { Text("Optional details") }
-            if (state.optionalDetails) {
-                OutlinedTextField(state.name, { state.name = it }, label = { Text("Name") }, placeholder = { Text("Morning check-in") }, enabled = !working,
+            run {
+                OutlinedTextField(state.name, { state.name = it }, label = { Text("Name (optional)") }, placeholder = { Text("Morning check-in") }, enabled = !working,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next), singleLine = true, modifier = Modifier.fillMaxWidth())
                 OutlinedTextField(state.actionUrl, { state.actionUrl = it }, label = { Text("Check-in link (optional)") }, enabled = !working,
                     supportingText = { Text(if (!actionValid) "Enter a valid link." else "Opens your service when the alarm rings.") }, isError = !actionValid,
@@ -108,9 +107,12 @@ internal fun CheckInScreen(
         }
         connected -> SetupTaskContent(
             introduction = {
+                SetupIntroduction(R.drawable.ic_link_rounded,
+                    if (!verified) "Finish connecting your service" else if (onUseForAlarm != null) "Change your alarm’s check-in" else "Your check-in is connected",
+                    if (!verified) "Install the connection credentials, then check that your service responds." else if (onUseForAlarm != null) "Use this verified service for your alarm. The alarm’s check-in will change when you save it." else "Your service can now confirm that you’re up and stop the alarm.")
                 CheckInSummary(requireNotNull(savedLabel), verified)
                 if (!verified) {
-                    Text("Give the setup file to the person running your service. After they install it, test the connection.", style = MaterialTheme.typography.bodyLarge)
+                    Text("1. Save the setup file.\n2. Import it into your service’s Curfew integration. If someone else manages the service, ask them to install it.\n3. Return here and test the connection.", style = MaterialTheme.typography.bodyLarge)
                     Text("Keep the file private. It allows your service to stop the alarm.", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             },
@@ -133,15 +135,16 @@ internal fun CheckInScreen(
             }
         }
         else -> SetupTaskContent(
-            introduction = { SetupIntroduction(R.drawable.ic_link_rounded, "A check-in service is required", "The alarm keeps ringing until your service confirms you’re up.") },
+            introduction = { SetupIntroduction(R.drawable.ic_link_rounded, "Connect your check-in", "Curfew rings until your check-in service confirms you’re up. Connect and test a service before turning on your alarm.") },
         ) {
             Text("Curfew doesn’t include a check-in service yet.", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Button(onClick = { state.editing = true }, enabled = !working, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Connect a service") }
             if (inSetup && onDefer != null) {
                 Text("Save your wake time for later. The alarm will stay off.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 val retryRegion = remember { BringIntoViewRequester() }
                 Column(Modifier.fillMaxWidth().bringIntoViewRequester(retryRegion), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                     if (deferError != null) TaskMessage(deferError, error = true)
-                    Button(onClick = onDefer, enabled = !working, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text(if (deferBusy) "Saving…" else "Save for later") }
+                    OutlinedButton(onClick = onDefer, enabled = !working, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text(if (deferBusy) "Saving…" else "Save for later") }
                 }
                 LaunchedEffect(deferError) {
                     if (deferError != null) {
@@ -150,7 +153,6 @@ internal fun CheckInScreen(
                     }
                 }
             }
-            OutlinedButton(onClick = { state.editing = true }, enabled = !working, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)) { Text("I have a service") }
         }
     }
 }

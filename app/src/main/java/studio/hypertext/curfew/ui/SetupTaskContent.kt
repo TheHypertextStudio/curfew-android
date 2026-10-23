@@ -20,6 +20,9 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 
+// Initial viewport can be restored by a host or supplied by screenshot fixtures.
+internal val LocalTaskInitialScroll = staticCompositionLocalOf { 0 }
+
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 internal fun SetupTaskContent(posture: Posture? = null, introduction: @Composable () -> Unit, content: @Composable ColumnScope.() -> Unit) {
@@ -29,17 +32,17 @@ internal fun SetupTaskContent(posture: Posture? = null, introduction: @Composabl
     var origin by remember { mutableStateOf(Offset.Zero) }
     BoxWithConstraints(Modifier.fillMaxSize().imePadding().onGloballyPositioned { origin = it.positionInWindow() }) {
         val gutter = if (maxWidth < 360.dp) 16.dp else 24.dp
-        val paired = maxWidth / density.fontScale.coerceAtLeast(1f) >= 640.dp ||
+        val paired = (maxWidth / density.fontScale.coerceAtLeast(1f) >= 1000.dp && maxWidth > maxHeight) ||
             actualPosture.hingeList.any { it.isVertical && (it.isSeparating || it.isOccluding) }
         @Composable fun Purpose(modifier: Modifier) {
-            Box(modifier.testTag("setup-purpose"), contentAlignment = Alignment.Center) {
-                Column(Modifier.widthIn(max = 480.dp).fillMaxWidth().padding(horizontal = gutter, vertical = 24.dp),
+            Box(modifier.testTag("setup-purpose"), contentAlignment = Alignment.TopCenter) {
+                Column(Modifier.widthIn(max = if (paired) 560.dp else 720.dp).fillMaxWidth().padding(horizontal = gutter, vertical = 24.dp),
                     verticalArrangement = Arrangement.spacedBy(20.dp)) { introduction() }
             }
         }
         @Composable fun Work(modifier: Modifier) {
-            Box(modifier.testTag("setup-work"), contentAlignment = Alignment.Center) {
-                Column(Modifier.widthIn(max = 480.dp).fillMaxWidth().padding(horizontal = gutter, vertical = 16.dp),
+            Box(modifier.testTag("setup-work"), contentAlignment = Alignment.TopCenter) {
+                Column(Modifier.widthIn(max = if (paired) 560.dp else 720.dp).fillMaxWidth().padding(horizontal = gutter, vertical = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp), content = content)
             }
         }
@@ -51,9 +54,9 @@ internal fun SetupTaskContent(posture: Posture? = null, introduction: @Composabl
             val topHeight = with(density) { above.toDp() }
             val bottomHeight = with(density) { (height - below).toDp() }
             Column(Modifier.fillMaxSize()) {
-                Purpose(Modifier.fillMaxWidth().height(topHeight).verticalScroll(rememberScrollState()).heightIn(min = topHeight))
+                Purpose(Modifier.fillMaxWidth().height(topHeight).verticalScroll(rememberScrollState(LocalTaskInitialScroll.current)).heightIn(min = topHeight))
                 Spacer(Modifier.height(with(density) { (below - above).toDp() }))
-                Work(Modifier.fillMaxWidth().height(bottomHeight).verticalScroll(rememberScrollState()).heightIn(min = bottomHeight))
+                Work(Modifier.fillMaxWidth().height(bottomHeight).verticalScroll(rememberScrollState(LocalTaskInitialScroll.current)).heightIn(min = bottomHeight))
             }
         } else if (paired) {
             SupportingPaneScaffold(
@@ -61,21 +64,21 @@ internal fun SetupTaskContent(posture: Posture? = null, introduction: @Composabl
                     maxHorizontalPartitions = 2, defaultPanePreferredWidth = maxWidth / 2,
                 ),
                 value = ThreePaneScaffoldValue(PaneAdaptedValue.Expanded, PaneAdaptedValue.Expanded, PaneAdaptedValue.Hidden),
-                mainPane = { AnimatedPane { Purpose(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).heightIn(min = maxHeight)) } },
-                supportingPane = { AnimatedPane { Work(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).heightIn(min = maxHeight)) } },
+                mainPane = { AnimatedPane { Purpose(Modifier.fillMaxSize().verticalScroll(rememberScrollState(LocalTaskInitialScroll.current)).heightIn(min = maxHeight)) } },
+                supportingPane = { AnimatedPane { Work(Modifier.fillMaxSize().verticalScroll(rememberScrollState(LocalTaskInitialScroll.current)).heightIn(min = maxHeight)) } },
                 modifier = Modifier.fillMaxSize(),
             )
         } else {
             val viewport = maxHeight
             Layout(
                 content = { Purpose(Modifier.fillMaxWidth()); Work(Modifier.fillMaxWidth()) },
-                modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()),
+                modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState(LocalTaskInitialScroll.current)),
             ) { children, constraints ->
                 val work = children[1].measure(constraints.copy(minHeight = 0))
                 val purpose = children[0].measure(constraints.copy(minHeight = 0))
                 val contentHeight = purpose.height + work.height
                 val height = maxOf(viewport.roundToPx(), contentHeight)
-                val top = (height - contentHeight) / 2
+                val top = 0
                 layout(constraints.maxWidth, height) {
                     purpose.placeRelative(0, top)
                     work.placeRelative(0, top + purpose.height)

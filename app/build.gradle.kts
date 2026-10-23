@@ -5,6 +5,7 @@ import com.github.jk1.license.filter.DependencyFilter
 import groovy.json.JsonSlurper
 
 plugins {
+    id("com.android.compose.screenshot")
     id("com.android.application")
     id("org.jetbrains.kotlin.plugin.compose")
     id("com.google.devtools.ksp")
@@ -15,6 +16,7 @@ plugins {
 group = "studio.hypertext.curfew"
 
 android {
+    experimentalProperties["android.experimental.enableScreenshotTest"] = true
     namespace = "studio.hypertext.curfew"
     compileSdk { version = release(37) }
 
@@ -95,6 +97,8 @@ android {
 }
 
 dependencies {
+    "screenshotTestImplementation"("com.android.tools.screenshot:screenshot-validation-api:0.0.1-alpha16")
+    "screenshotTestImplementation"(libs.androidx.compose.ui.tooling)
     constraints {
         add("gmsImplementation", libs.androidx.fragment.get()) {
             because("Firebase's legacy Fragment dependency cannot dispatch activity-result callbacks safely")
@@ -259,4 +263,36 @@ tasks.register("writeBuildProvenance") {
             )
         }
     }
+}
+
+// Catalog captures are disposable build outputs, never approved regression references.
+// Pin the official plugin above: this task API is part of its alpha integration.
+if (providers.gradleProperty("curfewScreenshotCatalog").orNull == "true") {
+    // The plugin configures its engine input from Android's onVariants callback.
+    // Append our override after that callback so its default cannot replace it.
+    afterEvaluate {
+        tasks.withType<com.android.compose.screenshot.tasks.PreviewScreenshotUpdateTask>().configureEach {
+            val batch = providers.gradleProperty("curfewScreenshotCatalogBatch").orNull
+            require(batch == null || batch.matches(Regex("[0-9]{4}"))) { "Invalid screenshot batch identifier" }
+            val directory = if (batch == null) "screenshot-catalog/raw" else "screenshot-catalog/raw/batch-$batch"
+            testEngineInput.referenceImageDir.set(layout.buildDirectory.dir(directory))
+        }
+    }
+}
+
+val generateScreenshotCatalogPreviews by tasks.registering(Exec::class) {
+    group = "verification"
+    description = "Generate official Compose preview tests from the screenshot catalog matrix."
+    workingDir(rootProject.projectDir)
+    commandLine("python3", "scripts/screenshot_catalog.py", "--generate-only")
+    inputs.files(
+        rootProject.file("config/screenshots/matrix.json"),
+        rootProject.file("config/screenshots/coverage.json"),
+        rootProject.file("scripts/screenshot_catalog.py"),
+    )
+    outputs.file("src/screenshotTest/kotlin/studio/hypertext/curfew/screenshots/CatalogPreviews.kt")
+}
+
+tasks.matching { it.name.matches(Regex("(compile|ksp).*ScreenshotTestKotlin")) }.configureEach {
+    dependsOn(generateScreenshotCatalogPreviews)
 }

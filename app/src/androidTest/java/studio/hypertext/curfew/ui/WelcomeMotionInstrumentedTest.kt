@@ -28,7 +28,7 @@ class WelcomeMotionInstrumentedTest {
         var setups = 0
         compose.setContent {
             CurfewTheme { Surface(Modifier.fillMaxSize()) {
-                CurfewWelcomeScreen({ setups++ }, {}, motionEnabled = true)
+                CurfewWelcomeScreen({ setups++ }, motionEnabled = true)
             } }
         }
         val start = compose.onNodeWithText("Your nights.\nYour mornings.").fetchSemanticsNode().boundsInRoot.top
@@ -48,7 +48,7 @@ class WelcomeMotionInstrumentedTest {
         compose.mainClock.autoAdvance = false
         compose.setContent {
             CurfewTheme { Surface(Modifier.fillMaxSize()) {
-                CurfewWelcomeScreen({}, {}, motionEnabled = false)
+                CurfewWelcomeScreen({}, motionEnabled = false)
             } }
         }
         val start = compose.onNodeWithText("Your nights.\nYour mornings.").fetchSemanticsNode().boundsInRoot

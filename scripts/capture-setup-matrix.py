@@ -34,6 +34,8 @@ def main():
     parser.add_argument('--serial', required=True)
     parser.add_argument('--expected-avd', required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--refresh-profile', action='append', default=[], help='Recapture both themes of this profile during resume')
+    parser.add_argument('--resume', action='store_true', help='Reuse verified completed profiles for the same installed APK')
     args = parser.parse_args()
     if not args.expected_avd.startswith('curfew-onboarding-'):
         raise RuntimeError('Only a task-owned Curfew onboarding AVD is permitted.')
@@ -60,9 +62,36 @@ def main():
     files = []
     path = adb('shell', 'pm', 'path', 'studio.hypertext.curfew').decode().splitlines()[0].removeprefix('package:').strip()
     digest = adb('shell', 'sha256sum', path).decode().split()[0]
+    coverage_digest = welcome.capture_fingerprint(digest)
+    test_path = adb('shell', 'pm', 'path', 'studio.hypertext.curfew.test').decode().splitlines()[0].removeprefix('package:').strip()
+    test_digest = adb('shell', 'sha256sum', test_path).decode().split()[0]
+    if not set(args.refresh_profile) <= {row[0] for row in welcome.PROFILES}:
+        raise RuntimeError('Unknown refresh profile.')
+    if args.refresh_profile and not args.resume:
+        raise RuntimeError('Refreshing a profile requires --resume.')
+    if args.resume:
+        previous = json.loads((args.output / 'manifest.json').read_text())
+        if previous.get('coverageContractSha256') != coverage_digest or previous.get('installedApkSha256') != digest or previous.get('avd') != args.expected_avd or not previous.get('restored'):
+            raise RuntimeError('Resume requires the same installed APK and owned AVD after successful restoration.')
+        expected = {key+'-'+theme for key, *_ in welcome.PROFILES for theme in ('light','dark')}
+        records = [r for r in previous['captures'] if not any(r['name'] == key+'-'+theme for key in args.refresh_profile for theme in ('light','dark'))]
+        if len({r['name'] for r in records}) != len(records) or not {r['name'] for r in records} <= expected:
+            raise RuntimeError('Resume profile inventory is invalid.')
+        for record in records:
+            for scene in SCENES:
+                file = record['name']+'-'+scene+'.png'
+                validate_png_size((args.output/file).read_bytes(), *record['pixels'])
+                files.append(file)
+        for log in args.output.glob('*.txt'):
+            if 'FAILURES!!!' in log.read_text():
+                archive = log.with_suffix('.failed-attempt.txt')
+                if not archive.exists(): archive.write_bytes(log.read_bytes())
+    completed = {record['name'] for record in records}
     try:
         for key, label, width, height, density, scale in welcome.PROFILES:
             for theme in ('light', 'dark'):
+                if key+'-'+theme in completed:
+                    continue
                 guard()
                 adb('shell', 'am', 'force-stop', 'studio.hypertext.curfew')
                 adb('shell', 'wm', 'size', f'{width}x{height}')
@@ -72,7 +101,7 @@ def main():
                 display_size = adb('shell', 'wm', 'size').decode()
                 validate_display_size(display_size, width, height)
                 name = key + '-' + theme
-                scenes = SCENES + (('motion-16', 'motion-96', 'motion-240', 'motion-800') if name == 'phone-portrait-light' else ())
+                scenes = SCENES + (('transfer-actions', 'test-ready-actions', 'review-actions') if scale >= 1.5 else ()) + (('motion-16', 'motion-96', 'motion-240', 'motion-800') if name == 'phone-portrait-light' else ())
                 for scene in scenes:
                     adb('shell', 'run-as', 'studio.hypertext.curfew', 'rm', '-f', f'cache/setup-{scene}.png')
                 result = adb('shell', 'am', 'instrument', '-w', '-e', 'class',
@@ -87,7 +116,7 @@ def main():
                     file = name + '-' + scene + '.png'
                     (args.output / file).write_bytes(pixels)
                     files.append(file)
-                records.append(dict(name=name, label=label, theme=theme, pixels=[width, height], dp=[width * 160 / density, height * 160 / density], fontScale=scale, observedDisplaySize=display_size, pngDimensionsVerified=True))
+                records.append(dict(name=name, label=label, theme=theme, pixels=[width, height], dp=[width * 160 / density, height * 160 / density], fontScale=scale, observedDisplaySize=display_size, pngDimensionsVerified=True, instrumentationApkSha256=test_digest))
                 (args.output / 'progress.json').write_text(json.dumps(records, indent=2) + '\n')
                 print(name + ' passed', flush=True)
     finally:
@@ -109,7 +138,7 @@ def main():
             time.sleep(.25)
         (args.output / 'manifest.json').write_text(json.dumps(dict(
             avd=args.expected_avd, apiLevel=int(adb('shell', 'getprop', 'ro.build.version.sdk')),
-            installedApkSha256=digest, physicalDevice=False, postureSimulation=False,
+            installedApkSha256=digest, coverageContractSha256=coverage_digest, physicalDevice=False, postureSimulation=False,
             captures=records, files=files, restored=restored, originalSettings=original, restoredSettings=after,
         ), indent=2) + '\n')
         if not restored:

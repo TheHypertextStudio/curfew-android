@@ -35,16 +35,16 @@ import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun AlarmTimePicker(initial: LocalTime, onCancel: () -> Unit, onDone: (LocalTime) -> Unit) {
+internal fun AlarmTimePicker(initial: LocalTime, onCancel: () -> Unit, onDone: (LocalTime) -> Unit, initialInputMode: Boolean = false, initialHourText: String? = null, initialMinuteText: String? = null) {
     val context = LocalContext.current
     val locale = LocalConfiguration.current.locales[0]
     val use24Hour = DateFormat.is24HourFormat(context)
     val state = rememberTimePickerState(initial.hour, initial.minute, use24Hour)
-    var inputMode by rememberSaveable { mutableStateOf(false) }
+    var inputMode by rememberSaveable { mutableStateOf(initialInputMode) }
     var hourText by rememberSaveable(state.hour) {
-        mutableStateOf((if (use24Hour) state.hour else (state.hour % 12).takeIf { it != 0 } ?: 12).toString())
+        mutableStateOf(initialHourText ?: (if (use24Hour) state.hour else (state.hour % 12).takeIf { it != 0 } ?: 12).toString())
     }
-    var minuteText by rememberSaveable(state.minute) { mutableStateOf(state.minute.toString().padStart(2, '0')) }
+    var minuteText by rememberSaveable(state.minute) { mutableStateOf(initialMinuteText ?: state.minute.toString().padStart(2, '0')) }
     var afternoon by rememberSaveable(state.hour) { mutableStateOf(state.hour >= 12) }
     AlarmPickerSurface("Wake time", onCancel) { compact ->
         val showInput = compact || inputMode

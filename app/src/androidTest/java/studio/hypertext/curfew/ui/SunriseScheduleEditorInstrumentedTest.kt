@@ -63,14 +63,17 @@ class SunriseScheduleEditorInstrumentedTest {
 
     @Test
     fun savingRequiresAConfiguredReleaseCondition() {
+        var saves = 0
+        var setup = 0
         compose.setContent {
             EditorFixture {
-                SunriseScheduleEditor(null, null, false, false, null, {}, {})
+                SunriseScheduleEditor(null, null, false, false, null, { saves++ }, { setup++ })
             }
         }
 
-        compose.onNodeWithText("Save").assertIsNotEnabled()
-        compose.onNodeWithText("Finish setup").assertIsDisplayed()
+        compose.onNodeWithText("Save alarm").assertDoesNotExist()
+        compose.onNodeWithText("Continue alarm setup").performScrollTo().assertIsEnabled().performClick()
+        compose.runOnIdle { assertEquals(0, saves); assertEquals(1, setup) }
     }
 
     @Test
@@ -82,7 +85,7 @@ class SunriseScheduleEditorInstrumentedTest {
             }
         }
 
-        compose.onNodeWithText("Save").assertIsEnabled().performClick()
+        compose.onNodeWithText("Save alarm").performScrollTo().assertIsEnabled().performClick()
         compose.runOnIdle { assertEquals(schedule, saved) }
     }
 
@@ -96,7 +99,7 @@ class SunriseScheduleEditorInstrumentedTest {
             .performScrollTo().performClick()
         compose.onNodeWithText("Done").assertIsDisplayed()
         compose.onNodeWithText("Cancel").assertIsDisplayed().performClick()
-        compose.onNodeWithText("Save").assertIsDisplayed()
+        compose.onNodeWithText("Save alarm").performScrollTo().assertIsDisplayed()
     }
 
     @Test
@@ -110,7 +113,7 @@ class SunriseScheduleEditorInstrumentedTest {
             .performScrollTo().performClick()
         compose.onNodeWithText("Done").assertIsDisplayed()
         compose.onNodeWithText("Cancel").assertIsDisplayed().performClick()
-        compose.onNodeWithText("Save").assertIsDisplayed()
+        compose.onNodeWithText("Save alarm").performScrollTo().assertIsDisplayed()
     }
 
     @Test
@@ -143,7 +146,7 @@ class SunriseScheduleEditorInstrumentedTest {
                 }
             }
         }
-        compose.onNodeWithText("Save").performScrollTo().performClick()
+        compose.onNodeWithText("Save alarm").performScrollTo().performClick()
         compose.runOnIdle {
             assertEquals(LocalTime.of(8, 15), saved?.wakeTime)
             assertEquals("Changing time must preserve the chosen one-night date", chosenDate, saved?.onceDate)
@@ -162,7 +165,7 @@ class SunriseScheduleEditorInstrumentedTest {
         }
         timeControl(LocalTime.of(7, 0)).performScrollTo().performClick()
         confirmTime(0, 0)
-        compose.onNodeWithText("Save").performScrollTo().performClick()
+        compose.onNodeWithText("Save alarm").performScrollTo().performClick()
         compose.runOnIdle {
             assertEquals(LocalTime.MIDNIGHT, saved?.wakeTime)
             assertEquals(LocalDate.now(ZoneId.systemDefault()).plusDays(1), saved?.onceDate)
@@ -247,7 +250,7 @@ class SunriseScheduleEditorInstrumentedTest {
         timeControl(schedule.wakeTime).performScrollTo().performClick()
         confirmTime(8, 15)
         compose.runOnIdle { assertEquals(null, saved) }
-        compose.onNodeWithText("Save").performScrollTo().performClick()
+        compose.onNodeWithText("Save alarm").performScrollTo().performClick()
         compose.runOnIdle { assertEquals(schedule.copy(wakeTime = LocalTime.of(8, 15)), saved) }
     }
 
@@ -258,7 +261,7 @@ class SunriseScheduleEditorInstrumentedTest {
         timeControl(schedule.wakeTime).performScrollTo().performClick()
         enterTime(8, 15)
         compose.onNodeWithText("Cancel").performClick()
-        compose.onNodeWithText("Save").performScrollTo().performClick()
+        compose.onNodeWithText("Save alarm").performScrollTo().performClick()
         compose.runOnIdle { assertEquals(schedule, saved) }
     }
 
@@ -327,7 +330,7 @@ class SunriseScheduleEditorInstrumentedTest {
             .withLocale(context.resources.configuration.locales[0]))).performScrollTo().performClick()
         enterDate(LocalDate.of(2026, 11, 2))
         compose.onNodeWithText("Cancel").performClick()
-        compose.onNodeWithText("Save").performScrollTo().performClick()
+        compose.onNodeWithText("Save alarm").performScrollTo().performClick()
         compose.runOnIdle { assertEquals(schedule, saved) }
     }
 
@@ -340,8 +343,8 @@ class SunriseScheduleEditorInstrumentedTest {
             }
         }
 
-        compose.onNodeWithText("Weekly").performClick()
-        compose.onNodeWithText("Save").performClick()
+        compose.onNodeWithText("Repeat").performClick()
+        compose.onNodeWithText("Save alarm").performScrollTo().performClick()
 
         compose.runOnIdle {
             assertEquals(null, saved?.onceDate)

@@ -36,11 +36,10 @@ class CurfewOnboardingInstrumentedTest {
         compose.onNodeWithText("Reset").assertDoesNotExist()
     }
 
-    @Test fun welcomeOffersExplicitSetupAndDeferralWithoutAnAlarmAction() {
+    @Test fun welcomeHasOneActionAndNoPersistenceOrDeferralState() {
         var continued = 0
-        var deferred = 0
         compose.setContent {
-            CaptureTheme { CurfewWelcomeScreen(onContinue = { continued++ }, onNotNow = { deferred++ }) }
+            CaptureTheme { CurfewWelcomeScreen(onContinue = { continued++ }) }
         }
         compose.onNodeWithText("Your nights.\nYour mornings.").assertIsDisplayed()
         val wordmark = compose.onNodeWithText("Curfew").fetchSemanticsNode().boundsInRoot
@@ -49,8 +48,9 @@ class CurfewOnboardingInstrumentedTest {
         assertTrue("Welcome branding belongs to the centered introduction", kotlin.math.abs(wordmark.center.x - introduction.center.x) < viewport.width * .08f)
         capture("welcome")
         compose.onNodeWithText("Get started").performScrollTo().performClick()
-        compose.onNodeWithText("Not now").performScrollTo().performClick()
-        compose.runOnIdle { assertEquals(1, continued); assertEquals(1, deferred) }
+        compose.onNodeWithText("Not now").assertDoesNotExist()
+        compose.onNodeWithText("Couldn’t save setup. Try again.").assertDoesNotExist()
+        compose.runOnIdle { assertEquals(1, continued) }
         compose.onNodeWithText("Turn on alarm").assertDoesNotExist()
         compose.onNodeWithText("Sign in").assertDoesNotExist()
     }
@@ -84,7 +84,7 @@ class CurfewOnboardingInstrumentedTest {
         }
         compose.onNodeWithText("On your lock screen").assertIsDisplayed()
         compose.onNodeWithText("Allow Curfew to appear over your lock screen.").assertIsDisplayed()
-        compose.onNodeWithText("Test alarm sound").assertDoesNotExist()
+        compose.onNodeWithText("Play alarm preview").assertDoesNotExist()
         compose.onNodeWithText("Exact alarms").assertDoesNotExist()
         compose.onNodeWithText("Notifications").assertDoesNotExist()
         capture("full-screen-access")
@@ -107,11 +107,11 @@ class CurfewOnboardingInstrumentedTest {
             }
         }
         compose.onNodeWithText("Allow alarm screen").performScrollTo().performClick()
-        compose.onNodeWithText("Check the sound").assertIsDisplayed()
+        compose.onNodeWithText("Try your alarm").assertIsDisplayed()
         capture("sound")
-        compose.onNodeWithText("Test alarm sound").performScrollTo().performClick()
+        compose.onNodeWithText("Play alarm preview").performScrollTo().performClick()
         compose.runOnIdle { assertEquals(1, sounds) }
-        compose.onNodeWithText("Check the sound").assertIsDisplayed()
+        compose.onNodeWithText("Try your alarm").assertIsDisplayed()
         compose.onNodeWithText("Ready").assertDoesNotExist()
     }
     @androidx.compose.runtime.Composable
