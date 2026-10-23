@@ -32,6 +32,15 @@ class CallbackSelectionPreferences(private val dataStore: DataStore<Preferences>
         return accepted
     }
 
+    suspend fun clearIfSelected(callbackId: String) {
+        dataStore.edit {
+            if (it[SELECTED_CALLBACK] == callbackId) {
+                it.remove(SELECTED_CALLBACK)
+                it.remove(VERIFIED_CALLBACK)
+            }
+        }
+    }
+
     companion object {
         private val SELECTED_CALLBACK = stringPreferencesKey("selected_callback")
         private val VERIFIED_CALLBACK = stringPreferencesKey("verified_callback")

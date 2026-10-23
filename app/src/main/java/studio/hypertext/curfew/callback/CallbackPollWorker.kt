@@ -42,6 +42,9 @@ class CallbackPollWorker(
                 .fold(onSuccess = { Result.success() }, onFailure = { Result.retry() })
         }
         val callbackId = runtime.callbackId(campaignId) ?: return Result.success()
+        if (studio.hypertext.curfew.checkin.PlaceCheckInRepository(applicationContext).find(callbackId) != null) {
+            return Result.success() // Local camera approval never polls an HTTPS service.
+        }
         val definition = CallbackConfigurationRepository(applicationContext).find(callbackId)
             ?: return Result.failure()
         val acceptance = runCatching {

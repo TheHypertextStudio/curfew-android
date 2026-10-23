@@ -8,8 +8,14 @@ import java.util.UUID
 import studio.hypertext.curfew.alarm.AlarmCampaignEngine
 import studio.hypertext.curfew.alarm.AlarmCampaignState
 
-data class PlaceEnrollment(val id: String, val label: String, val digest: String)
-data class PlaceDraft(val enrollment: PlaceEnrollment, val payload: String)
+data class PlaceEnrollment(val id: String, val label: String, val digest: String) {
+    init {
+        require(UUID.fromString(id).toString() == id) { "Code identity is damaged." }
+        require(label == label.trim() && label.length in 1..60) { "Code name is damaged." }
+        require(Regex("[A-Za-z0-9_-]{43}").matches(digest)) { "Code verification is damaged." }
+    }
+}
+data class PlaceDraft(val enrollment: PlaceEnrollment, val payload: String, val exported: Boolean = false)
 
 /** Local printed-code format. Never a Sync credential, URL, or account key. */
 object PlaceCheckIn {

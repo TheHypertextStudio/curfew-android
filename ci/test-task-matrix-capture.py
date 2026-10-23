@@ -39,5 +39,15 @@ class TaskMatrixCaptureTest(unittest.TestCase):
             self.assertEqual(['cover-light-' + scene + '.png' for scene in ('daily', 'editor', 'settings', 'account', 'check-in', 'readiness')], files)
             self.assertTrue(all((output / name).is_file() for name in files))
 
+    def test_place_capture_includes_every_consumer_state(self):
+        def adb(*parts):
+            if parts[:3] == ('shell', 'am', 'instrument'): return b'OK (1 test)\n'
+            return b'\x89PNG\r\n\x1a\nimage'
+        with tempfile.TemporaryDirectory() as directory:
+            files = matrix.capture_place_windows(adb, 'phone-light', Path(directory))
+            self.assertEqual(5, len(files))
+            self.assertTrue(any('place-camera-denied' in name for name in files))
+
+
 
 if __name__ == '__main__': unittest.main()

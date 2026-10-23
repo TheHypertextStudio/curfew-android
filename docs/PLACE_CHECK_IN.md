@@ -42,12 +42,39 @@ from another device.
 ## Implementation and acceptance
 
 - [x] Generated-code enrollment and occurrence-bound approval domain tests.
-- [ ] Encrypted persistence, revocation, replacement and crash recovery.
-- [ ] Offline camera scanner, permission failure and camera lifecycle.
-- [ ] Printable export, complete enrollment and advanced integration navigation.
+- [x] Encrypted draft/digest persistence, explicit revocation and replacement source.
+- [ ] Isolated native persistence/revocation and terminal-write recovery acceptance.
+- [x] Offline QR codec, camera permission handling and lifecycle-owned scanner source.
+- [ ] Actual scanner delivery and permission/lifecycle acceptance.
+- [x] PNG export, native print adapter, enrollment and advanced integration navigation source.
+- [ ] Actual native enrollment/export and advanced navigation acceptance.
 - [ ] Actual active/quiet release, cancellation, duplicate and lost-code recovery.
 - [ ] Responsive rendered workflow and isolated native accessibility checks.
 
 Production activation and public installer publication remain held. Explicit
 Pixel Doze testing is owner-waived, not passed. Physical UX, TalkBack, signing,
 P1b device networking and bedtime are separate acceptance work.
+
+## Verification and rollback
+
+Host regression tests cover matching and mismatched codes, malformed or damaged
+enrollments, scheduled/terminal rejection, occurrence identity, quiet release,
+QR image decoding, stale selection removal, and revocation ordering. Revocation
+shares the alarm controller lock: it disables a matching future schedule before
+removing the credential, preserves an active gate, and does not touch another
+condition. CameraX and ZXing Core work in both Plain and GMS distributions; no
+Google Play Services scanner or remote decoder is required.
+
+The native repository fixtures exercise the real encrypted store and Room
+transaction without starting alarm audio or arming a live occurrence. The
+existing isolated API matrix also exercises ordinary first-use navigation.
+The responsive capture driver adds intro, generated code, ready, error and
+camera-denied scenes to every existing emulated window/theme profile. Those
+fixtures are presentation evidence, not physical camera or TalkBack acceptance.
+
+An unavailable or damaged code fails closed and offers removal and fresh setup.
+If completing the next alarm fails after the current terminal write, the app
+reports that tomorrow needs attention and schedules the existing repair path.
+Rollback requires turning off schedules bound to a local code before returning
+to an older app; older builds cannot verify this new local condition. No remote
+schema, server deployment, production activation or installer release is needed.

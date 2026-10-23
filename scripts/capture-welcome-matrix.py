@@ -87,6 +87,29 @@ def capture_task_windows(adb, name, output):
     return files
 
 
+PLACE_SCENES = ('place-intro', 'place-code', 'place-ready', 'place-error', 'place-camera-denied')
+
+
+def capture_place_windows(adb, name, output):
+    for scene in PLACE_SCENES:
+        adb('shell', 'run-as', 'studio.hypertext.curfew', 'rm', '-f', f'cache/responsive-{scene}.png')
+    result = adb('shell', 'am', 'instrument', '-w', '-e', 'class',
+        'studio.hypertext.curfew.ui.PlaceCheckInCaptureInstrumentedTest#capturePlaces',
+        'studio.hypertext.curfew.test/androidx.test.runner.AndroidJUnitRunner')
+    (output / (name + '-place.txt')).write_bytes(result)
+    if not re.search(rb'^OK \(1 tests?\)$', result, re.MULTILINE):
+        raise RuntimeError(name + ': place check-in capture failed')
+    files = []
+    for scene in PLACE_SCENES:
+        pixels = adb('exec-out', 'run-as', 'studio.hypertext.curfew', 'cat', f'cache/responsive-{scene}.png')
+        if not pixels.startswith(b'\x89PNG\r\n\x1a\n'):
+            raise RuntimeError(name + ': missing native PNG for ' + scene)
+        filename = name + '-' + scene + '.png'
+        (output / filename).write_bytes(pixels)
+        files.append(filename)
+    return files
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--adb', default='adb')
@@ -172,6 +195,7 @@ def main():
                 (args.output / 'progress.json').write_text(json.dumps(records, indent=2) + '\n')
                 if args.include_task_fixtures:
                     task_files += capture_task_windows(adb, name, args.output)
+                    task_files += capture_place_windows(adb, name, args.output)
                 print(name + ' passed', flush=True)
     finally:
         adb('shell', 'am', 'force-stop', 'studio.hypertext.curfew')
@@ -196,7 +220,7 @@ def main():
                     f'<a href="{r["name"]}.png"><img src="{r["name"]}.png" alt="{html.escape(r["label"])}"></a></figure>'
                     for r in records)
     task_link = '<p><a href="tasks.html">Task screenshot matrix</a></p>' if task_files else ''
-    scene_titles = {'daily': 'Alarm', 'editor': 'Wake time', 'settings': 'Settings', 'account': 'Account', 'check-in': 'Check-in', 'readiness': 'Alarm setup'}
+    scene_titles = {'daily': 'Alarm', 'editor': 'Wake time', 'settings': 'Settings', 'account': 'Account', 'check-in': 'Check-in', 'readiness': 'Alarm setup', 'place-intro': 'Choose a place', 'place-code': 'Save and scan a code', 'place-ready': 'Ready to check in', 'place-error': 'Code save recovery', 'place-camera-denied': 'Camera access'}
     if task_files:
         task_cards = ''.join(
             '<section id="' + scene + '"><h2>' + html.escape(scene_titles[scene]) + '</h2><main>' +
@@ -205,7 +229,7 @@ def main():
                 '<a href="' + r['name'] + '-' + scene + '.png"><img loading="lazy" src="' +
                 r['name'] + '-' + scene + '.png" alt="' + html.escape(r['label'] + ' ' + scene) + '"></a></figure>'
                 for r in records) + '</main></section>'
-            for scene in ('daily', 'editor', 'settings', 'account', 'check-in', 'readiness'))
+            for scene in ('daily', 'editor', 'settings', 'account', 'check-in', 'readiness') + PLACE_SCENES)
         (args.output / 'tasks.html').write_text('<!doctype html><meta charset="utf-8"><title>Curfew task review</title>'
             '<style>body{margin:32px;background:#eee9e1;color:#29221f;font:16px system-ui}'
             'main{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}'

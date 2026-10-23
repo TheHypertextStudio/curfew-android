@@ -71,6 +71,8 @@ fun CurfewApp(
     onExportCondition: () -> Unit = {},
     onVerifyCondition: () -> Unit = {},
     conditionSetupFileSaved: Boolean = false,
+    placeCodeSelected: Boolean = false,
+    placeCheckInContent: (@Composable (() -> Unit, () -> Unit, (() -> Unit)?) -> Unit)? = null,
 ) {
     val onGrantExactAlarmState = rememberUpdatedState(onGrantExactAlarm)
     val onGrantNotificationsState = rememberUpdatedState(onGrantNotifications)
@@ -90,6 +92,8 @@ fun CurfewApp(
     val onVerifyConditionState = rememberUpdatedState(onVerifyCondition)
     val onWelcomeChoiceState = rememberUpdatedState(onWelcomeChoice)
     val onPrepareDraftState = rememberUpdatedState(onPrepareDraft)
+    val placeCodeSelectedState = rememberUpdatedState(placeCodeSelected)
+    val placeCheckInContentState = rememberUpdatedState(placeCheckInContent)
     val setupFileSavedState = rememberUpdatedState(conditionSetupFileSaved)
     val readinessState = rememberUpdatedState(readiness)
     val callbackState = rememberUpdatedState(callbackId)
@@ -136,6 +140,10 @@ fun CurfewApp(
         if (preparing || saving || busyState.value) return
         if (backStack.last() == "check-in" && checkInState.editing) {
             checkInState.editing = false
+            return
+        }
+        if (backStack.last() == "check-in" && checkInState.advanced && placeCheckInContentState.value != null) {
+            checkInState.advanced = false; checkInState.preferCode = true
             return
         }
         if (backStack.size > 1) backStack.removeLastOrNull()
@@ -342,6 +350,8 @@ fun CurfewApp(
                                             onDefer = { chooseWelcome(false) },
                                             deferBusy = preparing, deferError = choiceError,
                                             setupFileSaved = setupFileSavedState.value,
+                                            placeCodeSelected = placeCodeSelectedState.value,
+                                            consumerContent = placeCheckInContentState.value,
                                             onUseForAlarm = if (sunriseAlarm != null && sunriseAlarm?.schedule?.callbackId != callbackId && conditionVerified) ({ open("edit") }) else null,
                                         )
                                         "review" -> draft?.let { prepared ->

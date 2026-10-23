@@ -1338,3 +1338,20 @@ the correction. These host checks do not establish installed multi-device
 convergence, revocation propagation, offline paired codes, or service availability.
 Explicit physical Pixel Doze testing is excluded by owner direction; this
 changes acceptance scope, not Android's standby behavior.
+
+
+## Printed place check-in
+
+`PlaceCheckInTest` and `PlaceQrTest` cover the local credential and offline QR
+codec. `SunriseScheduleControllerTest` verifies atomic future-alarm disablement
+before revocation while retaining ringing authority; selection tests protect a
+newer method from a late removal. Run these with both Plain and GMS host suites.
+
+The isolated native suite includes `PlaceConsumerEntryInstrumentedTest` for the
+consumer destination and `PlaceCheckInRepositoryInstrumentedTest` for encrypted
+enrollment, wrong-code rejection, exact occurrence binding and duplicate release.
+Repository fixtures refuse live account/pending-alarm state and restore their
+own data. `PlaceCheckInCaptureInstrumentedTest` adds five actual Compose scenes
+to the existing eighteen-profile task gallery. Review every generated scene
+before claiming responsive UI acceptance. Camera capture and physical TalkBack
+remain distinct from fixture renders and host tests. See [the feature contract](PLACE_CHECK_IN.md).

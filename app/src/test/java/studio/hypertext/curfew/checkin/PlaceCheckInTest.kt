@@ -63,4 +63,10 @@ class PlaceCheckInTest {
             assertThrows(IllegalArgumentException::class.java) { PlaceCheckIn.approve(draft.enrollment, payload, "morning", ringing, now) }
         }
     }
+    @Test fun `corrupt persisted enrollment cannot appear ready`() {
+        val valid = PlaceCheckIn.create("Bathroom").enrollment
+        assertThrows(IllegalArgumentException::class.java) { valid.copy(id = "corrupt") }
+        assertThrows(IllegalArgumentException::class.java) { valid.copy(label = "") }
+        assertThrows(IllegalArgumentException::class.java) { valid.copy(digest = "") }
+    }
 }

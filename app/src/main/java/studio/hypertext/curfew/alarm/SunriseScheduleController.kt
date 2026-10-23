@@ -32,6 +32,19 @@ class SunriseScheduleController(
     suspend fun save(schedule: SunriseSchedule, now: Instant, zone: ZoneId): SavedSunriseAlarm =
         mutex.withLock { apply(schedule, store.read(), now, zone, requireOccurrence = true) }
 
+    suspend fun revokeCondition(
+        callbackId: String,
+        now: Instant,
+        zone: ZoneId,
+        revoke: suspend () -> Unit,
+    ) = mutex.withLock {
+        val previous = store.read()
+        if (previous?.schedule?.callbackId == callbackId && previous.schedule.enabled) {
+            apply(previous.schedule.copy(enabled = false), previous, now, zone, requireOccurrence = false)
+        }
+        revoke()
+    }
+
     suspend fun restore(now: Instant, zone: ZoneId): SavedSunriseAlarm? = mutex.withLock {
         val previous = store.read() ?: return@withLock null
         apply(previous.schedule, previous, now, zone, requireOccurrence = false)

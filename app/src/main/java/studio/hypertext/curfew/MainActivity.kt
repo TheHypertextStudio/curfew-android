@@ -75,10 +75,12 @@ import studio.hypertext.curfew.alarm.SunriseSchedule
 import studio.hypertext.curfew.platform.SunriseScheduler
 import studio.hypertext.curfew.protocols.CallbackDefinition
 
+private data class PlaceScanRequest(val label: String, val draftId: String? = null, val codeId: String? = null, val campaignId: String? = null)
+
 private data class SetupInputs(
     val preferences: CurfewPreferenceState,
-    val selected: CallbackDefinition?,
-    val alarmConnection: CallbackDefinition?,
+    val selected: studio.hypertext.curfew.checkin.CheckInDescription?,
+    val alarmConnection: studio.hypertext.curfew.checkin.CheckInDescription?,
 )
 
 class MainActivity : ComponentActivity() {
@@ -148,9 +150,42 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private val places by lazy { studio.hypertext.curfew.checkin.PlaceCheckInRepository(this) }
+    private var placeScanRequest by mutableStateOf<PlaceScanRequest?>(null)
+    private var placeScanCommitting by mutableStateOf(false)
+    private var placeEpoch by mutableIntStateOf(0)
+    private var placeExportBusy by mutableStateOf(false)
+    private var placeExportError by mutableStateOf<String?>(null)
+    private var pendingPlaceExportId: String? = null
+    private val exportPlace = registerForActivityResult(ActivityResultContracts.CreateDocument("image/png")) { uri ->
+        val id = pendingPlaceExportId
+        pendingPlaceExportId = null
+        if (uri == null || id == null) { placeExportBusy = false }
+        else lifecycleScope.launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    val draft = requireNotNull(places.draft())
+                    require(draft.enrollment.id == id)
+                    val bitmap = studio.hypertext.curfew.checkin.PlaceCodeImage.create(draft.payload)
+                    try {
+                        requireNotNull(contentResolver.openOutputStream(uri)).use { output ->
+                            check(bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, output))
+                        }
+                    } finally { bitmap.recycle() }
+                    places.markExported(id)
+                }
+                placeEpoch++
+            } catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
+            catch (_: Exception) { placeExportError = "Couldn’t save the code. Choose another location and try again." }
+            finally { placeExportBusy = false }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
+        pendingPlaceExportId = savedInstanceState?.getString("pending_place_export")
+        placeExportBusy = pendingPlaceExportId != null
         pendingVerifierExportId = savedInstanceState?.getString("pending_check_in_export")
         exportedVerifierId = savedInstanceState?.getString("saved_check_in_export")
         enableEdgeToEdge()
@@ -190,7 +225,7 @@ class MainActivity : ComponentActivity() {
             val firstUse = (firstUseLoad as? FirstUseLoadState.Ready)?.state
             val setupInputsFlow = remember(firstUseRetry) {
                 combine(preferences.state, sunriseState) { preference, alarm ->
-                    val configurations = CallbackConfigurationRepository(this@MainActivity)
+                    val configurations = studio.hypertext.curfew.checkin.CheckInCatalog(this@MainActivity)
                     SetupInputs(preference,
                         preference.selectedCallbackId?.let { configurations.find(it) },
                         alarm?.schedule?.callbackId?.let { configurations.find(it) })
@@ -216,12 +251,12 @@ class MainActivity : ComponentActivity() {
             val showAlarm = campaign is AlarmCampaignState.Ringing || campaign is AlarmCampaignState.Quiet
             val initialDataReady = requestedAlarmLoaded && (showAlarm ||
                 savedAlarmResult.first && firstUseLoad != FirstUseLoadState.Loading && campaignSnapshot.first && setupInputsResult != null)
-            var ringingCondition by remember(campaignId) { mutableStateOf<CallbackDefinition?>(null) }
+            var ringingCondition by remember(campaignId) { mutableStateOf<studio.hypertext.curfew.checkin.CheckInDescription?>(null) }
             LaunchedEffect(campaignId) {
                 ringingCondition = campaignId?.let { id ->
                     withContext(Dispatchers.IO) {
                         AlarmRuntimeRepository(this@MainActivity).callbackId(id)?.let {
-                            CallbackConfigurationRepository(this@MainActivity).find(it)
+                            studio.hypertext.curfew.checkin.CheckInCatalog(this@MainActivity).find(it)
                         }
                     }
                 }
@@ -241,6 +276,7 @@ class MainActivity : ComponentActivity() {
             }
             LaunchedEffect(showAlarm, campaignId) {
                 if (!showAlarm) {
+                    if (placeScanRequest?.campaignId != null && !placeScanCommitting) placeScanRequest = null
                     recoveryVisible = false
                     if (ownerRecoveryDelegate.isInitialized()) ownerRecovery.alarmEnded()
                 }
@@ -258,6 +294,30 @@ class MainActivity : ComponentActivity() {
                             androidx.compose.material3.CircularProgressIndicator()
                         }
                     }
+                } else if (placeScanRequest != null) {
+                    val request = requireNotNull(placeScanRequest)
+                    studio.hypertext.curfew.ui.PlaceScanScreen(request.label, onScan = { payload ->
+                        placeScanCommitting = true
+                        try {
+                            when {
+                                request.draftId != null -> places.enroll(request.draftId, payload)
+                                request.codeId != null -> {
+                                    val enrolled = requireNotNull(places.find(request.codeId)) { "This code was removed." }
+                                    studio.hypertext.curfew.checkin.PlaceCheckIn.enroll(studio.hypertext.curfew.checkin.PlaceDraft(enrolled, payload), payload)
+                                }
+                                request.campaignId != null -> {
+                                    val result = places.approve(request.campaignId, payload)
+                                    val message = when (result) {
+                                        studio.hypertext.curfew.checkin.PlaceApprovalResult.CHECKED_IN -> "Checked in."
+                                        studio.hypertext.curfew.checkin.PlaceApprovalResult.NOT_ACTIVE -> "This alarm is no longer active."
+                                        studio.hypertext.curfew.checkin.PlaceApprovalResult.NEXT_ALARM_UNAVAILABLE -> "Checked in. Check tomorrow’s alarm."
+                                    }
+                                    Toast.makeText(this@MainActivity, message, Toast.LENGTH_LONG).show()
+                                }
+                            }
+                            placeScanRequest = null; placeEpoch++; capabilityEpoch++
+                        } finally { placeScanCommitting = false }
+                    }, onCancel = { placeScanRequest = null })
                 } else if (showAlarm && recoveryVisible) {
                     AlarmRecoveryScreen(
                         conditionLabel = ringingCondition?.displayLabel ?: "your check-in",
@@ -280,8 +340,11 @@ class MainActivity : ComponentActivity() {
                         },
                         onRecover = { recoveryVisible = true },
                         conditionLabel = ringingCondition?.displayLabel ?: "your check-in",
-                        actionLabel = ringingCondition?.actionUrl?.let { "Open check-in" },
+                        actionLabel = if (ringingCondition?.placeCode == true) "Scan code" else ringingCondition?.actionUrl?.let { "Open check-in" },
                         onOpenAction = {
+                            if (ringingCondition?.placeCode == true) {
+                                placeScanRequest = PlaceScanRequest(ringingCondition?.displayLabel ?: "saved", campaignId = campaignId)
+                            }
                             ringingCondition?.actionUrl?.let {
                                 runCatching { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it))) }
                                     .onFailure {
@@ -379,7 +442,8 @@ class MainActivity : ComponentActivity() {
                                 conditionBusy = false
                             }
                         },
-                        conditionVerified = preferenceState.selectedCallbackId?.let {
+                        conditionVerified = inputs.selected?.available == true &&
+                            (inputs.selected.placeCode.not() || places.cameraReady()) && preferenceState.selectedCallbackId?.let {
                             preferenceState.isCallbackReady(it)
                         } ?: false,
                         conditionBusy = conditionBusy,
@@ -418,6 +482,36 @@ class MainActivity : ComponentActivity() {
                                     conditionBusy = false
                                 }
                             }
+                        },
+                        placeCodeSelected = inputs.selected?.placeCode == true,
+                        placeCheckInContent = { advanced, done, useForAlarm ->
+                            studio.hypertext.curfew.ui.PlaceCheckInDestination(
+                                selectedId = preferenceState.selectedCallbackId, refresh = placeEpoch + capabilityEpoch,
+                                externalBusy = placeExportBusy, externalError = placeExportError,
+                                onExport = { draft ->
+                                    if (!placeExportBusy) {
+                                        placeExportError = null; pendingPlaceExportId = draft.enrollment.id; placeExportBusy = true
+                                        exportPlace.launch("curfew-check-in-code.png")
+                                    }
+                                },
+                                onPrint = { draft -> lifecycleScope.launch {
+                                    try {
+                                        val bitmap = withContext(Dispatchers.Default) { studio.hypertext.curfew.checkin.PlaceCodeImage.create(draft.payload) }
+                                        try {
+                                            (getSystemService(android.content.Context.PRINT_SERVICE) as android.print.PrintManager)
+                                                .print("Curfew check-in", studio.hypertext.curfew.checkin.PlaceCodePrinter(this@MainActivity, bitmap), null)
+                                        } catch (failure: Exception) { bitmap.recycle(); throw failure }
+                                    } catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
+                                    catch (_: Exception) { placeExportError = "Couldn’t open printing. Try Save code instead." }
+                                } },
+                                onScan = { draft, enrollment ->
+                                    placeScanRequest = when {
+                                        draft != null -> PlaceScanRequest(draft.enrollment.label, draftId = draft.enrollment.id)
+                                        enrollment != null -> PlaceScanRequest(enrollment.label, codeId = enrollment.id)
+                                        else -> null
+                                    }
+                                }, onAdvanced = advanced, onDone = done, onUseForAlarm = useForAlarm,
+                            )
                         },
                         sunriseAlarm = savedAlarm,
                         callbackId = preferenceState.selectedCallbackId,
@@ -468,6 +562,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         // Keep only the identity across the picker; reload secret material after its result.
+        outState.putString("pending_place_export", pendingPlaceExportId)
         outState.putString("pending_check_in_export", pendingVerifierExportId)
         outState.putString("saved_check_in_export", exportedVerifierId)
         super.onSaveInstanceState(outState)
