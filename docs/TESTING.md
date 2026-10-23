@@ -1372,3 +1372,10 @@ instrumentation process, rather than revoking permission from inside the app
 under test. Android may terminate the app during revocation. Functional suites
 can therefore exercise real camera readiness independently, and the capture
 still asserts an actual denied permission before rendering its denial scene.
+
+
+`PlaceCodePrinterInstrumentedTest` exercises actual Android PDF generation. It
+requires a one-page readable A4 output and rejects undersized media without
+leaving an unfinished page during cleanup. This is native document generation,
+not a claim that a physical printer received paper. The print adapter reports
+rendering failure through the system callback and retains PNG export as recovery.

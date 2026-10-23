@@ -25,6 +25,13 @@ class PlaceCodePrinter(private val context: Context, private val bitmap: Bitmap)
     }
     override fun onWrite(pages: Array<out PageRange>, destination: ParcelFileDescriptor, cancellationSignal: CancellationSignal, callback: WriteResultCallback) {
         if (cancellationSignal.isCanceled) { callback.onWriteCancelled(); return }
+        try {
+            val written = FileOutputStream(destination.fileDescriptor).use { renderPage(attributes, it, cancellationSignal) }
+            if (written) callback.onWriteFinished(arrayOf(PageRange.ALL_PAGES)) else callback.onWriteCancelled()
+        } catch (_: Exception) { callback.onWriteFailed("Couldn’t prepare this page. Try saving the code as an image.") }
+    }
+
+    internal fun renderPage(attributes: PrintAttributes, destination: java.io.OutputStream, cancellationSignal: CancellationSignal): Boolean {
         val document = PrintedPdfDocument(context, attributes)
         try {
             val page = document.startPage(0)
@@ -40,13 +47,10 @@ class PlaceCodePrinter(private val context: Context, private val bitmap: Bitmap)
             page.canvas.drawText("Keep this code away from bed. Scan it when Sunrise rings.", area.left.toFloat(), area.top + size + 78f, paint)
             page.canvas.drawText("Anyone with a copy can check in. Keep it private.", area.left.toFloat(), area.top + size + 98f, paint)
             document.finishPage(page)
-            if (cancellationSignal.isCanceled) callback.onWriteCancelled()
-            else {
-                FileOutputStream(destination.fileDescriptor).use { document.writeTo(it) }
-                callback.onWriteFinished(arrayOf(PageRange.ALL_PAGES))
-            }
-        } catch (_: Exception) { callback.onWriteFailed("Couldn’t prepare this page. Try saving the code as an image.") }
-        finally { document.close() }
+            if (cancellationSignal.isCanceled) return false
+            document.writeTo(destination)
+            return true
+        } finally { document.close() }
     }
     override fun onFinish() { bitmap.recycle() }
 }
