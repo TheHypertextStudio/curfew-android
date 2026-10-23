@@ -102,7 +102,7 @@ assert that the preview is absent and the landscape actions stay visible.
 
 ## Safe display areas
 
-Scaffolds, app bars, bottom actions and individual content panes keep controls
+Scaffolds, app bars, bottom actions and setup panes keep controls
 inside safe drawing insets, including camera cutouts, status bars, navigation
 bars and the keyboard. Insets are consumed at these content boundaries so nested
 forms do not add them twice. No padding is applied to the whole app or its
@@ -126,3 +126,9 @@ finish dismissal, then require an enabled, visible Save action and inject a
 single tap. They retain exact saved-value and cancel-preservation assertions;
 no callback is invoked through a test shortcut. This synchronizes tests with
 the native window lifecycle without changing picker or save behavior.
+
+Compact daily, settings and account content uses the available pane dimensions;
+it does not subtract whole-window system insets inside a bounded card. The app
+scaffold owns those insets. The standalone load-error destination has its own
+safe-area scaffold. Existing compact-height and enlarged-text layout assertions
+remain unchanged alongside the cutout and full-bleed background regressions.

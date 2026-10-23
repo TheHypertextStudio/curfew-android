@@ -53,7 +53,8 @@ internal fun CurfewHorizonMark(modifier: Modifier = Modifier.size(28.dp, 24.dp))
 
 @Composable
 internal fun TaskContent(spacing: Dp = 24.dp, verticalPadding: Dp = 20.dp, content: @Composable ColumnScope.() -> Unit) {
-    BoxWithConstraints(Modifier.widthIn(max = 640.dp).fillMaxSize().safeDrawingPadding().imePadding()) {
+    // The screen scaffold owns system insets; this content may occupy a smaller pane.
+    BoxWithConstraints(Modifier.widthIn(max = 640.dp).fillMaxSize().imePadding()) {
         val gutter = if (maxWidth < 360.dp) 16.dp else 24.dp
         Column(
             Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = gutter, vertical = verticalPadding),
