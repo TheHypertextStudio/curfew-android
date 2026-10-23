@@ -63,17 +63,28 @@ class AlarmKeyguardPresentationInstrumentedTest {
             "appops set ${context.packageName} SCHEDULE_EXACT_ALARM allow",
         ).use { android.os.ParcelFileDescriptor.AutoCloseInputStream(it).readBytes() }
         val alarms = context.getSystemService(android.app.AlarmManager::class.java)
-        org.junit.Assert.assertNull("This fixture needs an empty alarm-clock queue", alarms.nextAlarmClock)
-        val at = Instant.ofEpochMilli(Instant.now().plusSeconds(3600).toEpochMilli())
+        // Android reports the next alarm across all apps, including the image's Clock app.
+        // Put our fixture first and verify cancellation restores that existing alarm.
+        val previous = alarms.nextAlarmClock
+        val at = Instant.ofEpochMilli(minOf(
+            Instant.now().plusSeconds(3600).toEpochMilli(),
+            previous?.triggerTime?.minus(1_000) ?: Long.MAX_VALUE,
+        ))
+        check(at.isAfter(Instant.now())) { "An existing alarm is already due; cannot safely insert the fixture" }
         AlarmRuntimeRepository(context).save(AlarmCampaignState.Scheduled(id, at, AlarmRecurrencePolicy.default(), setOf("fixture-device")))
         AndroidAlarmClockGateway(context).setAlarmClock(id, at)
-        assertEquals(at.toEpochMilli(), alarms.nextAlarmClock?.triggerTime)
-        removeFixture()
-        val deadline = android.os.SystemClock.elapsedRealtime() + 2_000
-        while (alarms.nextAlarmClock != null && android.os.SystemClock.elapsedRealtime() < deadline) {
+        val scheduledDeadline = android.os.SystemClock.elapsedRealtime() + 5_000
+        while (alarms.nextAlarmClock?.triggerTime != at.toEpochMilli() && android.os.SystemClock.elapsedRealtime() < scheduledDeadline) {
             android.os.SystemClock.sleep(25)
         }
-        org.junit.Assert.assertNull("Fixture cleanup must cancel its registered alarm", alarms.nextAlarmClock)
+        assertEquals(at.toEpochMilli(), alarms.nextAlarmClock?.triggerTime)
+        removeFixture()
+        val deadline = android.os.SystemClock.elapsedRealtime() + 5_000
+        while (alarms.nextAlarmClock?.triggerTime != previous?.triggerTime && android.os.SystemClock.elapsedRealtime() < deadline) {
+            android.os.SystemClock.sleep(25)
+        }
+        assertEquals("Fixture cleanup must restore the previous next alarm", previous?.triggerTime, alarms.nextAlarmClock?.triggerTime)
+        assertEquals(previous?.showIntent, alarms.nextAlarmClock?.showIntent)
     }
 
     @Test

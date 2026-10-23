@@ -146,7 +146,9 @@ class CheckInScreenInstrumentedTest {
         compose.onNodeWithText("Name (optional)").performScrollTo().performTextInput("Morning check-in")
         compose.onNodeWithText("Service address").performTextInput("https://wake.example.test/check-in")
         compose.onNodeWithText("Check-in link (optional)").performScrollTo().performTextInput("morning-checkin://start")
+        Espresso.closeSoftKeyboard()
         compose.onNodeWithText("Save check-in").performScrollTo().assertIsEnabled().performClick()
+        compose.waitUntil(5_000) { savedAction != null }
         compose.runOnIdle { assertEquals("morning-checkin://start", savedAction) }
     }
     @Test
