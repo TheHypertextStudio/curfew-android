@@ -213,6 +213,7 @@ fun CurfewApp(
     val compactKeyboard = destination == "check-in" && imeHeight > 0 && availableHeight < 200.dp
     val taskTopBar: @Composable () -> Unit = {
             if (destination != "welcome") TopAppBar(
+                windowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
                 title = {
                     if (destination == "daily") Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         CurfewHorizonMark()
@@ -254,7 +255,7 @@ fun CurfewApp(
     val compactKeyboardState = rememberUpdatedState(compactKeyboard)
     val taskTopBarState = rememberUpdatedState(taskTopBar)
     Scaffold(
-        contentWindowInsets = if (destination == "welcome") WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal) else ScaffoldDefaults.contentWindowInsets,
+        contentWindowInsets = if (destination == "welcome") WindowInsets(0, 0, 0, 0) else WindowInsets.safeDrawing,
         topBar = { if (!compactKeyboard) taskTopBar() },
     ) { padding ->
         SharedTransitionLayout {

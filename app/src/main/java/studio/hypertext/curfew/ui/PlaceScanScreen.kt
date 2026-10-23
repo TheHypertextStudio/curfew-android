@@ -51,8 +51,8 @@ internal fun PlaceScanScreen(label: String, onScan: suspend (String) -> Unit, on
         onDispose { lifecycle.removeObserver(observer) }
     }
     BackHandler { if (!busy) onCancel() }
-    Scaffold(modifier = Modifier.semantics { paneTitle = "Scan code" }, topBar = { TopAppBar(title = { Text("Scan code") }, navigationIcon = { TextButton(onClick = onCancel, enabled = !busy) { Text("Back") } }) }) { padding ->
-        Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+    Scaffold(contentWindowInsets = WindowInsets.safeDrawing, modifier = Modifier.semantics { paneTitle = "Scan code" }, topBar = { TopAppBar(windowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal), title = { Text("Scan code") }, navigationIcon = { TextButton(onClick = onCancel, enabled = !busy) { Text("Back") } }) }) { padding ->
+        Column(Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Text("Point the camera at your $label code.", style = MaterialTheme.typography.headlineSmall)
             Text("Camera images stay on this phone. Cancelling leaves the alarm unchanged.", color = MaterialTheme.colorScheme.onSurfaceVariant)
             if (!granted) {

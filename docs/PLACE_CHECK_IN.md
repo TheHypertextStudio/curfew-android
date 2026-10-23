@@ -98,3 +98,17 @@ phone's setup instructions. Copy uses direct action labels and a concise privacy
 reminder. Cancel returns to the method choice; the advanced-service link remains
 there rather than competing with an in-progress code setup. Native captures
 assert that the preview is absent and the landscape actions stay visible.
+
+
+## Safe display areas
+
+Scaffolds, app bars, bottom actions and individual content panes keep controls
+inside safe drawing insets, including camera cutouts, status bars, navigation
+bars and the keyboard. Insets are consumed at these content boundaries so nested
+forms do not add them twice. No padding is applied to the whole app or its
+background: the welcome landscape and screen surfaces remain immersive and
+draw edge to edge. Dialog windows retain their own safe-area handling.
+Native regression coverage injects asymmetric cutout and navigation geometry
+and checks actual action bounds; this is geometry coverage, not a claim about
+physical hardware or a changed navigation mode. No permissions, enforcement,
+account state, or release configuration changes. Rollback is limited to layout.
