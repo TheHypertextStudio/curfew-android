@@ -34,19 +34,20 @@ class PlaceCodePrinter(private val context: Context, private val bitmap: Bitmap)
     internal fun renderPage(attributes: PrintAttributes, destination: java.io.OutputStream, cancellationSignal: CancellationSignal): Boolean {
         val document = PrintedPdfDocument(context, attributes)
         try {
-            val page = document.startPage(0)
-            val area = page.info.contentRect
-            val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.BLACK; textSize = 20f }
-            page.canvas.drawColor(Color.WHITE)
-            page.canvas.drawText("Curfew check-in", area.left.toFloat(), area.top + 28f, paint)
+            val area = document.pageContentRect
             val size = minOf(area.width(), area.height() - 140)
-            require(size >= 100)
-            val left = area.left + (area.width() - size) / 2
-            page.canvas.drawBitmap(bitmap, null, Rect(left, area.top + 50, left + size, area.top + 50 + size), null)
-            paint.textSize = 12f
-            page.canvas.drawText("Keep this code away from bed. Scan it when Sunrise rings.", area.left.toFloat(), area.top + size + 78f, paint)
-            page.canvas.drawText("Anyone with a copy can check in. Keep it private.", area.left.toFloat(), area.top + size + 98f, paint)
-            document.finishPage(page)
+            require(size >= 100) { "Choose larger paper or save the code as an image." }
+            val page = document.startPage(0)
+            try {
+                val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.BLACK; textSize = 20f }
+                page.canvas.drawColor(Color.WHITE)
+                page.canvas.drawText("Curfew check-in", area.left.toFloat(), area.top + 28f, paint)
+                val left = area.left + (area.width() - size) / 2
+                page.canvas.drawBitmap(bitmap, null, Rect(left, area.top + 50, left + size, area.top + 50 + size), null)
+                paint.textSize = 12f
+                page.canvas.drawText("Keep this code away from bed. Scan it when Sunrise rings.", area.left.toFloat(), area.top + size + 78f, paint)
+                page.canvas.drawText("Anyone with a copy can check in. Keep it private.", area.left.toFloat(), area.top + size + 98f, paint)
+            } finally { document.finishPage(page) }
             if (cancellationSignal.isCanceled) return false
             document.writeTo(destination)
             return true

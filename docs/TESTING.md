@@ -1379,3 +1379,9 @@ requires a one-page readable A4 output and rejects undersized media without
 leaving an unfinished page during cleanup. This is native document generation,
 not a claim that a physical printer received paper. The print adapter reports
 rendering failure through the system callback and retains PNG export as recovery.
+
+
+`PlaceCameraLifecycleInstrumentedTest` opens the actual CameraX scanner and
+observes its package in Android's active camera-client list. Cancelling must
+remove that client. It inspects service metadata only, never records frames,
+and does not claim that a printed code was physically aimed at the lens.

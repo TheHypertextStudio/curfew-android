@@ -84,3 +84,9 @@ Rendered error recovery keeps its message and Save/Print retry actions in one
 scroll target. That target is revealed again when asynchronous QR generation
 changes the layout; otherwise the enlarged-text view can stop above the retry
 buttons. The native matrix asserts both the error and Save code remain visible.
+
+
+Printing validates the chosen paper's usable area before opening a PDF page.
+Every opened page is finished even if drawing fails, then the document closes.
+Unsupported small media reports a setup failure with image export as an
+alternative; it cannot leave the PDF renderer in an unfinished-page state.

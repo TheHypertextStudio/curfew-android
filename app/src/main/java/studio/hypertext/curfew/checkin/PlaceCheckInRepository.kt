@@ -100,26 +100,26 @@ class PlaceCheckInRepository(context: Context) {
         val terminal = released ?: return@withContext PlaceApprovalResult.NOT_ACTIVE
         // Once committed, a scanner disappearing must not cancel local completion.
         withContext(kotlinx.coroutines.NonCancellable) {
-        // The terminal Room write precedes all scheduling and network side effects.
-        val completed = try {
-            SunriseScheduler(context).completeOccurrence(campaignId)
-            true
-        } catch (cancelled: kotlinx.coroutines.CancellationException) {
-            throw cancelled
-        } catch (_: Exception) {
-            CallbackPollScheduler.schedule(context, campaignId)
-            false
-        }
-        try {
-            val device = NativeDeviceProofAuthenticator(context).deviceId()
-            WakeOutboxPublisher(context).publish(WakeOutcome(campaignId = campaignId, releasedAt = terminal.satisfiedAt.toString(), result = Result.Satisfied, satisfyingDeviceId = device), writerDeviceId = device, version = 1)
-            WakeSyncScheduler.accelerate(context)
-        } catch (cancelled: kotlinx.coroutines.CancellationException) {
-            throw cancelled
-        } catch (_: Exception) {
-            android.util.Log.w("PlaceCheckIn", "Local check-in saved; account sync needs attention")
-        }
-        if (completed) PlaceApprovalResult.CHECKED_IN else PlaceApprovalResult.NEXT_ALARM_UNAVAILABLE
+            // The terminal Room write precedes all scheduling and network side effects.
+            val completed = try {
+                SunriseScheduler(context).completeOccurrence(campaignId)
+                true
+            } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                CallbackPollScheduler.schedule(context, campaignId)
+                false
+            }
+            try {
+                val device = NativeDeviceProofAuthenticator(context).deviceId()
+                WakeOutboxPublisher(context).publish(WakeOutcome(campaignId = campaignId, releasedAt = terminal.satisfiedAt.toString(), result = Result.Satisfied, satisfyingDeviceId = device), writerDeviceId = device, version = 1)
+                WakeSyncScheduler.accelerate(context)
+            } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                android.util.Log.w("PlaceCheckIn", "Local check-in saved; account sync needs attention")
+            }
+            if (completed) PlaceApprovalResult.CHECKED_IN else PlaceApprovalResult.NEXT_ALARM_UNAVAILABLE
         }
     }
 

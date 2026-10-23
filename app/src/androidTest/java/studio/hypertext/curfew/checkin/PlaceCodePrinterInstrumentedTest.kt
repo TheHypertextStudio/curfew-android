@@ -31,7 +31,19 @@ class PlaceCodePrinterInstrumentedTest {
         val printer = PlaceCodePrinter(context, PlaceCodeImage.create(PlaceCheckIn.create("Fixture bathroom").payload))
         try {
             FileOutputStream(file).use { assertTrue(printer.renderPage(attributes(PrintAttributes.MediaSize.ISO_A4), it, CancellationSignal())) }
-            PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)).use { assertEquals(1, it.pageCount) }
+            PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)).use { renderer ->
+                assertEquals(1, renderer.pageCount)
+                if (InstrumentationRegistry.getArguments().getString("curfew.print.capture") == "true") {
+                    renderer.openPage(0).use { page ->
+                        val preview = android.graphics.Bitmap.createBitmap(page.width * 2, page.height * 2, android.graphics.Bitmap.Config.ARGB_8888)
+                        try {
+                            preview.eraseColor(android.graphics.Color.WHITE)
+                            page.render(preview, null, null, PdfRenderer.Page.RENDER_MODE_FOR_PRINT)
+                            context.cacheDir.resolve("place-print-review.png").outputStream().use { preview.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) }
+                        } finally { preview.recycle() }
+                    }
+                }
+            }
         } finally { printer.onFinish(); file.delete() }
     }
 }
