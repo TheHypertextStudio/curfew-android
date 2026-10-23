@@ -119,7 +119,9 @@ internal fun CurfewWelcomeScreen(
 
 @Composable
 private fun WelcomeIntroduction(brandMotion: WelcomeMotion, copyMotion: WelcomeMotion, modifier: Modifier, centered: Boolean = false) {
-    BoxWithConstraints(modifier.testTag("welcome-introduction").semantics { isTraversalGroup = true }, contentAlignment = Alignment.Center) {
+    BoxWithConstraints(modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(
+        if (centered) WindowInsetsSides.Horizontal + WindowInsetsSides.Vertical else WindowInsetsSides.Top + WindowInsetsSides.Horizontal,
+    )).testTag("welcome-introduction").semantics { isTraversalGroup = true }, contentAlignment = Alignment.Center) {
         val fontScale = LocalDensity.current.fontScale
         val gutter = if (maxWidth < 360.dp) 24.dp else 32.dp
         val readableWidth = (maxWidth - gutter * 2) / fontScale
@@ -153,7 +155,9 @@ private fun WelcomeIntroduction(brandMotion: WelcomeMotion, copyMotion: WelcomeM
 
 @Composable
 private fun WelcomeActions(onContinue: () -> Unit, onNotNow: () -> Unit, copyMotion: WelcomeMotion, motion: WelcomeMotion, busy: Boolean, error: String?, modifier: Modifier, centered: Boolean = false) {
-    BoxWithConstraints(modifier.testTag("welcome-actions").semantics { isTraversalGroup = true }, contentAlignment = Alignment.Center) {
+    BoxWithConstraints(modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(
+        if (centered) WindowInsetsSides.Horizontal + WindowInsetsSides.Vertical else WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal,
+    )).testTag("welcome-actions").semantics { isTraversalGroup = true }, contentAlignment = Alignment.Center) {
         val gutter = if (maxWidth < 360.dp) 24.dp else 32.dp
         val height = if (centered) maxHeight else 0.dp
         val scroll = if (centered) Modifier.verticalScroll(rememberScrollState()) else Modifier

@@ -27,7 +27,7 @@ internal fun SetupTaskContent(posture: Posture? = null, introduction: @Composabl
     val density = LocalDensity.current
     val actualPosture = posture ?: adaptive.windowPosture
     var origin by remember { mutableStateOf(Offset.Zero) }
-    BoxWithConstraints(Modifier.fillMaxSize().imePadding().onGloballyPositioned { origin = it.positionInWindow() }) {
+    BoxWithConstraints(Modifier.fillMaxSize().safeDrawingPadding().imePadding().onGloballyPositioned { origin = it.positionInWindow() }) {
         val gutter = if (maxWidth < 360.dp) 16.dp else 24.dp
         val paired = maxWidth / density.fontScale.coerceAtLeast(1f) >= 640.dp ||
             actualPosture.hingeList.any { it.isVertical && (it.isSeparating || it.isOccluding) }

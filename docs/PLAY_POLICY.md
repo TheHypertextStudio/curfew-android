@@ -17,7 +17,7 @@ Curfew requests full-screen intent access only for an actively ringing, time-sen
 ## Why the ringing screen has no dismiss or snooze
 
 Expect a reviewer to ask, because every other alarm app has one. The alarm ends
-when the wake condition the user configured reports a verified release or when
+when the user scans their enrolled place code, when the wake condition the user configured reports a verified release or when
 a fresh account-authorized override targets the device.
 It does not end because the user tapped a button while still in bed, which is
 the failure this product exists to remove.
@@ -43,3 +43,13 @@ behavior cannot regress silently into an ordinary alarm.
 ## Notifications, audio, and data safety
 
 Notification permission is requested in context during readiness. The app creates an audible `USAGE_ALARM` channel, requests audio focus, and never changes device volume. The Data safety form should disclose optional account metadata, user-configured callback traffic, purchase metadata, and optional FCM device routing while describing settings content as end-to-end encrypted.
+
+
+## Optional camera
+
+Camera permission is requested only when the user opens Scan code. It enables
+local decoding of the reusable place code, with no image storage, upload or
+background camera use. Denial leaves the alarm active and the existing deliberate
+owner recovery available. Camera hardware is optional for installation; arming
+a place-code alarm requires camera capability and permission. A compatible HTTPS
+service remains an advanced alternative.

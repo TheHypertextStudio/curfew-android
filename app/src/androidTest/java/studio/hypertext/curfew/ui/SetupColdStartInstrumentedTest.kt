@@ -85,7 +85,8 @@ class SetupColdStartInstrumentedTest {
         FirstUsePreferences(context).saveDraft(AlarmSetupDraft("keyboard", LocalTime.of(7, 0), LocalDate.now().plusDays(1), emptySet()))
         CurfewPreferences(context).selectCallback("missing-keyboard-fixture")
         ActivityScenario.launch(MainActivity::class.java).use { scenario ->
-            compose.waitUntil(10_000) { compose.onAllNodesWithText("I have a service").fetchSemanticsNodes().isNotEmpty() }
+            compose.waitUntil(10_000) { compose.onAllNodesWithText("Advanced integration").fetchSemanticsNodes().isNotEmpty() }
+            compose.onNodeWithText("Advanced integration").performScrollTo().performClick()
             compose.onNodeWithText("I have a service").performScrollTo().performClick()
             compose.onNodeWithText("Service address").performScrollTo().performClick().performTextInput("https://wake.example.test/check-in")
             compose.waitUntil(5_000) {

@@ -100,6 +100,10 @@ dependencies {
             because("Firebase's legacy Fragment dependency cannot dispatch activity-result callbacks safely")
         }
     }
+    implementation("com.google.zxing:core:3.5.4")
+    implementation("androidx.camera:camera-camera2:1.6.0")
+    implementation("androidx.camera:camera-lifecycle:1.6.0")
+    implementation("androidx.camera:camera-view:1.6.0")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.navigation3.runtime)

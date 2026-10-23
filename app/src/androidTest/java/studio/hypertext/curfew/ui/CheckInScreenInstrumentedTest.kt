@@ -82,8 +82,8 @@ class CheckInScreenInstrumentedTest {
                 onSave = { _, _, _ -> saves++; "unused" }, onExport = {}, onVerify = {}, onDone = {},
                 inSetup = true, onDefer = { deferred++ })
         } }
-        compose.onNodeWithText("A check-in service is required").assertExists()
-        compose.onNodeWithText("Curfew doesn’t include a check-in service yet.").assertExists()
+        compose.onNodeWithText("Connect an existing service").assertExists()
+        compose.onNodeWithText("For a compatible HTTPS service you or a trusted operator already run.").assertExists()
         compose.onNodeWithText("Service address").assertDoesNotExist()
         compose.onNodeWithText("Save for later").performScrollTo().performClick()
         compose.runOnIdle { assertEquals(1, deferred); assertEquals(0, saves) }

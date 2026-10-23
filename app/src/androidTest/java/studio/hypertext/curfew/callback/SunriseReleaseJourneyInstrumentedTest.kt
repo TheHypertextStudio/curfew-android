@@ -137,4 +137,68 @@ class SunriseReleaseJourneyInstrumentedTest {
             }
         }
     }
+
+    @Test
+    fun enrolledPlaceCodeReleasesActualPlaybackWithoutAVerifier() = runBlocking {
+        assertTrue("Do not replace an active alarm", runtime.pending().isEmpty())
+        val secrets = studio.hypertext.curfew.security.AndroidKeystoreSecretStore(context)
+        org.junit.Assert.assertNull("This fixture must not use a live account", secrets.get("account:access-token"))
+        shell("pm grant ${context.packageName} android.permission.POST_NOTIFICATIONS")
+        shell("pm grant ${context.packageName} android.permission.CAMERA")
+        shell("appops set ${context.packageName} SCHEDULE_EXACT_ALARM allow")
+        if (android.os.Build.VERSION.SDK_INT >= 34) shell("appops set ${context.packageName} USE_FULL_SCREEN_INTENT allow")
+        val preferences = CurfewPreferences(context)
+        val previous = preferences.state.first()
+        preferences.acknowledgeLimitations()
+        preferences.setTestSoundConfirmed(true)
+        val places = studio.hypertext.curfew.checkin.PlaceCheckInRepository(context)
+        org.junit.Assert.assertNull("Do not replace a printable draft", places.draft())
+        val draft = places.begin("Fixture bathroom")
+        var campaignId: String? = null
+        try {
+            places.enroll(draft.enrollment.id, draft.payload)
+            await("local code and platform readiness become available") {
+                studio.hypertext.curfew.platform.AndroidAlarmReadiness(context).evaluate(preferences.state.first()).canArm
+            }
+            val start = Instant.now().plusSeconds(4).atZone(ZoneOffset.UTC)
+            val saved = scheduler.save(SunriseSchedule(UUID.randomUUID().toString(), start.toLocalTime(),
+                start.toLocalDate(), emptySet(), true, draft.enrollment.id), zone = ZoneOffset.UTC)
+            val id = requireNotNull(saved.occurrence).campaignId
+            campaignId = id
+            await("local-code alarm starts through AlarmManager") {
+                runtime.load(id) is AlarmCampaignState.Ringing && ringingNotification() && alarmAudioIsActive()
+            }
+            try { places.approve(id, "wrong-code"); org.junit.Assert.fail("Wrong code released playback") }
+            catch (_: IllegalArgumentException) { }
+            assertTrue(runtime.load(id) is AlarmCampaignState.Ringing)
+            assertTrue(ringingNotification())
+            assertTrue(alarmAudioIsActive())
+            assertEquals(studio.hypertext.curfew.checkin.PlaceApprovalResult.CHECKED_IN, places.approve(id, draft.payload))
+            await("place approval stops actual foreground playback") {
+                runtime.load(id) is AlarmCampaignState.Satisfied && !ringingNotification() && !alarmAudioIsActive()
+            }
+            assertEquals("Fixture bathroom", (runtime.load(id) as AlarmCampaignState.Satisfied).conditionLabel)
+            org.junit.Assert.assertNull(scheduler.state.first()?.occurrence)
+            assertNotNull(scheduler.state.first()?.completedThrough)
+            assertEquals(studio.hypertext.curfew.checkin.PlaceApprovalResult.NOT_ACTIVE, places.approve(id, draft.payload))
+            assertFalse(ringingNotification())
+        } finally {
+            campaignId?.let { id ->
+                val remaining = runtime.load(id)
+                if (remaining is AlarmCampaignState.Ringing || remaining is AlarmCampaignState.Quiet) {
+                    runtime.save(studio.hypertext.curfew.alarm.AlarmCampaignEngine().override(
+                        remaining, Instant.now(), "test-cleanup", Instant.now().plusSeconds(60)))
+                }
+                scheduler.consume(id)
+                AndroidAlarmClockGateway(context).cancel(id)
+                CallbackPollScheduler.cancel(context, id)
+                context.stopService(android.content.Intent(context, studio.hypertext.curfew.platform.PerpetualAlarmService::class.java))
+                CurfewDatabase.open(context).alarmCampaignDao().delete(id)
+            }
+            places.remove(draft.enrollment.id)
+            places.cancelDraft()
+            previous.selectedCallbackId?.let { preferences.selectCallback(it); if (previous.verifiedCallbackId == it) preferences.markCallbackVerifiedIfSelected(it) }
+        }
+    }
+
 }
