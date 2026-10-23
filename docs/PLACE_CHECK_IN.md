@@ -119,3 +119,10 @@ orientations after ordinary perspective detection fails. A fixed regression
 retains a previously failing generated code alongside random roundtrips and
 unreadable-frame checks. This only improves image decoding; enrollment matching
 and occurrence-bound release authority remain unchanged.
+
+
+Editor integration tests wait for the native picker window and keyboard to
+finish dismissal, then require an enabled, visible Save action and inject a
+single tap. They retain exact saved-value and cancel-preservation assertions;
+no callback is invoked through a test shortcut. This synchronizes tests with
+the native window lifecycle without changing picker or save behavior.
