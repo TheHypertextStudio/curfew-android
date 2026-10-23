@@ -1,0 +1,50 @@
+{
+  "retrievedAt": "2026-10-20T15:10:52.421779+00:00",
+  "device": "Sunrise_API33 owned emulator",
+  "distribution": "Plain debug",
+  "apkSha256": "0c6be44474b41da5756d4c3552a9227548ac2ba49a7768feb1ea50454919c72a",
+  "syntheticFixture": true,
+  "physicalDeviceEvidence": false,
+  "captures": [
+    {
+      "name": "check-in-light-390-font100.png",
+      "contentWidthDp": 390,
+      "fontScale": 1,
+      "dark": false,
+      "bitmapWidthPx": 1024,
+      "bitmapHeightPx": 2400,
+      "imeBottomPx": 0,
+      "syntheticFixture": true
+    },
+    {
+      "name": "check-in-dark-320-font200.png",
+      "contentWidthDp": 320,
+      "fontScale": 2,
+      "dark": true,
+      "bitmapWidthPx": 840,
+      "bitmapHeightPx": 2400,
+      "imeBottomPx": 0,
+      "syntheticFixture": true
+    },
+    {
+      "name": "service-form-light-320-font200.png",
+      "contentWidthDp": 320,
+      "fontScale": 2,
+      "dark": false,
+      "bitmapWidthPx": 840,
+      "bitmapHeightPx": 2400,
+      "imeBottomPx": 0,
+      "syntheticFixture": true
+    },
+    {
+      "name": "editor-dark-320-font200.png",
+      "contentWidthDp": 320,
+      "fontScale": 2,
+      "dark": true,
+      "bitmapWidthPx": 840,
+      "bitmapHeightPx": 2400,
+      "imeBottomPx": 0,
+      "syntheticFixture": true
+    }
+  ]
+}

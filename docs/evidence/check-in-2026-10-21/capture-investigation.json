@@ -1,0 +1,40 @@
+{
+  "rejectedCi": {
+    "run": 39568431033,
+    "api33Plain": "native job passed",
+    "api34Gms": "171 pass, 7 guarded skips",
+    "api35Plain": "178 reported cases pass, followed by System UI crash over welcome during capture",
+    "api36Gms": "one keyboard capture timeout among 178 reported cases"
+  },
+  "imeCaptureInvestigation": {
+    "beforeLocalRuns": 3,
+    "beforeLocalFailures": 0,
+    "afterLocalRuns": 3,
+    "afterLocalFailures": 0,
+    "api": 36,
+    "systemImage": "google_apis_playstore ARM64",
+    "ciSystemImage": "google_apis x86_64",
+    "exactCiRaceReproduced": false,
+    "repair": "Wait for the old platform IME and composed inset to settle hidden before keyed recreation; wait for actual platform visibility and positive inset on show; clear focus and close keyboard on failure."
+  },
+  "systemUiCrash": {
+    "rootCause": "Not established.",
+    "repairClaimed": false,
+    "newDiagnostics": [
+      "dumpsys activity exit-info com.android.systemui",
+      "logcat -b crash -d -v threadtime"
+    ]
+  },
+  "consumerLaunch": "Blocked: no supplied check-in service or consumer approval path.",
+  "physicalPixel": "No new physical run. Doze acceptance remains open.",
+  "rejectedVisualCapture": {
+    "reason": "Owned API36 emulator became temporarily offline while reading a PNG after eight accepted profiles. Cleanup could not execute until ADB recovered. The incomplete matrix is rejected.",
+    "observedEmulatorErrors": [
+      "DisplaySurfaceGlContextHelper context was preempted",
+      "Failed to restore previous context: 12297",
+      "bad color buffer handle 6339"
+    ],
+    "recovery": "Verified the exact owned AVD, restored its previously recorded display settings, and restarted only that emulator with the same bounded headless configuration. A complete fresh matrix remains required. The clean replacement completes all18profiles, verifies all184PNG dimensions against the source/APK and restores exact display settings.",
+    "api35SystemUiCause": "Still unknown; this separate API36 emulator event does not prove the CI root cause."
+  }
+}

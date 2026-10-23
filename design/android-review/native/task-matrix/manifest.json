@@ -1,0 +1,391 @@
+{
+  "avd": "curfew-sunrise-nav-20261020",
+  "apiLevel": 34,
+  "sourceCommit": "961ae1fee8a565c9d6166d5afc268bdefe0ddbb9",
+  "sourceDirty": false,
+  "installedApkSha256": "091e14e47dde119a0931a1f8b3576954e778700f93d0d33eff6bcdcfcaf5a05e",
+  "taskFixtures": [
+    "phone-portrait-light-daily.png",
+    "phone-portrait-light-editor.png",
+    "phone-portrait-light-settings.png",
+    "phone-portrait-light-account.png",
+    "phone-portrait-light-check-in.png",
+    "phone-portrait-light-readiness.png",
+    "phone-portrait-dark-daily.png",
+    "phone-portrait-dark-editor.png",
+    "phone-portrait-dark-settings.png",
+    "phone-portrait-dark-account.png",
+    "phone-portrait-dark-check-in.png",
+    "phone-portrait-dark-readiness.png",
+    "phone-landscape-light-daily.png",
+    "phone-landscape-light-editor.png",
+    "phone-landscape-light-settings.png",
+    "phone-landscape-light-account.png",
+    "phone-landscape-light-check-in.png",
+    "phone-landscape-light-readiness.png",
+    "phone-landscape-dark-daily.png",
+    "phone-landscape-dark-editor.png",
+    "phone-landscape-dark-settings.png",
+    "phone-landscape-dark-account.png",
+    "phone-landscape-dark-check-in.png",
+    "phone-landscape-dark-readiness.png",
+    "tablet-portrait-light-daily.png",
+    "tablet-portrait-light-editor.png",
+    "tablet-portrait-light-settings.png",
+    "tablet-portrait-light-account.png",
+    "tablet-portrait-light-check-in.png",
+    "tablet-portrait-light-readiness.png",
+    "tablet-portrait-dark-daily.png",
+    "tablet-portrait-dark-editor.png",
+    "tablet-portrait-dark-settings.png",
+    "tablet-portrait-dark-account.png",
+    "tablet-portrait-dark-check-in.png",
+    "tablet-portrait-dark-readiness.png",
+    "tablet-landscape-light-daily.png",
+    "tablet-landscape-light-editor.png",
+    "tablet-landscape-light-settings.png",
+    "tablet-landscape-light-account.png",
+    "tablet-landscape-light-check-in.png",
+    "tablet-landscape-light-readiness.png",
+    "tablet-landscape-dark-daily.png",
+    "tablet-landscape-dark-editor.png",
+    "tablet-landscape-dark-settings.png",
+    "tablet-landscape-dark-account.png",
+    "tablet-landscape-dark-check-in.png",
+    "tablet-landscape-dark-readiness.png",
+    "cover-portrait-light-daily.png",
+    "cover-portrait-light-editor.png",
+    "cover-portrait-light-settings.png",
+    "cover-portrait-light-account.png",
+    "cover-portrait-light-check-in.png",
+    "cover-portrait-light-readiness.png",
+    "cover-portrait-dark-daily.png",
+    "cover-portrait-dark-editor.png",
+    "cover-portrait-dark-settings.png",
+    "cover-portrait-dark-account.png",
+    "cover-portrait-dark-check-in.png",
+    "cover-portrait-dark-readiness.png",
+    "cover-landscape-light-daily.png",
+    "cover-landscape-light-editor.png",
+    "cover-landscape-light-settings.png",
+    "cover-landscape-light-account.png",
+    "cover-landscape-light-check-in.png",
+    "cover-landscape-light-readiness.png",
+    "cover-landscape-dark-daily.png",
+    "cover-landscape-dark-editor.png",
+    "cover-landscape-dark-settings.png",
+    "cover-landscape-dark-account.png",
+    "cover-landscape-dark-check-in.png",
+    "cover-landscape-dark-readiness.png",
+    "inner-portrait-light-daily.png",
+    "inner-portrait-light-editor.png",
+    "inner-portrait-light-settings.png",
+    "inner-portrait-light-account.png",
+    "inner-portrait-light-check-in.png",
+    "inner-portrait-light-readiness.png",
+    "inner-portrait-dark-daily.png",
+    "inner-portrait-dark-editor.png",
+    "inner-portrait-dark-settings.png",
+    "inner-portrait-dark-account.png",
+    "inner-portrait-dark-check-in.png",
+    "inner-portrait-dark-readiness.png",
+    "inner-landscape-light-daily.png",
+    "inner-landscape-light-editor.png",
+    "inner-landscape-light-settings.png",
+    "inner-landscape-light-account.png",
+    "inner-landscape-light-check-in.png",
+    "inner-landscape-light-readiness.png",
+    "inner-landscape-dark-daily.png",
+    "inner-landscape-dark-editor.png",
+    "inner-landscape-dark-settings.png",
+    "inner-landscape-dark-account.png",
+    "inner-landscape-dark-check-in.png",
+    "inner-landscape-dark-readiness.png",
+    "large-text-light-daily.png",
+    "large-text-light-editor.png",
+    "large-text-light-settings.png",
+    "large-text-light-account.png",
+    "large-text-light-check-in.png",
+    "large-text-light-readiness.png",
+    "large-text-dark-daily.png",
+    "large-text-dark-editor.png",
+    "large-text-dark-settings.png",
+    "large-text-dark-account.png",
+    "large-text-dark-check-in.png",
+    "large-text-dark-readiness.png"
+  ],
+  "captures": [
+    {
+      "name": "phone-portrait-light",
+      "label": "Phone \u00b7 portrait",
+      "theme": "light",
+      "pixels": [
+        1080,
+        2400
+      ],
+      "dp": [
+        360.0,
+        800.0
+      ],
+      "fontScale": 1.0
+    },
+    {
+      "name": "phone-portrait-dark",
+      "label": "Phone \u00b7 portrait",
+      "theme": "dark",
+      "pixels": [
+        1080,
+        2400
+      ],
+      "dp": [
+        360.0,
+        800.0
+      ],
+      "fontScale": 1.0
+    },
+    {
+      "name": "phone-landscape-light",
+      "label": "Phone \u00b7 landscape",
+      "theme": "light",
+      "pixels": [
+        2400,
+        1080
+      ],
+      "dp": [
+        800.0,
+        360.0
+      ],
+      "fontScale": 1.0
+    },
+    {
+      "name": "phone-landscape-dark",
+      "label": "Phone \u00b7 landscape",
+      "theme": "dark",
+      "pixels": [
+        2400,
+        1080
+      ],
+      "dp": [
+        800.0,
+        360.0
+      ],
+      "fontScale": 1.0
+    },
+    {
+      "name": "tablet-portrait-light",
+      "label": "Tablet \u00b7 portrait",
+      "theme": "light",
+      "pixels": [
+        1600,
+        2560
+      ],
+      "dp": [
+        800.0,
+        1280.0
+      ],
+      "fontScale": 1.0
+    },
+    {
+      "name": "tablet-portrait-dark",
+      "label": "Tablet \u00b7 portrait",
+      "theme": "dark",
+      "pixels": [
+        1600,
+        2560
+      ],
+      "dp": [
+        800.0,
+        1280.0
+      ],
+      "fontScale": 1.0
+    },
+    {
+      "name": "tablet-landscape-light",
+      "label": "Tablet \u00b7 landscape",
+      "theme": "light",
+      "pixels": [
+        2560,
+        1600
+      ],
+      "dp": [
+        1280.0,
+        800.0
+      ],
+      "fontScale": 1.0
+    },
+    {
+      "name": "tablet-landscape-dark",
+      "label": "Tablet \u00b7 landscape",
+      "theme": "dark",
+      "pixels": [
+        2560,
+        1600
+      ],
+      "dp": [
+        1280.0,
+        800.0
+      ],
+      "fontScale": 1.0
+    },
+    {
+      "name": "cover-portrait-light",
+      "label": "Fold cover \u00b7 portrait",
+      "theme": "light",
+      "pixels": [
+        1080,
+        2520
+      ],
+      "dp": [
+        360.0,
+        840.0
+      ],
+      "fontScale": 1.0
+    },
+    {
+      "name": "cover-portrait-dark",
+      "label": "Fold cover \u00b7 portrait",
+      "theme": "dark",
+      "pixels": [
+        1080,
+        2520
+      ],
+      "dp": [
+        360.0,
+        840.0
+      ],
+      "fontScale": 1.0
+    },
+    {
+      "name": "cover-landscape-light",
+      "label": "Fold cover \u00b7 landscape",
+      "theme": "light",
+      "pixels": [
+        2520,
+        1080
+      ],
+      "dp": [
+        840.0,
+        360.0
+      ],
+      "fontScale": 1.0
+    },
+    {
+      "name": "cover-landscape-dark",
+      "label": "Fold cover \u00b7 landscape",
+      "theme": "dark",
+      "pixels": [
+        2520,
+        1080
+      ],
+      "dp": [
+        840.0,
+        360.0
+      ],
+      "fontScale": 1.0
+    },
+    {
+      "name": "inner-portrait-light",
+      "label": "Fold inner \u00b7 portrait",
+      "theme": "light",
+      "pixels": [
+        1536,
+        1720
+      ],
+      "dp": [
+        768.0,
+        860.0
+      ],
+      "fontScale": 1.0
+    },
+    {
+      "name": "inner-portrait-dark",
+      "label": "Fold inner \u00b7 portrait",
+      "theme": "dark",
+      "pixels": [
+        1536,
+        1720
+      ],
+      "dp": [
+        768.0,
+        860.0
+      ],
+      "fontScale": 1.0
+    },
+    {
+      "name": "inner-landscape-light",
+      "label": "Fold inner \u00b7 landscape",
+      "theme": "light",
+      "pixels": [
+        1720,
+        1536
+      ],
+      "dp": [
+        860.0,
+        768.0
+      ],
+      "fontScale": 1.0
+    },
+    {
+      "name": "inner-landscape-dark",
+      "label": "Fold inner \u00b7 landscape",
+      "theme": "dark",
+      "pixels": [
+        1720,
+        1536
+      ],
+      "dp": [
+        860.0,
+        768.0
+      ],
+      "fontScale": 1.0
+    },
+    {
+      "name": "large-text-light",
+      "label": "Phone \u00b7 200% text",
+      "theme": "light",
+      "pixels": [
+        960,
+        2100
+      ],
+      "dp": [
+        320.0,
+        700.0
+      ],
+      "fontScale": 2.0
+    },
+    {
+      "name": "large-text-dark",
+      "label": "Phone \u00b7 200% text",
+      "theme": "dark",
+      "pixels": [
+        960,
+        2100
+      ],
+      "dp": [
+        320.0,
+        700.0
+      ],
+      "fontScale": 2.0
+    }
+  ],
+  "restored": true,
+  "originalSettings": {
+    "size": "Physical size: 1080x1920\n",
+    "density": "Physical density: 420\n",
+    "font": "1.0",
+    "night": "no"
+  },
+  "restoredSettings": {
+    "size": "Physical size: 1080x1920\n",
+    "density": "Physical density: 420\n",
+    "font": "1.0",
+    "night": "no"
+  },
+  "physicalDevice": false,
+  "postureSimulation": false,
+  "captureOrigin": "Owned remote API34 ARM64 emulator, separate from CI",
+  "captureTool": "Task-only harness using PROFILES and capture_task_windows from scripts/capture-welcome-matrix.py",
+  "reviewedSourceCommit": "961ae1fee8a565c9d6166d5afc268bdefe0ddbb9",
+  "evidenceType": "Native Compose fixtures in emulated windows; no physical fold or hearing claim",
+  "review": "Root and independent design agent reviewed all 18 per-screen sheets and relevant full-resolution captures; no visible blocker remains in the captured states."
+}

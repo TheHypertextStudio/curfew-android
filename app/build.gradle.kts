@@ -1,6 +1,11 @@
 import java.security.MessageDigest
+import com.github.jk1.license.License
+import com.github.jk1.license.PomData
+import com.github.jk1.license.filter.DependencyFilter
+import groovy.json.JsonSlurper
 
 plugins {
+    id("com.android.compose.screenshot")
     id("com.android.application")
     id("org.jetbrains.kotlin.plugin.compose")
     id("com.google.devtools.ksp")
@@ -11,11 +16,13 @@ plugins {
 group = "studio.hypertext.curfew"
 
 android {
+    experimentalProperties["android.experimental.enableScreenshotTest"] = true
     namespace = "studio.hypertext.curfew"
-    compileSdk = 36
+    compileSdk { version = release(37) }
 
     defaultConfig {
         applicationId = "studio.hypertext.curfew"
+        manifestPlaceholders["oauthRedirectScheme"] = "studio.hypertext.curfew"
         minSdk = 33
         targetSdk = 36
         versionCode = 1
@@ -56,6 +63,13 @@ android {
     }
 
     buildTypes {
+        debug {
+            if (providers.gradleProperty("curfew.acceptance").orNull == "true") {
+                applicationIdSuffix = ".acceptance"
+                manifestPlaceholders["oauthRedirectScheme"] = "studio.hypertext.curfew.acceptance"
+                resValue("string", "app_name", "Curfew Test")
+            }
+        }
         release {
             isMinifyEnabled = true
             isShrinkResources = true
@@ -78,11 +92,22 @@ android {
     }
     buildFeatures {
         compose = true
+        resValues = true
     }
 }
 
 dependencies {
+    "screenshotTestImplementation"("com.android.tools.screenshot:screenshot-validation-api:0.0.1-alpha16")
+    "screenshotTestImplementation"(libs.androidx.compose.ui.tooling)
+    constraints {
+        add("gmsImplementation", libs.androidx.fragment.get()) {
+            because("Firebase's legacy Fragment dependency cannot dispatch activity-result callbacks safely")
+        }
+    }
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.core.splashscreen)
+    implementation(libs.androidx.navigation3.runtime)
+    implementation(libs.androidx.navigation3.ui)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
@@ -92,13 +117,14 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material3.adaptive)
+    implementation(libs.androidx.compose.material3.adaptive.layout)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.work.runtime)
     implementation(libs.androidx.browser)
     implementation(libs.okhttp)
-    implementation("studio.hypertext.curfew:curfew-protocols:0.3.0")
+    implementation("studio.hypertext.curfew:curfew-protocols:0.0.13")
     ksp(libs.androidx.room.compiler)
     "gmsImplementation"(libs.firebase.messaging)
     testImplementation(libs.junit)
@@ -121,6 +147,27 @@ licenseReport {
     configurations = arrayOf("plainReleaseRuntimeClasspath", "gmsReleaseRuntimeClasspath")
     allowedLicensesFile = layout.projectDirectory.file("../config/allowed-licenses.json")
     excludeOwnGroup = true
+    val metadata = JsonSlurper().parse(layout.projectDirectory.file("../config/license-metadata.json").asFile) as Map<*, *>
+    val modules = (metadata["modules"] as List<*>).map { it as Map<*, *> }
+    // The normalizer only transforms existing licenses; these resolved modules have none.
+    // Supply the licenses verified in their exact Google Maven POMs without allowing unknowns.
+    filters = arrayOf(DependencyFilter { data ->
+        data.configurations.flatMap { it.dependencies }.forEach { dependency ->
+            val verified = modules.singleOrNull {
+                it["group"] == dependency.group && it["name"] == dependency.name && it["version"] == dependency.version
+            }
+            if (verified != null && dependency.poms.all { it.licenses.isEmpty() } &&
+                dependency.manifests.all { it.licenses.isEmpty() } && dependency.licenseFiles.isEmpty()
+            ) {
+                dependency.poms.add(PomData().apply {
+                    name = dependency.name
+                    projectUrl = verified["sourcePom"] as String
+                    licenses = mutableSetOf(License(verified["license"] as String, verified["licenseUrl"] as String))
+                })
+            }
+        }
+        data
+    })
 }
 
 tasks.register("verifyPlainRuntimeIsolation") {
@@ -211,9 +258,41 @@ tasks.register("writeBuildProvenance") {
         output.get().asFile.apply {
             parentFile.mkdirs()
             writeText(
-                """{"schemaVersion":1,"applicationId":"studio.hypertext.curfew","versionName":"$versionName","sourceRevision":"$sourceRevision","protocolRevision":"bddd7c266f3df1b048ef37d83c3270bf24f7cc12","compileSdk":36,"targetSdk":36,"variants":["plainRelease","gmsRelease"]}""" +
+                """{"schemaVersion":1,"applicationId":"studio.hypertext.curfew","versionName":"$versionName","sourceRevision":"$sourceRevision","protocolRevision":"764ec480a5e5424856150be767a33a8ab022ae08","compileSdk":37,"targetSdk":36,"variants":["plainRelease","gmsRelease"]}""" +
                     "\n",
             )
         }
     }
+}
+
+// Catalog captures are disposable build outputs, never approved regression references.
+// Pin the official plugin above: this task API is part of its alpha integration.
+if (providers.gradleProperty("curfewScreenshotCatalog").orNull == "true") {
+    // The plugin configures its engine input from Android's onVariants callback.
+    // Append our override after that callback so its default cannot replace it.
+    afterEvaluate {
+        tasks.withType<com.android.compose.screenshot.tasks.PreviewScreenshotUpdateTask>().configureEach {
+            val batch = providers.gradleProperty("curfewScreenshotCatalogBatch").orNull
+            require(batch == null || batch.matches(Regex("[0-9]{4}"))) { "Invalid screenshot batch identifier" }
+            val directory = if (batch == null) "screenshot-catalog/raw" else "screenshot-catalog/raw/batch-$batch"
+            testEngineInput.referenceImageDir.set(layout.buildDirectory.dir(directory))
+        }
+    }
+}
+
+val generateScreenshotCatalogPreviews by tasks.registering(Exec::class) {
+    group = "verification"
+    description = "Generate official Compose preview tests from the screenshot catalog matrix."
+    workingDir(rootProject.projectDir)
+    commandLine("python3", "scripts/screenshot_catalog.py", "--generate-only")
+    inputs.files(
+        rootProject.file("config/screenshots/matrix.json"),
+        rootProject.file("config/screenshots/coverage.json"),
+        rootProject.file("scripts/screenshot_catalog.py"),
+    )
+    outputs.file("src/screenshotTest/kotlin/studio/hypertext/curfew/screenshots/CatalogPreviews.kt")
+}
+
+tasks.matching { it.name.matches(Regex("(compile|ksp).*ScreenshotTestKotlin")) }.configureEach {
+    dependsOn(generateScreenshotCatalogPreviews)
 }

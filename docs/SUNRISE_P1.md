@@ -1,0 +1,938 @@
+# Sunrise P1 implementation and acceptance
+
+Reader: The Android maintainer accepting Docket project `01M5AXW727EJSE5FM2H8WXJRWS`.
+Action: Finish the remaining connected-Pixel Doze check before accepting P1.
+Date: October 20, 2026, Pacific.
+Status: Scheduling, playback/readiness, and authenticated release are accepted in Docket. Pixel recovery acceptance remains open.
+
+## Current acceptance boundary
+
+The October 21 usability review identifies a separate consumer launch blocker:
+ordinary users have no supplied check-in service. P1's authenticated integration
+requires an existing operator-run service. Do not present technical acceptance
+of that integration as consumer launch readiness. The check-in prerequisite
+screen now provides a draft-only exit before its manual connection flow.
+Trusted-person approval still requires a real invitation and approval product.
+
+[The acceptance record](P1_ACCEPTANCE.md) maps the four feature tasks to
+observed results. Application source `961ae1f` passes all seven jobs in CI
+39553434419 after the API35 capture retry. Evidence commit `0919d57` passes
+all seven jobs in CI 39554867813 on its first run. The app source is unchanged
+between those commits. Both distributions pass 200 host tests and Android lint.
+The 108-image task matrix passes full independent review across 18 profiles.
+
+The latest physical attempt establishes forced light Doze on the Pixel with
+the display off and no charger. Android then records a tap wake at 06:29:11Z,
+ten seconds before the alarm. The driver cancels before delivery. Cleanup
+removes the isolated packages and restores ordinary idle policy. This is
+rejected Doze-delivery evidence. The Pixel is now absent from local and
+WillieStudio ADB discovery, and direct reconnection fails with no route to host.
+
+The remaining P1 gate is an uninterrupted installed Pixel Doze-delivery check.
+The existing hearing, TLS release, locked presentation, offline ringing, and
+process-loss observations retain their candidate boundaries in the acceptance
+record. Manual TalkBack, deep-idle delivery, natural overnight standby, and
+production distribution remain unverified. P1b and bedtime MVP work remain
+separate. Earlier progress entries below preserve historical observations;
+they do not override this status.
+
+## Decision
+
+Keep the existing persistent campaign engine, exact-alarm gateway, Room campaign storage, and authenticated callback protocol. Add a durable local alarm schedule above that engine. Curfew accounts and the coordinator remain optional. The saved schedule describes future mornings; the active campaign identifies one morning and keeps its release authority even when future settings change.
+
+Support one saved Sunrise alarm with either a selected one-night date or selected weekdays. The user can edit its time, recurrence, and enabled state. Disabling future alarms does not dismiss an occurrence that has already begun. The UI shows the saved next occurrence and the active condition. Ringing keeps the existing two-minute ring and one-minute quiet defaults; configuration of engine internals belongs outside the normal nightly flow.
+
+Follow device-local time for future occurrences. Retain the resolver's existing DST behavior: a gap uses the first valid instant and an overlap uses the first offset. An occurrence already underway retains its identity through clock changes and recovery. Repeated delivery of a scheduled occurrence must not reset its active state. A completed one-night occurrence must never become tomorrow's recurring alarm.
+
+The release verifier must have a usable shared-secret provisioning path. Merely saving a URL and generating an inaccessible secret is incomplete. The setup UI must display success only after persistence succeeds and expose supported provisioning without logging secrets. An unavailable verifier leaves the alarm active. Emergency owner recovery records an override rather than a verified wake.
+
+## Component diagram
+
+This component diagram shows modules within the Android application. The schedule controller coordinates future occurrences. The existing campaign engine governs active ringing and release.
+
+```mermaid
+flowchart LR
+  UI[Sunrise setup and status]
+  S[Local schedule controller]
+  P[Local schedule storage]
+  G[Android alarm gateway]
+  E[Campaign runtime]
+  C[Active clock mapping]
+  V[Authenticated callback client]
+  UI --> S
+  S --> P
+  S --> G
+  S --> E
+  E --> V
+  E --> C
+  E --> G
+  UI --> E
+```
+
+## Implementation sequence
+
+### P1.1: Durable schedule and armed state
+
+- [ ] Run the existing plain unit suite before changes.
+- [x] Add failing schedule tests for a one-night date, selected weekdays, disabled state, next-day recurrence, DST gap/overlap, and stable occurrence identity across recovery.
+- [x] Add `alarm/SunriseSchedule.kt` for local schedule selection and deterministic occurrence identity. Keep it independent of Android so these cases run as host tests.
+- [x] Add a tested controller that replaces only future scheduled state, rejects incomplete readiness/release configuration, preserves active state, and does not duplicate an occurrence on repeated reconciliation.
+- [x] Persist the schedule locally and wire it to setup, armed-state display, transition delivery, and recovery. Add persistence and Compose instrumentation coverage.
+- [x] Run targeted tests, then the full plain unit suite before accepting the behavior.
+
+### P1.2: Persistent audible execution
+
+- [ ] Audit playback, notification fallback, audio focus, and service redelivery against the saved authoritative campaign.
+- [ ] Reproduce each missing behavior in a failing unit or instrumented test before changing production code.
+- [ ] Restore an active alarm from saved state without invented campaign parameters or a silent interval until the next attempt.
+- [ ] Verify the installed locked-screen and denied-full-screen paths on an emulator, and retain physical audio/device checks as separate evidence.
+
+### P1.3: Authenticated release
+
+- [x] Add failing tests for configuration/provisioning, accurate save status, and current-occurrence-only completion.
+- [ ] Complete a controlled HTTPS verifier setup using the existing versioned protocol. Never introduce an Android-only wire shape.
+- [ ] Verify pending, malformed, stale, future, replayed, wrong-occurrence, and unreachable responses remain active.
+- [ ] Verify a valid response stops the corresponding audio and records the outcome. Keep deliberate recovery distinct.
+
+### P1.4: Recovery and acceptance
+
+- [ ] Exercise process death, relaunch, reboot, package replacement, time/zone changes, permission revocation, and offline ringing.
+- [x] Run both distribution unit/lint/build checks with at most two Gradle workers.
+- [ ] Run installed instrumentation and collect screenshots of the final setup and ringing states.
+- [ ] Record the connected Pixel acceptance run, including actual audio, Doze, DND, focus changes, and manufacturer limits. Do not substitute emulator evidence.
+- [ ] Update Docket through its connector as Codex, then complete only tasks whose acceptance criteria have direct evidence.
+
+## Verification ledger
+
+The starting revision is remote main `6c7062c`. The primary checkout is diverged and contains unrelated work; implementation uses `codex/sunrise-p1` in an isolated worktree. The shared-cache bootstrap completed. The documented resource checker is missing at `~/.claude/resource-limits/agentctl`; Gradle commands are bounded with `--max-workers=2` and `--no-daemon`.
+
+The initial ADB inventory and mDNS discovery contain no connected devices. Six emulator profiles exist. Physical-device acceptance remains unproven.
+
+The focused host run uses the cached Kotlin 2.4.10 compiler and JUnit 4.13.2 with Corretto 20, targeting JVM 17. It passes 23 tests across `SunriseScheduleTest`, `SunriseSchedulePlannerTest`, and the existing `WakeScheduleResolverTest`. New types first failed compilation because their APIs did not exist. The overdue-disable regression then failed with an actual assertion: the planner returned no occurrence instead of preserving the due morning. That assertion passed after the guard changed. These results prove domain behavior, not Android integration, storage, audio, lint, or an installed build.
+
+`SunriseSchedulePlanner` preserves an active or overdue morning when future settings change, cancels a disabled future occurrence, and carries the completed local date into the next plan. The storage adapter must persist that completed date so a later clock rewind cannot reopen it. The setup screen now uses the saved schedule model. It offers native time/date selection, weekly day selection, and the saved next occurrence. The ringing screen observes persisted campaign state. These integrations have compiled, but installed UI acceptance remains pending.
+
+The pinned Gradle 9.5 distribution finished downloading. The host default Java is 27, so its initial build was stopped before compilation; the first full unit run used Android Studio's Java 25 and cached Gradle 9.6.1. The current run uses pinned Gradle 9.5 with two workers and a 1 GiB heap. An offline probe identified six uncached Android build artifacts. The online run resolved those artifacts. The first full plain unit run with Gradle 9.6.1 passed 95 tests across 22 suites using the pinned DataStore 1.2.1 dependency. A subsequent build compiled production and instrumentation Kotlin before failing on the intentionally absent release-consumption API. The implementation now includes that API. The Gradle 9.5 wrapper run with Java 25 passed: 104 plain unit tests across 23 suites, zero failures and errors, plus app and instrumentation APK assembly. GMS verification, both lint checks, and installed checks remain required.
+
+Protocol tag `v0.3.0` could not be fetched, and a remote tag query for `*0.3*` returned none. CI currently references that absent tag. Local testing uses the existing clean protocol checkout at immutable revision `6f5372d67d074a0a88c13b42499940ed3639936e`; it does not claim a tagged or published protocol release. No wire shapes changed in this work.
+
+## Rollback
+
+Keep the previous saved schedule until a replacement can be scheduled. Preserve active campaign state when editing future settings. A bad setup or unavailable verifier must not be reported as armed or released. Retain an explicit owner-recovery procedure and record its override outcome. Production signing and network integration are outside this change.
+
+
+## Release and playback follow-up
+
+Release consumption now checks the matching campaign's terminal state and durably clears only that occurrence. It advances the completed local date before trying the next morning. Duplicate approval cannot consume a newer occurrence. An active runtime cannot be consumed. Three failing compilation regressions established the missing API before implementation. The callback worker now stops local playback and reconciles the local schedule before optional account publication. Boot and clock recovery also reconcile the saved schedule; a readiness failure for the next morning must not prevent restoration of an active campaign.
+
+Playback service inspection found that stale start intents can ring after terminal state and sticky process restart stops rather than immediately restoring authoritative state. Six regression tests cover saved active attempts, quiet boundaries, future schedules, unmatched campaign IDs, terminal results, and selecting the most recently persisted active campaign. The focused host suite now passes 63 tests, including those six and the three release-consumption tests. The service now uses this recovery decision before audio and observes durable campaign state. Installed service behavior remains unverified. This focused runner uses cached DataStore 1.0.0; the earlier 95-test Gradle run used the pinned 1.2.1 version. The Gradle 9.5 wrapper subsequently passed all 104 plain unit tests against pinned dependencies and assembled both APKs. These results still do not establish installed behavior or physical audio.
+
+The Docket connector returned `MCP authentication required` during the current task refresh. Local implementation continues. No task acceptance or new progress publication is claimed for this disconnected interval.
+
+
+The isolated API 35 emulator (`Sunrise_API35`, emulator-5554) booted and installed both APKs. The first six-test instrumentation run passed the two schedule-edit tests and all three Room tests. One assertion failed because Compose's `assertTextContains` defaults to whole-text matching; the expected warning was present in the failure's semantics dump. The test now requests substring matching explicitly. A rebuilt test APK and rerun remain required. This emulator has host audio disabled and supplies no physical sound evidence.
+
+
+The installed MainActivity rendered the initial Sunrise setup with time, one-night/weekly choices, date, missing-condition warning, disabled Save, and readiness status. The inspected screenshot is `build/sunrise-evidence/setup-api35.png`. The isolated emulator was then shut down successfully before the combined Gradle plain/GMS unit, lint, and APK run. That run uses one worker and a 1 GiB heap. The corrected instrumentation assertion still requires a rebuilt APK and installed rerun.
+
+## Verifier setup progress
+
+The selected condition now carries a separate persisted verification marker. A newly saved or replacement condition is unverified. A late connection test cannot verify a different selected condition. Sunrise checks this marker and the stored definition before arming. Existing active occurrences retain their original callback identity.
+
+The setup controller supports reading the selected stored protocol definition for explicit export. Android's document picker writes that definition, including its private signing key, only to the owner-selected destination. The app does not log or copy it to the clipboard. Keep the exported file private and install it on the trusted verifier. A connection test uses the existing signed callback exchange with a fresh, non-persisted UUID. Either authenticated receipt status establishes connectivity; it cannot complete a saved occurrence. Saving reports success only after both storage and selection succeed.
+
+New controller/provisioning/readiness tests first failed compilation on the missing APIs. The new Compose setup test first failed compilation on the missing card. Both distributions' unit, lint, and APK checks are running after implementation. Installed export, signed verifier, and audible release acceptance are still pending.
+
+The current setup build passed 120 plain and 120 GMS unit tests across 26 suites with zero failures or errors. Plain lint passed with zero errors. GMS lint caught a transitive Fragment version below the activity-result minimum when compiling the export picker. Dependency correction and a complete rerun are required before accepting the new APKs. This is a build gate, not a reason to suppress the lint check.
+
+The latest actual Android workflow run (`37079938046`, October 2) failed during SDK setup because the action requested the removed `tools` package. The action's published v3 manifest still defaults to `tools platform-tools`. Every setup invocation now explicitly requests only `platform-tools`; existing compile SDK installation and emulator provisioning remain explicit. This corrects the observed failure without suppressing SDK checks. Remote CI is not yet verified, and its separate missing `v0.3.0` protocol checkout tag remains unresolved. Dependabot update jobs do not count as Android verification.
+
+The Fragment dependency report confirmed version 1.1.0 arrives through Firebase's Play Services base/basement dependencies. A GMS-only constraint now selects Fragment 1.9.1, the current stable release listed by Android Developers. The complete rerun passed 120 unit tests per distribution, both lint checks, all three requested APK assemblies, and `verifyPlainRuntimeIsolation`. Gradle reported `BUILD SUCCESSFUL`; the isolation task intentionally discards its incompatible configuration-cache entry. The emulator rerun is the next acceptance step. Lint retains dependency-update and existing source/resource warnings; it has zero errors.
+
+The rebuilt API 35 instrumentation run executed 14 tests. It found an outdated keyguard fixture that expected a raw launcher boolean without a saved campaign to wake the screen. The updated test persists a real active campaign, waits for asynchronous recovery, and separately verifies that a missing campaign cannot request keyguard presentation. The callback-card, schedule, and Room checks passed in that run. The corrected full installed rerun is required.
+
+The corrected API 35 full instrumentation run passed all 15 tests in 35.361 seconds. This includes the schedule and wake-condition Compose checks, Room/Keystore/manifest checks, the ringing control, and saved-active versus missing-campaign keyguard presentation. The isolated emulator has host audio disabled; this result supplies no physical sound evidence.
+
+Installed setup verification also saved `P1 test condition` against an intentionally unreachable `.test` endpoint. Android's document picker exported its generated protocol definition to Downloads. A local check confirmed its identity, endpoint, poll policy, and 32-byte key without printing key contents. The test export was deleted. Testing that unreachable endpoint left the condition unverified and showed the failure. No alarm was armed during this setup check. Captures are under `build/sunrise-evidence/`, including `setup-current-api35.png` and `condition-rejected-api35.png`.
+
+The next required work is the controlled HTTPS verifier-to-audio release journey, callback poll-chain and persisted-state concurrency, deliberate owner recovery, lifecycle/reconnection acceptance, protocol CI reference resolution, and physical Pixel/non-Pixel checks. None of those requirements is waived by the successful setup/build/instrumentation checks above.
+
+## Persisted-state and playback isolation
+
+The installed regression run `concurrency-stage2-api35.txt` reproduced two failures before correction. A stale first quiet interval replaced the second ringing attempt in Room. A transition for an older completed alarm stopped the current foreground service because Android does not match `stopService` calls by intent extras.
+
+Room writes now run in a transaction and return the authoritative saved state. The first terminal outcome remains final. Older intervals cannot move playback backward. Callback nudge scheduling keeps the pending job; the worker appends its successor rather than replacing itself. Local transitions and callback release let the service observe its own campaign state instead of issuing a process-wide service stop. Transition, recovery, and playback paths use the value that Room accepted.
+
+The new installed run `concurrency-green-api35.txt` passed six tests in 23.269 seconds. `AlarmRuntimeRepositoryInstrumentedTest` covers late pending/terminal/quiet writes. `AlarmServiceIsolationInstrumentedTest` covers a completed old occurrence during current playback. `CallbackPollSchedulerInstrumentedTest` covers repeated nudges and continuation dependencies. The plain host suite and debug/test APK assembly passed in `concurrency-green-build.txt`. The controlled TLS journey and full post-change lint/distribution verification are still pending.
+
+No database schema or wire shape changed. Rollback must preserve recorded terminal outcomes; reverting the write guard would reintroduce the reproduced replay bugs. These results come from the isolated API 35 emulator with host audio disabled. They do not prove physical audio or manufacturer behavior.
+
+## Controlled HTTPS release journey
+
+`SunriseReleaseJourneyInstrumentedTest` passed on the installed API 35 emulator in 6.258 seconds (`https-journey-retry-api35.txt`). It saves a check-in, supplies its generated definition to an in-process loopback TLS peer, verifies setup using the real callback client, saves a one-night schedule, and waits for Android AlarmManager to start foreground playback. Pending, forged-MAC, malformed, and wrong-occurrence responses keep the alarm active. A valid current signed response changes the saved result to Satisfied, removes playback presentation, consumes the one-night occurrence, and records its completed local date. Retrying after completion does not ring again.
+
+The test-only PKCS12 fixture is packaged only in the instrumentation APK. The test temporarily trusts that certificate in its process and retains hostname verification. Production TLS settings and application trust configuration are unchanged. The first run failed because Java bound the peer to IPv6 while localhost resolved to IPv4; binding explicitly to 127.0.0.1 corrected the fixture. It was not a production callback failure.
+
+Both distributions pass all 120 host unit tests, Android lint with zero errors (36 plain and 39 GMS warnings), and debug APK assembly. Plain runtime isolation passed. The combined command returned BUILD SUCCESSFUL in 1m 17s (`concurrency-distribution-checks.txt`). Full installed-suite verification is running. This acceptance does not yet cover physical audio, a public deployed verifier, owner recovery, reboot/Doze/clock-change behavior, or native design replacement.
+
+## New-alarm completion regression and Pixel run
+
+The full installed suite initially failed when a second test alarm inherited the completed date of the previous alarm. Two host regressions then failed with `Choose a future date and time for Sunrise` before correction (`new-alarm-after-completion-red-2.txt`). Completion tracking now stays with its saved alarm identity. Replacing a finished alarm does not consume a different alarm's future occurrence. Existing active and overdue occurrences retain their protection. Both distributions now pass 122 host tests, lint with zero errors, debug APK assembly, and plain runtime isolation (`concurrency-release-final-checks.txt`, BUILD SUCCESSFUL in 1m 7s).
+
+The HTTPS test now also observes Android AudioManager's active alarm-usage playback configurations. It requires alarm audio during ringing and invalid responses, then no alarm audio after authenticated release. It does not treat notification presence as audio proof.
+
+On October 19, 2026, ADB detected a connected Pixel 11 Pro running API 37 with no prior Curfew installation. The plain debug app and instrumentation APK installed successfully. The schedule-to-ring-to-release test passed in 6.247 seconds (`https-audio-pixel11-api37.txt`). This is physical-device automated playback evidence. No person confirmed perceived sound or sufficient volume. This run does not cover locked-screen delivery, Doze, DND, audio-focus changes, reboot, manufacturer restrictions, or a non-Pixel device. The installed UI still requires the separately reviewed native redesign. No P1 task is accepted by this result alone.
+
+The full physical Pixel suite passed all 22 instrumentation tests in 18.439 seconds (`full-pixel11-api37.txt`). The strengthened API 35 suite failed its new audio assertion. Android logged MediaPlayer data-source errors for its default alarm tone. The older API 35 notification-based result does not prove audio, so the audio failure remains open while the emulator configuration is investigated. The TLS fixture now records a test-only override and consumes its owned occurrence during failure cleanup to avoid leaving an overdue fixture for the next run.
+
+The host-audio-enabled emulator probe did not finish. ADB stalled, and the owned emulator was stopped after inspecting its live process. `https-audio-enabled-api35.txt` reports Process crashed after that stop; it is not a passing rerun. The physical Pixel disconnected after its completed suite. The local design preview server remains available; its separate capture browser was closed to release resources. The API 35 audio failure remains an explicit gap.
+
+## Owner recovery implementation
+
+The first recovery authorization test run failed compilation on the missing API (`owner-recovery-red.txt`). Installed persistence tests likewise failed compilation on the missing recovery repository and audit storage (`owner-recovery-storage-red.txt`). The new authorization and storage code then compiled. All ten targeted host authorization tests pass (`owner-recovery-kernel-green.txt`, BUILD SUCCESSFUL in 1m 22s). This is not installed recovery acceptance.
+
+The [owner recovery contract](OWNER_RECOVERY.md) records the local-only authority, atomic audit, native screen-lock confirmation, accessibility requirements, and schema 2 rollback limits. Recovery UI, migration execution, native credential interaction, and playback acceptance remain in progress. The independent design review required a named Alarm recovery destination, visible hold progress, keyboard/assistive equivalents, retained reasons, and rechecking the active occurrence after confirmation.
+
+### Recovery clock correction and theme checks
+
+The API 36 test for recovery after a backward clock change failed first with
+`observation predates campaign`. Recovery now uses a valid engine observation
+while retaining the actual wall time in its local audit. All six installed
+recovery repository tests and the schema migration passed in
+`recovery-installed-green.txt`. That invocation finished with 12 of 13 cases passing. Accessible confirmation
+timed out while its timer depended on Compose's animation clock. The hold now
+measures elapsed time and updates progress independently of animation scale;
+its installed rerun is pending.
+
+`CurfewSurfaceRolesTest` failed first because dark bright/dim surface roles
+had reversed luminance. The corrected roles passed with all 133 plain host
+tests. APK assembly completed. Lint crashed during a concurrent source edit in
+`recovery-clock-surface-green-build.txt`; a fresh build with the source held
+unchanged is running in `recovery-elapsed-build.txt`. The first UI invocation crashed
+while emulator System UI was unresponsive. The later six-case UI run had one
+incorrect timing assertion; the revised test measures real elapsed time.
+
+This evidence does not accept native credential confirmation, foreground
+hold cancellation, physical key repeat, full responsive visual review, or
+physical sound. Those gates remain open. The Docket connector was absent
+from the current tool inventory, so no external status update was posted.
+
+### Installed native integration and service audio
+
+`recovery-elapsed-build.txt` completed plain unit tests, both debug APKs, and
+plain lint successfully. `recovery-elapsed-installed.txt` passed the four
+isolated recovery-screen cases. `recovery-native-and-navigation-red.txt`
+passed both native credential prerequisites and failed all five navigation
+cases against the old page before its replacement.
+
+`native-destinations-recovery-installed.txt` then ran 17 installed cases on
+API 36. Sixteen passed, including five destination/navigation checks, two
+ringing actions, two native credential prerequisites, and both audio probes.
+The new missing-screen-lock case failed because the reason field still
+appeared; its layout correction is implemented but not yet rerun. The
+foreground test passed but has since been strengthened to wait longer than
+the hold. Physical keyboard repeat also has a new pending regression.
+
+Both generated PCM and Android's default ringtone produced active alarm
+tracks in the audio probes. The subsequent
+`scheduled-audio-warm-emulator.txt` passed the stronger installed HTTPS
+journey, including AlarmManager delivery, active alarm audio, rejection of
+invalid release responses, and cessation after valid release. The earlier
+startup-time emulator failures remain recorded. No fallback sound change
+was justified by these passing probes. This is emulator playback evidence;
+it does not prove audibility through a physical speaker.
+
+Confirmed recovery cleanup has an additional cancellation regression. Its
+first fixture canceled the protected block itself, which does not model an
+Activity closing. The corrected fixture captures and cancels the outer
+Activity job. `recovery-external-cancel-red.txt` failed with unprotected
+completion. Completion now protects the already-authorized local commit
+and scheduling cleanup; its green run is pending in
+`recovery-cleanup-native-build.txt`.
+
+### Existing published protocol tag
+
+A fresh remote fetch found corrective release `v0.0.13` at
+`764ec480a5e5424856150be767a33a8ab022ae08`. Its generated Kotlin module declares
+version `0.0.13`. The old `v0.3.0` pin still fails remote tag resolution with
+exit 2 (`protocol-tag-red.txt`). Android's dependency, three workflow
+checkouts, and release provenance now name the existing `0.0.13` contract.
+No protocol source, tag, wire shape, or publication was changed.
+
+An archive of that exact Git tag lives under the ignored local
+`build/protocols-v0.0.13` directory for compatibility checks. The checks are
+pending. This replaces the earlier unavailable-tag assumption; it does not
+establish that remote Android CI or Maven package access passed.
+
+
+### October 19 consumer copy and destination semantics
+
+The copy pass removes repeated setup introductions, decorative headings, and instructions that restate visible actions in the review proposal and native check-in form. The app retains connection status, validation errors, offline consequences, and recovery-key guidance. Destination names use accessibility pane titles and app-bar heading semantics without additional visible labels.
+
+Installed tests observed the missing Sunrise pane title before the semantics correction. The same run passed the other 19 navigation, check-in, schedule-editor, and recovery-input tests, including lifecycle cancellation and keyboard auto-repeat. The corrected semantics, current lint, and fresh visual review remain pending until their recorded runs finish. The proposal JavaScript syntax check and diff whitespace check pass.
+
+
+The final copy/semantics run passed both distributions' 139 host tests, both debug lint tasks, both debug APK builds, and the plain instrumentation APK build (`native-copy-final-build.txt`, 5m23s). The installed rerun passed 13 tests including daily navigation, pane/heading semantics, all seven recovery-input cases, credential prerequisites, and two visual capture fixtures (`native-copy-final-installed.txt`). The fixture images cover daily and service setup in both themes, 320/390dp, and 100/200% text. These results close this copy correction; they do not close the separate picker, large-text schedule, full credential-success, or physical-device acceptance gaps.
+
+
+### October 19 locked recovery and interrupted completion
+
+The real credential fixture uses only the owned disposable API36 AVD. Its first attempt was obstructed by a stale System UI ANR. After that dialog was explicitly dismissed, the next attempt reached a PIN screen before any recovery action. MainActivity no longer requests keyguard dismissal on alarm entry; it retains show-when-locked and turn-screen-on. The fixture script restores the unlocked state after clearing its PIN so ordinary Compose tests can resume.
+
+A new installed interruption regression failed because a committed recovery left the saved recurring schedule pointing at the terminal occurrence. Cleanup now saves the next schedule before canceling the old occurrence's repair triggers, and terminal transition/callback delivery can finish that interrupted work. Three host order tests failed first against the absent coordinator. Notification presentation also failed first on the posted technical campaign title. Those fixes await the current green build and installed reruns.
+
+The daily layout regression observed five expected failures before the design correction. Its initial green attempt ran behind the lingering keyguard and reported no Compose hierarchy; that is inconclusive layout evidence, not an accepted green or a proven layout defect. The owned emulator is rebooting after repeated inconsistent System UI state.
+
+
+The real API36 credential fixture now passes both success and cancellation cases (`credential-journey-back-navigation.txt`, 39.741s). Native confirmation records the reason and Overridden outcome and stops active alarm audio. Native Back cancellation retains ringing and records no audit. The temporary PIN is cleared and verified afterward. Earlier runs exposed invalid test locators and an ignored outside-prompt cancellation action; those are not accepted green results.
+
+Both distributions pass 142 host tests. Both current lint variants and plain runtime isolation pass (`native-credential-fixture-lint-build.txt`, 4m21s). Installed notification presentation and recovery continuation now pass. Large-text diagnostics isolated fractional intrinsic-width allocation; numeric time and weekday markers pass after receiving real allocated widths. The final period allocation and baseline correction passed six installed daily-layout tests. The same run passed the real HTTPS schedule-to-audio-to-release journey, three keyguard checks, and daily captures (11 tests, 68.16s). A subsequent user review rejected the recurring date line and excess spacing. The density revision removes that line and tightens only daily spacing; its verification is tracked separately.
+
+The broad plain installed run reached recovery, keyguard, navigation, and four capture fixtures without a reported assertion failure. The agent then stopped its app process to prioritize the requested density revision. Its final process-crashed result is an intentional interruption, not a complete passing suite. The focused density suite runs separately.
+
+The density regression ran eight installed tests against the previous layout and observed three expected failures: Today, Tomorrow, and the schedule-to-check-in gap. After removing the recurring date and reducing daily-only spacing, all eight pass. The daily capture fixture also passes (nine tests total, 24.558s), producing eight new native light/dark, 320/390dp, 100/200% images under `daily-density-final`. Both distributions pass 142 host tests, debug lint, the plain debug/test APK builds, and dependency license checks (`daily-density-green-build.txt`, 1m21s). Before the density revision, both release APKs, both lint variants, runtime isolation, and license checks passed (`p1-current-release-verification.txt`, 10m24s). Release APKs have not been rebuilt after the spacing-only revision.
+
+The smaller daily grouping preserves font sizes, day gaps, accessibility labels, and touch targets. Other destinations retain their existing spacing. The rollback is limited to daily presentation; no schedule, callback, credential, or wire contract changes belong to this density adjustment. The browser sample source matches the omission and spacing but was not re-rendered through browser automation. Physical acceptance, the native picker theme, and the remaining installed lifecycle matrix remain open.
+
+The final density review exposed an avoidable AM/PM row at 320dp. A baseline regression failed first with a 121px separation. The time component now chooses inline presentation from measured text widths while retaining a numeric font at least 2.5 times the period before considering inline placement. It stacks only when that hierarchy cannot fit. Nine layout tests plus the capture fixture pass (10 tests, 21.015s). Both distributions again pass 142 host tests, debug lint, APK assembly, and license checks (`daily-inline-green-build.txt`, 54s). Eight current captures are in `daily-inline-final`. No release rebuild or complete installed-suite claim follows this presentation change.
+
+## October 20 sound-confirmation correction
+
+The old activity marked its test sound complete immediately after requesting playback. Six new controller tests failed first against the absent confirmation API, then passed. The activity now records readiness only after successful preview startup and the owner's explicit hearing confirmation. Canceling or backgrounding stops the preview without confirming. Replay remains available after setup. A new preference distinguishes hearing confirmation from the old automatic playback flag. The migration preserves saved schedules and outcomes, but setup and future scheduling require the corrected readiness confirmation.
+
+The first installed migration/activity run passed four tests (11.632s). The dialog matrix then exposed fractional intrinsic-width allocation in its title and action labels. Explicit available title width and measured action-label allocation resolved those strict overflow failures. Native Back cancellation during startup and the false claim of incompletion after a failed re-save each failed first, then passed after correction. Seven installed tests passed under both actual device configurations: normal 411dp/100% (25.682s) and 320dp/200% (25.662s).
+
+Review found that local density overrides did not affect the dialog's separate window. The duplicate fixture labels are not additional coverage. The corrected fixture records the actual device font scale, asserts that scale against every text layout, and captures six theme/state combinations per device profile. It relies on the two actual device runs for 100/200% coverage.
+
+The narrow device capture also showed a two-line task title painting over setup content. A targeted regression observed two lines where the compact toolbar allows one. Task titles now use standard single-line ellipsis while retaining their full accessible name. Final capture and build evidence follows this correction.
+
+Final sound-check evidence: both distributions pass 148 host tests, both debug APKs, the plain test APK, both debug lint variants, and dependency license checks (`sound-toolbar-final-build.txt`, 52s). The corrected fixture passes eight installed tests at actual 411dp/100% and 320dp/200% (`sound-check-reviewed-captures.txt`, 22.369s/22.017s). Six dialog images per profile have asserted device-scale metadata. Read-only design review found no remaining concrete defect in those dialogs or header states. An independent permission-precondition run passed three real-activity cases after notification and exact-alarm access were revoked before the run (`sound-confirmation-independent-fixture-green-installed.txt`, 12.018s). Its initial fixture hardening returned ActivityScenario from a JUnit Before method; the method now explicitly returns Unit. These results establish emulator behavior, not physical audibility or full P1 acceptance.
+
+After the preference correction, navigation, the real HTTPS schedule-to-audio-to-release journey, and interrupted recovery continuation pass again (10 installed tests, 22.402s, `sound-confirmation-regression-installed.txt`). The complete default instrumentation suite, current remote CI, and current minified release verification are not established by this focused run.
+
+## October 20 default cadence and first remote CI
+
+The current production revision is `5465e16`, published in draft [PR #18](https://github.com/TheHypertextStudio/curfew-android/pull/18). The [first Android CI run](https://github.com/TheHypertextStudio/curfew-android/actions/runs/39390707661) passes both verification jobs and the release-evidence job. This proves current remote unit/lint/debug assembly, both minified release variants, plain dependency isolation, dependency license checks, and the configured checksum/SBOM/provenance generation. It does not establish production signing or physical acceptance.
+
+All four remote instrumentation jobs fail. API36 reports four failures: keyboard hold focus, two navigation/input cases, and the keyboard capture. API33 additionally reports incompatible test PKCS12 loading and absent observed default-ringtone audio. These results require diagnosis; the workflow is not green. The ATD image removes SystemUI, LatinIME, and other services according to [Android's ATD documentation](https://developer.android.com/studio/test/managed-devices#whats-removed-from-atd-images), so it cannot establish the requested complete platform journey. A full-image reproduction and fixture compatibility checks are in progress. Do not weaken the app acceptance assertions or count an ATD limitation as a production limitation without evidence.
+
+The separate installed offline cadence case passes on the owned API36 Play-image emulator in 185.71s. It uses the real AlarmManager, default two-minute ring and one-minute quiet intervals, stored schedule, and foreground audio. It first validates its HTTPS check-in, closes that peer, then confirms callback failure cannot release the occurrence. There is no active default network throughout all three phases. The same occurrence reports first ringing at 08:10:36.689 UTC, quiet at 08:12:35.873 UTC, and second ringing at 08:13:35.778 UTC on October 20. Android's alarm audio track is active, inactive, then active. The scheduled boundaries are 08:12:35.534 and 08:13:35.534 UTC. No fake clock or shortened policy is used.
+
+Evidence is under `build/sunrise-evidence/cadence-offline/`: native output, phase timeline, screenshots, original/restored network settings, and cleanup output. The cleanup case passes separately in 0.039s. Wi-Fi, mobile data, and airplane mode are restored to their original values. This is emulator audio-track evidence, not observed physical speaker output. The test is opt-in and its normal CI skip is not acceptance. Both debug lint variants and the plain instrumentation APK build pass for this acceptance addition (`cadence-offline-build.txt`, 22s). No production behavior changed to make the test pass.
+
+The disabled-animation reproduction on the full API36 image passes all four corresponding input/capture cases (15.413s). A separate 320dp by 533dp window reproduces both navigation failures: a tap does not reach the offscreen volume action, so Done never appears. After the fixtures scroll and assert visibility before touching the action, those two cases and the recovery key-hold case pass in that same short window (three tests, 7.694s).
+
+CI now requests full Google APIs images with an explicit Pixel 2 profile instead of ATD. This preserves the real keyboard and platform surfaces required by the existing assertions. The public test PKCS12 fixture now uses Android 13-compatible SHA-1/Triple-DES container protection. Its TLS certificate fingerprint is unchanged (`a72db9a45420ddb660efd2fe680f86575efc707ea90f08480ab2449b6623a51d`). This does not modify production trust or callback authentication. Real HTTPS release and interrupted-completion acceptance pass locally with the repackaged container (two tests, 6.15s). Both instrumentation APKs and both lint variants pass (`ci-platform-fixture-build.txt`, 29s). Android 13 loading and the full remote matrix still require the next CI run; local API36 evidence cannot establish them.
+
+
+## October 20 daily spacing follow-up
+
+The daily card now uses a 72sp numeric-time ceiling and 12dp vertical padding.
+The change keeps the selected weekdays, switch, and separate check-in surface.
+It removes height inside the group without adding content below it. A new
+390dp density regression failed first at a 267.4dp check-in label position.
+The final layout meets its 248dp bound. All ten daily layout cases and the
+native capture case pass (11 tests, 11.317s). Eight light/dark, 320/390dp,
+100/200% captures were reviewed under `build/sunrise-evidence/density-reviewed`.
+Both host test variants, both Android lint variants, the plain debug APK, and
+the plain instrumentation APK pass (`density-green-build.txt`, 52s).
+The change affects presentation only; rollback restores the previous sizing.
+The full CI rerun at `66f6490` completed with failure. This focused local
+spacing verification does not resolve those failures or establish P1 acceptance.
+
+
+## October 20 real process loss
+
+The complete default installed plain suite passes on the owned API36 emulator
+(86 reported cases, 105.854s, `current-full-installed.txt`). Opt-in physical-keyguard
+and long-cadence cases remain skipped in that run; their dedicated evidence is
+separate. The remote full-image matrix at `66f6490` still fails. API34/35 fail the
+held-key fixture, while API33/36 also fail the combined alarm-delivery predicate.
+API33 reports delayed transition and completion fixtures. Local success does
+not close those CI failures.
+
+A separate external driver now kills the actual foreground playback process
+with SIGKILL after instrumentation has ended and Android has delivered the saved
+alarm. The first accepted observation replaces PID 15247 with 15352 in 5.639s.
+The same occurrence keeps attempt 1 and the exact 08:41:52.253336–08:43:52.253336
+UTC ringing interval on October 20. Android reports the process death, crashed
+service restart, and replacement service process. Alarm audio is active again
+before the original boundary. A second observation also passes with fresh PIDs.
+This proves actual process-loss recovery rather than an injected restart.
+It does not establish physical speaker output, reboot, or force-stop recovery.
+
+The driver and native fixture add acceptance evidence only. No production code
+changes for this check. Both instrumentation APKs and both Android lint variants
+pass (`process-loss-checks.txt`, 24s). Native prepare and scoped cleanup each
+pass. [Testing instructions](TESTING.md#actual-process-loss-acceptance) describe
+the device guard, state comparison, and cleanup. Rollback removes the opt-in
+fixture and driver without changing saved production behavior.
+
+
+Final process-loss tooling verification passes with PID 16329 replaced by
+16394 in 1.772s. Both test APKs and both Android lint variants pass again after
+the fixture corrections (`recovery-fixture-checks.txt`, 24s). Recovery, real
+HTTPS release, late-transition isolation, and completion continuation pass
+again in ten installed cases (`recovery-fixture-installed.txt`, 25.796s).
+The keyboard fixture now requires keyboard input mode and verifies focus;
+its remote effect is unproven. Delivery timeouts report their component states.
+Read-only ADB inventories on the local host and WillieStudio show emulators
+only. No physical Pixel or non-Pixel result is inferred from that inventory.
+
+
+## Local delivery before optional coordinator publication
+
+`AlarmTransitionReceiver` previously awaited coordinator publication before
+applying the local ringing, quiet, or completion transition. A signed-in phone's
+unavailable coordinator could therefore abort local delivery. The extracted
+old ordering fails three host regressions: unavailable publication, blocked
+publication, and publication before a failed local action.
+
+The receiver now applies the local transition, finishes its broadcast result,
+and then attempts optional status publication. Network exceptions produce a
+non-secret warning instead of aborting local playback. Cancellation still
+propagates. Local failure finishes the broadcast and does not publish an applied
+state. Status publication remains best-effort; this change does not implement
+P1b coordination or a new wire contract.
+
+Five regressions pass. Both distribution suites pass 153 host tests, both debug
+APKs build, the plain test APK builds, and both Android lint variants pass
+(`local-first-final.txt`, 52s). The change requires installed regression evidence
+after the current Doze run finishes. That run still uses the previous APK.
+No schema or permission changes occur. Reverting the delivery boundary preserves
+saved data but restores the original coordinator dependency.
+
+
+## Default sound failure handling
+
+The previous service made one unchecked ringtone play call. The shared player
+now prepares the preferred default URI locally and tries a bundled PCM alarm if
+loading, decoding, or startup fails. Rehearsal uses the same player. Volume,
+permissions, cadence, release authority, and hearing confirmation remain unchanged.
+The service cancels an in-flight sound when persisted state leaves ringing.
+Focus gain can restart playback without moving the saved boundary.
+
+Nine host regressions cover preferred/fallback selection, complete failure,
+cancellation, and late loads. A late-null-source assertion failed before its
+generation guard. Two new native cases require actual fallback audio and bounded
+rehearsal from an unreadable URI. The configured-audio probe now checks Curfew's
+playback contract; the independent known-PCM probe remains. Installed acceptance
+of this change is pending. The Doze run continues on its earlier APK.
+See [audio behavior and rollback](ALARM_AUDIO.md).
+
+
+Audio replacement build evidence: both distributions pass 162 host tests, both
+app APKs and both test APKs build, and both Android lint variants pass
+(`fallback-final-build.txt`, 62s; `fallback-probe-checks.txt`, 25s;
+`fallback-ownership-final.txt`, 21s). Both packaged APKs contain the 88,244-byte
+uncompressed PCM resource. These results do not establish installed decoder,
+service, focus, or physical speaker behavior for the replacement. The current
+Doze process remains live on its earlier runtime and has not passed yet.
+
+
+## Native fallback evidence and one-night editor regression
+
+The complete API35 plain instrumentation job at `f57d1b9` passes with 89 reported
+cases. Its logs explicitly include both native fallback tests: unreadable
+preferred sound to bundled audio, and the shared bounded rehearsal. This is
+fresh CI-emulator evidence, not physical speaker acceptance. Other jobs in that
+matrix are still pending at this observation. Evidence is
+`fallback-api35-passed.txt` from job 118550592430.
+
+The new one-night editor regression selects a date fourteen days ahead, changes
+the time to 08:15 through the actual framework pickers, and checks both values
+on Save. Code inspection found that the new-alarm callback resets the chosen
+date when time changes. Both test APKs and lint compile the case. A native red
+assertion is still required before changing that production behavior. The owned
+AVD remains reserved for its live Doze observation; the regression will run in
+CI without interrupting it. This test does not arm a real occurrence.
+
+
+## One-night date preservation accepted locally
+
+The actual picker regression fails first with expected November 3 and actual
+October 20. The editor now marks a picked date as explicit and preserves it on
+time edits. An unpicked inferred date still moves to the next occurrence; a
+new midnight test checks that it becomes tomorrow. Saved one-night dates are
+explicit from the start. No persistence schema or scheduling rule changes.
+
+Both host suites pass 162 tests, both app/test APKs build, and both lint variants
+pass (`one-night-green-build.txt`, 55s). Five editor and seven recovery cases
+pass on the second owned API35 AVD (31.564s). The full default installed suite
+passes with 91 reported cases (147.602s). The five opt-in cases in that run do
+not establish their separate acceptance. The final editor fixture/capture passes
+five cases in 9.989s, and its screenshot was reviewed. Both test APKs and lint
+pass again after the fixture-only capture changes (25s). The original API36
+Doze driver remains live and uses its earlier installed runtime.
+
+The API35 UI AVD uses emulator-5556 with two cores and 1GiB guest RAM. It runs
+from a separate project-owned data directory. Host memory was 53% free before
+launch and 49% free during validation. All commands target an explicit serial.
+The original Doze AVD at emulator-5554 was not reset, installed over, or unlocked.
+
+The October 20 isolation audit reproduced a component-wide service stop from
+old terminal cleanup. The scoped-completion fix below resolves that case.
+Delayed service start intents still need direct isolation coverage. These are
+local safety checks around existing optional network work, not P1b delivery.
+P1 remains unaccepted.
+
+
+### October 20: Compact daily grouping
+
+The owner identified excess empty space. The review page reserved an unused
+notes column and pushed ordinary form actions away from their inputs. Those
+layout rules are removed. The native daily card has smaller internal gaps
+and padding, and the check-in row has a 64dp minimum height. Larger text can
+still expand every group. Alarm scheduling and release behavior are unchanged.
+
+The new installed 220dp grouping assertion failed first at 238.9dp. The
+native layout suite and daily captures cover 320dp/390dp widths, both themes,
+and normal/double local text density. These captures remain synthetic native
+fixtures. They do not establish physical alarm or launch acceptance. Revert
+the spacing values and review CSS to roll back this pass.
+
+
+Verification passed for both debug builds, both Android lint variants, and
+162 host tests per variant. The API 35 plain emulator passed all 10 daily
+layout tests and the eight-state capture case (11 reported tests total).
+The native captures were reviewed at 390dp normal text and 320dp double
+local text density. Browser rendering of the updated proposal was not run.
+
+
+### October 20: Scope terminal cleanup to the matching occurrence
+
+The native regression reproduced old terminal cleanup stopping a newer
+alarm's audio. Intent extras do not scope Android stopService to an occurrence.
+WakeStatusPollWorker now completes the matching occurrence through
+SunriseScheduler. The service observes its own stored state. A completion
+failure returns retry, and cancellation still propagates. A retried terminal
+worker repairs completion rather than skipping it.
+
+The failing behavioral run is old-cleanup-behavior-red.txt. Both host suites,
+both app/test APK builds, and both lint variants pass (56s). The isolation,
+fallback-audio, and authenticated-release classes pass five installed cases
+on API 35 plain and API 36 GMS. This checks local cleanup, not network
+integration acceptance. The subsequent density build also passed both
+162-test host suites and both lint variants.
+
+### October 20: Default-policy Doze observation
+
+The 65-minute observation finished on API 36 using runtime 789e0cd. It entered
+deep idle at 08:52:45 UTC and retained the original 09:57:44.907899 UTC wake
+boundary. Alarm audio was observed at 09:57:49.777398 UTC. That 4.87-second
+observation delay includes the five-second polling interval. The occurrence
+identity, first attempt, and 120/60-second cadence remained unchanged.
+Cleanup passed and restored network, battery, and idle settings.
+
+This is emulator audio evidence on the earlier runtime. The screenshot is
+black, and full-screen access was denied. It proves neither full-screen
+presentation nor physical speaker output. Current-runtime lifecycle and
+physical-device acceptance remain required.
+
+
+### October 20: Delayed starts, audio focus, and real reboot recovery
+
+A new native regression reproduced delayed service delivery for an older
+terminal occurrence stopping current alarm audio. Playback recovery now
+retains a still-active occurrence only when this live service previously
+requested it, or when Android already requested sticky recovery. An unknown
+explicit command cannot choose an unrelated occurrence. Eight new host cases
+cover that boundary, quiet phase, terminal state, and request precedence.
+
+Both variants pass 170 host tests, app/test APK assembly, and lint. Before the
+boot-specific change, both full installed suites passed 93 reported cases
+(API 35 plain: 208.031s; API 36 GMS: 190.863s), including five opt-in skips.
+The new transient-focus case passed on API 35 (2.268s): actual alarm audio
+paused and resumed while the same stored attempt and boundaries remained.
+
+The current GMS runtime recovered actual SIGKILL in 1.777s with a different
+process and the same occurrence, first attempt, and 120/60-second boundaries.
+Both real native credential cases passed again (15.588s). These observations
+precede the boot-specific retry change; that change needs its own final checks.
+
+The secure reboot fixture reached the chosen time with the user still locked
+and observed no alarm audio. After first unlock, the old recovery path crashed
+with ForegroundServiceStartNotAllowedException attributed to BOOT_COMPLETED.
+Its one-second alarm handoff was insufficient. The failing driver, logs, and
+successful credential/fixture cleanup remain in the boot-restriction-red
+evidence directory. Pre-unlock ringing remains unsupported.
+
+The service now catches denied foreground entry, stops without sticky crash
+restart, and asks its non-exported recovery receiver to recheck saved state.
+The receiver uses a five-second alarm-clock retry during ringing. It preserves
+the original identity, attempt, and ringing boundary. It never treats denial,
+a quiet interval, or elapsed retries as a successful wake. No permission,
+wire format, network requirement, or Android policy override is added.
+
+The API 33 broadcast fixture now explicitly uses the foreground queue for its
+receiver-completion assertion. Actual background alarm delivery remains a
+separate journey check. The check-in retry fixture dismisses the keyboard
+and requires the first failure before tapping retry. Both assertions remain
+in place; remote CI confirmation remains required.
+
+
+The boot retry runtime passed the full API 35 plain suite with 94 reported
+cases (165.994s), including five opt-in skips. Seven focused API 36 GMS cases
+passed (21.744s), including transient audio focus and actual authenticated
+release. Both distributions passed 170 host tests, app/test builds, and lint
+again after the boot recovery change (57s).
+
+The controlled secure reboot then passed. No audio played before first
+unlock. The original first occurrence produced alarm audio at 10:34:19.241216
+UTC after the user unlocked at 10:33:54.530300 UTC (24.71s later). Its original
+10:33:47.263 UTC ringing boundary and attempt 1 remained intact. Platform logs
+show an initial BOOT_COMPLETED start reason followed by a successful
+ALARM_MANAGER_ALARM_CLOCK reason without a fatal crash. Cleanup passed and
+restored the original no-PIN state. This establishes the observed API 36
+post-unlock path, not physical speaker output or pre-unlock ringing.
+
+The first retry observation used a 30-second window and timed out. Its boot
+broadcast scheduled Curfew around 26 seconds into delivery, which left too
+little time for the following five-second alarm. That failed result is retained.
+The final driver waits at most 80 seconds and still requires attempt 1 and its
+original boundary. A later cadence attempt cannot pass this check.
+
+Setup now tells the owner to unlock the phone after restarting. The native
+disclosure assertion failed first because the required sentence was absent.
+This copy update does not change the verified playback runtime. The README
+also points to this acceptance record and corrects its stale protocol version.
+The remaining local lifecycle matrix, current physical-device acceptance,
+remote CI, picker review, and Docket publication remain open.
+
+
+Final copy verification passed both 170-test host suites, both app/test APK
+builds, and both Android lint variants (54s). The complete native navigation
+class passed nine cases (14.551s). A final fixture assertion also confirmed
+that the acknowledgement action remains visible after scrolling the restart
+instruction into view; that focused case passed. Both test APK builds and
+lint variants passed again after that fixture change (24s). The native
+screenshot was reviewed with the full acknowledgement button visible.
+
+
+### October 20: Replacement-runtime offline cadence and package update
+
+The GMS APK built from 14d3fa8 passed the real offline default-cadence
+journey (186.407s). The same occurrence produced audio for attempt 1,
+entered its one-minute quiet phase without audio, and produced audio for
+attempt 2. Every observed phase had no active default network. The original
+120/60-second boundaries remained unchanged. Scoped cleanup passed and
+restored airplane mode off, Wi-Fi on, and mobile data on.
+
+The API 35 plain APK also survived a real PackageManager replacement before
+its saved wake time. The same occurrence rang at 10:44:27.912509 UTC with
+attempt 1 and the original ringing boundary. The app was not resident before
+replacement; Android started process 11313 for delivery. The driver therefore
+does not invent a before/after process comparison when instrumentation already
+ended the original process. Install success, occurrence identity, actual audio,
+and boundary preservation remain required.
+
+The first driver stopped before replacement because it incorrectly required
+a resident process. Its fixture cleanup passed. The corrected fixture saves
+local time in the phone's actual zone so package recovery does not reinterpret
+a UTC clock time as local time. Both test APKs and lint variants pass after
+that fixture correction (27s). No production alarm code changed in this
+acceptance follow-up. These results do not prove physical speaker output,
+manufacturer behavior, or current-runtime Doze acceptance.
+
+
+### October 20: Preserve active cadence through clock changes
+
+The installed forward-clock regression failed on 919e70b. Moving the clock
+five minutes ahead changed the first ringing attempt into quiet after attempt
+2 and stopped audio. Both the clock and the controlled occurrence were
+restored during cleanup.
+
+Eleven new host cases failed first on the missing active-clock API. The
+runtime now preserves its logical elapsed anchor when saving active state,
+maps its remaining interval to Android wall time, and uses current wall time
+for future scheduled alarms. Callback polling, alarm transitions, service
+restoration, and lifecycle recovery use the same rules. The first short check
+passed, but the longer boundary check exposed callback polling's remaining
+wall-time advancement. That path now uses the shared runtime recovery method.
+
+The final real clock observation retained the same first attempt and audio
+after the jump, then reached quiet at the original two-minute elapsed boundary.
+The next logical attempt boundary stayed unchanged. Both variants pass 181
+host tests, app/test APK assembly, and lint. The API 35 plain runtime passed
+96 reported installed cases (156.826s), including five opt-in skips.
+Secure reboot recovery also passed again after the timing change, with the
+same first occurrence and original boundary after first unlock.
+
+CI at 14d3fa8 exposed a transient notification loss on a delayed old command:
+foreground entry replaced the current ringing notification with a startup
+placeholder. The service now enters foreground once per instance and retains
+its current notification on subsequent commands. The 919e70b CI run passes
+both verification jobs, release evidence, and API 34/35/36 instrumentation.
+API 33 leaves the scheduled alarm undelivered within the journey's observation
+window. Transition commands now request foreground broadcast delivery, and
+interrupted-completion fixtures use that real command factory. Current-head
+CI remains required; prior failures are not reported as accepted.
+
+The quiet screen's stored next-ring timestamp also needed the wall-time
+mapping. Its native regression and final presentation checks are recorded in
+the next verification entry. [Active alarm clock rules](ALARM_CLOCK.md)
+record the decision, storage semantics, platform mapping, and rollback.
+
+
+### October 20: Clock presentation, reverse adjustment, and older-platform relaunch
+
+The corrected quiet-screen fixture failed against the prior MainActivity:
+its saved logical time showed 4:11 AM where the mapped device time required
+4:16 AM. The mapped presentation passed after restoring the new implementation.
+The full plain installed suite then passed 97 reported cases in 229.335s.
+The initial GMS run failed only the sound-test replay fixture, which asserted
+the confirmation prompt before playback's bounded preview completed. The
+fixture now waits for the same actual prompt on initial playback and replay.
+Its four cases passed, then the full GMS suite passed 97 cases in 212.528s.
+Neither fixture change changes audio or release authority.
+
+The reverse-clock driver moved the owned API36 emulator five minutes back
+while first-attempt audio played. The same occurrence remained audible and
+entered quiet at its original two-minute elapsed boundary. The next logical
+attempt stayed one minute later. Cleanup restored the clock and automatic-time
+setting. The forward and reverse driver records are separate.
+
+The future-timezone driver saved one local occurrence, changed Los Angeles
+to Anchorage, and observed its target move one hour later with the same
+identity. Restoring Los Angeles restored the original target, and that same
+first attempt produced audio outside instrumentation. The driver restored
+timezone settings and removed its fixture.
+
+A real force-stop/reopen observation passed on API36. The same experiment
+failed on the owned API33 emulator: the saved occurrence reached audio first,
+force-stop removed playback, and an ordinary MainActivity launch displayed
+Ringing without audio for the entire 30-second observation. State and first
+attempt boundaries remained unchanged. Scoped cleanup passed. The service now
+tracks its own process-local lifecycle so foreground entry requests recovery
+only when the playback service is absent. The recovery receiver rechecks
+stored authority and schedules the existing alarm-clock retry. It does not
+invent release or replay a new occurrence. The same external API33 driver now passes with process 7711 replaced by 7800,
+actual alarm audio, and unchanged first-attempt bounds. Cleanup passed. Both
+181-case host suites, both app/test builds, and both lint variants passed
+after the production correction (73s). The complete API36 GMS suite passed
+99 reported cases in 212.668s, including the current daily layout checks.
+Current-head CI and the complete API33 suite remain required.
+
+
+### October 20: Revoke and restore exact-alarm access
+
+The owned API33 emulator saved a one-night alarm two minutes ahead. After
+exact-alarm access was revoked, the native probe confirmed that Android and
+readiness both reported the missing permission. The enabled schedule and
+same Scheduled occurrence remained stored. Reopening showed the setup repair
+action and an error. Restoring access and reopening produced actual audio
+at 12:14:57.323760 UTC for the original occurrence's first attempt. No manual
+service start or replacement occurrence was used. Cleanup restored access
+and removed the fixture.
+
+The revoked-access screenshot exposed an inaccurate Alarm on label. The new
+native regression failed because Needs attention was absent. The daily screen
+now reports Needs attention when an enabled schedule cannot meet readiness.
+The on/off control still records the owner's future-alarm choice. Disabling
+future alarms remains distinct from releasing an active occurrence. No
+permission, schedule, or callback authority changes are part of that label
+correction. Final status-test and oldest-platform suite results follow below.
+
+
+The current clock/relaunch runtime passed the actual offline default cadence
+in 186.492s. The same occurrence produced first-attempt audio at 12:15:55.212656
+UTC, quiet without audio at 12:17:54.297201 UTC, and second-attempt audio at the
+next saved boundary, observed at 12:18:54.257050 UTC. Every recorded phase remained offline. Cleanup passed
+and restored airplane mode off, Wi-Fi on, and mobile data on. This supersedes
+the older-runtime cadence result for local regression coverage; it still does
+not establish physical speaker behavior.
+
+The final build/lint verification passed both 181-case host suites, both app
+and test APKs, and both Android lint variants in 60s. The complete current
+API33 plain suite passed 101 reported cases in 172.13s, including the status
+regression, actual HTTPS release, interrupted completion, service isolation,
+and native layout checks. The API36 GMS suite passed 99 cases immediately
+before the status-label correction. Focused current GMS results follow.
+
+
+The focused final GMS run passed 22 cases in 40.899s. It includes the actual
+HTTPS release, service isolation, interrupted completion, owner recovery
+storage, mapped quiet-screen time, and all 13 daily-layout cases. The final
+native Needs attention assertion passes in the complete API33 suite and this
+GMS run. Both the local and WillieStudio ADB inventories contain only
+emulators; no current physical-device acceptance is inferred.
+
+
+The current GMS runtime also passed real Android credential success and Back
+cancellation in 16.133s. The driver cleared its temporary PIN and verified the
+original no-credential state. A real playback-process SIGKILL recovered audio
+in 2.246s with a new process, the same occurrence, and unchanged first-attempt
+bounds. The current plain APK survived actual PackageManager replacement on
+API33 before its saved wake time. The same first occurrence rang at
+12:24:49.533038 UTC. Scoped cleanup passed in each driver.
+
+The final permission screen initially repeated Needs attention in its error
+paragraph. The external XML assertion failed first because the actual missing
+permission was unnamed. The error now says Alarm access is off when Android
+reports exact-alarm access revoked. Other restore failures report that the
+alarm could not be restored. This preserves the selected schedule and repair
+action without adding protocol terminology or repeating the status heading.
+
+
+The final permission copy passed the real native XML assertion: Needs
+attention remains the status, Alarm access is off names the cause, and Finish
+setup remains the action. The final app/test build, both 181-case host suites,
+and both lint variants pass again in 54s. A fresh 65-minute Doze observation is
+running on the current GMS APK. It is pending until its own driver records
+actual first-attempt audio and successful cleanup. Its target is
+13:33:03.159902 UTC on October 20. Do not use the earlier-runtime green result
+to accept this live run.
+
+
+The final permission repair driver passed again after the copy correction.
+Its actual native XML names the missing access without repeating the status.
+The same occurrence then produced first-attempt audio at the original chosen
+boundary. Cleanup restored alarm access and removed the fixture. Final
+whitespace checks and acceptance-driver parsing pass. The 65-minute current
+Doze observation completed with first-attempt audio and successful cleanup.
+
+The October 20 Doze driver entered deep idle at 12:28:04.826319 UTC.
+Android left deep idle before the saved 13:33:03.159902 alarm, as expected
+for an alarm-clock event. The driver observed active alarm audio at
+13:33:07.987309, within its five-second polling window. The occurrence and
+first ringing bounds remained unchanged. Cleanup removed the fixture,
+restored battery reporting, and confirmed active idle state and an awake
+screen. This GMS APK uses runtime head `843ac01`; the subsequent `9ec905b`
+changes affect UI and tests, with no alarm engine or platform source diff.
+This evidence does not prove physical speaker output.
+
+The `9ec905b` plain APK passed the complete installed API33 suite with 115
+reported cases in 169.463s. Opt-in lifecycle cases still require their own
+drivers. A separate secure-lock presentation driver then observed audio
+without automatic display wake. The failure came from updating the silent
+foreground-start notification rather than adding the ringing notification.
+The correction separates those identities and removes the startup entry
+after promoting the actual alarm. The external driver then observed active
+audio, automatic display wake, Curfew window focus, and rendered ringing
+controls over secure keyguard at 13:46:27.860787 UTC. Occurrence identity
+and first-attempt bounds stayed unchanged. This accepts the API33 emulator
+presentation case, not physical devices or newer-platform permission cases.
+The driver clears its temporary PIN and removes
+only its scoped alarm in cleanup, including after a failed assertion.
+
+CI for `9ec905b` passed both verification jobs, release evidence, and
+API33/34/35 instrumentation. API36 reached its five-minute instrumentation
+timeout without a final result. The previous `c83bb57` matrix passed all
+four APIs. Current local results do not resolve that CI timeout.
+
+
+The final independent review identified a lifecycle race that could restore
+an owner-disabled future alarm or revert a same-day time edit. Both cases
+failed in installed API33 regressions before the fix. Recovery now reads,
+transforms, and saves an existing occurrence in one Room transaction.
+Lifecycle restoration also holds the schedule mutex through timer
+registration. A later disable therefore cancels that registration.
+Both distributions pass host tests, APK builds, and lint; installed and CI
+evidence remains separately recorded in [P1 acceptance](P1_ACCEPTANCE.md).
+The independent reviewer confirmed the correction and found no lock-order
+deadlock. This change adds no schema, wire, permission, or release-policy
+change. It preserves current release authority and persisted cadence anchors.
+
+
+Ordinary app instructions and accessibility labels now say “alarm” rather
+than repeating the Sunrise capability name. The daily screen adds no new
+visible title. The editor and expanded navigation use the same noun.
+Check-in setup omits the redundant valid-link hint. Recovery cancellation
+reports the action without a potentially stale claim that ringing continues.
+Scheduling, persistent cadence, and release authority remain unchanged.
+[Design guidance](DESIGN.md) and [verification](TESTING.md) record this pass.
+
+
+The corrected-notification candidate completed its separate 65-minute
+standby observation on October 20. It entered deep idle at 14:08:32.897704
+UTC and retained its scheduled 15:13:31.268582 alarm. The five-second observer
+found active audio at 15:13:35.992585 with the same first-attempt bounds.
+The driver exited successfully, removed the fixture, and restored normal
+battery, awake, and idle state. This observation predates the later atomic
+recovery and consumer changes. It is installed emulator evidence, not
+physical sound or manufacturer acceptance. [Testing](TESTING.md) retains the
+APK digest and cleanup checks.
+
+## Responsive window follow-up
+
+The alarm editor now wraps whole repeat choices instead of squeezing Weekly
+into five lines. Tasks reduce their gutters below 360dp. App-bar titles remain
+on one line, and permanent navigation requires enough height and text-adjusted
+width. Its destination list scrolls. Narrow enlarged-text setting rows give
+the saved name room by omitting their decorative leading icon.
+
+Both distributions pass 182 host tests, app/test builds, and Android lint.
+The final changed UI suites pass 32 cases on API33 Plain in 120.967s and
+32 on API36 GMS in 153.174s. Five actual Android window/text configurations
+pass the no-save navigation journey, including 240dp/200%, short landscape,
+and expanded layout. Native captures retain their exact APK digest. Independent
+design review confirmed the narrow saved-name correction. The initial broad
+run's false-positive text-overflow assertion remains recorded in TESTING.md;
+it is not reported as a passing current full suite.
+
+The connected Pixel 11 Pro runs API37. Its in-place GMS update matches the
+built APK digest. Its saved completed one-night alarm remains present.
+The layout pass does not accept physical audio, locked delivery, TalkBack,
+manufacturer battery behavior, or non-Pixel coverage. Revert the responsive
+commit to restore the previous presentation; no database migration is added.
+
+## First-start identity correction and reconnected Docket
+
+A fresh isolated GMS install exposed an encrypted-device-ID failure before
+alarm scheduling. Native regressions reproduced concurrent creation of a
+shared Android Keystore alias and divergent local device IDs. Store operations
+now share one process monitor, and device identity uses atomic read-or-create.
+Existing valid keys, ciphertext, and IDs keep their values and format. The
+correction prevents the race; it does not discard or recreate corrupt secrets.
+[The security model](SECURITY.md) records the single-process boundary.
+
+The two regressions failed first and now pass with the existing round-trip
+case. A fresh isolated install passes four TLS/security cases. An external
+probe observes scheduled audio after instrumentation exits and verifies the
+unchanged first ringing interval. Both normal variants pass 13 targeted native
+cases, both 182-case host suites, builds, and Android lint. TESTING.md records
+exact timings and candidate limits. Reverting the correction restores the
+startup race; this change adds no migration or wire-format change.
+
+Docket is connected again. Project update `01M5DFQN5WBS8JWWZ8D4J5V3HC`
+was read back with `performerKind=agent`, `performerName=Codex`, and no human
+author. The four feature tasks remain in progress. The owner deferred speaker
+testing and has no non-Pixel phone available. Those acceptance gates remain
+open, as do manual accessibility and the full physical lifecycle matrix.
+
+## P1 device scope correction — October 20, 2026
+
+P1 requires the connected Pixel acceptance run. Non-Pixel testing belongs
+to later compatibility work and no longer blocks P1. Earlier entries that
+name two manufacturers record the superseded plan. Actual speaker, locked
+delivery, lifecycle, release, and accessibility observations remain open
+where the acceptance record lacks evidence. This changes scope only; no
+application behavior or existing test result changes.
+
+## First-use follow-up
+
+The new first-use flow configures a persisted draft before explicit activation.
+It uses a native system splash, Navigation 3, Material 3 Expressive adaptive
+navigation, and shared wake-time bounds. It replaces the seven-row setup list
+with focused access/sound tasks. Existing saved and active alarms bypass the
+introduction. The change does not add bedtime lockout, device pairing, offline
+release, or consumer check-in enrollment.
+
+See ONBOARDING_DESIGN.md for decisions and TESTING.md for current automated,
+rendered, and installed evidence. This follow-up remains separate from accepting
+the remaining physical recovery and accessibility requirements. The Pixel was
+not connected for installation of this candidate.
+
+## October 21 setup repair
+
+The setup repair addresses restored drafts, cold-start loading, Back navigation,
+welcome persistence, delayed connection selection, export recreation, and
+activation reconciliation. It also separates the current alarm's check-in from
+a newly selected replacement. The flow uses an adaptive purpose/work layout
+and retains shared wake-time and check-in transitions. See
+[the current onboarding behavior](ONBOARDING_DESIGN.md).
+
+These changes do not complete the open physical Doze acceptance criterion.
+They do not implement P1b networking, bedtime lockout, or a hosted consumer
+check-in service. The earlier Pixel install remains historical evidence for its
+recorded source and APK. The new setup build requires its own device update.

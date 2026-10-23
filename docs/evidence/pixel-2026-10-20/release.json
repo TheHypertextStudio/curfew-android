@@ -1,0 +1,11 @@
+{
+  "sourceCommit": "185018daac79a556bc5c9fc5f8e27a33b0e44715",
+  "runtimeSourceUnchangedFrom": "f867f51",
+  "device": "Pixel 11 Pro/API37",
+  "connection": "wireless adb",
+  "elapsedSeconds": 8.443829665950034,
+  "appSha256": "a78be48b39ed133bc827d7fdb4ca15fe3f3acce63f14693bc09ef46ea73a5da0",
+  "testSha256": "69e07f7841b9887d8633eb87ae71c0dfe1ed3bb4a6613f6afd39e44166f7220e",
+  "passed": true,
+  "newHumanHearingConfirmation": false
+}

@@ -14,3 +14,9 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Generated screenshot catalog
+/artifacts/
+/app/src/screenshotTest/kotlin/studio/hypertext/curfew/screenshots/CatalogPreviews.kt
+
+__pycache__/

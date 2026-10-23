@@ -1,0 +1,23 @@
+{
+  "reader": "Curfew Android maintainer accepting Sunrise P1",
+  "sourceCommit": "185018daac79a556bc5c9fc5f8e27a33b0e44715",
+  "appSourceUnchangedFrom": "f867f51d974a4b60358f658246901decc7b5121f",
+  "isolatedAppSha256": "a78be48b39ed133bc827d7fdb4ca15fe3f3acce63f14693bc09ef46ea73a5da0",
+  "device": "Pixel 11 Pro/API37",
+  "physicalDevice": true,
+  "newHearingConfirmation": false,
+  "doze": "interrupted and rejected as delivery acceptance",
+  "longDozeScheduledAt": "2026-10-21T05:58:16.194891Z",
+  "shortDozeOverride": "rejected by Android; original setting remains unchanged",
+  "rejectedProbes": [
+    "The first lock-screen attempt lacked secure keyguard.",
+    "The first process-loss attempt timed out before audio.",
+    "The first offline probe still had a default network."
+  ],
+  "manualTalkBack": "not performed",
+  "normalCurfewSettingsCleared": false,
+  "longDozeScreenOffInterrupted": true,
+  "longDozeCanceledBeforeDelivery": true,
+  "deepIdleDelivery": "not established",
+  "lightDozeDelivery": "not yet tested"
+}

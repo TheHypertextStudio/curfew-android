@@ -1,0 +1,82 @@
+[
+  {
+    "name": "daily-light-320-font100.png",
+    "contentWidthDp": 320,
+    "fontScale": 1,
+    "dark": false,
+    "bitmapWidthPx": 840,
+    "bitmapHeightPx": 2400,
+    "imeBottomPx": 0,
+    "syntheticFixture": true
+  },
+  {
+    "name": "daily-light-320-font200.png",
+    "contentWidthDp": 320,
+    "fontScale": 2,
+    "dark": false,
+    "bitmapWidthPx": 840,
+    "bitmapHeightPx": 2400,
+    "imeBottomPx": 0,
+    "syntheticFixture": true
+  },
+  {
+    "name": "daily-light-390-font100.png",
+    "contentWidthDp": 390,
+    "fontScale": 1,
+    "dark": false,
+    "bitmapWidthPx": 1024,
+    "bitmapHeightPx": 2400,
+    "imeBottomPx": 0,
+    "syntheticFixture": true
+  },
+  {
+    "name": "daily-light-390-font200.png",
+    "contentWidthDp": 390,
+    "fontScale": 2,
+    "dark": false,
+    "bitmapWidthPx": 1024,
+    "bitmapHeightPx": 2400,
+    "imeBottomPx": 0,
+    "syntheticFixture": true
+  },
+  {
+    "name": "daily-dark-320-font100.png",
+    "contentWidthDp": 320,
+    "fontScale": 1,
+    "dark": true,
+    "bitmapWidthPx": 840,
+    "bitmapHeightPx": 2400,
+    "imeBottomPx": 0,
+    "syntheticFixture": true
+  },
+  {
+    "name": "daily-dark-320-font200.png",
+    "contentWidthDp": 320,
+    "fontScale": 2,
+    "dark": true,
+    "bitmapWidthPx": 840,
+    "bitmapHeightPx": 2400,
+    "imeBottomPx": 0,
+    "syntheticFixture": true
+  },
+  {
+    "name": "daily-dark-390-font100.png",
+    "contentWidthDp": 390,
+    "fontScale": 1,
+    "dark": true,
+    "bitmapWidthPx": 1024,
+    "bitmapHeightPx": 2400,
+    "imeBottomPx": 0,
+    "syntheticFixture": true
+  },
+  {
+    "name": "daily-dark-390-font200.png",
+    "contentWidthDp": 390,
+    "fontScale": 2,
+    "dark": true,
+    "bitmapWidthPx": 1024,
+    "bitmapHeightPx": 2400,
+    "imeBottomPx": 0,
+    "syntheticFixture": true
+  }
+]

@@ -1,0 +1,282 @@
+[
+  {
+    "state": "home",
+    "theme": "light",
+    "phone": {
+      "x": 405,
+      "y": 100.390625,
+      "width": 390,
+      "height": 844
+    },
+    "scrollHeight": 711,
+    "viewportHeight": 711,
+    "overflow": false,
+    "headings": [
+      "Sunrise"
+    ]
+  },
+  {
+    "state": "home",
+    "theme": "dark",
+    "phone": {
+      "x": 405,
+      "y": 100.390625,
+      "width": 390,
+      "height": 844
+    },
+    "scrollHeight": 711,
+    "viewportHeight": 711,
+    "overflow": false,
+    "headings": [
+      "Sunrise"
+    ]
+  },
+  {
+    "state": "unconfigured",
+    "theme": "light",
+    "phone": {
+      "x": 405,
+      "y": 100.390625,
+      "width": 390,
+      "height": 844
+    },
+    "scrollHeight": 727,
+    "viewportHeight": 711,
+    "overflow": false,
+    "headings": [
+      "Sunrise"
+    ]
+  },
+  {
+    "state": "unconfigured",
+    "theme": "dark",
+    "phone": {
+      "x": 405,
+      "y": 100.390625,
+      "width": 390,
+      "height": 844
+    },
+    "scrollHeight": 727,
+    "viewportHeight": 711,
+    "overflow": false,
+    "headings": [
+      "Sunrise"
+    ]
+  },
+  {
+    "state": "edit",
+    "theme": "light",
+    "phone": {
+      "x": 405,
+      "y": 100.390625,
+      "width": 390,
+      "height": 844
+    },
+    "scrollHeight": 711,
+    "viewportHeight": 711,
+    "overflow": false,
+    "headings": [
+      "07:00"
+    ]
+  },
+  {
+    "state": "edit",
+    "theme": "dark",
+    "phone": {
+      "x": 405,
+      "y": 100.390625,
+      "width": 390,
+      "height": 844
+    },
+    "scrollHeight": 711,
+    "viewportHeight": 711,
+    "overflow": false,
+    "headings": [
+      "07:00"
+    ]
+  },
+  {
+    "state": "setup",
+    "theme": "light",
+    "phone": {
+      "x": 405,
+      "y": 100.390625,
+      "width": 390,
+      "height": 844
+    },
+    "scrollHeight": 711,
+    "viewportHeight": 711,
+    "overflow": false,
+    "headings": [
+      "Before your first alarm"
+    ]
+  },
+  {
+    "state": "setup",
+    "theme": "dark",
+    "phone": {
+      "x": 405,
+      "y": 100.390625,
+      "width": 390,
+      "height": 844
+    },
+    "scrollHeight": 711,
+    "viewportHeight": 711,
+    "overflow": false,
+    "headings": [
+      "Before your first alarm"
+    ]
+  },
+  {
+    "state": "connect",
+    "theme": "light",
+    "phone": {
+      "x": 405,
+      "y": 100.390625,
+      "width": 390,
+      "height": 844
+    },
+    "scrollHeight": 711,
+    "viewportHeight": 711,
+    "overflow": false,
+    "headings": []
+  },
+  {
+    "state": "connect",
+    "theme": "dark",
+    "phone": {
+      "x": 405,
+      "y": 100.390625,
+      "width": 390,
+      "height": 844
+    },
+    "scrollHeight": 711,
+    "viewportHeight": 711,
+    "overflow": false,
+    "headings": []
+  },
+  {
+    "state": "review",
+    "theme": "light",
+    "phone": {
+      "x": 405,
+      "y": 100.390625,
+      "width": 390,
+      "height": 844
+    },
+    "scrollHeight": 711,
+    "viewportHeight": 711,
+    "overflow": false,
+    "headings": [
+      "Morning check-in"
+    ]
+  },
+  {
+    "state": "review",
+    "theme": "dark",
+    "phone": {
+      "x": 405,
+      "y": 100.390625,
+      "width": 390,
+      "height": 844
+    },
+    "scrollHeight": 711,
+    "viewportHeight": 711,
+    "overflow": false,
+    "headings": [
+      "Morning check-in"
+    ]
+  },
+  {
+    "state": "ringing",
+    "theme": "light",
+    "phone": {
+      "x": 405,
+      "y": 100.390625,
+      "width": 390,
+      "height": 844
+    },
+    "scrollHeight": 711,
+    "viewportHeight": 711,
+    "overflow": false,
+    "headings": [
+      "Time to get up."
+    ]
+  },
+  {
+    "state": "ringing",
+    "theme": "dark",
+    "phone": {
+      "x": 405,
+      "y": 100.390625,
+      "width": 390,
+      "height": 844
+    },
+    "scrollHeight": 711,
+    "viewportHeight": 711,
+    "overflow": false,
+    "headings": [
+      "Time to get up."
+    ]
+  },
+  {
+    "state": "offline",
+    "theme": "light",
+    "phone": {
+      "x": 405,
+      "y": 100.390625,
+      "width": 390,
+      "height": 844
+    },
+    "scrollHeight": 711,
+    "viewportHeight": 711,
+    "overflow": false,
+    "headings": [
+      "Time to get up."
+    ]
+  },
+  {
+    "state": "offline",
+    "theme": "dark",
+    "phone": {
+      "x": 405,
+      "y": 100.390625,
+      "width": 390,
+      "height": 844
+    },
+    "scrollHeight": 711,
+    "viewportHeight": 711,
+    "overflow": false,
+    "headings": [
+      "Time to get up."
+    ]
+  },
+  {
+    "state": "settings",
+    "theme": "light",
+    "phone": {
+      "x": 405,
+      "y": 100.390625,
+      "width": 390,
+      "height": 844
+    },
+    "scrollHeight": 711,
+    "viewportHeight": 711,
+    "overflow": false,
+    "headings": []
+  },
+  {
+    "state": "settings",
+    "theme": "dark",
+    "phone": {
+      "x": 405,
+      "y": 100.390625,
+      "width": 390,
+      "height": 844
+    },
+    "scrollHeight": 711,
+    "viewportHeight": 711,
+    "overflow": false,
+    "headings": []
+  }
+]

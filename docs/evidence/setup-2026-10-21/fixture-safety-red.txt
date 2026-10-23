@@ -1,0 +1,39 @@
+Performing Streamed Install
+Success
+
+studio.hypertext.curfew.ui.SetupJournalFixtureInstrumentedTest:
+Error in rejectsPendingCampaignWithoutASavedOccurrence(studio.hypertext.curfew.ui.SetupJournalFixtureInstrumentedTest):
+java.lang.AssertionError: The reset must refuse a pending campaign without a saved occurrence
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at studio.hypertext.curfew.ui.SetupJournalFixtureInstrumentedTest$rejectsPendingCampaignWithoutASavedOccurrence$1.invokeSuspend(SetupJournalFixtureInstrumentedTest.kt:41)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:101)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:95)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:69)
+	at kotlinx.coroutines.BuildersKt.runBlocking(Unknown Source:1)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:47)
+	at kotlinx.coroutines.BuildersKt.runBlocking$default(Unknown Source:1)
+	at studio.hypertext.curfew.ui.SetupJournalFixtureInstrumentedTest.rejectsPendingCampaignWithoutASavedOccurrence(SetupJournalFixtureInstrumentedTest.kt:23)
+
+
+Time: 0.041
+There was 1 failure:
+1) rejectsPendingCampaignWithoutASavedOccurrence(studio.hypertext.curfew.ui.SetupJournalFixtureInstrumentedTest)
+java.lang.AssertionError: The reset must refuse a pending campaign without a saved occurrence
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at studio.hypertext.curfew.ui.SetupJournalFixtureInstrumentedTest$rejectsPendingCampaignWithoutASavedOccurrence$1.invokeSuspend(SetupJournalFixtureInstrumentedTest.kt:41)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:101)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:95)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:69)
+	at kotlinx.coroutines.BuildersKt.runBlocking(Unknown Source:1)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:47)
+	at kotlinx.coroutines.BuildersKt.runBlocking$default(Unknown Source:1)
+	at studio.hypertext.curfew.ui.SetupJournalFixtureInstrumentedTest.rejectsPendingCampaignWithoutASavedOccurrence(SetupJournalFixtureInstrumentedTest.kt:23)
+
+FAILURES!!!
+Tests run: 1,  Failures: 1

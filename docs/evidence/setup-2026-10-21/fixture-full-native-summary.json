@@ -1,0 +1,11 @@
+{
+  "apiLevel": 34,
+  "physicalDevice": false,
+  "reportedCases": 177,
+  "passed": 170,
+  "assumptionSkips": 7,
+  "failures": 0,
+  "boundary": "Complete suite after selector, startup-wait, and journal isolation fixes; before adding the separate pending-campaign safety guard regression.",
+  "applicationSource": "8feb007",
+  "elapsedSeconds": 219.987
+}

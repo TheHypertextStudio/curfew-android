@@ -1,0 +1,396 @@
+Performing Streamed Install
+Success
+Performing Streamed Install
+Success
+
+studio.hypertext.curfew.ui.SetupFlowInstrumentedTest:
+Error in checkInStartsWithPurposeAndCanDeferWithoutAnAlarm(studio.hypertext.curfew.ui.SetupFlowInstrumentedTest):
+java.lang.AssertionError: Failed: assertDoesNotExist.
+Reason: Did not expect any node but found '1' node that satisfies: (Text + InputText + EditableText contains 'Service address' (ignoreCase: false))
+Node found:
+Node #38 at (l=16.0, t=292.0, r=304.0, b=356.0)px
+ContentDataType = 'AndroidContentDataType(androidAutofillType=1)'
+EditableText = ''
+FillableData = 'androidx.compose.ui.autofill.AndroidFillableData@16b9c2b'
+Focused = 'false'
+ImeAction = 'Next'
+InputText = ''
+IsEditable = 'true'
+Text = '[Service address]'
+TextSelectionRange = 'TextRange(0, 0)'
+Actions = [ClearTextSubstitution, GetTextLayoutResult, InsertTextAtCursor, OnClick, OnFillData, OnLongClick, PasteText, PerformImeAction, RequestFocus, SetSelection, SetText, SetTextSubstitution, ShowTextSubstitution]
+MergeDescendants = 'true'
+Has 4 siblings
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.assertDoesNotExist(SemanticsNodeInteraction.kt:101)
+	at studio.hypertext.curfew.ui.SetupFlowInstrumentedTest.checkInStartsWithPurposeAndCanDeferWithoutAnAlarm(SetupFlowInstrumentedTest.kt:87)
+
+Error in returningFromPermissionsInSettingsDoesNotOpenCheckIn(studio.hypertext.curfew.ui.SetupFlowInstrumentedTest):
+java.lang.AssertionError: Failed: assertExists.
+Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + InputText + EditableText contains 'Account' (ignoreCase: false))
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.assertExists(SemanticsNodeInteraction.kt:125)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.assertExists$default(SemanticsNodeInteraction.kt:124)
+	at studio.hypertext.curfew.ui.SetupFlowInstrumentedTest.returningFromPermissionsInSettingsDoesNotOpenCheckIn(SetupFlowInstrumentedTest.kt:117)
+
+Error in restoredPendingActivationCanRetryInsteadOfStayingBusy(studio.hypertext.curfew.ui.SetupFlowInstrumentedTest):
+java.lang.AssertionError: Action performScrollTo() failed.
+Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + InputText + EditableText contains 'Turn on alarm' (ignoreCase: false))
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
+	at androidx.compose.ui.test.ActionsKt.performScrollTo(Actions.kt:82)
+	at studio.hypertext.curfew.ui.SetupFlowInstrumentedTest.restoredPendingActivationCanRetryInsteadOfStayingBusy(SetupFlowInstrumentedTest.kt:109)
+
+Error in backFromManualConnectionReturnsToItsIntroduction(studio.hypertext.curfew.ui.SetupFlowInstrumentedTest):
+java.lang.AssertionError: Action performScrollTo() failed.
+Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + InputText + EditableText contains 'Connect a service' (ignoreCase: false))
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
+	at androidx.compose.ui.test.ActionsKt.performScrollTo(Actions.kt:82)
+	at studio.hypertext.curfew.ui.SetupFlowInstrumentedTest.backFromManualConnectionReturnsToItsIntroduction(SetupFlowInstrumentedTest.kt:96)
+
+Error in failedWelcomeWriteKeepsWelcomeAndAllowsRetry(studio.hypertext.curfew.ui.SetupFlowInstrumentedTest):
+java.io.IOException: disk
+	at studio.hypertext.curfew.ui.SetupFlowInstrumentedTest.show$lambda$0$0$13$0(SetupFlowInstrumentedTest.kt:37)
+	at studio.hypertext.curfew.ui.SetupFlowInstrumentedTest.$r8$lambda$7AtNhqCBiQU-Yqfyjx4b7KcjJ-0(Unknown Source:0)
+	at studio.hypertext.curfew.ui.SetupFlowInstrumentedTest$$ExternalSyntheticLambda9.invoke(D8$$SyntheticClass:0)
+	at studio.hypertext.curfew.ui.CurfewAppKt.CurfewApp$lambda$28$0$1$0$0$30$1$0$0$0(CurfewApp.kt:254)
+	at studio.hypertext.curfew.ui.CurfewAppKt.$r8$lambda$J2CkLklBx3KVOmIVAfCh1FKnR00(Unknown Source:0)
+	at studio.hypertext.curfew.ui.CurfewAppKt$$ExternalSyntheticLambda7.invoke(D8$$SyntheticClass:0)
+	at androidx.compose.foundation.AbstractClickableNode.performClick(Clickable.kt:1701)
+	at androidx.compose.foundation.ClickableNode.handleUpEvent(Clickable.kt:950)
+	at androidx.compose.foundation.ClickableNode.onPointerEvent-H0pRuoY(Clickable.kt:884)
+	at androidx.compose.ui.input.pointer.Node.dispatchMainEventPass(HitPathTracker.kt:445)
+	at androidx.compose.ui.input.pointer.Node.dispatchMainEventPass(HitPathTracker.kt:431)
+	at androidx.compose.ui.input.pointer.Node.dispatchMainEventPass(HitPathTracker.kt:431)
+	at androidx.compose.ui.input.pointer.NodeParent.dispatchMainEventPass(HitPathTracker.kt:285)
+	at androidx.compose.ui.input.pointer.HitPathTracker.dispatchChanges(HitPathTracker.kt:182)
+	at androidx.compose.ui.input.pointer.PointerInputEventProcessor.process-BIzXfog(PointerInputEventProcessor.kt:116)
+	at androidx.compose.ui.platform.AndroidComposeView.sendMotionEvent-8iAsVTc(AndroidComposeView.android.kt:2869)
+	at androidx.compose.ui.platform.AndroidComposeView.handleMotionEvent-8iAsVTc(AndroidComposeView.android.kt:2809)
+	at androidx.compose.ui.platform.AndroidComposeView.dispatchTouchEvent(AndroidComposeView.android.kt:2630)
+	at androidx.compose.ui.test.AndroidInputDispatcher_androidKt.createInputDispatcher$lambda$1(AndroidInputDispatcher.android.kt:170)
+	at androidx.compose.ui.test.AndroidInputDispatcher_androidKt$$ExternalSyntheticLambda0.invoke(D8$$SyntheticClass:0)
+	at androidx.compose.ui.test.AndroidInputDispatcher.sendAndRecycleEvent(AndroidInputDispatcher.android.kt:1542)
+	at androidx.compose.ui.test.AndroidInputDispatcher.flush$lambda$0(AndroidInputDispatcher.android.kt:1509)
+	at androidx.compose.ui.test.AndroidInputDispatcher$$ExternalSyntheticLambda3.invoke(D8$$SyntheticClass:0)
+	at androidx.compose.ui.test.AndroidSynchronization_androidKt.runOnUiThread$lambda$0(AndroidSynchronization.android.kt:39)
+	at androidx.compose.ui.test.AndroidSynchronization_androidKt$$ExternalSyntheticLambda0.call(D8$$SyntheticClass:0)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:487)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2420)
+	at android.os.Handler.handleCallback(Handler.java:958)
+	at android.os.Handler.dispatchMessage(Handler.java:99)
+	at android.os.Looper.loopOnce(Looper.java:205)
+	at android.os.Looper.loop(Looper.java:294)
+	at android.app.ActivityThread.main(ActivityThread.java:8177)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)
+	Suppressed: java.util.concurrent.ExecutionException: An Exception occurred on the UI thread during runOnUiThread()
+		at androidx.compose.ui.test.AndroidSynchronization_androidKt.runOnUiThread(AndroidSynchronization.android.kt:50)
+		at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.runOnUiThread(ComposeUiTest.android.kt:844)
+		at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidTestOwner.runOnUiThread(ComposeUiTest.android.kt:984)
+		at androidx.compose.ui.test.AndroidInputDispatcher.flush(AndroidInputDispatcher.android.kt:1494)
+		at androidx.compose.ui.test.MultiModalInjectionScopeImpl.dispose$ui_test(MultiModalInjectionScope.kt:161)
+		at androidx.compose.ui.test.ActionsKt.performTouchInput(Actions.kt:408)
+		at androidx.compose.ui.test.AndroidActions.performClickImpl(Actions.android.kt:23)
+		at androidx.compose.ui.test.ActionsKt.performClick(Actions.kt:61)
+		at studio.hypertext.curfew.ui.SetupFlowInstrumentedTest.failedWelcomeWriteKeepsWelcomeAndAllowsRetry(SetupFlowInstrumentedTest.kt:78)
+		at java.lang.reflect.Method.invoke(Native Method)
+		at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+		at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+		at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+		at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+		at androidx.compose.ui.test.junit4.AndroidComposeTestRule$apply$testWithDisposal$1.evaluate(AndroidComposeTestRule.android.kt:426)
+		at org.junit.rules.ExternalResource$1.evaluate(ExternalResource.java:54)
+		at androidx.compose.ui.test.junit4.AndroidComposeTestRule$apply$1$evaluate$1.invokeSuspend(AndroidComposeTestRule.android.kt:448)
+		at androidx.compose.ui.test.junit4.AndroidComposeTestRule$apply$1$evaluate$1.invoke(Unknown Source:8)
+		at androidx.compose.ui.test.junit4.AndroidComposeTestRule$apply$1$evaluate$1.invoke(Unknown Source:4)
+		at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$runTest$1$1$1$1$1.invokeSuspend(ComposeUiTest.android.kt:689)
+		at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$runTest$1$1$1$1$1.invoke(Unknown Source:8)
+		at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$runTest$1$1$1$1$1.invoke(Unknown Source:2)
+		at androidx.compose.ui.test.EspressoLink.withStrategy(EspressoLink.android.kt:69)
+		at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$runTest$1$1.invokeSuspend(ComposeUiTest.android.kt:686)
+		at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$runTest$1$1.invoke(Unknown Source:8)
+		at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$runTest$1$1.invoke(Unknown Source:4)
+		at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt$runTest$2$1$1.invokeSuspend(TestBuilders.kt:318)
+		at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+		at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:101)
+		at kotlinx.coroutines.test.TestDispatcher.processEvent$kotlinx_coroutines_test(TestDispatcher.kt:24)
+		at kotlinx.coroutines.test.TestCoroutineScheduler.tryRunNextTaskUnless$kotlinx_coroutines_test(TestCoroutineScheduler.kt:99)
+		at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt$runTest$2$1$workRunner$1.invokeSuspend(TestBuilders.kt:327)
+		at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+		at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:101)
+		at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)
+		at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:95)
+		at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:69)
+		at kotlinx.coroutines.BuildersKt.runBlocking(Unknown Source:1)
+		at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:47)
+		at kotlinx.coroutines.BuildersKt.runBlocking$default(Unknown Source:1)
+		at kotlinx.coroutines.test.TestBuildersJvmKt.createTestResult(TestBuildersJvm.kt:10)
+		at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt.runTest-8Mi8wO0(TestBuilders.kt:310)
+		at kotlinx.coroutines.test.TestBuildersKt.runTest-8Mi8wO0(Unknown Source:1)
+		at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt.runTest-8Mi8wO0(TestBuilders.kt:168)
+		at kotlinx.coroutines.test.TestBuildersKt.runTest-8Mi8wO0(Unknown Source:1)
+		at androidx.compose.ui.test.AndroidComposeUiTestEnvironment.runTest(ComposeUiTest.android.kt:665)
+		at androidx.compose.ui.test.junit4.AndroidComposeTestRule$apply$1.evaluate(AndroidComposeTestRule.android.kt:447)
+		at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+		at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+		at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+		at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+		at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+		at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+		at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+		at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+		at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+		at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+		at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+		at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+		at org.junit.runners.Suite.runChild(Suite.java:128)
+		at org.junit.runners.Suite.runChild(Suite.java:27)
+		at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+		at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+		at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+		at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+		at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+		at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+		at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+		at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+		at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+		at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:68)
+		at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:59)
+		at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:467)
+		at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2402)
+
+Error in reviewBackDoesNotBounceThroughCompletedPermissions(studio.hypertext.curfew.ui.SetupFlowInstrumentedTest):
+java.lang.AssertionError: Action performScrollTo() failed.
+Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + InputText + EditableText contains 'Continue' (ignoreCase: false))
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
+	at androidx.compose.ui.test.ActionsKt.performScrollTo(Actions.kt:82)
+	at studio.hypertext.curfew.ui.SetupFlowInstrumentedTest.reviewBackDoesNotBounceThroughCompletedPermissions(SetupFlowInstrumentedTest.kt:49)
+
+Error in coldResumedReviewCanGoBackToItsWakeTime(studio.hypertext.curfew.ui.SetupFlowInstrumentedTest):
+java.lang.AssertionError: Action performScrollTo() failed.
+Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + InputText + EditableText contains 'One night' (ignoreCase: false))
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
+	at androidx.compose.ui.test.ActionsKt.performScrollTo(Actions.kt:82)
+	at studio.hypertext.curfew.ui.SetupFlowInstrumentedTest.coldResumedReviewCanGoBackToItsWakeTime(SetupFlowInstrumentedTest.kt:73)
+
+Error in reviewRetainsItsDraftAfterSavedStateRestoration(studio.hypertext.curfew.ui.SetupFlowInstrumentedTest):
+java.lang.AssertionError: Action performScrollTo() failed.
+Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + InputText + EditableText contains 'Turn on alarm' (ignoreCase: false))
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
+	at androidx.compose.ui.test.ActionsKt.performScrollTo(Actions.kt:82)
+	at studio.hypertext.curfew.ui.SetupFlowInstrumentedTest.reviewRetainsItsDraftAfterSavedStateRestoration(SetupFlowInstrumentedTest.kt:65)
+
+
+Time: 8.195
+There were 8 failures:
+1) checkInStartsWithPurposeAndCanDeferWithoutAnAlarm(studio.hypertext.curfew.ui.SetupFlowInstrumentedTest)
+java.lang.AssertionError: Failed: assertDoesNotExist.
+Reason: Did not expect any node but found '1' node that satisfies: (Text + InputText + EditableText contains 'Service address' (ignoreCase: false))
+Node found:
+Node #38 at (l=16.0, t=292.0, r=304.0, b=356.0)px
+ContentDataType = 'AndroidContentDataType(androidAutofillType=1)'
+EditableText = ''
+FillableData = 'androidx.compose.ui.autofill.AndroidFillableData@16b9c2b'
+Focused = 'false'
+ImeAction = 'Next'
+InputText = ''
+IsEditable = 'true'
+Text = '[Service address]'
+TextSelectionRange = 'TextRange(0, 0)'
+Actions = [ClearTextSubstitution, GetTextLayoutResult, InsertTextAtCursor, OnClick, OnFillData, OnLongClick, PasteText, PerformImeAction, RequestFocus, SetSelection, SetText, SetTextSubstitution, ShowTextSubstitution]
+MergeDescendants = 'true'
+Has 4 siblings
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.assertDoesNotExist(SemanticsNodeInteraction.kt:101)
+	at studio.hypertext.curfew.ui.SetupFlowInstrumentedTest.checkInStartsWithPurposeAndCanDeferWithoutAnAlarm(SetupFlowInstrumentedTest.kt:87)
+2) returningFromPermissionsInSettingsDoesNotOpenCheckIn(studio.hypertext.curfew.ui.SetupFlowInstrumentedTest)
+java.lang.AssertionError: Failed: assertExists.
+Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + InputText + EditableText contains 'Account' (ignoreCase: false))
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.assertExists(SemanticsNodeInteraction.kt:125)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.assertExists$default(SemanticsNodeInteraction.kt:124)
+	at studio.hypertext.curfew.ui.SetupFlowInstrumentedTest.returningFromPermissionsInSettingsDoesNotOpenCheckIn(SetupFlowInstrumentedTest.kt:117)
+3) restoredPendingActivationCanRetryInsteadOfStayingBusy(studio.hypertext.curfew.ui.SetupFlowInstrumentedTest)
+java.lang.AssertionError: Action performScrollTo() failed.
+Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + InputText + EditableText contains 'Turn on alarm' (ignoreCase: false))
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
+	at androidx.compose.ui.test.ActionsKt.performScrollTo(Actions.kt:82)
+	at studio.hypertext.curfew.ui.SetupFlowInstrumentedTest.restoredPendingActivationCanRetryInsteadOfStayingBusy(SetupFlowInstrumentedTest.kt:109)
+4) backFromManualConnectionReturnsToItsIntroduction(studio.hypertext.curfew.ui.SetupFlowInstrumentedTest)
+java.lang.AssertionError: Action performScrollTo() failed.
+Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + InputText + EditableText contains 'Connect a service' (ignoreCase: false))
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
+	at androidx.compose.ui.test.ActionsKt.performScrollTo(Actions.kt:82)
+	at studio.hypertext.curfew.ui.SetupFlowInstrumentedTest.backFromManualConnectionReturnsToItsIntroduction(SetupFlowInstrumentedTest.kt:96)
+5) failedWelcomeWriteKeepsWelcomeAndAllowsRetry(studio.hypertext.curfew.ui.SetupFlowInstrumentedTest)
+java.io.IOException: disk
+	at studio.hypertext.curfew.ui.SetupFlowInstrumentedTest.show$lambda$0$0$13$0(SetupFlowInstrumentedTest.kt:37)
+	at studio.hypertext.curfew.ui.SetupFlowInstrumentedTest.$r8$lambda$7AtNhqCBiQU-Yqfyjx4b7KcjJ-0(Unknown Source:0)
+	at studio.hypertext.curfew.ui.SetupFlowInstrumentedTest$$ExternalSyntheticLambda9.invoke(D8$$SyntheticClass:0)
+	at studio.hypertext.curfew.ui.CurfewAppKt.CurfewApp$lambda$28$0$1$0$0$30$1$0$0$0(CurfewApp.kt:254)
+	at studio.hypertext.curfew.ui.CurfewAppKt.$r8$lambda$J2CkLklBx3KVOmIVAfCh1FKnR00(Unknown Source:0)
+	at studio.hypertext.curfew.ui.CurfewAppKt$$ExternalSyntheticLambda7.invoke(D8$$SyntheticClass:0)
+	at androidx.compose.foundation.AbstractClickableNode.performClick(Clickable.kt:1701)
+	at androidx.compose.foundation.ClickableNode.handleUpEvent(Clickable.kt:950)
+	at androidx.compose.foundation.ClickableNode.onPointerEvent-H0pRuoY(Clickable.kt:884)
+	at androidx.compose.ui.input.pointer.Node.dispatchMainEventPass(HitPathTracker.kt:445)
+	at androidx.compose.ui.input.pointer.Node.dispatchMainEventPass(HitPathTracker.kt:431)
+	at androidx.compose.ui.input.pointer.Node.dispatchMainEventPass(HitPathTracker.kt:431)
+	at androidx.compose.ui.input.pointer.NodeParent.dispatchMainEventPass(HitPathTracker.kt:285)
+	at androidx.compose.ui.input.pointer.HitPathTracker.dispatchChanges(HitPathTracker.kt:182)
+	at androidx.compose.ui.input.pointer.PointerInputEventProcessor.process-BIzXfog(PointerInputEventProcessor.kt:116)
+	at androidx.compose.ui.platform.AndroidComposeView.sendMotionEvent-8iAsVTc(AndroidComposeView.android.kt:2869)
+	at androidx.compose.ui.platform.AndroidComposeView.handleMotionEvent-8iAsVTc(AndroidComposeView.android.kt:2809)
+	at androidx.compose.ui.platform.AndroidComposeView.dispatchTouchEvent(AndroidComposeView.android.kt:2630)
+	at androidx.compose.ui.test.AndroidInputDispatcher_androidKt.createInputDispatcher$lambda$1(AndroidInputDispatcher.android.kt:170)
+	at androidx.compose.ui.test.AndroidInputDispatcher_androidKt$$ExternalSyntheticLambda0.invoke(D8$$SyntheticClass:0)
+	at androidx.compose.ui.test.AndroidInputDispatcher.sendAndRecycleEvent(AndroidInputDispatcher.android.kt:1542)
+	at androidx.compose.ui.test.AndroidInputDispatcher.flush$lambda$0(AndroidInputDispatcher.android.kt:1509)
+	at androidx.compose.ui.test.AndroidInputDispatcher$$ExternalSyntheticLambda3.invoke(D8$$SyntheticClass:0)
+	at androidx.compose.ui.test.AndroidSynchronization_androidKt.runOnUiThread$lambda$0(AndroidSynchronization.android.kt:39)
+	at androidx.compose.ui.test.AndroidSynchronization_androidKt$$ExternalSyntheticLambda0.call(D8$$SyntheticClass:0)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:487)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2420)
+	at android.os.Handler.handleCallback(Handler.java:958)
+	at android.os.Handler.dispatchMessage(Handler.java:99)
+	at android.os.Looper.loopOnce(Looper.java:205)
+	at android.os.Looper.loop(Looper.java:294)
+	at android.app.ActivityThread.main(ActivityThread.java:8177)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)
+	Suppressed: java.util.concurrent.ExecutionException: An Exception occurred on the UI thread during runOnUiThread()
+		at androidx.compose.ui.test.AndroidSynchronization_androidKt.runOnUiThread(AndroidSynchronization.android.kt:50)
+		at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.runOnUiThread(ComposeUiTest.android.kt:844)
+		at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidTestOwner.runOnUiThread(ComposeUiTest.android.kt:984)
+		at androidx.compose.ui.test.AndroidInputDispatcher.flush(AndroidInputDispatcher.android.kt:1494)
+		at androidx.compose.ui.test.MultiModalInjectionScopeImpl.dispose$ui_test(MultiModalInjectionScope.kt:161)
+		at androidx.compose.ui.test.ActionsKt.performTouchInput(Actions.kt:408)
+		at androidx.compose.ui.test.AndroidActions.performClickImpl(Actions.android.kt:23)
+		at androidx.compose.ui.test.ActionsKt.performClick(Actions.kt:61)
+		at studio.hypertext.curfew.ui.SetupFlowInstrumentedTest.failedWelcomeWriteKeepsWelcomeAndAllowsRetry(SetupFlowInstrumentedTest.kt:78)
+		at java.lang.reflect.Method.invoke(Native Method)
+		at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+		at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+		at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+		at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+		at androidx.compose.ui.test.junit4.AndroidComposeTestRule$apply$testWithDisposal$1.evaluate(AndroidComposeTestRule.android.kt:426)
+		at org.junit.rules.ExternalResource$1.evaluate(ExternalResource.java:54)
+		at androidx.compose.ui.test.junit4.AndroidComposeTestRule$apply$1$evaluate$1.invokeSuspend(AndroidComposeTestRule.android.kt:448)
+		at androidx.compose.ui.test.junit4.AndroidComposeTestRule$apply$1$evaluate$1.invoke(Unknown Source:8)
+		at androidx.compose.ui.test.junit4.AndroidComposeTestRule$apply$1$evaluate$1.invoke(Unknown Source:4)
+		at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$runTest$1$1$1$1$1.invokeSuspend(ComposeUiTest.android.kt:689)
+		at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$runTest$1$1$1$1$1.invoke(Unknown Source:8)
+		at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$runTest$1$1$1$1$1.invoke(Unknown Source:2)
+		at androidx.compose.ui.test.EspressoLink.withStrategy(EspressoLink.android.kt:69)
+		at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$runTest$1$1.invokeSuspend(ComposeUiTest.android.kt:686)
+		at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$runTest$1$1.invoke(Unknown Source:8)
+		at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$runTest$1$1.invoke(Unknown Source:4)
+		at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt$runTest$2$1$1.invokeSuspend(TestBuilders.kt:318)
+		at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+		at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:101)
+		at kotlinx.coroutines.test.TestDispatcher.processEvent$kotlinx_coroutines_test(TestDispatcher.kt:24)
+		at kotlinx.coroutines.test.TestCoroutineScheduler.tryRunNextTaskUnless$kotlinx_coroutines_test(TestCoroutineScheduler.kt:99)
+		at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt$runTest$2$1$workRunner$1.invokeSuspend(TestBuilders.kt:327)
+		at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+		at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:101)
+		at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)
+		at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:95)
+		at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:69)
+		at kotlinx.coroutines.BuildersKt.runBlocking(Unknown Source:1)
+		at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:47)
+		at kotlinx.coroutines.BuildersKt.runBlocking$default(Unknown Source:1)
+		at kotlinx.coroutines.test.TestBuildersJvmKt.createTestResult(TestBuildersJvm.kt:10)
+		at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt.runTest-8Mi8wO0(TestBuilders.kt:310)
+		at kotlinx.coroutines.test.TestBuildersKt.runTest-8Mi8wO0(Unknown Source:1)
+		at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt.runTest-8Mi8wO0(TestBuilders.kt:168)
+		at kotlinx.coroutines.test.TestBuildersKt.runTest-8Mi8wO0(Unknown Source:1)
+		at androidx.compose.ui.test.AndroidComposeUiTestEnvironment.runTest(ComposeUiTest.android.kt:665)
+		at androidx.compose.ui.test.junit4.AndroidComposeTestRule$apply$1.evaluate(AndroidComposeTestRule.android.kt:447)
+		at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+		at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+		at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+		at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+		at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+		at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+		at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+		at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+		at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+		at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+		at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+		at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+		at org.junit.runners.Suite.runChild(Suite.java:128)
+		at org.junit.runners.Suite.runChild(Suite.java:27)
+		at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+		at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+		at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+		at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+		at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+		at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+		at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+		at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+		at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+		at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:68)
+		at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:59)
+		at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:467)
+		at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2402)
+6) reviewBackDoesNotBounceThroughCompletedPermissions(studio.hypertext.curfew.ui.SetupFlowInstrumentedTest)
+java.lang.AssertionError: Action performScrollTo() failed.
+Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + InputText + EditableText contains 'Continue' (ignoreCase: false))
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
+	at androidx.compose.ui.test.ActionsKt.performScrollTo(Actions.kt:82)
+	at studio.hypertext.curfew.ui.SetupFlowInstrumentedTest.reviewBackDoesNotBounceThroughCompletedPermissions(SetupFlowInstrumentedTest.kt:49)
+7) coldResumedReviewCanGoBackToItsWakeTime(studio.hypertext.curfew.ui.SetupFlowInstrumentedTest)
+java.lang.AssertionError: Action performScrollTo() failed.
+Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + InputText + EditableText contains 'One night' (ignoreCase: false))
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
+	at androidx.compose.ui.test.ActionsKt.performScrollTo(Actions.kt:82)
+	at studio.hypertext.curfew.ui.SetupFlowInstrumentedTest.coldResumedReviewCanGoBackToItsWakeTime(SetupFlowInstrumentedTest.kt:73)
+8) reviewRetainsItsDraftAfterSavedStateRestoration(studio.hypertext.curfew.ui.SetupFlowInstrumentedTest)
+java.lang.AssertionError: Action performScrollTo() failed.
+Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + InputText + EditableText contains 'Turn on alarm' (ignoreCase: false))
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
+	at androidx.compose.ui.test.ActionsKt.performScrollTo(Actions.kt:82)
+	at studio.hypertext.curfew.ui.SetupFlowInstrumentedTest.reviewRetainsItsDraftAfterSavedStateRestoration(SetupFlowInstrumentedTest.kt:65)
+
+FAILURES!!!
+Tests run: 8,  Failures: 8

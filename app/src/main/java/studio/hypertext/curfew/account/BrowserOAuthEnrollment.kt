@@ -13,6 +13,7 @@ class BrowserOAuthEnrollment(activity: Activity) {
     private val secrets = AndroidKeystoreSecretStore(activity)
 
     suspend fun begin(): OAuthEnrollmentRequest {
+        check(canUseAccountSignIn(hostActivity.packageName)) { "Account sign-in is unavailable in this test build." }
         val clientId = OAuthDynamicClientRegistrar(hostActivity).registeredClientId()
         val request = OAuthEnrollmentRequest.create(
             issuer = URI("https://curfew-account.hypertext.studio"),

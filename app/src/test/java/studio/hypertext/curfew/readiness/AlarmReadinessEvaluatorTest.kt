@@ -31,10 +31,11 @@ class AlarmReadinessEvaluatorTest {
     }
 
     @Test
-    fun `full screen denial uses a high priority lock screen fallback`() {
+    fun `full screen denial requires setup repair and preserves runtime fallback`() {
         val result = evaluator.evaluate(readyCapabilities().copy(fullScreenIntentAllowed = false))
 
-        assertTrue(result.canArm)
+        assertFalse(result.canArm)
+        assertTrue(result.requiredActions.map { it.name }.contains("GRANT_FULL_SCREEN_ACCESS"))
         assertEquals(AlarmPresentation.LOCK_SCREEN_NOTIFICATION, result.presentation)
         assertTrue(result.disclosures.contains(ReadinessDisclosure.FULL_SCREEN_FALLBACK))
     }
@@ -62,6 +63,16 @@ class AlarmReadinessEvaluatorTest {
         assertTrue(result.disclosures.contains(ReadinessDisclosure.DO_NOT_DISTURB_BEHAVIOR))
         assertTrue(result.disclosures.contains(ReadinessDisclosure.BATTERY_AND_OEM_LIMITATIONS))
         assertTrue(result.disclosures.contains(ReadinessDisclosure.OS_POWER_CONTROLS))
+    }
+
+    @Test
+    fun `muted alarm volume requires a volume action instead of a channel repair`() {
+        val result = evaluator.evaluate(readyCapabilities().copy(alarmVolumeAudible = false))
+
+        assertFalse(result.canArm)
+        assertTrue(result.requiredActions.contains(ReadinessAction.RAISE_ALARM_VOLUME))
+        assertFalse(result.requiredActions.contains(ReadinessAction.REPAIR_ALARM_CHANNEL))
+        assertFalse(result.mayChangeSystemVolume)
     }
 
     private fun readyCapabilities() = AlarmCapabilities(

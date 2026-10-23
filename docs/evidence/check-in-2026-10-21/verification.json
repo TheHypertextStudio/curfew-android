@@ -1,0 +1,47 @@
+{
+  "host": {
+    "plain": {
+      "tests": 200,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "gms": {
+      "tests": 200,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "native": {
+    "api": 36,
+    "image": "google_apis_playstore ARM64",
+    "tests": 55,
+    "failures": 0,
+    "seconds": 92.736
+  },
+  "build": "Both debug app/test APKs pass.",
+  "lint": "Both Android lint variants pass.",
+  "hostCaptureChecks": 16,
+  "redFirst": "Prerequisite disclosure, private-file recipient, compact grouping, failed deferral retry, pending deferral, and resumed Back path failed before their respective fixes. Visual follow-up regressions also failed on the large-text retry region and incorrect file-handoff priority.",
+  "matrix": {
+    "profiles": 18,
+    "states": 10,
+    "statePngs": 180,
+    "motionFrames": 4,
+    "contactSheets": 30,
+    "dimensionsAndSourceVerified": true,
+    "settingsRestored": true,
+    "manifest": "design/android-review/native/check-in-matrix/manifest.json",
+    "visualReview": "Root reviewed all10light sheets and the shared transition. Independent design agent reviewed all20dark/accessibility sheets and4full images. No further concrete rendered defect; advanced path only, not consumer launch."
+  },
+  "physicalPixel": "No new run; Doze acceptance remains open.",
+  "consumerApproval": "Not implemented. Consumer launch remains blocked.",
+  "ci": "Pending current-head run after publication.",
+  "protocolInput": {
+    "revision": "764ec480a5e5424856150be767a33a8ab022ae08",
+    "archiveFilesCompared": 76,
+    "mismatches": 0,
+    "rejectedInitialBuild": "A moving main checkout failed compilation. Accepted builds use the verified v0.0.13 archive."
+  }
+}

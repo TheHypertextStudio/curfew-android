@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
+import androidx.work.Operation
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
@@ -15,8 +16,7 @@ import studio.hypertext.curfew.alarm.AlarmCampaignState
 import studio.hypertext.curfew.alarm.campaignStartedAt
 import studio.hypertext.curfew.account.NativeDeviceProofAuthenticator
 import studio.hypertext.curfew.platform.AlarmRuntimeRepository
-import studio.hypertext.curfew.platform.AndroidAlarmClockGateway
-import studio.hypertext.curfew.platform.PerpetualAlarmService
+import studio.hypertext.curfew.platform.SunriseScheduler
 import studio.hypertext.curfew.protocols.ReceiptStatus
 import studio.hypertext.curfew.protocols.Result as ProtocolResult
 import studio.hypertext.curfew.protocols.WakeOutcome as ProtocolWakeOutcome
@@ -32,15 +32,14 @@ class CallbackPollWorker(
         val campaignId = inputData.getString(KEY_CAMPAIGN_ID) ?: return Result.failure()
         val failureCount = inputData.getInt(KEY_FAILURE_COUNT, 0)
         val runtime = AlarmRuntimeRepository(applicationContext)
-        val persisted = runtime.load(campaignId) ?: return Result.success()
         val now = Instant.now()
-        val state = AlarmCampaignEngine().advanceTo(persisted, now)
-        runtime.save(state)
+        val state = runtime.recover(campaignId) ?: return Result.success()
         if (state !is AlarmCampaignState.Scheduled &&
             state !is AlarmCampaignState.Ringing &&
             state !is AlarmCampaignState.Quiet
         ) {
-            return Result.success()
+            return runCatching { SunriseScheduler(applicationContext).completeOccurrence(campaignId) }
+                .fold(onSuccess = { Result.success() }, onFailure = { Result.retry() })
         }
         val callbackId = runtime.callbackId(campaignId) ?: return Result.success()
         val definition = CallbackConfigurationRepository(applicationContext).find(callbackId)
@@ -53,7 +52,7 @@ class CallbackPollWorker(
                 now = now,
             )
         }.getOrElse {
-            CallbackPollScheduler.schedule(
+            CallbackPollScheduler.continuePolling(
                 applicationContext,
                 campaignId,
                 CallbackBackoff(definition.pollPolicy).afterFailure(failureCount),
@@ -69,7 +68,11 @@ class CallbackPollWorker(
                 observedAt,
                 definition.displayLabel,
             )
-            runtime.save(terminal)
+            val committed = runtime.save(terminal)
+            if (committed != terminal) return Result.success()
+            val sunrise = SunriseScheduler(applicationContext)
+            val completion = runCatching { sunrise.completeOccurrence(campaignId) }
+                .onFailure { android.util.Log.w("SunriseRelease", "Next alarm needs attention") }
             WakeStatusPublisher(applicationContext).publish(terminal, observedAt)
             val deviceId = NativeDeviceProofAuthenticator(applicationContext).deviceId()
             WakeOutboxPublisher(applicationContext).publish(
@@ -82,15 +85,11 @@ class CallbackPollWorker(
                 writerDeviceId = deviceId,
                 version = 1,
             )
-            applicationContext.stopService(
-                PerpetualAlarmService.stopIntent(applicationContext, campaignId),
-            )
-            AndroidAlarmClockGateway(applicationContext).cancel(campaignId)
             WakeSyncScheduler.accelerate(applicationContext)
-            return Result.success()
+            return if (completion.isSuccess) Result.success() else Result.retry()
         }
 
-        CallbackPollScheduler.schedule(
+        CallbackPollScheduler.continuePolling(
             applicationContext,
             campaignId,
             CallbackBackoff(definition.pollPolicy).afterSuccess(),
@@ -111,7 +110,22 @@ object CallbackPollScheduler {
         campaignId: String,
         delay: Duration = Duration.ZERO,
         failureCount: Int = 0,
-    ) {
+    ): Operation = enqueue(context, campaignId, delay, failureCount, ExistingWorkPolicy.KEEP)
+
+    fun continuePolling(
+        context: Context,
+        campaignId: String,
+        delay: Duration,
+        failureCount: Int = 0,
+    ): Operation = enqueue(context, campaignId, delay, failureCount, ExistingWorkPolicy.APPEND_OR_REPLACE)
+
+    private fun enqueue(
+        context: Context,
+        campaignId: String,
+        delay: Duration,
+        failureCount: Int,
+        policy: ExistingWorkPolicy,
+    ): Operation {
         val input = Data.Builder()
             .putString(CallbackPollWorker.KEY_CAMPAIGN_ID, campaignId)
             .putInt(CallbackPollWorker.KEY_FAILURE_COUNT, failureCount)
@@ -120,9 +134,9 @@ object CallbackPollScheduler {
             .setInputData(input)
             .setInitialDelay(delay.toMillis(), TimeUnit.MILLISECONDS)
             .build()
-        WorkManager.getInstance(context).enqueueUniqueWork(
+        return WorkManager.getInstance(context).enqueueUniqueWork(
             workName(campaignId),
-            ExistingWorkPolicy.REPLACE,
+            policy,
             request,
         )
     }

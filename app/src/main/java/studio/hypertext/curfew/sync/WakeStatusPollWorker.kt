@@ -17,10 +17,9 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import studio.hypertext.curfew.alarm.AlarmCampaignEngine
 import studio.hypertext.curfew.alarm.AlarmCampaignState
-import studio.hypertext.curfew.callback.CallbackPollScheduler
 import studio.hypertext.curfew.platform.AlarmRuntimeRepository
-import studio.hypertext.curfew.platform.AndroidAlarmClockGateway
-import studio.hypertext.curfew.platform.PerpetualAlarmService
+import studio.hypertext.curfew.platform.SunriseScheduler
+import kotlinx.coroutines.CancellationException
 import studio.hypertext.curfew.protocols.RemoteOverride
 import studio.hypertext.curfew.protocols.WakeCampaignState
 import studio.hypertext.curfew.protocols.WakeStatus
@@ -39,7 +38,7 @@ class WakeStatusPollWorker(
         if (local !is AlarmCampaignState.Scheduled &&
             local !is AlarmCampaignState.Ringing &&
             local !is AlarmCampaignState.Quiet
-        ) return Result.success()
+        ) return completeCampaign(campaignId)
         val accessToken = AndroidKeystoreSecretStore(applicationContext)
             .get("account:access-token")
             ?.toString(Charsets.UTF_8)
@@ -62,8 +61,7 @@ class WakeStatusPollWorker(
             if (terminal != null) {
                 val nextVersion = runtime.statusVersion(campaignId) + 1
                 runtime.save(terminal, writerCounter = nextVersion)
-                stopCampaign(campaignId)
-                return Result.success()
+                return completeCampaign(campaignId)
             }
         }
 
@@ -122,8 +120,7 @@ class WakeStatusPollWorker(
 
         if (terminal != null) {
             runtime.save(terminal, writerCounter = status.statusVersion)
-            stopCampaign(campaignId)
-            return Result.success()
+            return completeCampaign(campaignId)
         }
 
         WakeStatusPollScheduler.schedule(
@@ -135,12 +132,14 @@ class WakeStatusPollWorker(
         return Result.success()
     }
 
-    private fun stopCampaign(campaignId: String) {
-        applicationContext.stopService(
-            PerpetualAlarmService.stopIntent(applicationContext, campaignId),
-        )
-        AndroidAlarmClockGateway(applicationContext).cancel(campaignId)
-        CallbackPollScheduler.cancel(applicationContext, campaignId)
+    internal suspend fun completeCampaign(campaignId: String): Result = try {
+        SunriseScheduler(applicationContext).completeOccurrence(campaignId)
+        Result.success()
+    } catch (failure: CancellationException) {
+        throw failure
+    } catch (_: Exception) {
+        android.util.Log.w("SunriseRelease", "Next alarm needs attention")
+        Result.retry()
     }
 
     private inline fun <reified T> fetch(

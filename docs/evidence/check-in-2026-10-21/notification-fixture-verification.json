@@ -1,0 +1,34 @@
+{
+  "rejectedCi": 39582873446,
+  "appCommit": "085d3b26eec35bc0c7c77dbcab3c2aaa12d4abfa",
+  "unchangedAppMainTree": "37e53ffe597d0b5556d42d59aa1ceaae16963d92",
+  "installedAppSha256": "ac445269e540f0e1667f454a840b88c723748d78bc898b6f77e73ace27c61ff2",
+  "nativeImage": "API36 google_apis_playstore ARM64; CI Google APIs x86_64 remains separate",
+  "redFirst": "Seeded stale same-channel notification reproduces Morning stretch versus your check-in mismatch with the original selector.",
+  "ciApi36": "Notification assertion selects another campaign; fixture teardown stops its pending foreground start before promotion, and Android terminates the process. No production service defect is established.",
+  "ciApi35": "Cold-start recreation checks the merged destination before it is ready. Wait for that destination and retain merged-tree navigation assertions.",
+  "correction": "Select the notification by the current occurrence PendingIntent; seed an unrelated tagged notification; reject existing pending alarms before fixture mutation; synchronize teardown; release fixture-owned resources in nested finally.",
+  "intermediateFull": {
+    "reported": 193,
+    "passes": 186,
+    "guardedSkips": 7,
+    "failures": 0,
+    "seconds": 177.812,
+    "boundary": "Ownership selector and synchronized cleanup applied; before final distinct-tag, precondition, and nested cleanup safety revision."
+  },
+  "finalTargeted": {
+    "tests": 7,
+    "failures": 0,
+    "seconds": 4.558,
+    "boundary": "Exact final three-file test correction; includes audio focus, fixture cleanup, notification identity, and cold-start navigation."
+  },
+  "testApkSha256": {
+    "gms": "2ba5bf4c053fa27889941ab2a5afe3baf87e4b9ec7a690ac713aa695965e1bc5",
+    "plain": "4f8ac280d19449781572e5506bf59802a5f4f7abf589e44c65b9864a7d0d2947"
+  },
+  "buildAndLint": "Both test APKs build and both Android lint variants pass on final source.",
+  "independentReview": "Read-only reviewer found no remaining concrete issue after guard-before-mutation, separate notification identity, and nested resource cleanup.",
+  "matrix": "Unchanged app source; check-in-startup-matrix retains original recorded source/APK hashes.",
+  "pixel": "No new physical acceptance; uninterrupted Pixel Doze remains unchecked.",
+  "ownedEmulatorCleanup": "Exact owned AVD stopped; its registration and temporary directory verified absent."
+}

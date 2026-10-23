@@ -1,0 +1,788 @@
+{
+  "sourceRevision": "5d35c93ae32382581f1f9f8f05fc513ed1667bc7",
+  "sourcePullRequest": "https://github.com/TheHypertextStudio/curfew-android/pull/18",
+  "states": [
+    {
+      "id": "welcome",
+      "title": "Welcome",
+      "screen": "Welcome",
+      "positions": [
+        "top"
+      ]
+    },
+    {
+      "id": "setup_once",
+      "title": "Setup once",
+      "screen": "Wake time",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "setup_weekly",
+      "title": "Setup weekly",
+      "screen": "Wake time",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "edit_once",
+      "title": "Edit once",
+      "screen": "Wake time",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "edit_weekly",
+      "title": "Edit weekly",
+      "screen": "Wake time",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "edit_busy",
+      "title": "Edit busy",
+      "screen": "Wake time",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "edit_error",
+      "title": "Edit error",
+      "screen": "Wake time",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "checkin_intro",
+      "title": "Checkin intro",
+      "screen": "Check-in",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "checkin_defer_busy",
+      "title": "Checkin defer busy",
+      "screen": "Check-in",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "checkin_defer_error",
+      "title": "Checkin defer error",
+      "screen": "Check-in",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "checkin_empty",
+      "title": "Checkin empty",
+      "screen": "Check-in",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "checkin_valid",
+      "title": "Checkin valid",
+      "screen": "Check-in",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "checkin_invalid",
+      "title": "Checkin invalid",
+      "screen": "Check-in",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "checkin_details",
+      "title": "Checkin details",
+      "screen": "Check-in",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "checkin_invalid_action",
+      "title": "Checkin invalid action",
+      "screen": "Check-in",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "checkin_saving",
+      "title": "Checkin saving",
+      "screen": "Check-in",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "checkin_save_error",
+      "title": "Checkin save error",
+      "screen": "Check-in",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "checkin_transfer",
+      "title": "Checkin transfer",
+      "screen": "Check-in",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "checkin_test_ready",
+      "title": "Checkin test ready",
+      "screen": "Check-in",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "checkin_checking",
+      "title": "Checkin checking",
+      "screen": "Check-in",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "checkin_test_error",
+      "title": "Checkin test error",
+      "screen": "Check-in",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "checkin_connected",
+      "title": "Checkin connected",
+      "screen": "Check-in",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "checkin_connection_details",
+      "title": "Checkin connection details",
+      "screen": "Check-in",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "checkin_replace",
+      "title": "Checkin replace",
+      "screen": "Check-in",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "readiness_exact",
+      "title": "Readiness exact",
+      "screen": "Alarm setup",
+      "positions": [
+        "top"
+      ]
+    },
+    {
+      "id": "readiness_notifications",
+      "title": "Readiness notifications",
+      "screen": "Alarm setup",
+      "positions": [
+        "top"
+      ]
+    },
+    {
+      "id": "readiness_fullscreen",
+      "title": "Readiness fullscreen",
+      "screen": "Alarm setup",
+      "positions": [
+        "top"
+      ]
+    },
+    {
+      "id": "readiness_channel",
+      "title": "Readiness channel",
+      "screen": "Alarm setup",
+      "positions": [
+        "top"
+      ]
+    },
+    {
+      "id": "readiness_volume",
+      "title": "Readiness volume",
+      "screen": "Alarm setup",
+      "positions": [
+        "top"
+      ]
+    },
+    {
+      "id": "readiness_sound",
+      "title": "Readiness sound",
+      "screen": "Alarm setup",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "readiness_limits",
+      "title": "Readiness limits",
+      "screen": "Alarm setup",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "readiness_ready",
+      "title": "Readiness ready",
+      "screen": "Alarm setup",
+      "positions": [
+        "top"
+      ]
+    },
+    {
+      "id": "review_once",
+      "title": "Review once",
+      "screen": "Alarm review",
+      "positions": [
+        "top"
+      ]
+    },
+    {
+      "id": "review_weekly",
+      "title": "Review weekly",
+      "screen": "Alarm review",
+      "positions": [
+        "top"
+      ]
+    },
+    {
+      "id": "review_busy",
+      "title": "Review busy",
+      "screen": "Alarm review",
+      "positions": [
+        "top"
+      ]
+    },
+    {
+      "id": "review_error",
+      "title": "Review error",
+      "screen": "Alarm review",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "daily_empty",
+      "title": "Daily empty",
+      "screen": "Daily alarm",
+      "positions": [
+        "top"
+      ]
+    },
+    {
+      "id": "daily_on",
+      "title": "Daily on",
+      "screen": "Daily alarm",
+      "positions": [
+        "top"
+      ]
+    },
+    {
+      "id": "daily_off",
+      "title": "Daily off",
+      "screen": "Daily alarm",
+      "positions": [
+        "top"
+      ]
+    },
+    {
+      "id": "daily_weekly",
+      "title": "Daily weekly",
+      "screen": "Daily alarm",
+      "positions": [
+        "top"
+      ]
+    },
+    {
+      "id": "daily_complete",
+      "title": "Daily complete",
+      "screen": "Daily alarm",
+      "positions": [
+        "top"
+      ]
+    },
+    {
+      "id": "daily_attention",
+      "title": "Daily attention",
+      "screen": "Daily alarm",
+      "positions": [
+        "top"
+      ]
+    },
+    {
+      "id": "daily_busy",
+      "title": "Daily busy",
+      "screen": "Daily alarm",
+      "positions": [
+        "top"
+      ]
+    },
+    {
+      "id": "daily_error",
+      "title": "Daily error",
+      "screen": "Daily alarm",
+      "positions": [
+        "top"
+      ]
+    },
+    {
+      "id": "daily_unverified",
+      "title": "Daily unverified",
+      "screen": "Daily alarm",
+      "positions": [
+        "top"
+      ]
+    },
+    {
+      "id": "settings_empty",
+      "title": "Settings empty",
+      "screen": "Settings",
+      "positions": [
+        "top"
+      ]
+    },
+    {
+      "id": "settings_ready",
+      "title": "Settings ready",
+      "screen": "Settings",
+      "positions": [
+        "top"
+      ]
+    },
+    {
+      "id": "account_local",
+      "title": "Account local",
+      "screen": "Account",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "account_pending",
+      "title": "Account pending",
+      "screen": "Account",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "account_enrolled",
+      "title": "Account enrolled",
+      "screen": "Account",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "recovery_empty",
+      "title": "Recovery empty",
+      "screen": "Account",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "recovery_entered",
+      "title": "Recovery entered",
+      "screen": "Account",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "recovery_save",
+      "title": "Recovery save",
+      "screen": "Account",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "sound_playing",
+      "title": "Sound playing",
+      "screen": "Sound check",
+      "positions": [
+        "top"
+      ]
+    },
+    {
+      "id": "sound_heard",
+      "title": "Sound heard",
+      "screen": "Sound check",
+      "positions": [
+        "top"
+      ]
+    },
+    {
+      "id": "sound_failed",
+      "title": "Sound failed",
+      "screen": "Sound check",
+      "positions": [
+        "top"
+      ]
+    },
+    {
+      "id": "sound_saving",
+      "title": "Sound saving",
+      "screen": "Sound check",
+      "positions": [
+        "top"
+      ]
+    },
+    {
+      "id": "sound_save_failed",
+      "title": "Sound save failed",
+      "screen": "Sound check",
+      "positions": [
+        "top"
+      ]
+    },
+    {
+      "id": "time_picker",
+      "title": "Time picker",
+      "screen": "Pickers",
+      "positions": [
+        "top"
+      ]
+    },
+    {
+      "id": "date_picker",
+      "title": "Date picker",
+      "screen": "Pickers",
+      "positions": [
+        "top"
+      ]
+    },
+    {
+      "id": "ringing_action",
+      "title": "Ringing action",
+      "screen": "Ringing",
+      "positions": [
+        "top"
+      ]
+    },
+    {
+      "id": "ringing_no_action",
+      "title": "Ringing no action",
+      "screen": "Ringing",
+      "positions": [
+        "top"
+      ]
+    },
+    {
+      "id": "ringing_quiet",
+      "title": "Ringing quiet",
+      "screen": "Ringing",
+      "positions": [
+        "top"
+      ]
+    },
+    {
+      "id": "ringing_long",
+      "title": "Ringing long",
+      "screen": "Ringing",
+      "positions": [
+        "top"
+      ]
+    },
+    {
+      "id": "recovery_reason_empty",
+      "title": "Recovery reason empty",
+      "screen": "Alarm recovery",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "recovery_reason_short",
+      "title": "Recovery reason short",
+      "screen": "Alarm recovery",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "recovery_reason_ready",
+      "title": "Recovery reason ready",
+      "screen": "Alarm recovery",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "recovery_no_lock",
+      "title": "Recovery no lock",
+      "screen": "Alarm recovery",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "recovery_busy",
+      "title": "Recovery busy",
+      "screen": "Alarm recovery",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "recovery_error",
+      "title": "Recovery error",
+      "screen": "Alarm recovery",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "load_error",
+      "title": "Load error",
+      "screen": "Loading",
+      "positions": [
+        "top"
+      ]
+    },
+    {
+      "id": "edit_needs_setup",
+      "title": "Edit needs setup",
+      "screen": "Wake time",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "edit_no_days",
+      "title": "Edit no days",
+      "screen": "Wake time",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "checkin_edit_existing",
+      "title": "Checkin edit existing",
+      "screen": "Check-in",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "time_input_invalid",
+      "title": "Time input invalid",
+      "screen": "Pickers",
+      "positions": [
+        "top"
+      ]
+    },
+    {
+      "id": "time_input_empty",
+      "title": "Time input empty",
+      "screen": "Pickers",
+      "positions": [
+        "top"
+      ]
+    },
+    {
+      "id": "readiness_expanded_limits",
+      "title": "Readiness expanded limits",
+      "screen": "Alarm setup",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "readiness_sound_playing",
+      "title": "Alarm preview playing",
+      "screen": "Alarm setup",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "readiness_sound_heard",
+      "title": "Alarm preview heard",
+      "screen": "Alarm setup",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "readiness_sound_failed",
+      "title": "Alarm preview failed",
+      "screen": "Alarm setup",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "readiness_sound_saving",
+      "title": "Alarm preview saving",
+      "screen": "Alarm setup",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "readiness_sound_save_failed",
+      "title": "Alarm preview save failed",
+      "screen": "Alarm setup",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    }
+  ],
+  "devices": [
+    {
+      "id": "phone_portrait",
+      "label": "Phone \u00b7 portrait",
+      "width": 360,
+      "height": 800,
+      "fontScale": 1
+    },
+    {
+      "id": "phone_landscape",
+      "label": "Phone \u00b7 landscape",
+      "width": 800,
+      "height": 360,
+      "fontScale": 1
+    },
+    {
+      "id": "tablet_portrait",
+      "label": "Tablet \u00b7 portrait",
+      "width": 800,
+      "height": 1280,
+      "fontScale": 1
+    },
+    {
+      "id": "tablet_landscape",
+      "label": "Tablet \u00b7 landscape",
+      "width": 1280,
+      "height": 800,
+      "fontScale": 1
+    },
+    {
+      "id": "cover_portrait",
+      "label": "Fold cover \u00b7 portrait",
+      "width": 360,
+      "height": 840,
+      "fontScale": 1
+    },
+    {
+      "id": "cover_landscape",
+      "label": "Fold cover \u00b7 landscape",
+      "width": 840,
+      "height": 360,
+      "fontScale": 1
+    },
+    {
+      "id": "inner_portrait",
+      "label": "Fold inner \u00b7 portrait",
+      "width": 768,
+      "height": 860,
+      "fontScale": 1
+    },
+    {
+      "id": "inner_landscape",
+      "label": "Fold inner \u00b7 landscape",
+      "width": 860,
+      "height": 768,
+      "fontScale": 1
+    },
+    {
+      "id": "large_text",
+      "label": "Narrow phone \u00b7 200% text",
+      "width": 320,
+      "height": 700,
+      "fontScale": 2
+    }
+  ],
+  "appearances": [
+    {
+      "id": "light",
+      "label": "Light",
+      "dark": false,
+      "fontScale": 1
+    },
+    {
+      "id": "dark",
+      "label": "Dark",
+      "dark": true,
+      "fontScale": 1
+    }
+  ]
+}

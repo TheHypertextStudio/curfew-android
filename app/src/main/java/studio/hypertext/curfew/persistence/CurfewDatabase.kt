@@ -1,6 +1,7 @@
 package studio.hypertext.curfew.persistence
 
 import android.content.Context
+import androidx.room.AutoMigration
 import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Entity
@@ -9,6 +10,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import kotlinx.coroutines.flow.Flow
 
 @Entity(tableName = "alarm_campaigns", primaryKeys = ["campaignId"])
 data class AlarmCampaignEntity(
@@ -51,11 +53,17 @@ interface AlarmCampaignDao {
     @Query("SELECT * FROM alarm_campaigns WHERE campaignId = :campaignId LIMIT 1")
     suspend fun find(campaignId: String): AlarmCampaignEntity?
 
+    @Query("SELECT * FROM alarm_campaigns WHERE campaignId = :campaignId LIMIT 1")
+    fun observe(campaignId: String): Flow<AlarmCampaignEntity?>
+
     @Query("SELECT * FROM alarm_campaigns WHERE state NOT IN ('satisfied', 'overridden') ORDER BY persistedAtWall")
     suspend fun pending(): List<AlarmCampaignEntity>
 
     @Query("DELETE FROM alarm_campaigns WHERE campaignId = :campaignId")
     suspend fun delete(campaignId: String)
+
+    @Query("DELETE FROM alarm_campaigns WHERE campaignId = :campaignId AND state = 'scheduled'")
+    suspend fun deleteScheduled(campaignId: String)
 }
 
 @Dao
@@ -88,16 +96,39 @@ interface CallbackDefinitionDao {
     suspend fun delete(callbackId: String)
 }
 
+@Entity(tableName = "alarm_recovery_audit", primaryKeys = ["requestId"])
+data class AlarmRecoveryAuditEntity(
+    val requestId: String,
+    val campaignId: String,
+    val reason: String,
+    val confirmedAt: Long,
+)
+
+@Dao
+interface AlarmRecoveryAuditDao {
+    @Insert
+    suspend fun insert(entry: AlarmRecoveryAuditEntity)
+
+    @Query("SELECT * FROM alarm_recovery_audit WHERE campaignId = :campaignId ORDER BY confirmedAt")
+    suspend fun forCampaign(campaignId: String): List<AlarmRecoveryAuditEntity>
+
+    @Query("DELETE FROM alarm_recovery_audit WHERE campaignId = :campaignId")
+    suspend fun deleteForCampaign(campaignId: String)
+}
+
 @Database(
     entities = [
         AlarmCampaignEntity::class,
         SyncOutboxEntity::class,
         CallbackDefinitionEntity::class,
+        AlarmRecoveryAuditEntity::class,
     ],
-    version = 1,
+    version = 2,
+    autoMigrations = [AutoMigration(from = 1, to = 2)],
     exportSchema = true,
 )
 abstract class CurfewDatabase : RoomDatabase() {
+    abstract fun alarmRecoveryAuditDao(): AlarmRecoveryAuditDao
     abstract fun alarmCampaignDao(): AlarmCampaignDao
     abstract fun syncOutboxDao(): SyncOutboxDao
     abstract fun callbackDefinitionDao(): CallbackDefinitionDao

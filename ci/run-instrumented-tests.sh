@@ -67,15 +67,16 @@ timeout 180 adb install --no-streaming -r -t "$application_apk"
 timeout 180 adb install --no-streaming -r -t "$test_apk"
 adb logcat -c
 
+instrumentation_status=0
 instrumentation_output=$(
-    timeout 300 adb shell am instrument -w -r \
+    timeout 600 adb shell am instrument -w -r \
         studio.hypertext.curfew.test/androidx.test.runner.AndroidJUnitRunner |
         tr -d '\r'
-)
+) || instrumentation_status=$?
 printf '%s\n' "$instrumentation_output"
 
-if ! grep -Eq '^OK \([1-9][0-9]* tests?\)$' <<<"$instrumentation_output"; then
-    echo "AndroidJUnitRunner did not report a successful non-empty test run." >&2
+if [[ ${instrumentation_status:-0} -ne 0 ]] || ! grep -Eq '^OK \([1-9][0-9]* tests?\)$' <<<"$instrumentation_output"; then
+    echo "AndroidJUnitRunner did not report a successful non-empty test run (exit ${instrumentation_status:-0})." >&2
     timeout 30 adb logcat -d -v threadtime '*:E' >&2 || true
     exit 1
 fi

@@ -1,0 +1,49 @@
+{
+  "rejectedCi": 39579943603,
+  "artifactId": 12336028203,
+  "api35": "192 reported native cases pass; capture then records two System UI splash-copy null SurfacePackage crashes. Partial gallery is rejected.",
+  "api36": "192 reported; one failure in real-activity keyboard Back visibility. All eight independent IME profiles pass.",
+  "redFirst": [
+    "Native activity resize contract fails expected16 actual0 before manifest fix.",
+    "Host valid-root-with-System-UI-crash test fails before capture rejection guard.",
+    "CI complete welcome capture fails with System UI onCopied crash before custom exit removal."
+  ],
+  "change": "Use system-managed splash exit and explicit adjustResize. Keep branded animated icon and Compose entrance animations.",
+  "local": {
+    "host": {
+      "plain": {
+        "tests": 200,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "gms": {
+        "tests": 200,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "native": {
+      "tests": 10,
+      "failures": 0,
+      "seconds": 14.069
+    },
+    "captureDriverTests": 17,
+    "lint": "Both variants pass.",
+    "build": "Both debug app/test variants pass."
+  },
+  "appSha256": "ac445269e540f0e1667f454a840b88c723748d78bc898b6f77e73ace27c61ff2",
+  "pixel": "Absent; no new physical acceptance.",
+  "matrix": {
+    "profiles": 18,
+    "statePngs": 180,
+    "motionFrames": 4,
+    "contactSheets": 30,
+    "dimensionsVerified": true,
+    "settingsRestored": true,
+    "manifest": "design/android-review/native/check-in-startup-matrix/manifest.json",
+    "review": "Root reviewed all10 light sheets and motion. Independent reviewer checked all20 dark/accessibility sheets and four full images; no concrete rendered regression. Advanced setup presentation only; consumer launch remains blocked."
+  },
+  "ownedEmulatorCleanup": "Startup AVD stopped; exact registration and temporary data removed."
+}

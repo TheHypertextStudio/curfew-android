@@ -7,12 +7,15 @@ data class AlarmCapabilities(
     val alarmChannelAudible: Boolean,
     val testSoundCompleted: Boolean,
     val limitationsAcknowledged: Boolean,
+    val alarmVolumeAudible: Boolean = true,
 )
 
 enum class ReadinessAction {
     GRANT_EXACT_ALARM_ACCESS,
     GRANT_NOTIFICATIONS,
+    GRANT_FULL_SCREEN_ACCESS,
     REPAIR_ALARM_CHANNEL,
+    RAISE_ALARM_VOLUME,
     PLAY_TEST_SOUND,
     ACKNOWLEDGE_LIMITATIONS,
 }
@@ -46,8 +49,14 @@ class AlarmReadinessEvaluator {
             if (!capabilities.notificationsGranted) {
                 add(ReadinessAction.GRANT_NOTIFICATIONS)
             }
+            if (!capabilities.fullScreenIntentAllowed) {
+                add(ReadinessAction.GRANT_FULL_SCREEN_ACCESS)
+            }
             if (!capabilities.alarmChannelAudible) {
                 add(ReadinessAction.REPAIR_ALARM_CHANNEL)
+            }
+            if (!capabilities.alarmVolumeAudible) {
+                add(ReadinessAction.RAISE_ALARM_VOLUME)
             }
             if (!capabilities.testSoundCompleted) {
                 add(ReadinessAction.PLAY_TEST_SOUND)

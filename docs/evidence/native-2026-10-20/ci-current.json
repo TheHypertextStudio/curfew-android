@@ -1,0 +1,15 @@
+{
+  "ciRun": "https://github.com/TheHypertextStudio/curfew-android/actions/runs/39554867813",
+  "headCommit": "0919d57ede19c2724e279cc4de979c5da3ed851e",
+  "artifactSourceCommit": "f3565b696ddf94330e18dc24ff980ef38eb4522d",
+  "cleanSource": true,
+  "installedApkSha256": "6e7ee05f349116b500064268876f134b60024dc13bedcb5ac42e44d519323af6",
+  "installedApkHashMatches": true,
+  "profileCount": 18,
+  "taskCaptureCount": 108,
+  "firstViewportWelcomeActions": true,
+  "emulatorSettingsRestored": true,
+  "physicalDevice": false,
+  "mode": "API35 native CI fixture captures; separate from reviewed API34 gallery",
+  "artifactApplicationSourceMatchesHead": true
+}

@@ -17,10 +17,9 @@ class NativeDeviceProofAuthenticator(context: Context) {
     private val secrets = AndroidKeystoreSecretStore(context)
     private val signer = AndroidDeviceSigner()
 
-    fun deviceId(): String {
-        secrets.get(DEVICE_ID_KEY)?.toString(Charsets.UTF_8)?.let { return it }
-        return UUID.randomUUID().toString().also { secrets.put(DEVICE_ID_KEY, it.toByteArray()) }
-    }
+    fun deviceId(): String = secrets.getOrPut(DEVICE_ID_KEY) {
+        UUID.randomUUID().toString().toByteArray(Charsets.UTF_8)
+    }.toString(Charsets.UTF_8)
 
     fun proof(
         accessToken: String,

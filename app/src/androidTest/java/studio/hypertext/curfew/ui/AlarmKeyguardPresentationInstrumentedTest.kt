@@ -1,52 +1,109 @@
 package studio.hypertext.curfew.ui
 
+import android.content.Context
 import android.content.Intent
 import android.view.WindowManager
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.platform.app.InstrumentationRegistry
+import java.time.Instant
+import java.util.UUID
+import kotlinx.coroutines.runBlocking
+import org.junit.Before
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Test
 import studio.hypertext.curfew.MainActivity
+import studio.hypertext.curfew.alarm.AlarmCampaignEngine
+import studio.hypertext.curfew.alarm.AlarmCampaignState
+import studio.hypertext.curfew.alarm.AlarmRecurrencePolicy
+import studio.hypertext.curfew.platform.cleanupAlarmFixture
+import studio.hypertext.curfew.platform.AlarmRuntimeRepository
+import studio.hypertext.curfew.platform.AndroidAlarmClockGateway
 
-/**
- * A campaign fires while the phone is locked and asleep, which is the only
- * situation the Perpetual Alarm exists for. MainActivity therefore asks for
- * keyguard presentation and a screen wake — but only when it was launched by the
- * alarm's full-screen intent, because it is also the launcher entry point and a
- * launcher that bypasses the keyguard is a security bug, not a feature.
- *
- * Only the gating is asserted here. Whether the keyguard actually yields is an
- * OEM behavior that no emulator reproduces faithfully, so docs/TESTING.md keeps
- * that on the physical-device checklist. FLAG_KEEP_SCREEN_ON is the observable
- * half: setShowWhenLocked and setTurnScreenOn expose no public getters, and this
- * flag is set on the same branch, so it stands in for the whole decision.
- */
+/** The window flag proves our presentation request, not that an OEM unlocks the keyguard. */
 class AlarmKeyguardPresentationInstrumentedTest {
-    private fun intent(showAlarm: Boolean): Intent =
-        Intent(ApplicationProvider.getApplicationContext(), MainActivity::class.java).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            if (showAlarm) putExtra(MainActivity.EXTRA_SHOW_ALARM, true)
-        }
+    private val context = ApplicationProvider.getApplicationContext<Context>()
+    private val id = UUID.randomUUID().toString()
 
-    private fun keepScreenOnFlag(showAlarm: Boolean): Int {
+    @Before
+    fun requireEmptyAlarmQueue() = runBlocking {
+        check(AlarmRuntimeRepository(context).pending().isEmpty()) { "The keyguard fixture must not interrupt another alarm" }
+    }
+
+    @After
+    fun removeFixture() = runBlocking { cleanupAlarmFixture(context, id) }
+
+    private fun keepScreenOnFlag(showAlarm: Boolean, campaignId: String? = null, expectedOn: Boolean = false): Int {
         var flags = 0
-        ActivityScenario.launch<MainActivity>(intent(showAlarm)).use { scenario ->
-            scenario.onActivity { activity ->
-                flags = activity.window.attributes.flags and
-                    WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+        val intent = Intent(context, MainActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            putExtra(MainActivity.EXTRA_SHOW_ALARM, showAlarm)
+            campaignId?.let { putExtra(AndroidAlarmClockGateway.EXTRA_CAMPAIGN_ID, it) }
+        }
+        ActivityScenario.launch<MainActivity>(intent).use { scenario ->
+            // Disk recovery and the Compose subscription complete after ActivityScenario reaches RESUMED.
+            repeat(30) {
+                InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+                scenario.onActivity { activity ->
+                    flags = activity.window.attributes.flags and WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                }
+                if (expectedOn && flags != 0) return@repeat
+                Thread.sleep(50)
             }
         }
         return flags
     }
 
     @Test
-    fun alarmLaunchKeepsTheScreenOnSoTheRingingUiSurvivesTheCampaign() {
-        assertNotEquals(0, keepScreenOnFlag(showAlarm = true))
+    fun fixtureCleanupCancelsItsRegisteredAlarmClock() = runBlocking {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        instrumentation.uiAutomation.executeShellCommand(
+            "appops set ${context.packageName} SCHEDULE_EXACT_ALARM allow",
+        ).use { android.os.ParcelFileDescriptor.AutoCloseInputStream(it).readBytes() }
+        val alarms = context.getSystemService(android.app.AlarmManager::class.java)
+        // Android reports the next alarm across all apps, including the image's Clock app.
+        // Put our fixture first and verify cancellation restores that existing alarm.
+        val previous = alarms.nextAlarmClock
+        val at = Instant.ofEpochMilli(minOf(
+            Instant.now().plusSeconds(3600).toEpochMilli(),
+            previous?.triggerTime?.minus(1_000) ?: Long.MAX_VALUE,
+        ))
+        check(at.isAfter(Instant.now())) { "An existing alarm is already due; cannot safely insert the fixture" }
+        AlarmRuntimeRepository(context).save(AlarmCampaignState.Scheduled(id, at, AlarmRecurrencePolicy.default(), setOf("fixture-device")))
+        AndroidAlarmClockGateway(context).setAlarmClock(id, at)
+        val scheduledDeadline = android.os.SystemClock.elapsedRealtime() + 5_000
+        while (alarms.nextAlarmClock?.triggerTime != at.toEpochMilli() && android.os.SystemClock.elapsedRealtime() < scheduledDeadline) {
+            android.os.SystemClock.sleep(25)
+        }
+        assertEquals(at.toEpochMilli(), alarms.nextAlarmClock?.triggerTime)
+        removeFixture()
+        val deadline = android.os.SystemClock.elapsedRealtime() + 5_000
+        while (alarms.nextAlarmClock?.triggerTime != previous?.triggerTime && android.os.SystemClock.elapsedRealtime() < deadline) {
+            android.os.SystemClock.sleep(25)
+        }
+        assertEquals("Fixture cleanup must restore the previous next alarm", previous?.triggerTime, alarms.nextAlarmClock?.triggerTime)
+        assertEquals(previous?.showIntent, alarms.nextAlarmClock?.showIntent)
+    }
+
+    @Test
+    fun alarmLaunchKeepsTheScreenOnForASavedActiveOccurrence() = runBlocking {
+        val now = Instant.now()
+        val state = AlarmCampaignEngine().advanceTo(
+            AlarmCampaignState.Scheduled(id, now, AlarmRecurrencePolicy.default(), setOf("fixture-device")), now,
+        )
+        AlarmRuntimeRepository(context).save(state)
+        assertNotEquals(0, keepScreenOnFlag(true, id, expectedOn = true))
     }
 
     @Test
     fun launcherStartDoesNotRequestKeyguardPresentation() {
-        assertEquals(0, keepScreenOnFlag(showAlarm = false))
+        assertEquals(0, keepScreenOnFlag(false))
+    }
+
+    @Test
+    fun aMissingSavedOccurrenceCannotRequestKeyguardPresentation() {
+        assertEquals(0, keepScreenOnFlag(true, id))
     }
 }

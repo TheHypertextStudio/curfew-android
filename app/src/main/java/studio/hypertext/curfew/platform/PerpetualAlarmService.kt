@@ -5,13 +5,13 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
+import android.app.ForegroundServiceStartNotAllowedException
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
-import android.media.Ringtone
 import android.media.RingtoneManager
 import android.os.IBinder
 import android.os.Build
@@ -24,70 +24,142 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.withContext
+import android.os.SystemClock
+import java.time.Instant
 import studio.hypertext.curfew.MainActivity
 import studio.hypertext.curfew.R
 import studio.hypertext.curfew.account.NativeDeviceProofAuthenticator
 import studio.hypertext.curfew.alarm.AlarmCampaignState
+import studio.hypertext.curfew.alarm.AlarmPlaybackPlanner
+import studio.hypertext.curfew.callback.CallbackConfigurationRepository
 import studio.hypertext.curfew.callback.CallbackPollScheduler
 import studio.hypertext.curfew.security.AndroidKeystoreSecretStore
 import studio.hypertext.curfew.sync.ForegroundWakeSocket
 import studio.hypertext.curfew.sync.WakeStatusPollScheduler
 
 class PerpetualAlarmService : Service() {
-    private var ringtone: Ringtone? = null
+    private val alarmSound by lazy { AndroidAlarmSound(this) }
     private var audioFocusRequest: AudioFocusRequest? = null
     private val mainHandler = Handler(Looper.getMainLooper())
     private var pollRunnable: Runnable? = null
     private var wakeSocket: ForegroundWakeSocket? = null
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private var playbackJob: Job? = null
+    private var playbackGeneration = 0
+    private val requestedCampaignIds = mutableSetOf<String>()
+    private var stickyRecoveryRequested = false
+    private var foregroundEntered = false
+    private var syncCampaignId: String? = null
 
     override fun onCreate() {
         super.onCreate()
+        running = true
         ensureChannels(this)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        // A sticky redelivery after process death arrives with a null intent.
-        // Fabricating a campaign here rang with invented parameters — attempt 1
-        // of 3 against a campaign id that matches no row — until the next real
-        // transition corrected it. AlarmTransitionReceiver is the only
-        // authoritative driver, and its AlarmManager alarm outlives the process,
-        // so declining is both safe and recoverable. Foreground state is still
-        // entered first: the framework requires it even on the path that stops.
-        if (intent == null) {
-            ServiceCompat.startForeground(
-                this,
-                ALARM_NOTIFICATION_ID,
-                ringingNotification(this, "", 0, null, null),
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK,
-            )
+        val previouslyRequestedIds = requestedCampaignIds.toSet()
+        val previouslyRequestedStickyRecovery = stickyRecoveryRequested
+        if (intent == null) stickyRecoveryRequested = true
+        val requestedId = intent?.getStringExtra(EXTRA_CAMPAIGN_ID)
+        requestedId?.let(requestedCampaignIds::add)
+        val generation = ++playbackGeneration
+        playbackJob?.cancel()
+        // Android requires foreground entry before disk recovery can complete.
+        try {
+            if (!foregroundEntered) {
+                ServiceCompat.startForeground(
+                    this,
+                    STARTUP_NOTIFICATION_ID,
+                    NotificationCompat.Builder(this, STATUS_CHANNEL_ID)
+                        .setSmallIcon(R.drawable.ic_launcher_foreground)
+                        .setContentTitle(getString(R.string.app_name))
+                        .setSilent(true)
+                        .setOngoing(true)
+                        .build(),
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK,
+                )
+                foregroundEntered = true
+            }
+        } catch (_: ForegroundServiceStartNotAllowedException) {
+            // Android may retain a boot-only exemption after an exact alarm delivery.
+            AlarmRecoveryReceiver.requestPlaybackRetry(this)
             stopSelf(startId)
             return START_NOT_STICKY
         }
-        val campaignId = intent.getStringExtra(EXTRA_CAMPAIGN_ID) ?: "active-campaign"
-        val attempt = intent.getIntExtra(EXTRA_ATTEMPT, 1)
-        val conditionLabel = intent.getStringExtra(EXTRA_CONDITION_LABEL)
-        val actionUrl = intent.getStringExtra(EXTRA_ACTION_URL)
-        ServiceCompat.startForeground(
-            this,
-            ALARM_NOTIFICATION_ID,
-            ringingNotification(
-                this,
-                campaignId,
-                attempt,
-                conditionLabel,
-                actionUrl,
-            ),
-            ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK,
-        )
-        beginAlarmSound()
-        beginActiveSync(campaignId)
+        playbackJob = serviceScope.launch {
+            try {
+                val repository = AlarmRuntimeRepository(this@PerpetualAlarmService)
+                val state = SunriseScheduler.serialized {
+                    AlarmPlaybackPlanner().restore(
+                        requestedId,
+                        repository.pendingSnapshots(),
+                        Instant.now(),
+                        SystemClock.elapsedRealtime(),
+                        repository.currentBootId(),
+                        previouslyRequestedIds,
+                        previouslyRequestedStickyRecovery,
+                    )?.let { repository.save(it) }
+                }
+                val gateway = AndroidAlarmClockGateway(this@PerpetualAlarmService)
+                val boundary = state?.let { repository.nextTransitionAt(it.campaignId) }
+                if (state != null && boundary != null) {
+                    runCatching { gateway.setAlarmClock(state.campaignId, boundary) }
+                        .onFailure { android.util.Log.w("SunrisePlayback", "Next transition needs exact alarm access") }
+                }
+                if (state !is AlarmCampaignState.Ringing) {
+                    withContext(Dispatchers.Main) {
+                        if (generation == playbackGeneration) stopSelf(startId)
+                    }
+                    return@launch
+                }
+                val definition = repository.callbackId(state.campaignId)?.let {
+                    CallbackConfigurationRepository(this@PerpetualAlarmService).find(it)
+                }
+                repository.observe(state.campaignId).collectLatest { current ->
+                    withContext(Dispatchers.Main) {
+                        if (generation == playbackGeneration) {
+                            if (current is AlarmCampaignState.Ringing) {
+                                // Full-screen launch is evaluated when a notification is added.
+                                // Updating the silent startup entry does not present the alarm.
+                                ServiceCompat.startForeground(
+                                    this@PerpetualAlarmService,
+                                    ALARM_NOTIFICATION_ID,
+                                    ringingNotification(
+                                        this@PerpetualAlarmService, current.campaignId,
+                                        current.attempt, definition?.displayLabel, definition?.actionUrl,
+                                    ),
+                                    ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK,
+                                )
+                                getSystemService(NotificationManager::class.java).cancel(STARTUP_NOTIFICATION_ID)
+                                requestedCampaignIds.add(current.campaignId)
+                                stickyRecoveryRequested = false
+                                beginAlarmSound()
+                                if (syncCampaignId != current.campaignId) beginActiveSync(current.campaignId)
+                            } else {
+                                stopSelf(startId)
+                            }
+                        }
+                    }
+                }
+            } catch (failure: kotlinx.coroutines.CancellationException) {
+                throw failure
+            } catch (failure: Exception) {
+                android.util.Log.e("SunrisePlayback", "Could not restore the saved alarm")
+                withContext(Dispatchers.Main) {
+                    if (generation == playbackGeneration) stopSelf(startId)
+                }
+            }
+        }
         return START_STICKY
     }
 
     override fun onDestroy() {
-        ringtone?.stop()
-        ringtone = null
+        running = false
+        alarmSound.stop()
         audioFocusRequest?.let {
             getSystemService(AudioManager::class.java).abandonAudioFocusRequest(it)
         }
@@ -102,8 +174,8 @@ class PerpetualAlarmService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? = null
 
-    private fun beginAlarmSound() {
-        if (ringtone?.isPlaying == true) return
+    private suspend fun beginAlarmSound() {
+        if (alarmSound.isPlaying) return
         val attributes = AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_ALARM)
             .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
@@ -114,25 +186,20 @@ class PerpetualAlarmService : Service() {
             .setAcceptsDelayedFocusGain(false)
             .setOnAudioFocusChangeListener { change ->
                 when (change) {
-                    AudioManager.AUDIOFOCUS_GAIN -> ringtone?.play()
+                    AudioManager.AUDIOFOCUS_GAIN -> serviceScope.launch(Dispatchers.Main.immediate) { alarmSound.play() }
                     AudioManager.AUDIOFOCUS_LOSS,
                     AudioManager.AUDIOFOCUS_LOSS_TRANSIENT,
                     AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK,
-                    -> ringtone?.stop()
+                    -> alarmSound.stop()
                 }
             }
             .build()
             .also(audioManager::requestAudioFocus)
-        val alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
-            ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
-        ringtone = RingtoneManager.getRingtone(this, alarmUri)?.apply {
-            audioAttributes = attributes
-            isLooping = true
-            play()
-        }
+        if (!alarmSound.play()) android.util.Log.e("SunrisePlayback", "Alarm sound could not start")
     }
 
     private fun beginActiveSync(campaignId: String) {
+        syncCampaignId = campaignId
         wakeSocket?.close()
         wakeSocket = null
         pollRunnable?.let(mainHandler::removeCallbacks)
@@ -180,10 +247,18 @@ class PerpetualAlarmService : Service() {
     }
 
     companion object {
+        @Volatile private var running = false
+
+        internal fun restoreAfterForegroundEntry(context: Context) {
+            // Force-stop removes timers; older Android versions do not send a reopen broadcast.
+            if (!running) AlarmRecoveryReceiver.requestPlaybackRetry(context)
+        }
+
         private const val ALARM_CHANNEL_ID = "curfew_perpetual_alarm"
         private const val STATUS_CHANNEL_ID = "curfew_wake_status"
         private const val ALARM_NOTIFICATION_ID = 4100
         private const val MISSED_NOTIFICATION_ID = 4101
+        private const val STARTUP_NOTIFICATION_ID = 4102
         private const val EXTRA_CAMPAIGN_ID = "campaign_id"
         private const val EXTRA_ATTEMPT = "attempt"
         const val EXTRA_CONDITION_LABEL = "condition_label"
@@ -269,7 +344,8 @@ class PerpetualAlarmService : Service() {
             val builder = NotificationCompat.Builder(context, ALARM_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setContentTitle(context.getString(R.string.alarm_notification_title))
-                .setContentText(context.getString(R.string.alarm_notification_body, attempt))
+                .setContentText(if (conditionLabel == null) context.getString(R.string.alarm_notification_body)
+                    else context.getString(R.string.alarm_notification_named_check_in, conditionLabel))
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)

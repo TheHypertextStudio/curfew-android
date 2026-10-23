@@ -1,0 +1,13 @@
+{
+  "plain": {
+    "apk": "app/build/outputs/apk/plain/debug/app-plain-debug.apk",
+    "sha256": "c243545a2d6674003c7ac8efe3a065624dafeb2f19e53d0a20f25f7a3152758d",
+    "testApkSha256": "33e9bdbefd6c49cf7c87943aecd0a53069628f6ba063483767941d4317e3b4f9"
+  },
+  "gms": {
+    "apk": "app/build/outputs/apk/gms/debug/app-gms-debug.apk",
+    "sha256": "a02abd2ecda5a592d38f095fabfcc56c9a371c1804cc666f37619fd0c5148822",
+    "testApkSha256": "8b7d517b8c36ef46014548a25db0943e115adecbb64382d974a35ae4c425a525"
+  },
+  "sourceMainSha256": "002f0bd9bf7b7eaf6efdc616b1ef53956ab33595ae23a8ae3c13418d6f7f1e40"
+}

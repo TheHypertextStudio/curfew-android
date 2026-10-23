@@ -9,8 +9,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import studio.hypertext.curfew.alarm.AlarmCampaignEngine
 import studio.hypertext.curfew.alarm.AlarmCampaignState
+import studio.hypertext.curfew.alarm.LocalAlarmTransition
 import studio.hypertext.curfew.callback.CallbackConfigurationRepository
 import studio.hypertext.curfew.callback.CallbackPollScheduler
 import studio.hypertext.curfew.sync.WakeStatusPublisher
@@ -22,23 +22,24 @@ class AlarmTransitionReceiver : BroadcastReceiver() {
         val campaignId = intent.getStringExtra(AndroidAlarmClockGateway.EXTRA_CAMPAIGN_ID) ?: return
         val pendingResult = goAsync()
         CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
-            try {
-                transition(context.applicationContext, campaignId)
-            } finally {
-                pendingResult.finish()
-            }
+            var applied: AlarmCampaignState? = null
+            LocalAlarmTransition(
+                applyLocal = { applied = transition(context.applicationContext, campaignId) },
+                finishLocal = { pendingResult.finish() },
+                publish = {
+                    applied?.let { WakeStatusPublisher(context.applicationContext).publish(it, transitionInstant(it)) }
+                },
+                onPublicationFailure = { android.util.Log.w("SunriseStatus", "Wake status could not be published") },
+            ).deliver()
         }
     }
 
-    private suspend fun transition(context: Context, campaignId: String) {
+    private suspend fun transition(context: Context, campaignId: String): AlarmCampaignState? {
         val repository = AlarmRuntimeRepository(context)
-        val previous = repository.load(campaignId) ?: return
-        val current = AlarmCampaignEngine().advanceTo(previous, Instant.now())
-        repository.save(current)
-        WakeStatusPublisher(context).publish(current, transitionInstant(current))
+        val current = repository.recover(campaignId) ?: return null
         val gateway = AndroidAlarmClockGateway(context)
         when (current) {
-            is AlarmCampaignState.Scheduled -> gateway.setAlarmClock(campaignId, current.startsAt)
+            is AlarmCampaignState.Scheduled -> repository.nextTransitionAt(campaignId)?.let { gateway.setAlarmClock(campaignId, it) }
             is AlarmCampaignState.Ringing -> {
                 val definition = repository.callbackId(campaignId)?.let {
                     CallbackConfigurationRepository(context).find(it)
@@ -54,20 +55,19 @@ class AlarmTransitionReceiver : BroadcastReceiver() {
                     ),
                 )
                 if (definition != null) CallbackPollScheduler.schedule(context, campaignId)
-                gateway.setAlarmClock(campaignId, current.ringEndsAt)
+                repository.nextTransitionAt(campaignId)?.let { gateway.setAlarmClock(campaignId, it) }
             }
             is AlarmCampaignState.Quiet -> {
-                context.stopService(PerpetualAlarmService.stopIntent(context, campaignId))
-                gateway.setAlarmClock(campaignId, current.nextAttemptAt)
+                repository.nextTransitionAt(campaignId)?.let { gateway.setAlarmClock(campaignId, it) }
             }
             is AlarmCampaignState.Overridden,
             is AlarmCampaignState.Satisfied,
             -> {
-                context.stopService(PerpetualAlarmService.stopIntent(context, campaignId))
-                gateway.cancel(campaignId)
-                CallbackPollScheduler.cancel(context, campaignId)
+                runCatching { SunriseScheduler(context).completeOccurrence(campaignId) }
+                    .onFailure { android.util.Log.w("SunriseCompletion", "Next alarm needs attention") }
             }
         }
+        return current
     }
 
     private fun transitionInstant(state: AlarmCampaignState): Instant = when (state) {

@@ -1,0 +1,54 @@
+{
+  "conclusion": "success",
+  "headSha": "10f6a03eddf362c4b5d2b526399b9c2551d3a695",
+  "jobs": [
+    {
+      "name": "instrumented (33, Plain)",
+      "conclusion": "success",
+      "databaseId": 120231094338,
+      "url": "https://github.com/TheHypertextStudio/curfew-android/actions/runs/39587495741/job/120231094338"
+    },
+    {
+      "name": "release-evidence",
+      "conclusion": "success",
+      "databaseId": 120231095439,
+      "url": "https://github.com/TheHypertextStudio/curfew-android/actions/runs/39587495741/job/120231095439"
+    },
+    {
+      "name": "instrumented (36, Gms)",
+      "conclusion": "success",
+      "databaseId": 120231095987,
+      "url": "https://github.com/TheHypertextStudio/curfew-android/actions/runs/39587495741/job/120231095987"
+    },
+    {
+      "name": "instrumented (35, Plain)",
+      "conclusion": "success",
+      "databaseId": 120231124920,
+      "url": "https://github.com/TheHypertextStudio/curfew-android/actions/runs/39587495741/job/120231124920"
+    },
+    {
+      "name": "instrumented (34, Gms)",
+      "conclusion": "success",
+      "databaseId": 120231125517,
+      "url": "https://github.com/TheHypertextStudio/curfew-android/actions/runs/39587495741/job/120231125517"
+    },
+    {
+      "name": "verify (Gms)",
+      "conclusion": "success",
+      "databaseId": 120231127350,
+      "url": "https://github.com/TheHypertextStudio/curfew-android/actions/runs/39587495741/job/120231127350"
+    },
+    {
+      "name": "verify (Plain)",
+      "conclusion": "success",
+      "databaseId": 120231130541,
+      "url": "https://github.com/TheHypertextStudio/curfew-android/actions/runs/39587495741/job/120231130541"
+    }
+  ],
+  "status": "completed",
+  "api33ConsoleResult": "OK (193 tests)",
+  "guardedSkipsAreNotPhysicalAcceptance": true,
+  "handoffCommit": "7b7142fa254f8ae04a754652aa22d5307e20e028",
+  "applicationAndTestSourceUnchangedSince": "172d951478251f0f3f456d735bc08fe9be46999d",
+  "physicalDozeAccepted": false
+}

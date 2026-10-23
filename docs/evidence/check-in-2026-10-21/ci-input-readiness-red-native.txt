@@ -1,0 +1,407 @@
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.CurfewDesignCaptureInstrumentedTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=
+studio.hypertext.curfew.ui.CurfewDesignCaptureInstrumentedTest:
+INSTRUMENTATION_STATUS: test=capturePlatformDatePicker
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.CurfewDesignCaptureInstrumentedTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=capturePlatformDatePicker
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.CurfewDesignCaptureInstrumentedTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=capturePlatformTimePicker
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.CurfewDesignCaptureInstrumentedTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=capturePlatformTimePicker
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.CurfewDesignCaptureInstrumentedTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=captureReadiness
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.CurfewDesignCaptureInstrumentedTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=captureReadiness
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.CurfewDesignCaptureInstrumentedTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=captureConnectedCheckIn
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.CurfewDesignCaptureInstrumentedTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=captureConnectedCheckIn
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.CurfewDesignCaptureInstrumentedTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=captureKeyboardServiceForm
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.CurfewDesignCaptureInstrumentedTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: IME did not appear for dark=false width=320 scale=2.0; windowFocus=true viewFocus=true touchMode=false active=true acceptingText=true visible=false inset=0
+	at studio.hypertext.curfew.ui.CurfewDesignCaptureInstrumentedTest.capture(CurfewDesignCaptureInstrumentedTest.kt:136)
+	at studio.hypertext.curfew.ui.CurfewDesignCaptureInstrumentedTest.captureKeyboardServiceForm(CurfewDesignCaptureInstrumentedTest.kt:88)
+	... 64 trimmed
+Caused by: androidx.compose.ui.test.ComposeTimeoutException: Condition still not satisfied after 5000 ms
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.waitUntil(ComposeUiTest.android.kt:901)
+	at androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntil(AndroidComposeTestRule.android.kt:500)
+	at studio.hypertext.curfew.ui.CurfewDesignCaptureInstrumentedTest.capture(CurfewDesignCaptureInstrumentedTest.kt:127)
+	... 66 more
+
+INSTRUMENTATION_STATUS: stream=
+Error in captureKeyboardServiceForm(studio.hypertext.curfew.ui.CurfewDesignCaptureInstrumentedTest):
+java.lang.AssertionError: IME did not appear for dark=false width=320 scale=2.0; windowFocus=true viewFocus=true touchMode=false active=true acceptingText=true visible=false inset=0
+	at studio.hypertext.curfew.ui.CurfewDesignCaptureInstrumentedTest.capture(CurfewDesignCaptureInstrumentedTest.kt:136)
+	at studio.hypertext.curfew.ui.CurfewDesignCaptureInstrumentedTest.captureKeyboardServiceForm(CurfewDesignCaptureInstrumentedTest.kt:88)
+	... 64 trimmed
+Caused by: androidx.compose.ui.test.ComposeTimeoutException: Condition still not satisfied after 5000 ms
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.waitUntil(ComposeUiTest.android.kt:901)
+	at androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntil(AndroidComposeTestRule.android.kt:500)
+	at studio.hypertext.curfew.ui.CurfewDesignCaptureInstrumentedTest.capture(CurfewDesignCaptureInstrumentedTest.kt:127)
+	... 66 more
+
+INSTRUMENTATION_STATUS: test=captureKeyboardServiceForm
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.CurfewDesignCaptureInstrumentedTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=captureDaily
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.CurfewDesignCaptureInstrumentedTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=captureDaily
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.CurfewDesignCaptureInstrumentedTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=captureInitialServiceForm
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.CurfewDesignCaptureInstrumentedTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=captureInitialServiceForm
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.CurfewDesignCaptureInstrumentedTest
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=captureAccount
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.CurfewDesignCaptureInstrumentedTest
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=captureAccount
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.CurfewDesignCaptureInstrumentedTest
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=captureEditor
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.CurfewDesignCaptureInstrumentedTest
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=captureEditor
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.SunriseScheduleEditorInstrumentedTest
+INSTRUMENTATION_STATUS: current=10
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=
+studio.hypertext.curfew.ui.SunriseScheduleEditorInstrumentedTest:
+INSTRUMENTATION_STATUS: test=timeDoneChangesOnlyTheDraftUntilSave
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.SunriseScheduleEditorInstrumentedTest
+INSTRUMENTATION_STATUS: current=10
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=timeDoneChangesOnlyTheDraftUntilSave
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.SunriseScheduleEditorInstrumentedTest
+INSTRUMENTATION_STATUS: current=11
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=savingRequiresAConfiguredReleaseCondition
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.SunriseScheduleEditorInstrumentedTest
+INSTRUMENTATION_STATUS: current=11
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=savingRequiresAConfiguredReleaseCondition
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.SunriseScheduleEditorInstrumentedTest
+INSTRUMENTATION_STATUS: current=12
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=weeklySelectionDoesNotRetainTheOneNightDate
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.SunriseScheduleEditorInstrumentedTest
+INSTRUMENTATION_STATUS: current=12
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=weeklySelectionDoesNotRetainTheOneNightDate
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.SunriseScheduleEditorInstrumentedTest
+INSTRUMENTATION_STATUS: current=13
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=backCancelsTheTimePickerWithoutAcceptingIt
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.SunriseScheduleEditorInstrumentedTest
+INSTRUMENTATION_STATUS: current=13
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=backCancelsTheTimePickerWithoutAcceptingIt
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.SunriseScheduleEditorInstrumentedTest
+INSTRUMENTATION_STATUS: current=14
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=editingTheSavedAlarmPreservesItsIdentityAndOneNightDate
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.SunriseScheduleEditorInstrumentedTest
+INSTRUMENTATION_STATUS: current=14
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=editingTheSavedAlarmPreservesItsIdentityAndOneNightDate
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.SunriseScheduleEditorInstrumentedTest
+INSTRUMENTATION_STATUS: current=15
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=changingTimeKeepsAnExplicitOneNightDate
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.SunriseScheduleEditorInstrumentedTest
+INSTRUMENTATION_STATUS: current=15
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=changingTimeKeepsAnExplicitOneNightDate
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.SunriseScheduleEditorInstrumentedTest
+INSTRUMENTATION_STATUS: current=16
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=invalidTimeCannotApplyThePreviousValidValue
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.SunriseScheduleEditorInstrumentedTest
+INSTRUMENTATION_STATUS: current=16
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=invalidTimeCannotApplyThePreviousValidValue
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.SunriseScheduleEditorInstrumentedTest
+INSTRUMENTATION_STATUS: current=17
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=changingTimeStillUpdatesAnInferredOneNightDate
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.SunriseScheduleEditorInstrumentedTest
+INSTRUMENTATION_STATUS: current=17
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=changingTimeStillUpdatesAnInferredOneNightDate
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.SunriseScheduleEditorInstrumentedTest
+INSTRUMENTATION_STATUS: current=18
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=datePickerUsesThemedDoneAndCancelActions
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.SunriseScheduleEditorInstrumentedTest
+INSTRUMENTATION_STATUS: current=18
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=datePickerUsesThemedDoneAndCancelActions
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.SunriseScheduleEditorInstrumentedTest
+INSTRUMENTATION_STATUS: current=19
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=timePickerUsesThemedDoneAndCancelActions
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.SunriseScheduleEditorInstrumentedTest
+INSTRUMENTATION_STATUS: current=19
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=timePickerUsesThemedDoneAndCancelActions
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.SunriseScheduleEditorInstrumentedTest
+INSTRUMENTATION_STATUS: current=20
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=invalidDateCannotApplyThePreviousValidValue
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.SunriseScheduleEditorInstrumentedTest
+INSTRUMENTATION_STATUS: current=20
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=invalidDateCannotApplyThePreviousValidValue
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.SunriseScheduleEditorInstrumentedTest
+INSTRUMENTATION_STATUS: current=21
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=tappingTheBackdropCancelsWithoutAcceptingThePicker
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.SunriseScheduleEditorInstrumentedTest
+INSTRUMENTATION_STATUS: current=21
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=tappingTheBackdropCancelsWithoutAcceptingThePicker
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.SunriseScheduleEditorInstrumentedTest
+INSTRUMENTATION_STATUS: current=22
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=cancellingDateDiscardsThePickerChange
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.SunriseScheduleEditorInstrumentedTest
+INSTRUMENTATION_STATUS: current=22
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=cancellingDateDiscardsThePickerChange
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.SunriseScheduleEditorInstrumentedTest
+INSTRUMENTATION_STATUS: current=23
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=cancellingTimeDiscardsThePickerChange
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.SunriseScheduleEditorInstrumentedTest
+INSTRUMENTATION_STATUS: current=23
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=cancellingTimeDiscardsThePickerChange
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.SunriseScheduleEditorInstrumentedTest
+INSTRUMENTATION_STATUS: current=24
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=ordinaryPhoneStartsWithTheCalendar
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.SunriseScheduleEditorInstrumentedTest
+INSTRUMENTATION_STATUS: current=24
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=ordinaryPhoneStartsWithTheCalendar
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.SunriseScheduleEditorInstrumentedTest
+INSTRUMENTATION_STATUS: current=25
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=choosingNoonRetainsTheCorrectPeriod
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.SunriseScheduleEditorInstrumentedTest
+INSTRUMENTATION_STATUS: current=25
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=choosingNoonRetainsTheCorrectPeriod
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.SunriseScheduleEditorInstrumentedTest
+INSTRUMENTATION_STATUS: current=26
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=theMaterialDialAcceptsAnHourTap
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.hypertext.curfew.ui.SunriseScheduleEditorInstrumentedTest
+INSTRUMENTATION_STATUS: current=26
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=26
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=theMaterialDialAcceptsAnHourTap
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 59.619
+There was 1 failure:
+1) captureKeyboardServiceForm(studio.hypertext.curfew.ui.CurfewDesignCaptureInstrumentedTest)
+java.lang.AssertionError: IME did not appear for dark=false width=320 scale=2.0; windowFocus=true viewFocus=true touchMode=false active=true acceptingText=true visible=false inset=0
+	at studio.hypertext.curfew.ui.CurfewDesignCaptureInstrumentedTest.capture(CurfewDesignCaptureInstrumentedTest.kt:136)
+	at studio.hypertext.curfew.ui.CurfewDesignCaptureInstrumentedTest.captureKeyboardServiceForm(CurfewDesignCaptureInstrumentedTest.kt:88)
+	... 64 trimmed
+Caused by: androidx.compose.ui.test.ComposeTimeoutException: Condition still not satisfied after 5000 ms
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.waitUntil(ComposeUiTest.android.kt:901)
+	at androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntil(AndroidComposeTestRule.android.kt:500)
+	at studio.hypertext.curfew.ui.CurfewDesignCaptureInstrumentedTest.capture(CurfewDesignCaptureInstrumentedTest.kt:127)
+	... 66 more
+
+FAILURES!!!
+Tests run: 26,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

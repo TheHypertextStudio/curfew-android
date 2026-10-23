@@ -18,16 +18,7 @@ class AlarmRecoveryPlanner(
         nowElapsedMillis: Long,
         currentBootId: String,
     ): AlarmCampaignState {
-        val effectiveNow = if (
-            currentBootId == snapshot.bootId &&
-            nowElapsedMillis >= snapshot.persistedAtElapsedMillis
-        ) {
-            snapshot.persistedAtWall.plusMillis(
-                nowElapsedMillis - snapshot.persistedAtElapsedMillis,
-            )
-        } else {
-            nowWall
-        }
+        val effectiveNow = AlarmRuntimeClock.effectiveNow(snapshot, nowWall, nowElapsedMillis, currentBootId)
         return engine.advanceTo(snapshot.state, effectiveNow)
     }
 }

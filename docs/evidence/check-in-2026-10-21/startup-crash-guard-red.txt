@@ -1,0 +1,14 @@
+F..
+======================================================================
+FAIL: test_a_valid_root_does_not_hide_a_system_ui_splash_crash (__main__.WelcomeRootCaptureTest.test_a_valid_root_does_not_hide_a_system_ui_splash_crash)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/williecubed/.cello-worktrees/curfew-android-sunrise-p1/ci/test-welcome-root-capture.py", line 25, in test_a_valid_root_does_not_hide_a_system_ui_splash_crash
+    with self.assertRaisesRegex(RuntimeError, 'System UI or Curfew crashed'):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: RuntimeError not raised
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.003s
+
+FAILED (failures=1)

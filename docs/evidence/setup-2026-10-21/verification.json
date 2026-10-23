@@ -1,0 +1,45 @@
+{
+  "testPlainDebugUnitTest": {
+    "tests": 200,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "testGmsDebugUnitTest": {
+    "tests": 200,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "native": {
+    "api": 34,
+    "count": 87,
+    "failures": 0,
+    "emulated": true
+  },
+  "buildAndLint": {
+    "plain": "pass",
+    "gms": "pass",
+    "command": "./gradlew assemblePlainDebug assemblePlainDebugAndroidTest testPlainDebugUnitTest testGmsDebugUnitTest lintPlainDebug lintGmsDebug assembleGmsDebug --max-workers=1 --no-parallel"
+  },
+  "boundaries": [
+    "No physical-device update; ADB reported no connected device.",
+    "Physical Doze acceptance remains open.",
+    "Production signing and distribution were not performed.",
+    "Manual TalkBack was not performed."
+  ],
+  "captureGeometryTests": {
+    "count": 4,
+    "failures": 0,
+    "redFirst": true
+  },
+  "setupMatrix": {
+    "profiles": 18,
+    "states": 8,
+    "statePngs": 144,
+    "motionFrames": 4,
+    "actualDisplayAndPngDimensionsVerified": true,
+    "settingsRestored": true,
+    "manifest": "design/android-review/native/setup-matrix/manifest.json"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "applicationSource": "8feb00731a3251635e4ebafa8166c20eb2ce966b",
+  "applicationChanged": false,
+  "nativeFocused": {
+    "api": 34,
+    "reported": 18,
+    "passed": 18,
+    "skipped": 0,
+    "failed": 0,
+    "seconds": 51.317
+  },
+  "nativeFullBeforeAdditionalSafetyGuard": {
+    "reported": 177,
+    "passed": 170,
+    "skipped": 7,
+    "failed": 0
+  },
+  "pendingCampaignSafetyRegression": "Failed before the new guard; passes afterward and checks unchanged journals and campaign state.",
+  "testBuilds": {
+    "plainTest": {
+      "path": "app/build/outputs/apk/androidTest/plain/debug/app-plain-debug-androidTest.apk",
+      "sha256": "947c4395af1bdcbfd69b4f6bc8304fb79d4e08c0a099d769ae7ea8cce5d19690"
+    },
+    "gmsTest": {
+      "path": "app/build/outputs/apk/androidTest/gms/debug/app-gms-debug-androidTest.apk",
+      "sha256": "d0b8e9bdae12851c500f30e15b65452308a0834b29fca1f1963989fe286a253c"
+    }
+  },
+  "newCi": "Pending replacement run after publication.",
+  "physicalPixel": "Disconnected; no new installed or Doze acceptance."
+}

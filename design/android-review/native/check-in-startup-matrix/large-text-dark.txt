@@ -1,0 +1,6 @@
+
+studio.hypertext.curfew.ui.SetupCaptureInstrumentedTest:.
+
+Time: 6.576
+
+OK (1 test)

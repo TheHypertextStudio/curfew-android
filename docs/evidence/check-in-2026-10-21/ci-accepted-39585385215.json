@@ -1,0 +1,116 @@
+{
+  "run": 39585385215,
+  "head": "172d951478251f0f3f456d735bc08fe9be46999d",
+  "conclusion": "success",
+  "jobs": [
+    {
+      "name": "verify (Gms)",
+      "conclusion": "success"
+    },
+    {
+      "name": "instrumented (33, Plain)",
+      "conclusion": "success"
+    },
+    {
+      "name": "instrumented (34, Gms)",
+      "conclusion": "success"
+    },
+    {
+      "name": "release-evidence",
+      "conclusion": "success"
+    },
+    {
+      "name": "verify (Plain)",
+      "conclusion": "success"
+    },
+    {
+      "name": "instrumented (36, Gms)",
+      "conclusion": "success"
+    },
+    {
+      "name": "instrumented (35, Plain)",
+      "conclusion": "success"
+    }
+  ],
+  "native": [
+    {
+      "profile": "33-Plain",
+      "reported": 193,
+      "passes": 186,
+      "guardedSkips": 7,
+      "failures": 0
+    },
+    {
+      "profile": "34-Gms",
+      "reported": 193,
+      "passes": 186,
+      "guardedSkips": 7,
+      "failures": 0
+    },
+    {
+      "profile": "35-Plain",
+      "reported": 193,
+      "passes": 186,
+      "guardedSkips": 7,
+      "failures": 0
+    },
+    {
+      "profile": "36-Gms",
+      "reported": 193,
+      "passes": 186,
+      "guardedSkips": 7,
+      "failures": 0
+    }
+  ],
+  "capture": {
+    "artifactId": 12340916035,
+    "profiles": 18,
+    "welcomePngs": 18,
+    "taskPngs": 108,
+    "additionalNativeFixtures": 11,
+    "profilePngDimensionsVerified": 126,
+    "settingsRestored": true,
+    "boundary": "API35 Google APIs x86_64 emulated windows; local 180-state setup matrix retains separate source/APK hashes."
+  },
+  "release": {
+    "run": 39585385215,
+    "head": "172d951478251f0f3f456d735bc08fe9be46999d",
+    "artifactId": 12339249326,
+    "provenance": {
+      "schemaVersion": 1,
+      "applicationId": "studio.hypertext.curfew",
+      "versionName": "1.0",
+      "sourceRevision": "13d4c6b472a68cafe6ddcf79e262ef8f255c4371",
+      "protocolRevision": "764ec480a5e5424856150be767a33a8ab022ae08",
+      "compileSdk": 37,
+      "targetSdk": 36,
+      "variants": [
+        "plainRelease",
+        "gmsRelease"
+      ]
+    },
+    "applicationTree": "37e53ffe597d0b5556d42d59aa1ceaae16963d92",
+    "mergeApplicationTreeMatchesHead": true,
+    "files": [
+      {
+        "file": "build/outputs/apk/gms/release/app-gms-release-unsigned.apk",
+        "sha256": "c0242e1149fcf89c8bf17bbab6c392425e752281be04d51c68eedea4e153c7f4",
+        "matches": true
+      },
+      {
+        "file": "build/outputs/apk/plain/release/app-plain-release-unsigned.apk",
+        "sha256": "308c6b2afcc426db7fa58246976e1f58743f717ab396c0f8619d30f09ca60431",
+        "matches": true
+      },
+      {
+        "file": "build/outputs/bundle/gmsRelease/app-gms-release.aab",
+        "sha256": "5c7b3a10dddbb7fb23195093467b11a445ac65990e4bd79c58e410cb7f3261ab",
+        "matches": true
+      }
+    ]
+  },
+  "signing": "Both release APKs are verified unsigned; no store acceptance.",
+  "independentAudit": "No additional unimplemented P1 feature requirement identified. Record current CI and preserve physical Pixel Doze gate.",
+  "docket": "Final native report_status attempt requires MCP authentication; no update published.",
+  "physical": "Neither Mac reports an ADB device or mDNS service. No new physical evidence or running phone test. Uninterrupted Pixel Doze remains unchecked."
+}
