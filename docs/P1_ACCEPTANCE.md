@@ -31,8 +31,9 @@ setup gallery keeps its separate recorded APK and source hashes. Release
 artifact hashes match and the merge application's tree matches the candidate.
 Both release APKs remain unsigned. Earlier failed runs remain historical
 evidence, not the current decision. P1 remains unaccepted until the physical
-gate passes. The final Docket update was refused for MCP authentication; no
-new update or human-attributed write was created.
+gate passes. The originating final Docket update was refused for MCP authentication.
+Native connector access has since been restored; the continuation update was
+read back with Codex agent attribution and no human author.
 
 The latest Pixel light-Doze attempt was canceled before sound after Android
 recorded a tap wake. Its cleanup is verified, but it does not prove unattended
@@ -469,3 +470,27 @@ Android lint variants and test APK builds pass. The
 [fixture record](evidence/check-in-2026-10-21/notification-fixture-verification.json)
 separates those runs. Replacement CI still requires acceptance. Consumer
 check-in availability and uninterrupted physical Pixel Doze remain open.
+
+
+## Handoff continuation verification
+
+- [x] The Android 13 retry of CI `39587495741` is terminal green. Its
+  instrumentation console reports `OK (193 tests)`; guarded opt-in skips do not
+  establish physical acceptance. All seven jobs pass. The run remains bound to
+  `10f6a03`, not a new executable revision.
+- [x] The committed handoff at `7b7142f` retains the application and test source
+  from `172d951`; the source diff was checked before accepting the retry.
+- [x] Native Docket access is restored and a Codex-attributed continuation
+  comment was published and read back. Recovery remains in progress, with its
+  physical criterion unchecked.
+- [ ] Uninterrupted physical Pixel Doze delivery and scoped cleanup remain
+  unaccepted. Fresh ADB and mDNS discovery on both available Macs found no
+  physical device. Existing emulators do not satisfy this criterion.
+
+The [retry record](evidence/check-in-2026-10-22/ci-retry-39587495741.json)
+retains the job boundaries. The handoff ZIP and original planning documents
+were transferred over SSH into ignored local build storage; both machines
+reported the same SHA-256. The reference Pixel driver remains unexecuted.
+No alarm was armed, package installed, device setting changed, or application
+source modified by this continuation. PR18 remains a draft. Consumer check-in,
+P1b, bedtime, signing, and physical UX remain distinct outstanding work.
