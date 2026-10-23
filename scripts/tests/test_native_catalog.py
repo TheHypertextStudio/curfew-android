@@ -39,6 +39,15 @@ class NativeCatalogTests(unittest.TestCase):
             self.assertTrue((root/'native/welcome-capture-manifest.json').is_file())
             self.assertTrue(all((root/'native'/r['image']).is_file() for r in records))
 
+    def test_identical_ui_survives_documentation_commits_and_rebases(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);welcome,setup,durable=self.fixture(root)
+            (durable/'manifest.json').write_text(json.dumps(dict(sourceRevision='new-revision',coverageContractSha256='ui-version')))
+            with patch.object(catalog,'DURABLE',durable):
+                records=native.native_records(welcome,setup,root/'native')
+            self.assertEqual(len(records),198)
+            self.assertEqual(json.loads((root/'native/welcome-capture-manifest.json').read_text())['sourceCommit'],'revision')
+
     def test_missing_native_image_is_rejected_before_copy(self):
         with tempfile.TemporaryDirectory() as d:
             root=Path(d);welcome,setup,durable=self.fixture(root)

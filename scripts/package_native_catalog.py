@@ -22,9 +22,8 @@ def native_records(welcome, setup, destination):
     expected = {f'{row[0]}-{theme}' for row in module.PROFILES for theme in ('light', 'dark')}
     apk = manifests[0]['installedApkSha256']
     parent = json.loads((catalog.DURABLE / 'manifest.json').read_text())
-    revision = parent['sourceRevision']
-    if manifests[0].get('sourceCommit') != revision:
-        raise ValueError('Native welcome source revision differs from the Compose catalog.')
+    # A rebase or documentation commit changes HEAD without changing pixels.
+    # Match the reviewed UI fingerprint below and retain original Git provenance.
     records = []
     for kind, root, manifest in zip(('welcome', 'setup'), (welcome, setup), manifests):
         if not manifest.get('restored') or manifest.get('physicalDevice') is not False:

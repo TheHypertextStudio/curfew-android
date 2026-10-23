@@ -49,6 +49,8 @@ jobs:
           java-version: '21'
           cache: gradle
       - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
       - name: Install compile SDK
         run: sdkmanager 'platforms;android-37.0' 'build-tools;37.0.0'
       - name: Check state coverage and catalog behavior
