@@ -2,19 +2,13 @@ package studio.hypertext.curfew.ui
 
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import kotlinx.coroutines.launch
 import studio.hypertext.curfew.R
 import studio.hypertext.curfew.checkin.*
@@ -92,33 +86,26 @@ internal fun PlaceCheckInSetup(
 ) {
     var name by rememberSaveable { mutableStateOf("Bathroom") }
     val retryRegion = remember { BringIntoViewRequester() }
-    val bitmap by produceState<android.graphics.Bitmap?>(null, draft?.payload) {
-        value = draft?.let { withContext(Dispatchers.Default) { PlaceCodeImage.create(it.payload, 512) } }
-    }
-    // QR generation changes the measured content height. Reveal the retry action
-    // after that layout, rather than scrolling to its earlier placeholder position.
-    LaunchedEffect(error, bitmap) { if (error != null) { withFrameNanos { }; retryRegion.bringIntoView() } }
+    LaunchedEffect(error) { if (error != null) { withFrameNanos { }; retryRegion.bringIntoView() } }
     SetupTaskContent(introduction = {
         SetupIntroduction(R.drawable.ic_link_rounded,
             if (draft != null) "Put your code away from bed" else if (enrollment != null) enrollment.label else "Scan a code away from bed",
-            if (draft != null) "Save or print this code, put the copy in your chosen place, then scan it to finish setup."
-            else if (enrollment != null) "When Sunrise rings, scan your saved code to check in. It also works without internet."
+            if (draft != null) "Save or print the code, place it away from bed, then scan it to finish setup."
+            else if (enrollment != null) "Scan your code when Sunrise rings. No internet connection needed."
             else "Put a code in the bathroom or another place you’ll get up to reach. Scan it each morning to stop Sunrise.")
-        if (draft == null && enrollment == null) Text("No account or service required.", color = MaterialTheme.colorScheme.onSurfaceVariant)
     }) {
         when {
             draft != null -> {
-                bitmap?.let { Image(it.asImageBitmap(), "Your ${draft.enrollment.label} check-in code", Modifier.widthIn(max = 200.dp).fillMaxWidth().aspectRatio(1f).background(Color.White).padding(8.dp)) }
-                Text("Copies work too. Keep your code private.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("Keep this code private.", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Column(Modifier.fillMaxWidth().bringIntoViewRequester(retryRegion)) {
-                error?.let { TaskMessage(it, error = true) }
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    OutlinedButton(onClick = onExport, enabled = !busy, modifier = Modifier.weight(1f).heightIn(min = 52.dp)) { Text("Save code") }
-                    OutlinedButton(onClick = onPrint, enabled = !busy, modifier = Modifier.weight(1f).heightIn(min = 52.dp)) { Text("Print code") }
+                    error?.let { TaskMessage(it, error = true) }
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        OutlinedButton(onClick = onExport, enabled = !busy, modifier = Modifier.weight(1f).heightIn(min = 52.dp)) { Text("Save code") }
+                        OutlinedButton(onClick = onPrint, enabled = !busy, modifier = Modifier.weight(1f).heightIn(min = 52.dp)) { Text("Print code") }
                 }
                 }
-                if (draft.exported) Text("Code saved. Scan the copy in your chosen place.")
-                Button(onClick = onScan, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Scan my copy") }
+                if (draft.exported) Text("Code saved.")
+                Button(onClick = onScan, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Scan code") }
                 TextButton(onClick = onCancel, enabled = !busy) { Text("Cancel code setup") }
             }
             enrollment != null -> {
@@ -131,13 +118,13 @@ internal fun PlaceCheckInSetup(
             else -> {
                 OutlinedTextField(name, { if (it.length <= 60) name = it }, label = { Text("Place name") }, singleLine = true, enabled = !busy, modifier = Modifier.fillMaxWidth())
                 Column(Modifier.fillMaxWidth().bringIntoViewRequester(retryRegion)) {
-                error?.let { TaskMessage(it, error = true) }
-                Button(onClick = { onCreate(name.trim()) }, enabled = !busy && name.isNotBlank(), modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text(if (busy) "Creating…" else "Create my code") }
+                    error?.let { TaskMessage(it, error = true) }
+                    Button(onClick = { onCreate(name.trim()) }, enabled = !busy && name.isNotBlank(), modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text(if (busy) "Creating…" else "Create code") }
                 }
             }
         }
         if (enrollment != null && draft == null) error?.let { TaskMessage(it, error = true) }
         onRemoveUnavailable?.let { TextButton(onClick = it, enabled = !busy) { Text("Remove unavailable code") } }
-        TextButton(onClick = onAdvanced, enabled = !busy) { Text("Advanced integration") }
+        if (draft == null) TextButton(onClick = onAdvanced, enabled = !busy) { Text("Advanced integration") }
     }
 }

@@ -81,12 +81,20 @@ schema, server deployment, production activation or installer release is needed.
 
 
 Rendered error recovery keeps its message and Save/Print retry actions in one
-scroll target. That target is revealed again when asynchronous QR generation
-changes the layout; otherwise the enlarged-text view can stop above the retry
-buttons. The native matrix asserts both the error and Save code remain visible.
+scroll target. That target is revealed when an export error arrives so enlarged
+text does not leave the retry buttons offscreen. The native matrix asserts both
+the error and Save code remain visible.
 
 
 Printing validates the chosen paper's usable area before opening a PDF page.
 Every opened page is finished even if drawing fails, then the document closes.
 Unsupported small media reports a setup failure with image export as an
 alternative; it cannot leave the PDF renderer in an unfinished-page state.
+
+
+Setup presents Save, Print, Scan and Cancel together without an on-screen QR
+preview. The code belongs in the exported image or printed page, not in the
+phone's setup instructions. Copy uses direct action labels and a concise privacy
+reminder. Cancel returns to the method choice; the advanced-service link remains
+there rather than competing with an in-progress code setup. Native captures
+assert that the preview is absent and the landscape actions stay visible.

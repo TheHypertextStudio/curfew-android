@@ -42,14 +42,20 @@ class PlaceCheckInCaptureInstrumentedTest {
             for (next in listOf("place-intro", "place-code", "place-ready", "place-error", "place-camera-denied")) {
                 compose.runOnIdle { scene = next }
                 val expected = when (next) {
-                    "place-intro" -> "Create my code"
+                    "place-intro" -> "Create code"
                     "place-ready" -> "Ready for your alarm"
                     "place-camera-denied" -> "Allow camera"
                     else -> "Save code"
                 }
                 compose.waitUntil(5_000) { compose.onAllNodesWithText(expected).fetchSemanticsNodes().isNotEmpty() }
-                if (next == "place-code" || next == "place-error") compose.waitUntil(5_000) { compose.onAllNodesWithContentDescription("Your Bathroom check-in code").fetchSemanticsNodes().isNotEmpty() }
+                if (next == "place-code") compose.onNodeWithContentDescription("Your Bathroom check-in code").assertDoesNotExist()
                 compose.waitForIdle()
+                if (next == "place-code" && context.resources.configuration.screenWidthDp / context.resources.configuration.fontScale >= 640) {
+                    compose.onNodeWithText("Save code").assertIsDisplayed()
+                    compose.onNodeWithText("Print code").assertIsDisplayed()
+                    compose.onNodeWithText("Scan code").assertIsDisplayed()
+                    compose.onNodeWithText("Cancel code setup").assertIsDisplayed()
+                }
                 if (next == "place-error") {
                     compose.onNodeWithText("Couldn’t save the code. Choose another location and try again.").assertIsDisplayed()
                     compose.onNodeWithText("Save code").assertIsDisplayed()
