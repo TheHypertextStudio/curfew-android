@@ -27,4 +27,14 @@ class PlaceQrTest {
         assertEquals(payload, com.google.zxing.qrcode.QRCodeReader().decode(image, mapOf(com.google.zxing.DecodeHintType.PURE_BARCODE to true)).text)
         assertEquals(payload, PlaceQr.decode(pixels, matrix.width, matrix.height))
     }
+    @Test fun `dense camera fixture decodes at every quarter turn`() {
+        val payload = "curfew:place:1:0bdc02ef-5f9a-4b19-b0f0-036fe8aa3f8b:fvaNfVrSBWysHpnmjmVQWTvvjFiwry2nXNzZ-MaHXC4"
+        val matrix = PlaceQr.encode(payload, 320)
+        var pixels = ByteArray(matrix.width * matrix.height) { index -> if (matrix[index % matrix.width, index / matrix.width]) 0 else 255.toByte() }
+        repeat(4) { turn ->
+            assertEquals("quarter turn $turn", payload, PlaceQr.decode(pixels, matrix.width, matrix.height))
+            pixels = ByteArray(pixels.size) { index -> pixels[(matrix.width - 1 - index % matrix.width) * matrix.width + index / matrix.width] }
+        }
+    }
+
 }

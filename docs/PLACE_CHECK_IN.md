@@ -112,3 +112,10 @@ Native regression coverage injects asymmetric cutout and navigation geometry
 and checks actual action bounds; this is geometry coverage, not a claim about
 physical hardware or a changed navigation mode. No permissions, enforcement,
 account state, or release configuration changes. Rollback is limited to layout.
+
+
+Dense printed codes that need pure QR extraction are checked at all four camera
+orientations after ordinary perspective detection fails. A fixed regression
+retains a previously failing generated code alongside random roundtrips and
+unreadable-frame checks. This only improves image decoding; enrollment matching
+and occurrence-bound release authority remain unchanged.
