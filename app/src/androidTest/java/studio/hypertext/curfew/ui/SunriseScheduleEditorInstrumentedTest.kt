@@ -146,7 +146,7 @@ class SunriseScheduleEditorInstrumentedTest {
                 }
             }
         }
-        compose.onNodeWithText("Save alarm").performScrollTo().performClick()
+        saveEditor()
         compose.runOnIdle {
             assertEquals(LocalTime.of(8, 15), saved?.wakeTime)
             assertEquals("Changing time must preserve the chosen one-night date", chosenDate, saved?.onceDate)
@@ -165,7 +165,7 @@ class SunriseScheduleEditorInstrumentedTest {
         }
         timeControl(LocalTime.of(7, 0)).performScrollTo().performClick()
         confirmTime(0, 0)
-        compose.onNodeWithText("Save alarm").performScrollTo().performClick()
+        saveEditor()
         compose.runOnIdle {
             assertEquals(LocalTime.MIDNIGHT, saved?.wakeTime)
             assertEquals(LocalDate.now(ZoneId.systemDefault()).plusDays(1), saved?.onceDate)
@@ -188,6 +188,26 @@ class SunriseScheduleEditorInstrumentedTest {
                 Box(Modifier.fillMaxSize().systemBarsPadding()) { content() }
             }
         }
+    }
+
+    private fun saveEditor() {
+        compose.onNodeWithText("Save alarm").performScrollTo()
+        // Dialog semantics can disappear before the platform window and IME finish
+        // dismissing. Wait for the actual editor window before injecting one tap.
+        compose.waitUntil(5_000) {
+            var ready = false
+            compose.runOnUiThread {
+                val roots = android.view.inspector.WindowInspector.getGlobalWindowViews()
+                    .filter { it.isAttachedToWindow && it.visibility == android.view.View.VISIBLE }
+                ready = roots.singleOrNull()?.let { root ->
+                    val insets = androidx.core.view.ViewCompat.getRootWindowInsets(root)
+                    root.isLaidOut && !root.isLayoutRequested && !root.isInLayout &&
+                        insets?.getInsets(androidx.core.view.WindowInsetsCompat.Type.ime())?.bottom == 0
+                } == true
+            }
+            ready
+        }
+        compose.onNodeWithText("Save alarm").assertIsDisplayed().assertIsEnabled().performClick()
     }
 
     private fun openDateInput() {
@@ -250,7 +270,7 @@ class SunriseScheduleEditorInstrumentedTest {
         timeControl(schedule.wakeTime).performScrollTo().performClick()
         confirmTime(8, 15)
         compose.runOnIdle { assertEquals(null, saved) }
-        compose.onNodeWithText("Save alarm").performScrollTo().performClick()
+        saveEditor()
         compose.runOnIdle { assertEquals(schedule.copy(wakeTime = LocalTime.of(8, 15)), saved) }
     }
 
@@ -261,7 +281,7 @@ class SunriseScheduleEditorInstrumentedTest {
         timeControl(schedule.wakeTime).performScrollTo().performClick()
         enterTime(8, 15)
         compose.onNodeWithText("Cancel").performClick()
-        compose.onNodeWithText("Save alarm").performScrollTo().performClick()
+        saveEditor()
         compose.runOnIdle { assertEquals(schedule, saved) }
     }
 
@@ -330,7 +350,7 @@ class SunriseScheduleEditorInstrumentedTest {
             .withLocale(context.resources.configuration.locales[0]))).performScrollTo().performClick()
         enterDate(LocalDate.of(2026, 11, 2))
         compose.onNodeWithText("Cancel").performClick()
-        compose.onNodeWithText("Save alarm").performScrollTo().performClick()
+        saveEditor()
         compose.runOnIdle { assertEquals(schedule, saved) }
     }
 

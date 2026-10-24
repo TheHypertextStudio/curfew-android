@@ -121,3 +121,7 @@ The inline fragment is response content. Keep it in the chat’s durable
 visualization directory and display it using Codex’s inline visualization
 reference. The portable HTML report remains available alongside the original
 PNG captures for offline use.
+
+## Printed-code check-in
+
+The matrix includes code enrollment, printable draft, enrolled readiness, export failure, creation in progress and camera access required. Fixtures contain a nonfunctional example credential and render production setup content without persisting enrollment or opening the camera. Native permission-denied captures and CameraX start/stop tests remain separate evidence. The shared source fingerprint covers both consumer setup and camera screens; a changed fingerprint requires fresh full renders.

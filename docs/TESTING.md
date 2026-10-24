@@ -1342,3 +1342,54 @@ the correction. These host checks do not establish installed multi-device
 convergence, revocation propagation, offline paired codes, or service availability.
 Explicit physical Pixel Doze testing is excluded by owner direction; this
 changes acceptance scope, not Android's standby behavior.
+
+
+## Printed place check-in
+
+`PlaceCheckInTest` and `PlaceQrTest` cover the local credential and offline QR
+codec. `SunriseScheduleControllerTest` verifies atomic future-alarm disablement
+before revocation while retaining ringing authority; selection tests protect a
+newer method from a late removal. Run these with both Plain and GMS host suites.
+
+The isolated native suite includes `PlaceConsumerEntryInstrumentedTest` for the
+consumer destination and `PlaceCheckInRepositoryInstrumentedTest` for encrypted
+enrollment, wrong-code rejection, exact occurrence binding and duplicate release.
+Repository fixtures refuse live account/pending-alarm state and restore their
+own data. `PlaceCheckInCaptureInstrumentedTest` adds five actual Compose scenes
+to the existing eighteen-profile task gallery. Review every generated scene
+before claiming responsive UI acceptance. Camera capture and physical TalkBack
+remain distinct from fixture renders and host tests. See [the feature contract](PLACE_CHECK_IN.md).
+
+
+`SunriseReleaseJourneyInstrumentedTest.enrolledPlaceCodeReleasesActualPlaybackWithoutAVerifier`
+arms the real AlarmManager occurrence with a local enrollment, observes actual
+foreground alarm audio and notification state, rejects a wrong code, then applies
+the matching code and observes playback termination and durable completion. It
+uses an isolated emulator, grants fixture readiness, starts no HTTPS verifier,
+and refuses live account or pending-alarm data. This verifies the release path,
+not physical camera optics, human wakefulness or audible speaker delivery.
+
+
+The place capture fixture runs only through its explicit driver argument. The
+owned disposable emulator driver revokes camera access before starting that
+instrumentation process, rather than revoking permission from inside the app
+under test. Android may terminate the app during revocation. Functional suites
+can therefore exercise real camera readiness independently, and the capture
+still asserts an actual denied permission before rendering its denial scene.
+
+
+`PlaceCodePrinterInstrumentedTest` exercises actual Android PDF generation. It
+requires a one-page readable A4 output and rejects undersized media without
+leaving an unfinished page during cleanup. This is native document generation,
+not a claim that a physical printer received paper. The print adapter reports
+rendering failure through the system callback and retains PNG export as recovery.
+
+
+`PlaceCameraLifecycleInstrumentedTest` opens the actual CameraX scanner and
+observes its package in Android's active camera-client list. Cancelling must
+remove that client. It inspects service metadata only, never records frames,
+and does not claim that a printed code was physically aimed at the lens.
+
+## Combined main integration
+
+The consumer code flow and bounded recovery grants retain the screenshot catalog and current onboarding/editor behavior from main. Editor save taps wait for native dialog and IME dismissal, then target the current Save alarm action. Welcome backgrounds remain full bleed, with safe insets on the foreground panes only. Catalog tests require consumer enrollment states alongside advanced-service fixtures. Existing API 33–36 instrumentation, Plain/GMS unit/lint/build checks and catalog generation validate the combined candidate before integration. Production activation and installer publication remain held.

@@ -67,6 +67,8 @@ class CurfewPreferences(context: Context, private val store: DataStore<Preferenc
     suspend fun markCallbackVerifiedIfSelected(callbackId: String): Boolean =
         callbackSelection.markVerifiedIfSelected(callbackId)
 
+    suspend fun clearCallbackIfSelected(callbackId: String) = callbackSelection.clearIfSelected(callbackId)
+
     suspend fun nextWriterCounter(): Long {
         var next = 0L
         store.edit { preferences ->

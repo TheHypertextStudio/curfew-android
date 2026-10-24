@@ -74,6 +74,8 @@ fun CurfewApp(
     onExportCondition: () -> Unit = {},
     onVerifyCondition: () -> Unit = {},
     conditionSetupFileSaved: Boolean = false,
+    placeCodeSelected: Boolean = false,
+    placeCheckInContent: (@Composable (() -> Unit, () -> Unit, (() -> Unit)?) -> Unit)? = null,
 ) {
     val onGrantExactAlarmState = rememberUpdatedState(onGrantExactAlarm)
     val onGrantNotificationsState = rememberUpdatedState(onGrantNotifications)
@@ -96,6 +98,8 @@ fun CurfewApp(
     val onVerifyConditionState = rememberUpdatedState(onVerifyCondition)
     val onWelcomeChoiceState = rememberUpdatedState(onWelcomeChoice)
     val onPrepareDraftState = rememberUpdatedState(onPrepareDraft)
+    val placeCodeSelectedState = rememberUpdatedState(placeCodeSelected)
+    val placeCheckInContentState = rememberUpdatedState(placeCheckInContent)
     val setupFileSavedState = rememberUpdatedState(conditionSetupFileSaved)
     val readinessState = rememberUpdatedState(readiness)
     val callbackState = rememberUpdatedState(callbackId)
@@ -142,6 +146,10 @@ fun CurfewApp(
         if (preparing || saving || busyState.value) return
         if (backStack.last() == "check-in" && checkInState.editing) {
             checkInState.editing = false
+            return
+        }
+        if (backStack.last() == "check-in" && checkInState.advanced && placeCheckInContentState.value != null) {
+            checkInState.advanced = false; checkInState.preferCode = true
             return
         }
         if (backStack.size > 1) backStack.removeLastOrNull()
@@ -210,6 +218,7 @@ fun CurfewApp(
     val compactKeyboard = destination == "check-in" && imeHeight > 0 && availableHeight < 200.dp
     val taskTopBar: @Composable () -> Unit = {
             if (destination != "welcome") TopAppBar(
+                windowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
                 title = {
                     if (destination == "daily") Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         CurfewHorizonMark()
@@ -251,7 +260,7 @@ fun CurfewApp(
     val compactKeyboardState = rememberUpdatedState(compactKeyboard)
     val taskTopBarState = rememberUpdatedState(taskTopBar)
     Scaffold(
-        contentWindowInsets = if (destination == "welcome") WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal) else ScaffoldDefaults.contentWindowInsets,
+        contentWindowInsets = if (destination == "welcome") WindowInsets(0, 0, 0, 0) else WindowInsets.safeDrawing,
         topBar = { if (!compactKeyboard) taskTopBar() },
     ) { padding ->
         SharedTransitionLayout {
@@ -354,6 +363,8 @@ fun CurfewApp(
                                             onDefer = { deferSetup() },
                                             deferBusy = preparing, deferError = choiceError,
                                             setupFileSaved = setupFileSavedState.value,
+                                            placeCodeSelected = placeCodeSelectedState.value,
+                                            consumerContent = placeCheckInContentState.value,
                                             onUseForAlarm = if (sunriseAlarm != null && sunriseAlarm?.schedule?.callbackId != callbackId && conditionVerified) ({ open("edit") }) else null,
                                         )
                                         "review" -> draft?.let { prepared ->

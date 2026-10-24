@@ -88,7 +88,7 @@ class SetupFlowInstrumentedTest {
     @Test fun checkInStartsWithPurposeAndCanDeferWithoutAnAlarm() {
         show(verified = false)
         compose.onNodeWithText("Service address").assertDoesNotExist()
-        compose.onNodeWithText("Connect a service").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("I have a service").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Save for later").performScrollTo().performClick()
         compose.onNodeWithText("No alarm set").assertExists()
         compose.runOnIdle { assertEquals(0, saves) }
@@ -113,7 +113,7 @@ class SetupFlowInstrumentedTest {
         show(verified = false, choiceGate = gate)
         compose.onNodeWithText("Save for later").performScrollTo().performClick()
         compose.onNodeWithText("Saving…").assertIsNotEnabled()
-        compose.onNodeWithText("Connect a service").assertIsNotEnabled()
+        compose.onNodeWithText("I have a service").assertIsNotEnabled()
         compose.runOnIdle { assertEquals(1, choices); gate.complete(Unit) }
         compose.onNodeWithText("No alarm set").assertExists()
         compose.runOnIdle { assertEquals(0, saves) }
@@ -121,10 +121,10 @@ class SetupFlowInstrumentedTest {
 
     @Test fun backFromManualConnectionReturnsToItsIntroduction() {
         show(verified = false)
-        compose.onNodeWithText("Connect a service").performScrollTo().performClick()
+        compose.onNodeWithText("I have a service").performScrollTo().performClick()
         compose.onNodeWithText("Service address").assertExists()
         compose.onNodeWithContentDescription("Back").performClick()
-        compose.onNodeWithText("Connect a service").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("I have a service").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Service address").assertDoesNotExist()
     }
 
@@ -156,6 +156,6 @@ class SetupFlowInstrumentedTest {
         compose.onNodeWithText("Alarm setup").performClick()
         compose.onNodeWithText("Done").performScrollTo().performClick()
         compose.onNodeWithText("Account").assertExists()
-        compose.onNodeWithText("Connect a service").assertDoesNotExist()
+        compose.onNodeWithText("I have a service").assertDoesNotExist()
     }
 }

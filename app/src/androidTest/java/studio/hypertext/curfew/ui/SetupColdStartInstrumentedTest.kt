@@ -85,8 +85,9 @@ class SetupColdStartInstrumentedTest {
         FirstUsePreferences(context).saveDraft(AlarmSetupDraft("keyboard", LocalTime.of(7, 0), LocalDate.now().plusDays(1), emptySet()))
         CurfewPreferences(context).selectCallback("missing-keyboard-fixture")
         ActivityScenario.launch(MainActivity::class.java).use { scenario ->
-            compose.waitUntil(10_000) { compose.onAllNodesWithText("Connect a service").fetchSemanticsNodes().isNotEmpty() }
-            compose.onNodeWithText("Connect a service").performScrollTo().performClick()
+            compose.waitUntil(10_000) { compose.onAllNodesWithText("Advanced integration").fetchSemanticsNodes().isNotEmpty() }
+            compose.onNodeWithText("Advanced integration").performScrollTo().performClick()
+            compose.onNodeWithText("I have a service").performScrollTo().performClick()
             compose.onNodeWithText("Service address").performScrollTo().performClick().performTextInput("https://wake.example.test/check-in")
             compose.waitUntil(5_000) {
                 var keyboardVisible = false
@@ -149,13 +150,13 @@ class SetupColdStartInstrumentedTest {
             ActivityScenario.launch(MainActivity::class.java).use { scenario ->
                 compose.waitUntil(10_000) { compose.onAllNodesWithContentDescription("Back").fetchSemanticsNodes().isNotEmpty() }
                 compose.onNodeWithText("Connection details").assertDoesNotExist()
-                compose.onNodeWithText("Connect a service").assertDoesNotExist()
+                compose.onNodeWithText("I have a service").assertDoesNotExist()
                 compose.onNodeWithText("Alarm setup").assertExists()
                 scenario.recreate()
                 compose.waitUntil(10_000) { compose.onAllNodesWithText("Alarm setup").fetchSemanticsNodes().isNotEmpty() }
                 compose.onNodeWithText("Alarm setup").assertExists()
                 compose.onNodeWithText("Connection details").assertDoesNotExist()
-                compose.onNodeWithText("Connect a service").assertDoesNotExist()
+                compose.onNodeWithText("I have a service").assertDoesNotExist()
             }
         } finally {
             firstUse.chooseNotNow(); firstUse.clearDraft(); configurations.delete(connection.callbackId)
