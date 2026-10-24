@@ -26,14 +26,11 @@ elapsed time. Waiting for Compose idle can itself exceed three seconds, so
 an assertion after that wait cannot prove that confirmation was immediate.
 Native credential success and cancellation now have separate controlled-emulator evidence below. Physical key repeat and physical-device acceptance remain open. The recovery screen is connected to the authenticated local release path.
 
-
 The consumer destinations use `CurfewAppNavigationInstrumentedTest.destinationsExposeTheirNamesToAssistiveTechnology` to check pane titles and heading semantics without duplicate visible headings. Its installed red run found the missing Sunrise pane title. Navigation, form retry, draft handling, and seven recovery input cases passed in that run. Capture fixtures cover the native light/dark, narrow-width, enlarged-text, and keyboard layouts; their images require visual review rather than an automatic design-quality claim.
-
 
 `OwnerRecoveryJourneyInstrumentedTest` exercises the real Android credential UI, audio, terminal outcome, and audit. It runs only with an explicit fixture PIN on an emulator. `scripts/accept-owner-recovery-emulator.py` guards the owned Sunrise_API36 AVD, refuses an existing credential, installs a known temporary PIN, saves diagnostic captures, and clears the PIN in a finally block. The normal test suite skips these two opt-in cases; a skipped run is not acceptance. Its first two runs were red at alarm entry, first due to the stale System UI ANR and then the automatic PIN prompt caused by keyguard dismissal.
 
 `RecoveryCompletionResumeInstrumentedTest` models process loss after the atomic recovery commit but before cleanup. Its first installed run failed because the next morning was never scheduled. `SunriseOccurrenceCompletionTest` checks that neither old repair trigger is canceled before consume and next-schedule persistence succeed. `AlarmNotificationInstrumentedTest` first failed on the posted wake-campaign title; its accepted presentation names the saved check-in instead of the internal attempt counter. Current green results remain pending.
-
 
 The real credential fixture now passes both cases on the controlled API36 emulator in `credential-journey-back-navigation.txt`: authenticated override/audit/audio stop and native cancellation with continuing audio/no audit. This is native emulator evidence, not physical speaker or device acceptance. The script clears its PIN and cycles the screen before dismissing the keyguard so subsequent ordinary UI tests start unlocked. The installed notification and interrupted-recovery continuation cases pass in `daily-notification-resume-green.txt`; only the then-current text-layout cases failed in that run.
 
@@ -45,8 +42,7 @@ Sound-dialog captures assert `TextLayoutResult.layoutInput.density.fontScale` ag
 
 `PersistentCadenceJourneyInstrumentedTest` is an opt-in wall-clock acceptance case. Run `python3 scripts/accept-cadence-emulator.py` after installing the current plain debug app and test APKs on the owned `Sunrise_API36` AVD at `emulator-5554`. The driver refuses other AVDs, disconnects the emulator, records its original network settings, and requires the same occurrence to produce ring/quiet/ring audio evidence under the default 120/60-second policy. Native setup validates a loopback HTTPS check-in before closing that verifier. A failed callback must leave ringing active. The driver checks fresh timeline phases, exact occurrence identity, offline state, and audio transitions. It runs scoped fixture cleanup and restores the original network settings. A skipped default-CI case does not establish cadence acceptance.
 
-The platform CI suite uses full `google_apis` images with SystemUI and LatinIME. ATD deliberately removes those components and cannot validate the keyboard, lock-screen, and complete alarm-media journey. Plain dependency isolation remains a separate release-graph check; a Google APIs emulator is not proof of physical behavior without Google services. CI uses an explicit Pixel 2 profile, two cores, and 1536 MiB of guest memory. Navigation fixtures scroll actions into view before real touch input so a short window does not turn an offscreen tap into a false behavior failure. The loopback PKCS12 test container uses Android 13-compatible wrapping without changing its TLS certificate; see the fixture's [README](../app/src/androidTest/assets/README.md).
-
+The platform CI suite uses full `google_apis` images with SystemUI and LatinIME. ATD deliberately removes those components and cannot validate the keyboard, lock-screen, and complete alarm-media journey. Plain dependency isolation remains a separate release-graph check; a Google APIs emulator is not proof of physical behavior without Google services. CI uses an explicit Pixel 2 profile, two cores, and 1536 MiB of guest memory. Navigation fixtures scroll actions into view before real touch input so a short window does not turn an offscreen tap into a false behavior failure. Date-entry fixtures establish actual input focus, visible keyboard insets, and a settled native dialog before typing and confirming. They wait for the editor window after dismissal and verify the selected date before changing the time. The loopback PKCS12 test container uses Android 13-compatible wrapping without changing its TLS certificate; see the fixture's [README](../app/src/androidTest/assets/README.md).
 
 The daily density regression first fails with the previous time sizing at
 267.4dp. The later density pass tightens the ordinary 390dp limit to 220dp.
@@ -54,7 +50,6 @@ The previous layout fails that limit at 238.9dp.
 This is a visual grouping constraint, not a limit on enlarged-text height.
 Run the whole `SunriseDailyLayoutInstrumentedTest` class and
 `CurfewDesignCaptureInstrumentedTest#captureDaily` after changing its spacing.
-
 
 ## Actual process-loss acceptance
 
@@ -78,7 +73,6 @@ Evidence lives in `build/sunrise-evidence/process-loss/`. This establishes an
 installed emulator observation, not a manufacturer's battery policy or physical
 speaker acceptance. The default suite skips this opt-in fixture.
 
-
 The held-key recovery fixture explicitly requests keyboard input mode and
 asserts focus before dispatching Enter. A semantic focus request from touch mode
 is not evidence of a physical keyboard path. The initial key, repeat, release,
@@ -87,7 +81,6 @@ reports pending state, notification presence, observed alarm audio, and exact
 alarm access separately so a compound predicate does not hide the failed stage.
 The corrected recovery and delivery fixtures pass locally in ten cases
 (25.796s). Their remote result still requires CI.
-
 
 ## Wall-clock Doze acceptance
 
@@ -217,7 +210,6 @@ setting and requests no notification-policy permission for the app. Both
 distribution instrumentation builds and lint checks passed after adding
 this observational test. Physical DND and manufacturer behavior remain open.
 
-
 ## Local transition and optional publication
 
 `LocalAlarmTransitionTest` checks local delivery before coordinator publication,
@@ -229,7 +221,6 @@ failed before implementation. Both distribution host suites now pass 153 tests.
 Run the installed HTTPS journey, service isolation, cadence, and process-loss
 checks after installing the local-first APK. The in-progress Doze observation
 uses the previous runtime and cannot establish those new installed results.
-
 
 ## Default sound failure and fallback
 
@@ -243,7 +234,6 @@ or other global sound setting. `AlarmAudioProbeInstrumentedTest` retains the
 known-PCM probe and observes Curfew's actual preferred-or-fallback playback.
 The HTTPS journey retains its audio-start and audio-stop requirements.
 
-
 `SunriseScheduleEditorInstrumentedTest.changingTimeKeepsAnExplicitOneNightDate`
 opens the actual date picker, chooses fourteen days ahead, changes the actual
 time picker to 08:15, and saves the editor draft. It checks the chosen date and
@@ -251,7 +241,6 @@ time independently. The original editor resets a new alarm's date when its time
 changes; native failing-first evidence is still pending. Both test APKs and both
 lint variants compile this regression. A missing widget or failed interaction
 would be a fixture failure, not proof of the date-reset defect.
-
 
 The one-night regression now has native red/green evidence on the isolated API35
 UI AVD. The red assertion changed November 3 to October 20 after a time edit.
@@ -269,12 +258,10 @@ The corrected fixture waits for a new cancellation and requires a visible,
 enabled button before touching it. It retains the start and no-confirmation
 assertions.
 
-
 AlarmServiceIsolationInstrumentedTest also invokes real worker completion
 for an old terminal occurrence while current alarm audio plays. The test
 requires that current audio and its ringing notification remain active.
 It does not exercise network authentication or claim P1b acceptance.
-
 
 The delayed-service-command regression starts the actual service for an old
 terminal occurrence while a newer occurrence owns alarm audio. It requires
@@ -293,7 +280,6 @@ clears the temporary PIN and removes only the controlled fixture. A missing
 pre-unlock alarm is recorded as a support limitation, not a passed ringing
 case. The result remains emulator evidence without physical speaker proof.
 
-
 The reboot driver allows an 80-second post-unlock observation but requires
 attempt 1 and the original start boundary. It does not accept playback that
 only begins on a later cadence attempt. Retain the failed initial boot run
@@ -301,7 +287,6 @@ and the shorter observation rather than overwriting them with a green result.
 The setup disclosure case fails if the first-unlock instruction is absent
 from the required device-limit acknowledgement. It also captures the native
 readiness screen for visual review.
-
 
 Run `python3 -B scripts/accept-package-replacement-emulator.py` after building
 the plain app and test APKs and installing both on the owned Sunrise_UI_API35
@@ -315,7 +300,6 @@ The shared external-lifecycle fixture uses the actual device timezone because
 recovery resolves saved local times again. This does not alter production
 schedule resolution or the default offline cadence fixture.
 
-
 Run `python3 -B scripts/accept-clock-emulator.py` only on the owned
 Sunrise_API36 AVD at emulator-5554 after installing matching current app/test
 APKs. It disables automatic time temporarily, moves the emulator wall clock
@@ -325,7 +309,6 @@ snapshot alone does not pass. The driver restores the original clock offset
 and automatic-time setting and removes its scoped fixture. The callback worker
 must use elapsed recovery too; an early green observation missed that writer.
 See [active clock rules](ALARM_CLOCK.md) for the required domain invariants.
-
 
 Use `scripts/accept-clock-emulator.py --backward` for the corresponding
 five-minute reverse adjustment. Both directions require the real two-minute
@@ -345,7 +328,6 @@ audio within 30 seconds. A notification or persisted Ringing state alone cannot
 pass. Cleanup removes only the scoped occurrence. Android 13 must pass directly;
 newer-platform reopen broadcasts cannot stand in for oldest-platform evidence.
 
-
 `scripts/accept-permission-emulator.py` requires the owned Sunrise_API33 AVD
 on port 5558. It saves an alarm two minutes ahead, revokes exact-alarm access,
 and reopens Curfew. Its opt-in native probe requires Android and readiness to
@@ -354,7 +336,6 @@ It then restores access, returns through MainActivity, and requires the same
 occurrence's first audio at the original boundary. The driver restores alarm
 access and removes its fixture in cleanup. This is permission recovery on one
 emulator, not a manufacturer or physical-device acceptance result.
-
 
 The package-replacement driver's `--api33` preset uses the owned Sunrise_API33
 AVD on port 5558 and writes a separate evidence directory. Its default still
@@ -498,7 +479,6 @@ airplane mode off, Wi-Fi on, and mobile data on. It records the installed
 APK digest. The default API36 driver remains available, and its live
 standby observation was not modified by this API33 run.
 
-
 ## Concurrent lifecycle recovery and schedule changes
 
 The independent P1 review found that recovery could save a stale Scheduled
@@ -531,7 +511,6 @@ No protocol, schema, permission, or migration changes are required. Rolling
 back restores the stale-write risk; preserve the concurrency tests when
 changing this path.
 
-
 The fixed runtime also passed all five repository cases under GMS on API33
 in 0.581s. A fresh external SIGKILL observation restored foreground alarm
 audio in 1.643s with the original occurrence and first-attempt bounds.
@@ -539,7 +518,6 @@ The driver exited successfully and removed its scoped fixture. Prior API33
 process evidence is preserved under
 `process-loss-api33-before-atomic-recovery/`; the new result is in
 `process-loss-api33/`. Neither observation establishes physical hearing.
-
 
 The fixed runtime passed a fresh offline ring/quiet/ring observation in
 185.124s. Audio stopped at the original two-minute boundary and resumed at
@@ -560,7 +538,6 @@ confirmed state is in `restored-network.json`. This driver correction adds
 no app permission or runtime behavior. It does not turn the pending API36
 Doze observation into a success.
 
-
 ## Consumer alarm labels
 
 The installed navigation and accessibility expectations now use “Edit alarm”
@@ -572,7 +549,6 @@ fixtures use the same labels to exercise the real controls.
 Both distributions pass their 181 host tests, app/test APK builds, and lint.
 The review-page scripts pass Node syntax checks. Installed and rendered
 results remain separately recorded after the complete suite finishes.
-
 
 The initial label pass reports all 119 installed cases green in 170.796s.
 The subsequent design review found a redundant Done in unchanged connected
@@ -595,7 +571,6 @@ parameters. Visual inspection found no overlap or clipping in the normal
 connected detail, 320dp enlarged-text detail, editor, or initial form.
 These results do not establish physical-device hearing or manual TalkBack.
 
-
 ## Completed corrected-notification standby observation
 
 The externally observed 65-minute API36 run entered deep idle at
@@ -616,7 +591,6 @@ a byte-identical test of the later APK. Results and cleanup live in
 `build/sunrise-evidence/doze/`; the driver log is
 `presentation-runtime-doze-driver.txt`. The previous runtime's standby result
 remains in its archived directory.
-
 
 After the standby driver exited and restored the AVD, the latest GMS app
 and test APKs passed both real Android credential journeys on API36 in
@@ -812,7 +786,6 @@ first-use preference file is separate from the runtime schedule and introduces
 no database or protocol migration. Rolling back this UI follow-up makes its
 unfinished draft unavailable to the old UI but must not erase saved alarms.
 
-
 A final deferral regression failed before correction: an existing draft forced
 Review even after the introduction choice was deferred. The shell now resumes
 a draft automatically only when setup was started, and keeps the draft available
@@ -823,7 +796,6 @@ in 10.395s on API33 Plain and 14.322s on API36 GMS. Their logs are
 `build/onboarding-final-deferral-plain.txt` and `-gms.txt`. The final build log is
 `build/onboarding-deferral-final.txt`.
 
-
 The `03db94e` full-screen setup observation also exercises Android Settings
 itself. On the owned API36 emulator the system toggle starts denied, Curfew
 opens its package-specific page, the driver grants it through the visible
@@ -832,14 +804,12 @@ Original UID/package app-op modes are restored. The source/installed candidate
 and digest are recorded in P1_ACCEPTANCE.md. This does not replace physical
 first-use acceptance.
 
-
 CI run 39516628313 subsequently passed all seven jobs on the `03db94e` runtime
 source. Each API33/34/35/36 job reports 141 successful instrumentation cases,
 including final deferral and verified-connection Back behavior. Both verification
 jobs and published release evidence pass. All three published artifact hashes
 match, and the PR merge source tree matches the branch head. APKs are unsigned;
 this is build evidence rather than a production-signing claim.
-
 
 ## Welcome composition, adaptive layout, and device appearance
 
@@ -950,7 +920,6 @@ extraction. The red log is `build/welcome-root-diagnostics-red.txt`.
 existing driver cases, actionlint, and diff whitespace checks pass. No app source
 changed. Further CI capture evidence must establish the new head's result.
 
-
 ## Consumer navigation and test identity
 
 `settingsIsATopBarActionAndBackReturnsToTheAlarm` requires Settings above the
@@ -978,7 +947,6 @@ The October 20 long Pixel Doze attempt used its pre-correction APK and was
 stopped before delivery. Its cleanup and rejected evidence are recorded in
 P1_ACCEPTANCE.md. These UI changes require their own CI and visual review. The alarm engine,
 permissions, persistence, protocol, and release authorization do not change.
-
 
 The audio-focus fixture now requires a started `USAGE_ALARM` player owned by
 Curfew's installed UID. Its earlier global playback predicate could accept
@@ -1027,7 +995,6 @@ task-only rerun passes every journey and restores every recorded setting.
 Root and independent design review find no visible blocker in the captured
 states. Keyboard/error/account-recovery states retain their separate boundary.
 
-
 CI run 39553434419 passes both host/lint/build jobs, release evidence, and the
 API33/34/36 native jobs. API35 reports OK for 158 cases, including seven guarded
 skips, in 236.952s. Its later welcome screenshot step fails at the landscape
@@ -1036,7 +1003,6 @@ stopping” dialog. This is a failed capture run; it is not a failed UI contract
 or accepted screenshot evidence. The fresh-emulator retry passes.
 The separately reviewed API34 task matrix retains its own source/APK/settings
 record. The task-owned remote emulator and cache were removed after capture.
-
 
 CI 39553434419 now passes all seven jobs after that API35 retry. Current-head
 run 39554867813 also passes all seven jobs on its first attempt. Its artifact
@@ -1100,7 +1066,6 @@ The [verification record](evidence/setup-2026-10-21/verification.json) and retai
 red/green native outputs record the boundary. The Pixel was disconnected during
 this repair, so its earlier install remains historical evidence for its own
 recorded source.
-
 
 ## Complete-suite fixture correction — October 21, 2026
 
@@ -1191,7 +1156,6 @@ incomplete run with an emulator graphics-context/ADB failure; no partial or
 invalid images enter the accepted gallery. See the
 [current gallery](../design/android-review/native/check-in-matrix/README.md).
 
-
 ## API36 keyboard and picker fixture investigation — October 21, 2026
 
 CI run `39575965473` reports 178 passes and seven guarded skips on each of
@@ -1227,7 +1191,6 @@ finds no lost profile coverage or weakened keyboard/picker assertions.
 [Retained red/green records](evidence/check-in-2026-10-21/ci-fixture-verification.json)
 include the failed readiness experiment and final APK hashes. Replacement
 x86_64 CI and physical Pixel Doze retain separate acceptance requirements.
-
 
 ## System splash and real-window keyboard correction — October 21, 2026
 
@@ -1273,7 +1236,6 @@ PNGs and four controlled transition frames. Actual Android dimensions and
 all PNG dimensions match; exact display settings restore. Its source and APK
 hashes differ from the earlier gallery and remain recorded separately.
 
-
 ## Notification ownership and recreated-screen readiness — October 21, 2026
 
 Run `39582873446` passes both verification jobs, release evidence, API33,
@@ -1301,7 +1263,6 @@ pass. Independent source review finds no remaining concrete issue.
 retain exact source boundaries and test APK hashes. No app code, screenshot,
 stored data, or protocol changes. Reverting changes only test isolation.
 Replacement x86_64 CI and physical Pixel Doze remain separate requirements.
-
 
 ## Accepted CI candidate — October 21, 2026
 
@@ -1343,7 +1304,6 @@ convergence, revocation propagation, offline paired codes, or service availabili
 Explicit physical Pixel Doze testing is excluded by owner direction; this
 changes acceptance scope, not Android's standby behavior.
 
-
 ## Printed place check-in
 
 `PlaceCheckInTest` and `PlaceQrTest` cover the local credential and offline QR
@@ -1360,7 +1320,6 @@ to the existing eighteen-profile task gallery. Review every generated scene
 before claiming responsive UI acceptance. Camera capture and physical TalkBack
 remain distinct from fixture renders and host tests. See [the feature contract](PLACE_CHECK_IN.md).
 
-
 `SunriseReleaseJourneyInstrumentedTest.enrolledPlaceCodeReleasesActualPlaybackWithoutAVerifier`
 arms the real AlarmManager occurrence with a local enrollment, observes actual
 foreground alarm audio and notification state, rejects a wrong code, then applies
@@ -1369,7 +1328,6 @@ uses an isolated emulator, grants fixture readiness, starts no HTTPS verifier,
 and refuses live account or pending-alarm data. This verifies the release path,
 not physical camera optics, human wakefulness or audible speaker delivery.
 
-
 The place capture fixture runs only through its explicit driver argument. The
 owned disposable emulator driver revokes camera access before starting that
 instrumentation process, rather than revoking permission from inside the app
@@ -1377,13 +1335,11 @@ under test. Android may terminate the app during revocation. Functional suites
 can therefore exercise real camera readiness independently, and the capture
 still asserts an actual denied permission before rendering its denial scene.
 
-
 `PlaceCodePrinterInstrumentedTest` exercises actual Android PDF generation. It
 requires a one-page readable A4 output and rejects undersized media without
 leaving an unfinished page during cleanup. This is native document generation,
 not a claim that a physical printer received paper. The print adapter reports
 rendering failure through the system callback and retains PNG export as recovery.
-
 
 `PlaceCameraLifecycleInstrumentedTest` opens the actual CameraX scanner and
 observes its package in Android's active camera-client list. Cancelling must

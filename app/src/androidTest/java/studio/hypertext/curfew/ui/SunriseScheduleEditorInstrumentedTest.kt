@@ -8,34 +8,28 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
-import androidx.core.view.WindowCompat
-import androidx.test.platform.app.InstrumentationRegistry
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
+import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.click
-import androidx.compose.ui.test.isDialog
-import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isDialog
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performTextReplacement
-import androidx.compose.ui.test.hasAnyAncestor
-import androidx.compose.ui.test.hasClickAction
-import androidx.compose.ui.test.SemanticsNodeInteraction
-import androidx.compose.ui.test.hasText
-import androidx.compose.ui.test.performScrollTo
-import androidx.compose.ui.test.assertIsEnabled
-import androidx.compose.ui.test.assertIsNotEnabled
-import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import java.time.DayOfWeek
-import java.time.Instant
-import java.time.LocalDate
-import java.time.LocalTime
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.test.performTouchInput
+import androidx.core.view.WindowCompat
+import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -43,21 +37,52 @@ import studio.hypertext.curfew.alarm.SavedSunriseAlarm
 import studio.hypertext.curfew.alarm.SunriseOccurrence
 import studio.hypertext.curfew.alarm.SunriseSchedule
 import studio.hypertext.curfew.ui.theme.CurfewTheme
+import java.time.DayOfWeek
+import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
 class SunriseScheduleEditorInstrumentedTest {
     @get:Rule
     val compose = createComposeRule()
-    private val schedule = SunriseSchedule(
-        "sunrise-1", LocalTime.of(7, 0), LocalDate.of(2026, 10, 20), emptySet(), true, "condition-1",
-    )
-    private val alarm = SavedSunriseAlarm(schedule, SunriseOccurrence(
-        "morning-1", LocalDate.of(2026, 10, 20), Instant.parse("2026-10-20T14:00:00Z"),
-    ))
+    private val schedule =
+        SunriseSchedule(
+            "sunrise-1",
+            LocalTime.of(7, 0),
+            LocalDate.of(2026, 10, 20),
+            emptySet(),
+            true,
+            "condition-1",
+        )
+    private val alarm =
+        SavedSunriseAlarm(
+            schedule,
+            SunriseOccurrence(
+                "morning-1",
+                LocalDate.of(2026, 10, 20),
+                Instant.parse("2026-10-20T14:00:00Z"),
+            ),
+        )
 
     private fun timeControl(time: LocalTime): SemanticsNodeInteraction {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val locale = context.resources.configuration.locales[0]
-        val numeric = time.format(DateTimeFormatter.ofPattern(if (android.text.format.DateFormat.is24HourFormat(context)) "HH:mm" else "h:mm", locale))
+        val numeric =
+            time.format(
+                DateTimeFormatter.ofPattern(
+                    if (android.text.format.DateFormat
+                            .is24HourFormat(context)
+                    ) {
+                        "HH:mm"
+                    } else {
+                        "h:mm"
+                    },
+                    locale,
+                ),
+            )
         return compose.onNode(hasText(numeric) and hasClickAction())
     }
 
@@ -72,8 +97,15 @@ class SunriseScheduleEditorInstrumentedTest {
         }
 
         compose.onNodeWithText("Save alarm").assertDoesNotExist()
-        compose.onNodeWithText("Continue alarm setup").performScrollTo().assertIsEnabled().performClick()
-        compose.runOnIdle { assertEquals(0, saves); assertEquals(1, setup) }
+        compose
+            .onNodeWithText("Continue alarm setup")
+            .performScrollTo()
+            .assertIsEnabled()
+            .performClick()
+        compose.runOnIdle {
+            assertEquals(0, saves)
+            assertEquals(1, setup)
+        }
     }
 
     @Test
@@ -85,7 +117,11 @@ class SunriseScheduleEditorInstrumentedTest {
             }
         }
 
-        compose.onNodeWithText("Save alarm").performScrollTo().assertIsEnabled().performClick()
+        compose
+            .onNodeWithText("Save alarm")
+            .performScrollTo()
+            .assertIsEnabled()
+            .performClick()
         compose.runOnIdle { assertEquals(schedule, saved) }
     }
 
@@ -96,7 +132,8 @@ class SunriseScheduleEditorInstrumentedTest {
             EditorFixture { SunriseScheduleEditor(alarm, "condition-1", true, false, null, {}, {}) }
         }
         timeControl(schedule.wakeTime)
-            .performScrollTo().performClick()
+            .performScrollTo()
+            .performClick()
         compose.onNodeWithText("Done").assertIsDisplayed()
         compose.onNodeWithText("Cancel").assertIsDisplayed().performClick()
         compose.onNodeWithText("Save alarm").performScrollTo().assertIsDisplayed()
@@ -108,9 +145,15 @@ class SunriseScheduleEditorInstrumentedTest {
         compose.setContent {
             EditorFixture { SunriseScheduleEditor(alarm, "condition-1", true, false, null, {}, {}) }
         }
-        compose.onNodeWithText(schedule.onceDate!!.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL)
-            .withLocale(context.resources.configuration.locales[0])))
-            .performScrollTo().performClick()
+        compose
+            .onNodeWithText(
+                schedule.onceDate!!.format(
+                    DateTimeFormatter
+                        .ofLocalizedDate(FormatStyle.FULL)
+                        .withLocale(context.resources.configuration.locales[0]),
+                ),
+            ).performScrollTo()
+            .performClick()
         compose.onNodeWithText("Done").assertIsDisplayed()
         compose.onNodeWithText("Cancel").assertIsDisplayed().performClick()
         compose.onNodeWithText("Save alarm").performScrollTo().assertIsDisplayed()
@@ -131,12 +174,17 @@ class SunriseScheduleEditorInstrumentedTest {
             }
         }
         val format = DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL).withLocale(locale)
-        compose.onNode(hasText(today.format(format)) or hasText(today.plusDays(1).format(format)))
-            .performScrollTo().performClick()
+        compose
+            .onNode(hasText(today.format(format)) or hasText(today.plusDays(1).format(format)))
+            .performScrollTo()
+            .performClick()
         enterDate(chosenDate)
-        compose.onNodeWithText("Done").performClick()
+        compose.onNodeWithText("Done").assertIsEnabled().performClick()
+        awaitEditorWindow()
+        compose.onNodeWithText(chosenDate.format(format)).performScrollTo().assertIsDisplayed()
         timeControl(initialTime).performScrollTo().performClick()
         confirmTime(8, 15)
+        awaitEditorWindow()
         compose.onNodeWithText(chosenDate.format(format)).performScrollTo().assertIsDisplayed()
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         if (InstrumentationRegistry.getArguments().getString("captureDateDraft") == "true") {
@@ -192,22 +240,38 @@ class SunriseScheduleEditorInstrumentedTest {
 
     private fun saveEditor() {
         compose.onNodeWithText("Save alarm").performScrollTo()
+        awaitEditorWindow()
+        compose
+            .onNodeWithText("Save alarm")
+            .assertIsDisplayed()
+            .assertIsEnabled()
+            .performClick()
+    }
+
+    private fun awaitEditorWindow() {
         // Dialog semantics can disappear before the platform window and IME finish
         // dismissing. Wait for the actual editor window before injecting one tap.
         compose.waitUntil(5_000) {
             var ready = false
             compose.runOnUiThread {
-                val roots = android.view.inspector.WindowInspector.getGlobalWindowViews()
-                    .filter { it.isAttachedToWindow && it.visibility == android.view.View.VISIBLE }
+                val roots =
+                    android.view.inspector.WindowInspector
+                        .getGlobalWindowViews()
+                        .filter { it.isAttachedToWindow && it.visibility == android.view.View.VISIBLE }
                 ready = roots.singleOrNull()?.let { root ->
-                    val insets = androidx.core.view.ViewCompat.getRootWindowInsets(root)
+                    val insets =
+                        androidx.core.view.ViewCompat
+                            .getRootWindowInsets(root)
                     root.isLaidOut && !root.isLayoutRequested && !root.isInLayout &&
-                        insets?.getInsets(androidx.core.view.WindowInsetsCompat.Type.ime())?.bottom == 0
+                        insets
+                            ?.getInsets(
+                                androidx.core.view.WindowInsetsCompat.Type
+                                    .ime(),
+                            )?.bottom == 0
                 } == true
             }
             ready
         }
-        compose.onNodeWithText("Save alarm").assertIsDisplayed().assertIsEnabled().performClick()
     }
 
     private fun openDateInput() {
@@ -219,23 +283,72 @@ class SunriseScheduleEditorInstrumentedTest {
 
     @Test fun ordinaryPhoneStartsWithTheCalendar() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
-        org.junit.Assume.assumeTrue("A calendar requires the ordinary-size device profile",
-            context.resources.configuration.screenWidthDp >= 384 && context.resources.configuration.fontScale <= 1f)
+        org.junit.Assume.assumeTrue(
+            "A calendar requires the ordinary-size device profile",
+            context.resources.configuration.screenWidthDp >= 384 && context.resources.configuration.fontScale <= 1f,
+        )
         compose.setContent { EditorFixture { AlarmDatePicker(LocalDate.of(2026, 10, 20), {}, {}) } }
         compose.onNodeWithText("Type date").assertIsDisplayed()
     }
 
     private fun enterDate(date: LocalDate) {
         openDateInput()
-        val locale = InstrumentationRegistry.getInstrumentation().targetContext.resources.configuration.locales[0]
-        val order = android.text.format.DateFormat.getBestDateTimePattern(locale, "yMd").filter { it in "yMd" }.toList().distinct()
-        val digits = order.joinToString("") { part ->
-            date.format(DateTimeFormatter.ofPattern(when (part) { 'y' -> "yyyy"; 'M' -> "MM"; else -> "dd" }, locale))
+        val locale =
+            InstrumentationRegistry
+                .getInstrumentation()
+                .targetContext.resources.configuration.locales[0]
+        val order =
+            android.text.format.DateFormat
+                .getBestDateTimePattern(locale, "yMd")
+                .filter { it in "yMd" }
+                .toList()
+                .distinct()
+        val digits =
+            order.joinToString("") { part ->
+                date.format(
+                    DateTimeFormatter.ofPattern(
+                        when (part) {
+                            'y' -> "yyyy"
+                            'M' -> "MM"
+                            else -> "dd"
+                        },
+                        locale,
+                    ),
+                )
+            }
+        val input = compose.onAllNodes(hasSetTextAction())[0]
+        input.performClick().assertIsFocused()
+        // Material DateInput requests focus asynchronously. Its IME can move the
+        // dialog after semantics are idle, so establish the real input window
+        // before entering text and tapping the dialog action.
+        compose.waitUntil(5_000) {
+            var ready = false
+            compose.runOnUiThread {
+                val focused =
+                    android.view.inspector.WindowInspector
+                        .getGlobalWindowViews()
+                        .singleOrNull { it.isAttachedToWindow && it.visibility == android.view.View.VISIBLE && it.hasWindowFocus() }
+                val insets = focused?.let(androidx.core.view.ViewCompat::getRootWindowInsets)
+                ready = focused != null && focused.isLaidOut && !focused.isLayoutRequested && !focused.isInLayout &&
+                    insets?.isVisible(
+                        androidx.core.view.WindowInsetsCompat.Type
+                            .ime(),
+                    ) == true &&
+                    insets
+                        .getInsets(
+                            androidx.core.view.WindowInsetsCompat.Type
+                                .ime(),
+                        ).bottom > 0
+            }
+            ready
         }
-        compose.onAllNodes(hasSetTextAction())[0].performTextReplacement(digits)
+        input.performTextReplacement(digits)
     }
 
-    private fun enterTime(hour: Int, minute: Int) {
+    private fun enterTime(
+        hour: Int,
+        minute: Int,
+    ) {
         compose.waitUntil(5_000) {
             compose.onAllNodesWithTag("alarm-hour").fetchSemanticsNodes().isNotEmpty() ||
                 compose.onAllNodesWithTag("time-input-mode").fetchSemanticsNodes().isNotEmpty()
@@ -248,7 +361,9 @@ class SunriseScheduleEditorInstrumentedTest {
                 compose.onAllNodesWithTag("alarm-minute").fetchSemanticsNodes().size == 1
         }
         val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val use24Hour = android.text.format.DateFormat.is24HourFormat(context)
+        val use24Hour =
+            android.text.format.DateFormat
+                .is24HourFormat(context)
         val displayHour = if (use24Hour) hour else (hour % 12).takeIf { it != 0 } ?: 12
         compose.onNodeWithTag("alarm-hour").performTextReplacement(displayHour.toString())
         compose.onNodeWithTag("alarm-minute").performTextReplacement(minute.toString().padStart(2, '0'))
@@ -258,7 +373,10 @@ class SunriseScheduleEditorInstrumentedTest {
         }
     }
 
-    private fun confirmTime(hour: Int, minute: Int) {
+    private fun confirmTime(
+        hour: Int,
+        minute: Int,
+    ) {
         enterTime(hour, minute)
         compose.onNodeWithText("Done").performClick()
     }
@@ -288,11 +406,22 @@ class SunriseScheduleEditorInstrumentedTest {
     @Test fun theMaterialDialAcceptsAnHourTap() {
         var chosen: LocalTime? = null
         compose.setContent { EditorFixture { AlarmTimePicker(LocalTime.of(7, 0), {}, { chosen = it }) } }
-        org.junit.Assume.assumeTrue("A dial requires the ordinary-size device profile",
-            compose.onAllNodesWithTag("time-input-mode").fetchSemanticsNodes().isNotEmpty())
+        org.junit.Assume.assumeTrue(
+            "A dial requires the ordinary-size device profile",
+            compose.onAllNodesWithTag("time-input-mode").fetchSemanticsNodes().isNotEmpty(),
+        )
         val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val description = context.getString(if (android.text.format.DateFormat.is24HourFormat(context))
-            androidx.compose.material3.R.string.m3c_time_picker_hour_24h_suffix else androidx.compose.material3.R.string.m3c_time_picker_hour_suffix, 8)
+        val description =
+            context.getString(
+                if (android.text.format.DateFormat
+                        .is24HourFormat(context)
+                ) {
+                    androidx.compose.material3.R.string.m3c_time_picker_hour_24h_suffix
+                } else {
+                    androidx.compose.material3.R.string.m3c_time_picker_hour_suffix
+                },
+                8,
+            )
         compose.onNodeWithContentDescription(description).performTouchInput { click() }
         compose.onNodeWithText("Done").performClick()
         compose.runOnIdle { assertEquals(LocalTime.of(8, 0), chosen) }
@@ -307,7 +436,15 @@ class SunriseScheduleEditorInstrumentedTest {
 
     @Test fun backCancelsTheTimePickerWithoutAcceptingIt() {
         var cancelled = false
-        compose.setContent { EditorFixture { AlarmTimePicker(LocalTime.of(7, 0), { cancelled = true }, { error("Back accepted the picker") }) } }
+        compose.setContent {
+            EditorFixture {
+                AlarmTimePicker(
+                    LocalTime.of(7, 0),
+                    { cancelled = true },
+                    { error("Back accepted the picker") },
+                )
+            }
+        }
         compose.waitForIdle()
         Thread.sleep(500)
         InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK)
@@ -316,15 +453,29 @@ class SunriseScheduleEditorInstrumentedTest {
 
     @Test fun tappingTheBackdropCancelsWithoutAcceptingThePicker() {
         var cancelled = false
-        compose.setContent { EditorFixture { AlarmTimePicker(LocalTime.of(7, 0), { cancelled = true }, { error("The backdrop accepted the picker") }) } }
+        compose.setContent {
+            EditorFixture { AlarmTimePicker(LocalTime.of(7, 0), { cancelled = true }, { error("The backdrop accepted the picker") }) }
+        }
         compose.waitForIdle()
-        compose.onNode(isDialog()).performTouchInput { click(androidx.compose.ui.geometry.Offset(4f, height / 2f)) }
+        compose.onNode(isDialog()).performTouchInput {
+            click(
+                androidx.compose.ui.geometry
+                    .Offset(4f, height / 2f),
+            )
+        }
         compose.waitUntil(2_000) { cancelled }
     }
 
     @Test fun invalidTimeCannotApplyThePreviousValidValue() {
         compose.setContent { EditorFixture { AlarmTimePicker(LocalTime.of(7, 0), {}, { error("Invalid time was accepted") }) } }
-        if (compose.onAllNodesWithTag("time-input-mode").fetchSemanticsNodes().isNotEmpty()) compose.onNodeWithTag("time-input-mode").performClick()
+        if (compose
+                .onAllNodesWithTag(
+                    "time-input-mode",
+                ).fetchSemanticsNodes()
+                .isNotEmpty()
+        ) {
+            compose.onNodeWithTag("time-input-mode").performClick()
+        }
         compose.onAllNodes(hasSetTextAction())[0].performTextReplacement("99")
         compose.onNodeWithText("Done").assertIsNotEnabled()
         if (compose.onAllNodesWithTag("time-input-mode").fetchSemanticsNodes().isNotEmpty()) {
@@ -346,8 +497,15 @@ class SunriseScheduleEditorInstrumentedTest {
         var saved: SunriseSchedule? = null
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         compose.setContent { EditorFixture { SunriseScheduleEditor(alarm, "condition-1", true, false, null, { saved = it }, {}) } }
-        compose.onNodeWithText(schedule.onceDate!!.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL)
-            .withLocale(context.resources.configuration.locales[0]))).performScrollTo().performClick()
+        compose
+            .onNodeWithText(
+                schedule.onceDate!!.format(
+                    DateTimeFormatter
+                        .ofLocalizedDate(FormatStyle.FULL)
+                        .withLocale(context.resources.configuration.locales[0]),
+                ),
+            ).performScrollTo()
+            .performClick()
         enterDate(LocalDate.of(2026, 11, 2))
         compose.onNodeWithText("Cancel").performClick()
         saveEditor()
