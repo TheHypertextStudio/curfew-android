@@ -83,12 +83,12 @@ class CheckInScreenInstrumentedTest {
                 onSave = { _, _, _ -> saves++; "unused" }, onExport = {}, onVerify = {}, onDone = {},
                 inSetup = true, onDefer = { deferred++ })
         } }
-        compose.onNodeWithText("Connect your check-in").assertExists()
-        compose.onNodeWithText("Curfew doesn’t include a check-in service yet.").assertExists()
+        compose.onNodeWithText("Connect an existing service").assertExists()
+        compose.onNodeWithText("For a compatible HTTPS service you or a trusted operator already run.").assertExists()
         compose.onNodeWithText("Service address").assertDoesNotExist()
         compose.onNodeWithText("Save for later").performScrollTo().performClick()
         compose.runOnIdle { assertEquals(1, deferred); assertEquals(0, saves) }
-        compose.onNodeWithText("Connect a service").performScrollTo().performClick()
+        compose.onNodeWithText("I have a service").performScrollTo().performClick()
         compose.onNodeWithText("You need a service that supports the Curfew check-in protocol. Curfew does not provide one yet. Use the HTTPS check-in endpoint from that service’s configuration.").assertExists()
         compose.onNodeWithText("Service address").assertExists()
     }
@@ -121,7 +121,7 @@ class CheckInScreenInstrumentedTest {
             }
         }
         compose.onNodeWithText("Test connection").assertDoesNotExist()
-        compose.onNodeWithText("Connect a service").performScrollTo().performClick()
+        compose.onNodeWithText("I have a service").performScrollTo().performClick()
         compose.onNodeWithText("Name (optional)").performScrollTo().performTextInput("Morning check-in")
         compose.onNodeWithText("Service address").performTextInput("https://wake.example.test/check-in")
         Espresso.closeSoftKeyboard()
@@ -142,7 +142,7 @@ class CheckInScreenInstrumentedTest {
                     onSave = { _, _, action -> savedAction = action; "condition-1" }, onExport = {}, onVerify = {}, onDone = {})
             }
         }
-        compose.onNodeWithText("Connect a service").performScrollTo().performClick()
+        compose.onNodeWithText("I have a service").performScrollTo().performClick()
         compose.onNodeWithText("Name (optional)").performScrollTo().performTextInput("Morning check-in")
         compose.onNodeWithText("Service address").performTextInput("https://wake.example.test/check-in")
         compose.onNodeWithText("Check-in link (optional)").performScrollTo().performTextInput("morning-checkin://start")
@@ -162,7 +162,7 @@ class CheckInScreenInstrumentedTest {
                     onExport = {}, onVerify = {}, onDone = {})
             }
         }
-        compose.onNodeWithText("Connect a service").performScrollTo().performClick()
+        compose.onNodeWithText("I have a service").performScrollTo().performClick()
         compose.onNodeWithText("Name (optional)").performScrollTo().performTextInput("Morning check-in")
         compose.onNodeWithText("Service address").performTextInput("https://wake.example.test/check-in")
         Espresso.closeSoftKeyboard()
@@ -182,7 +182,7 @@ class CheckInScreenInstrumentedTest {
             CheckInScreen(callback.value, callback.value?.let { "Saved check-in" }, false, busy.value, null,
                 { _, _, _ -> busy.value = true; "saved" }, {}, {}, {})
         } }
-        compose.onNodeWithText("Connect a service").performScrollTo().performClick()
+        compose.onNodeWithText("I have a service").performScrollTo().performClick()
         compose.onNodeWithText("Service address").performTextInput("https://wake.example.test/check-in")
         Espresso.closeSoftKeyboard()
         compose.onNodeWithText("Save check-in").performScrollTo().performClick()
@@ -196,7 +196,7 @@ class CheckInScreenInstrumentedTest {
         compose.setContent {
             CurfewTheme { CheckInScreen(null, null, false, false, null, { _, _, _ -> "condition-1" }, {}, {}, {}) }
         }
-        compose.onNodeWithText("Connect a service").performScrollTo().performClick()
+        compose.onNodeWithText("I have a service").performScrollTo().performClick()
         compose.onNodeWithText("Service address").performTextInput("https://wake.example.test/check-in")
         compose.onNodeWithText("Check-in link (optional)").performTextInput("/relative/path")
         Espresso.closeSoftKeyboard()

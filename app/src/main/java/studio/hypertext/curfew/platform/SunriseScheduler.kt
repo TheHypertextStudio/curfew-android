@@ -52,9 +52,10 @@ class SunriseScheduler(context: Context) {
             NativeDeviceProofAuthenticator(this.context).deviceId(),
         ) { callbackId ->
             val prefs = CurfewPreferences(this.context).state.first()
+            val method = studio.hypertext.curfew.checkin.CheckInCatalog(this.context).find(callbackId)
             AndroidAlarmReadiness(this.context).evaluate(prefs).canArm &&
-                prefs.isCallbackReady(callbackId) &&
-                CallbackConfigurationRepository(this.context).find(callbackId) != null
+                prefs.isCallbackReady(callbackId) && method?.available == true &&
+                (!method.placeCode || studio.hypertext.curfew.checkin.PlaceCheckInRepository(this.context).cameraReady())
         }
     }
 
@@ -65,6 +66,10 @@ class SunriseScheduler(context: Context) {
         now: Instant = Instant.now(),
         zone: ZoneId = ZoneId.systemDefault(),
     ): SavedSunriseAlarm = withContext(Dispatchers.IO) { controller.save(schedule, now, zone) }
+
+    suspend fun revokeCondition(callbackId: String, revoke: suspend () -> Unit) = withContext(Dispatchers.IO) {
+        controller.revokeCondition(callbackId, Instant.now(), ZoneId.systemDefault(), revoke)
+    }
 
     suspend fun restore(
         now: Instant = Instant.now(),

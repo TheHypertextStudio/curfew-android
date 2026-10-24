@@ -12,6 +12,10 @@ SPEC.loader.exec_module(catalog)
 
 
 class CatalogTests(unittest.TestCase):
+    def test_consumer_code_states_are_in_the_maintained_matrix(self):
+        states = {state["id"] for state in catalog.load_matrix()["states"]}
+        self.assertTrue({"place_intro", "place_code", "place_ready", "place_error", "place_busy", "place_camera_required"} <= states)
+
     def test_matrix_ids_are_unique_and_include_all_dimensions(self):
         cases = catalog.expand_matrix(catalog.load_matrix())
         self.assertEqual(len(cases), len({case["id"] for case in cases}))

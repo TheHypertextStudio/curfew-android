@@ -39,5 +39,22 @@ class TaskMatrixCaptureTest(unittest.TestCase):
             self.assertEqual(['cover-light-' + scene + '.png' for scene in ('daily', 'editor', 'settings', 'account', 'check-in', 'readiness')], files)
             self.assertTrue(all((output / name).is_file() for name in files))
 
+    def test_place_capture_includes_every_consumer_state(self):
+        calls = []
+        def adb(*parts):
+            calls.append(parts)
+            if parts[:3] == ('shell', 'am', 'instrument'): return b'OK (1 test)\n'
+            return b'\x89PNG\r\n\x1a\nimage'
+        with tempfile.TemporaryDirectory() as directory:
+            files = matrix.capture_place_windows(adb, 'phone-light', Path(directory))
+            self.assertEqual(5, len(files))
+            revoke = ('shell', 'pm', 'revoke', 'studio.hypertext.curfew', 'android.permission.CAMERA')
+            self.assertIn(revoke, calls)
+            launch = next(i for i, parts in enumerate(calls) if parts[:3] == ('shell', 'am', 'instrument'))
+            self.assertLess(calls.index(revoke), launch)
+            self.assertIn('curfew.place.capture', calls[launch])
+            self.assertTrue(any('place-camera-denied' in name for name in files))
+
+
 
 if __name__ == '__main__': unittest.main()

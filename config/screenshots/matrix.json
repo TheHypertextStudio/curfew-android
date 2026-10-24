@@ -704,6 +704,60 @@
         "top",
         "bottom"
       ]
+    },
+    {
+      "id": "place_intro",
+      "title": "Create a printed code",
+      "screen": "Printed-code check-in",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "place_code",
+      "title": "Save or print a code",
+      "screen": "Printed-code check-in",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "place_ready",
+      "title": "Code enrolled",
+      "screen": "Printed-code check-in",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "place_error",
+      "title": "Code export failed",
+      "screen": "Printed-code check-in",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "place_busy",
+      "title": "Creating a code",
+      "screen": "Printed-code check-in",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "place_camera_required",
+      "title": "Code needs camera access",
+      "screen": "Printed-code check-in",
+      "positions": [
+        "top",
+        "bottom"
+      ]
     }
   ],
   "devices": [

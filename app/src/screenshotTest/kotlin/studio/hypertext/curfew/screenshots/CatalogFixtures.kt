@@ -9,10 +9,12 @@ import java.time.*
 import studio.hypertext.curfew.ui.*
 import studio.hypertext.curfew.ui.theme.CurfewTheme
 import studio.hypertext.curfew.alarm.*
+import studio.hypertext.curfew.checkin.*
 import studio.hypertext.curfew.account.AccountRecoveryState
 import studio.hypertext.curfew.readiness.*
 
 enum class CatalogState {
+    PLACE_INTRO, PLACE_CODE, PLACE_READY, PLACE_ERROR, PLACE_BUSY, PLACE_CAMERA_REQUIRED,
     EDIT_NEEDS_SETUP,
     EDIT_NO_DAYS,
     CHECKIN_EDIT_EXISTING,
@@ -121,6 +123,16 @@ fun CatalogFixture(state: CatalogState, position: String, dark: Boolean) {
                     id == "edit_busy", if (id == "edit_error") "Couldn’t save alarm. Try again." else null, {}, {},
                     setupMode = id.startsWith("setup"), initialDraft = draft(id.endsWith("weekly") || id == "edit_no_days"), initialWeekdayMask = if (id == "edit_no_days") 0 else null,
                 )
+                id.startsWith("place_") -> {
+                    val example = PlaceDraft(PlaceEnrollment("00000000-0000-4000-8000-000000000001", "Bathroom", "A".repeat(43)), "EXAMPLE-NOT-A-REAL-CODE")
+                    PlaceCheckInSetup(
+                        draft = example.takeIf { id in setOf("place_code", "place_error") },
+                        enrollment = example.enrollment.takeIf { id in setOf("place_ready", "place_camera_required") },
+                        busy = id == "place_busy", error = "Couldn’t save the code. Choose another location and try again.".takeIf { id == "place_error" },
+                        onCreate = {}, onExport = {}, onPrint = {}, onScan = {}, onCancel = {}, onReplace = {}, onRemove = {},
+                        onAdvanced = {}, onDone = {}, onUseForAlarm = null, cameraReady = id != "place_camera_required",
+                    )
+                }
                 id.startsWith("checkin_") -> {
                     val editing = id in setOf("checkin_empty", "checkin_valid", "checkin_invalid", "checkin_details", "checkin_invalid_action", "checkin_saving", "checkin_save_error", "checkin_edit_existing")
                     val connected = id in setOf("checkin_transfer", "checkin_test_ready", "checkin_checking", "checkin_test_error", "checkin_connected", "checkin_connection_details", "checkin_replace", "checkin_edit_existing")

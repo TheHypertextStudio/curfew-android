@@ -1,5 +1,6 @@
 package studio.hypertext.curfew.sync
 
+import java.time.Clock
 import java.time.Instant
 import studio.hypertext.curfew.alarm.AlarmCampaignEngine
 import studio.hypertext.curfew.alarm.AlarmCampaignState
@@ -18,6 +19,7 @@ data class WakeConvergenceResult(
 
 class WakeConvergenceReducer(
     private val engine: AlarmCampaignEngine = AlarmCampaignEngine(),
+    private val clock: Clock = Clock.systemUTC(),
 ) {
     fun apply(
         local: AlarmCampaignState,
@@ -50,6 +52,19 @@ class WakeConvergenceReducer(
         override: RemoteOverride,
         statusVersion: Long,
     ): WakeConvergenceResult {
+        val terminal = overrideState(local, override)
+        return WakeConvergenceResult(
+            outcome = terminal.outcome,
+            devicesToRelease = override.targetDeviceIds.toSet(),
+            releasesWakeGate = terminal.releasesWakeGate,
+            statusVersion = statusVersion,
+        )
+    }
+
+    fun overrideState(
+        local: AlarmCampaignState,
+        override: RemoteOverride,
+    ): AlarmCampaignState.Overridden {
         require(override.status == OverrideStatus.Active) { "override is not active" }
         require(override.durationMinutes in 5..60) { "override duration is out of bounds" }
         require(override.reason.isNotBlank())
@@ -58,17 +73,15 @@ class WakeConvergenceReducer(
             "override targets an unselected device"
         }
         val startsAt = Instant.parse(override.startsAt)
-        val terminal = engine.override(
+        val validUntil = startsAt.plusSeconds(override.durationMinutes * 60)
+        val now = clock.instant()
+        require(now >= startsAt) { "override has not started" }
+        require(now < validUntil) { "override has expired" }
+        return engine.override(
             local,
             startsAt,
             override.overrideId,
-            startsAt.plusSeconds(override.durationMinutes * 60),
+            validUntil,
         ) as AlarmCampaignState.Overridden
-        return WakeConvergenceResult(
-            outcome = terminal.outcome,
-            devicesToRelease = override.targetDeviceIds.toSet(),
-            releasesWakeGate = terminal.releasesWakeGate,
-            statusVersion = statusVersion,
-        )
     }
 }

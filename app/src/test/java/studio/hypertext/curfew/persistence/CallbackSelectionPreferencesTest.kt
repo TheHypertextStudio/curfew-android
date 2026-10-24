@@ -80,6 +80,19 @@ class CallbackSelectionPreferencesTest {
         }
     }
 
+    @Test
+    fun `removing an old code never clears its selected replacement`() = runBlocking {
+        withStore("revoke") {
+            it.select("new")
+            it.markVerifiedIfSelected("new")
+            it.clearIfSelected("old")
+            assertTrue(it.state.first().ready)
+            it.clearIfSelected("new")
+            assertNull(it.state.first().selectedCallbackId)
+            assertFalse(it.state.first().ready)
+        }
+    }
+
     private suspend fun withStore(name: String, action: suspend (CallbackSelectionPreferences) -> Unit) {
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
         try {

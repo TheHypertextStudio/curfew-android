@@ -26,13 +26,15 @@ internal class CheckInState {
     var connectionDetails by mutableStateOf(false)
     var completing by mutableStateOf(false)
     var pendingId by mutableStateOf<String?>(null)
+    var advanced by mutableStateOf(false)
+    var preferCode by mutableStateOf(false)
 
     companion object {
         val Saver = listSaver<CheckInState, String>(
-            save = { listOf(it.editing.toString(), it.name, it.endpoint, it.actionUrl, it.optionalDetails.toString(), it.connectionDetails.toString(), it.completing.toString(), it.pendingId.orEmpty()) },
+            save = { listOf(it.editing.toString(), it.name, it.endpoint, it.actionUrl, it.optionalDetails.toString(), it.connectionDetails.toString(), it.completing.toString(), it.pendingId.orEmpty(), it.advanced.toString(), it.preferCode.toString()) },
             restore = { values -> CheckInState().apply {
                 editing = values[0].toBoolean(); name = values[1]; endpoint = values[2]; actionUrl = values[3]
-                optionalDetails = values[4].toBoolean(); connectionDetails = values[5].toBoolean(); completing = values[6].toBoolean(); pendingId = values[7].takeIf(String::isNotBlank)
+                optionalDetails = values[4].toBoolean(); connectionDetails = values[5].toBoolean(); completing = values[6].toBoolean(); pendingId = values[7].takeIf(String::isNotBlank); advanced = values.getOrNull(8)?.toBoolean() ?: false; preferCode = values.getOrNull(9)?.toBoolean() ?: false
             } },
         )
     }
@@ -53,7 +55,13 @@ internal fun CheckInScreen(
     onUseForAlarm: (() -> Unit)? = null,
     inlineHeader: (@Composable () -> Unit)? = null,
     setupFileSaved: Boolean = false,
+    placeCodeSelected: Boolean = false,
+    consumerContent: (@Composable (() -> Unit, () -> Unit, (() -> Unit)?) -> Unit)? = null,
 ) {
+    if (consumerContent != null && !state.advanced && (callbackId == null || savedLabel == null || placeCodeSelected || state.preferCode)) {
+        consumerContent({ state.advanced = true; state.preferCode = false }, onDone, onUseForAlarm)
+        return
+    }
     val scope = rememberCoroutineScope()
     var submitting by remember { mutableStateOf(false) }
     var saveError by remember { mutableStateOf<String?>(null) }
@@ -124,6 +132,7 @@ internal fun CheckInScreen(
             if (message != null) TaskMessage(message)
             if (verified && (state.completing || inSetup)) Button(onClick = { state.completing = false; onDone() }, enabled = !working, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text(if (inSetup) "Continue" else "Done") }
             if (verified && onUseForAlarm != null) Button(onClick = onUseForAlarm, enabled = !working, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Use for alarm") }
+            if (consumerContent != null) TextButton(onClick = { state.preferCode = true; state.advanced = false }, enabled = !working) { Text("Use a code instead") }
             TextButton(onClick = { state.connectionDetails = !state.connectionDetails }, enabled = !working, modifier = Modifier.fillMaxWidth()) { Text("Connection details") }
             if (state.connectionDetails) {
                 Text("The setup file allows your service to stop your alarm. Share it only with that service.", color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -135,10 +144,9 @@ internal fun CheckInScreen(
             }
         }
         else -> SetupTaskContent(
-            introduction = { SetupIntroduction(R.drawable.ic_link_rounded, "Connect your check-in", "Curfew rings until your check-in service confirms you’re up. Connect and test a service before turning on your alarm.") },
+            introduction = { SetupIntroduction(R.drawable.ic_link_rounded, "Connect an existing service", "The alarm keeps ringing until your service confirms you’re up.") },
         ) {
-            Text("Curfew doesn’t include a check-in service yet.", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Button(onClick = { state.editing = true }, enabled = !working, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Connect a service") }
+            Text("For a compatible HTTPS service you or a trusted operator already run.", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
             if (inSetup && onDefer != null) {
                 Text("Save your wake time for later. The alarm will stay off.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 val retryRegion = remember { BringIntoViewRequester() }
@@ -153,6 +161,8 @@ internal fun CheckInScreen(
                     }
                 }
             }
+            if (consumerContent != null) TextButton(onClick = { state.preferCode = true; state.advanced = false }, enabled = !working) { Text("Use a code instead") }
+            OutlinedButton(onClick = { state.editing = true }, enabled = !working, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)) { Text("I have a service") }
         }
     }
 }

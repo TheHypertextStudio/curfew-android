@@ -6,7 +6,7 @@ Instrumented tests cover schedule editing, wake-condition save/verification read
 
 CI builds and lints both distributions and runs unit tests for each. Emulator jobs exercise API 33–36 where hosted acceleration is available. `verifyPlainRuntimeIsolation` resolves the plain release graph and rejects Firebase or Google Play Services. The behavioral verifier at `verification/curfew-wake.json` lets Cello invoke alarm and wake-proof suites without a shell.
 
-For P1, run the alarm on the connected Pixel, including locked-screen delivery, Doze, DND, full-screen denial, exact-alarm revocation, reboot, package replacement, timezone change, audio focus loss, and manufacturer battery management. Those physical-device results cannot be substituted by host tests. Non-Pixel testing belongs to later compatibility work and does not gate P1.
+For P1, run the alarm on the connected Pixel, including locked-screen delivery, DND, full-screen denial, exact-alarm revocation, reboot, package replacement, timezone change, audio focus loss, and manufacturer battery management. Those physical-device results cannot be substituted by host tests. Non-Pixel testing belongs to later compatibility work and does not gate P1.
 
 The current P1 implementation and acceptance ledger is [SUNRISE_P1.md](SUNRISE_P1.md). A unit result, an emulator observation, physical sound, and a signed production release are distinct evidence. Do not infer physical acceptance from a compiled or installed APK.
 
@@ -1327,3 +1327,71 @@ required. No physical test is running.
 
 See [SCREENSHOT_CATALOG.md](SCREENSHOT_CATALOG.md) for the maintained production-UI matrix,
 native onboarding capture, failure handling, and local/CI update commands.
+
+## Bounded network recovery grants
+
+`WakeConvergenceReducerTest` checks that an override advertised as active is
+rejected when its start is in the future or its derived end has been reached.
+The device uses its current clock as well as the authenticated server response.
+Cancelled grants remain rejected. A valid bounded grant releases only its
+declared participants. Both polling paths use the same validation before
+persisting an override; a failed validation leaves the occurrence pending.
+
+The expiry and future-start cases failed against the previous reducer before
+the correction. These host checks do not establish installed multi-device
+convergence, revocation propagation, offline paired codes, or service availability.
+Explicit physical Pixel Doze testing is excluded by owner direction; this
+changes acceptance scope, not Android's standby behavior.
+
+
+## Printed place check-in
+
+`PlaceCheckInTest` and `PlaceQrTest` cover the local credential and offline QR
+codec. `SunriseScheduleControllerTest` verifies atomic future-alarm disablement
+before revocation while retaining ringing authority; selection tests protect a
+newer method from a late removal. Run these with both Plain and GMS host suites.
+
+The isolated native suite includes `PlaceConsumerEntryInstrumentedTest` for the
+consumer destination and `PlaceCheckInRepositoryInstrumentedTest` for encrypted
+enrollment, wrong-code rejection, exact occurrence binding and duplicate release.
+Repository fixtures refuse live account/pending-alarm state and restore their
+own data. `PlaceCheckInCaptureInstrumentedTest` adds five actual Compose scenes
+to the existing eighteen-profile task gallery. Review every generated scene
+before claiming responsive UI acceptance. Camera capture and physical TalkBack
+remain distinct from fixture renders and host tests. See [the feature contract](PLACE_CHECK_IN.md).
+
+
+`SunriseReleaseJourneyInstrumentedTest.enrolledPlaceCodeReleasesActualPlaybackWithoutAVerifier`
+arms the real AlarmManager occurrence with a local enrollment, observes actual
+foreground alarm audio and notification state, rejects a wrong code, then applies
+the matching code and observes playback termination and durable completion. It
+uses an isolated emulator, grants fixture readiness, starts no HTTPS verifier,
+and refuses live account or pending-alarm data. This verifies the release path,
+not physical camera optics, human wakefulness or audible speaker delivery.
+
+
+The place capture fixture runs only through its explicit driver argument. The
+owned disposable emulator driver revokes camera access before starting that
+instrumentation process, rather than revoking permission from inside the app
+under test. Android may terminate the app during revocation. Functional suites
+can therefore exercise real camera readiness independently, and the capture
+still asserts an actual denied permission before rendering its denial scene.
+
+
+`PlaceCodePrinterInstrumentedTest` exercises actual Android PDF generation. It
+requires a one-page readable A4 output and rejects undersized media without
+leaving an unfinished page during cleanup. This is native document generation,
+not a claim that a physical printer received paper. The print adapter reports
+rendering failure through the system callback and retains PNG export as recovery.
+
+
+`PlaceCameraLifecycleInstrumentedTest` opens the actual CameraX scanner and
+observes its package in Android's active camera-client list. Cancelling must
+remove that client. It inspects service metadata only, never records frames,
+and does not claim that a printed code was physically aimed at the lens.
+
+## Combined main integration
+
+The consumer code flow and bounded recovery grants retain the screenshot catalog and current onboarding/editor behavior from main. Editor save taps wait for native dialog and IME dismissal, then target the current Save alarm action. Welcome backgrounds remain full bleed, with safe insets on the foreground panes only. Catalog tests require consumer enrollment states alongside advanced-service fixtures. Existing API 33–36 instrumentation, Plain/GMS unit/lint/build checks and catalog generation validate the combined candidate before integration. Production activation and installer publication remain held.
+
+The combined API35 native matrix exposed a real landscape regression: all 208 native suite tests passed, but the printed-code scene could not display Scan code beside Save/Print. The shared setup default remains unchanged; the consumer code pane explicitly requests its existing 640 dp landscape threshold. The same full capture assertion requires all four actions to be displayed together and remains unchanged.

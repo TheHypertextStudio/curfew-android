@@ -57,7 +57,7 @@ class SetupCaptureInstrumentedTest {
         val retryBounds = compose.onNodeWithText("Save for later").getUnclippedBoundsInRoot()
         val viewport = compose.onRoot().getUnclippedBoundsInRoot()
         org.junit.Assert.assertTrue("The full error and retry must be visible after failure", errorBounds.top >= viewport.top && retryBounds.bottom <= viewport.bottom)
-        compose.onNodeWithText("Connect a service").performScrollTo().performClick()
+        compose.onNodeWithText("I have a service").performScrollTo().performClick()
         capture("connection")
         // Short windows and visible connection details can require scrolling.
         // The entire submit action must be reachable within the viewport.
@@ -124,7 +124,7 @@ class SetupCaptureInstrumentedTest {
     private fun capture(scene: String) {
         val expected = when (scene) {
             "time" -> "Once"
-            "introduction" -> "Connect a service"
+            "introduction" -> "I have a service"
             "defer-error" -> "Couldn’t save your wake time. Try again."
             "connection", "keyboard" -> "Service address"
             "transfer", "transfer-actions" -> "Test connection"

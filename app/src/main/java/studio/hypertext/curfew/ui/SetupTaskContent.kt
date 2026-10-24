@@ -19,20 +19,21 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.Dp
 
 // Initial viewport can be restored by a host or supplied by screenshot fixtures.
 internal val LocalTaskInitialScroll = staticCompositionLocalOf { 0 }
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
-internal fun SetupTaskContent(posture: Posture? = null, introduction: @Composable () -> Unit, content: @Composable ColumnScope.() -> Unit) {
+internal fun SetupTaskContent(posture: Posture? = null, pairedMinWidth: Dp = 1000.dp, introduction: @Composable () -> Unit, content: @Composable ColumnScope.() -> Unit) {
     val adaptive = currentWindowAdaptiveInfoV2()
     val density = LocalDensity.current
     val actualPosture = posture ?: adaptive.windowPosture
     var origin by remember { mutableStateOf(Offset.Zero) }
-    BoxWithConstraints(Modifier.fillMaxSize().imePadding().onGloballyPositioned { origin = it.positionInWindow() }) {
+    BoxWithConstraints(Modifier.fillMaxSize().safeDrawingPadding().imePadding().onGloballyPositioned { origin = it.positionInWindow() }) {
         val gutter = if (maxWidth < 360.dp) 16.dp else 24.dp
-        val paired = (maxWidth / density.fontScale.coerceAtLeast(1f) >= 1000.dp && maxWidth > maxHeight) ||
+        val paired = (maxWidth / density.fontScale.coerceAtLeast(1f) >= pairedMinWidth && maxWidth > maxHeight) ||
             actualPosture.hingeList.any { it.isVertical && (it.isSeparating || it.isOccluding) }
         @Composable fun Purpose(modifier: Modifier) {
             Box(modifier.testTag("setup-purpose"), contentAlignment = Alignment.TopCenter) {

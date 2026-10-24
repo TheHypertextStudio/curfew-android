@@ -81,6 +81,28 @@ class SunriseScheduleControllerTest {
     }
 
     @Test
+    fun `revoking disables the matching future alarm before removing its credential`() = runBlocking {
+        initial()
+        controller.revokeCondition(schedule.callbackId, now, zone) {
+            assertFalse(requireNotNull(store.value).schedule.enabled)
+            assertNull(store.value?.occurrence)
+            assertEquals(listOf(occurrence.campaignId), runtime.cancelled)
+        }
+    }
+
+    @Test
+    fun `revoking retains a ringing gate and leaves another condition unchanged`() = runBlocking {
+        val original = initial()
+        controller.revokeCondition("other-code", now, zone) { assertEquals(original, store.value) }
+        runtime.phases[occurrence.campaignId] = SunriseOccurrencePhase.ACTIVE
+        controller.revokeCondition(schedule.callbackId, now, zone) {
+            assertFalse(requireNotNull(store.value).schedule.enabled)
+            assertEquals(occurrence, store.value?.occurrence)
+            assertTrue(runtime.cancelled.isEmpty())
+        }
+    }
+
+    @Test
     fun `editing future settings does not reset an active occurrence or its callback`() = runBlocking {
         initial()
         runtime.phases[occurrence.campaignId] = SunriseOccurrencePhase.ACTIVE
