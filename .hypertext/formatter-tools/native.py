@@ -10,9 +10,9 @@ import sys
 import tempfile
 import urllib.request
 
-VERSION = "1.5.0"
-SHA256 = "a27854622198800f50971a049dcdba38f2105d47e7e7258786c7d28045c5735d"
-URL = "https://repo.maven.apache.org/maven2/com/pinterest/ktlint/ktlint-cli/1.5.0/ktlint-cli-1.5.0-all.jar"
+VERSION = "1.8.0"
+SHA256 = "369ad2b789f95a011f807e1fcb690ccef80bd7cd014fd139e73ae82dcc0baeab"
+URL = f"https://repo.maven.apache.org/maven2/com/pinterest/ktlint/ktlint-cli/{VERSION}/ktlint-cli-{VERSION}-all.jar"
 CACHE = (
     Path(os.environ.get("XDG_CACHE_HOME", str(Path.home() / ".cache")))
     / "hypertext-studio/formatters"
@@ -56,11 +56,14 @@ def setup():
     result = subprocess.run(
         java_command() + ["--version"], capture_output=True, timeout=30
     )
-    if result.returncode or result.stdout.strip() != b"ktlint version 1.5.0":
+    if (
+        result.returncode
+        or result.stdout.strip() != f"ktlint version {VERSION}".encode()
+    ):
         raise ValueError(
-            "Pinned KtLint 1.5.0 could not execute; use the repository JDK"
+            f"Pinned KtLint {VERSION} could not execute; use the repository JDK"
         )
-    print("Pinned KtLint 1.5.0 ready in the shared native cache.")
+    print(f"Pinned KtLint {VERSION} ready in the shared native cache.")
 
 
 def java_command():
@@ -93,7 +96,7 @@ def main():
     ]
     source = sys.stdin.buffer.read()
     result = subprocess.run(command, input=source, capture_output=True)
-    # KtLint 1.5.0 can report a parse error on stderr and exit zero with
+    # KtLint can report a parse error on stderr and exit zero with
     # no stdout. Never expose that as a successful formatting operation.
     if (
         result.returncode

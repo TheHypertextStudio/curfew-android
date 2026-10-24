@@ -13,21 +13,11 @@
     },
     {
       "include": ["*.kt", "*.kts"],
-      "argv": [
-        "python3",
-        ".hypertext/formatter-tools/native.py",
-        "ktlint",
-        "{path}"
-      ]
+      "argv": ["python3", ".hypertext/formatter-tools/native.py", "ktlint", "{path}"]
     },
     {
       "include": ["*.toml"],
-      "argv": [
-        "node",
-        ".hypertext/formatter-tools/prettier.mjs",
-        "{path}",
-        "toml"
-      ]
+      "argv": ["node", ".hypertext/formatter-tools/prettier.mjs", "{path}", "toml"]
     },
     {
       "include": [
@@ -38,30 +28,15 @@
         "*.bash",
         "*.zsh"
       ],
-      "argv": [
-        "node",
-        ".hypertext/formatter-tools/prettier.mjs",
-        "{path}",
-        "sh"
-      ]
+      "argv": ["node", ".hypertext/formatter-tools/prettier.mjs", "{path}", "sh"]
     },
     {
       "include": ["*.yml", "*.yaml"],
-      "argv": [
-        "node",
-        ".hypertext/formatter-tools/prettier.mjs",
-        "{path}",
-        "yaml"
-      ]
+      "argv": ["node", ".hypertext/formatter-tools/prettier.mjs", "{path}", "yaml"]
     },
     {
       "include": ["*.json"],
-      "argv": [
-        "node",
-        ".hypertext/formatter-tools/prettier.mjs",
-        "{path}",
-        "json"
-      ]
+      "argv": ["node", ".hypertext/formatter-tools/prettier.mjs", "{path}", "json"]
     },
     {
       "include": ["*.py", "*.pyi"],
@@ -80,48 +55,23 @@
         "*.xcbkptlist",
         "*.csproj"
       ],
-      "argv": [
-        "node",
-        ".hypertext/formatter-tools/prettier.mjs",
-        "{path}",
-        "xml"
-      ]
+      "argv": ["node", ".hypertext/formatter-tools/prettier.mjs", "{path}", "xml"]
     },
     {
       "include": ["*.md", "*.markdown", "*.mdc"],
-      "argv": [
-        "node",
-        ".hypertext/formatter-tools/prettier.mjs",
-        "{path}",
-        "markdown"
-      ]
+      "argv": ["node", ".hypertext/formatter-tools/prettier.mjs", "{path}", "markdown"]
     },
     {
       "include": ["*.html"],
-      "argv": [
-        "node",
-        ".hypertext/formatter-tools/prettier.mjs",
-        "{path}",
-        "html"
-      ]
+      "argv": ["node", ".hypertext/formatter-tools/prettier.mjs", "{path}", "html"]
     },
     {
       "include": ["*.js", "*.jsx", "*.mjs", "*.cjs"],
-      "argv": [
-        "node",
-        ".hypertext/formatter-tools/prettier.mjs",
-        "{path}",
-        "babel"
-      ]
+      "argv": ["node", ".hypertext/formatter-tools/prettier.mjs", "{path}", "babel"]
     },
     {
       "include": ["*.properties"],
-      "argv": [
-        "node",
-        ".hypertext/formatter-tools/prettier.mjs",
-        "{path}",
-        "properties"
-      ]
+      "argv": ["node", ".hypertext/formatter-tools/prettier.mjs", "{path}", "properties"]
     }
   ],
   "exclude": [
@@ -131,7 +81,9 @@
         ".hypertext/formatter-tools/setup.py",
         ".hypertext/formatter-tools/run.py",
         ".hypertext/formatter-tools/prettier.mjs",
-        ".hypertext/formatter-tools/text.py"
+        ".hypertext/formatter-tools/text.py",
+        ".hypertext/formatter-tools/preset.mjs",
+        ".hypertext/formatter-tools/npm-lock.json"
       ],
       "kind": "vendored",
       "reason": "Locked shared formatter engine; maintained and formatted in product-standards."
@@ -240,9 +192,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/cover-landscape-dark-keyboard.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/cover-landscape-dark-keyboard.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -254,9 +204,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/cover-landscape-dark-review.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/cover-landscape-dark-review.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -268,23 +216,17 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/cover-landscape-dark-time.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/cover-landscape-dark-time.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/cover-landscape-dark-transfer.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/cover-landscape-dark-transfer.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/cover-landscape-dark.txt"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/cover-landscape-dark.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
@@ -331,9 +273,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/cover-landscape-light-review.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/cover-landscape-light-review.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -345,9 +285,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/cover-landscape-light-time.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/cover-landscape-light-time.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -359,16 +297,12 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/cover-landscape-light.txt"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/cover-landscape-light.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/cover-portrait-dark-connected.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/cover-portrait-dark-connected.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -394,9 +328,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/cover-portrait-dark-keyboard.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/cover-portrait-dark-keyboard.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -408,9 +340,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/cover-portrait-dark-review.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/cover-portrait-dark-review.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -422,23 +352,17 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/cover-portrait-dark-time.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/cover-portrait-dark-time.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/cover-portrait-dark-transfer.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/cover-portrait-dark-transfer.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/cover-portrait-dark.txt"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/cover-portrait-dark.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
@@ -471,9 +395,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/cover-portrait-light-keyboard.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/cover-portrait-light-keyboard.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -485,9 +407,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/cover-portrait-light-review.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/cover-portrait-light-review.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -499,23 +419,17 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/cover-portrait-light-time.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/cover-portrait-light-time.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/cover-portrait-light-transfer.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/cover-portrait-light-transfer.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/cover-portrait-light.txt"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/cover-portrait-light.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
@@ -548,9 +462,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/inner-landscape-dark-keyboard.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/inner-landscape-dark-keyboard.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -562,9 +474,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/inner-landscape-dark-review.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/inner-landscape-dark-review.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -576,23 +486,17 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/inner-landscape-dark-time.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/inner-landscape-dark-time.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/inner-landscape-dark-transfer.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/inner-landscape-dark-transfer.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/inner-landscape-dark.txt"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/inner-landscape-dark.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
@@ -639,9 +543,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/inner-landscape-light-review.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/inner-landscape-light-review.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -653,9 +555,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/inner-landscape-light-time.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/inner-landscape-light-time.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -667,16 +567,12 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/inner-landscape-light.txt"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/inner-landscape-light.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/inner-portrait-dark-connected.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/inner-portrait-dark-connected.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -702,9 +598,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/inner-portrait-dark-keyboard.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/inner-portrait-dark-keyboard.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -716,9 +610,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/inner-portrait-dark-review.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/inner-portrait-dark-review.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -730,23 +622,17 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/inner-portrait-dark-time.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/inner-portrait-dark-time.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/inner-portrait-dark-transfer.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/inner-portrait-dark-transfer.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/inner-portrait-dark.txt"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/inner-portrait-dark.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
@@ -779,9 +665,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/inner-portrait-light-keyboard.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/inner-portrait-light-keyboard.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -793,9 +677,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/inner-portrait-light-review.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/inner-portrait-light-review.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -807,184 +689,132 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/inner-portrait-light-time.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/inner-portrait-light-time.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/inner-portrait-light-transfer.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/inner-portrait-light-transfer.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/inner-portrait-light.txt"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/inner-portrait-light.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/large-text-dark-connected.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/large-text-dark-connected.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/large-text-dark-connection.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/large-text-dark-connection.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/large-text-dark-defer-error.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/large-text-dark-defer-error.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/large-text-dark-introduction.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/large-text-dark-introduction.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/large-text-dark-keyboard.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/large-text-dark-keyboard.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/large-text-dark-permissions.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/large-text-dark-permissions.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/large-text-dark-review.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/large-text-dark-review.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/large-text-dark-test-ready.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/large-text-dark-test-ready.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/large-text-dark-time.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/large-text-dark-time.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/large-text-dark-transfer.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/large-text-dark-transfer.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/large-text-dark.txt"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/large-text-dark.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/large-text-light-connected.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/large-text-light-connected.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/large-text-light-connection.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/large-text-light-connection.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/large-text-light-defer-error.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/large-text-light-defer-error.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/large-text-light-introduction.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/large-text-light-introduction.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/large-text-light-keyboard.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/large-text-light-keyboard.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/large-text-light-permissions.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/large-text-light-permissions.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/large-text-light-review.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/large-text-light-review.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/large-text-light-test-ready.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/large-text-light-test-ready.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/large-text-light-time.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/large-text-light-time.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/large-text-light-transfer.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/large-text-light-transfer.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/large-text-light.txt"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/large-text-light.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/matrix-all-profiles.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/matrix-all-profiles.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -996,16 +826,12 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/matrix-connected-dark.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/matrix-connected-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/matrix-connected-light.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/matrix-connected-light.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -1017,16 +843,12 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/matrix-connection-dark.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/matrix-connection-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/matrix-connection-light.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/matrix-connection-light.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -1038,16 +860,12 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/matrix-defer-error-dark.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/matrix-defer-error-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/matrix-defer-error-light.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/matrix-defer-error-light.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -1059,37 +877,27 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/matrix-introduction-dark.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/matrix-introduction-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/matrix-introduction-light.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/matrix-introduction-light.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/matrix-keyboard-accessibility.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/matrix-keyboard-accessibility.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/matrix-keyboard-dark.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/matrix-keyboard-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/matrix-keyboard-light.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/matrix-keyboard-light.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -1101,37 +909,27 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/matrix-permissions-dark.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/matrix-permissions-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/matrix-permissions-light.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/matrix-permissions-light.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/matrix-review-accessibility.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/matrix-review-accessibility.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/matrix-review-dark.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/matrix-review-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/matrix-review-light.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/matrix-review-light.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -1143,58 +941,42 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/matrix-test-ready-dark.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/matrix-test-ready-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/matrix-test-ready-light.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/matrix-test-ready-light.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/matrix-time-accessibility.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/matrix-time-accessibility.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/matrix-time-dark.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/matrix-time-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/matrix-time-light.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/matrix-time-light.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/matrix-transfer-accessibility.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/matrix-transfer-accessibility.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/matrix-transfer-dark.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/matrix-transfer-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/matrix-transfer-light.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/matrix-transfer-light.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -1227,9 +1009,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/phone-landscape-dark-keyboard.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/phone-landscape-dark-keyboard.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -1241,9 +1021,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/phone-landscape-dark-review.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/phone-landscape-dark-review.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -1255,23 +1033,17 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/phone-landscape-dark-time.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/phone-landscape-dark-time.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/phone-landscape-dark-transfer.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/phone-landscape-dark-transfer.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/phone-landscape-dark.txt"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/phone-landscape-dark.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
@@ -1318,9 +1090,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/phone-landscape-light-review.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/phone-landscape-light-review.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -1332,9 +1102,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/phone-landscape-light-time.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/phone-landscape-light-time.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -1346,16 +1114,12 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/phone-landscape-light.txt"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/phone-landscape-light.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/phone-portrait-dark-connected.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/phone-portrait-dark-connected.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -1381,9 +1145,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/phone-portrait-dark-keyboard.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/phone-portrait-dark-keyboard.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -1395,9 +1157,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/phone-portrait-dark-review.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/phone-portrait-dark-review.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -1409,23 +1169,17 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/phone-portrait-dark-time.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/phone-portrait-dark-time.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/phone-portrait-dark-transfer.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/phone-portrait-dark-transfer.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/phone-portrait-dark.txt"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/phone-portrait-dark.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
@@ -1458,9 +1212,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/phone-portrait-light-keyboard.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/phone-portrait-light-keyboard.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -1500,9 +1252,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/phone-portrait-light-review.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/phone-portrait-light-review.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -1514,37 +1264,27 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/phone-portrait-light-time.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/phone-portrait-light-time.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/phone-portrait-light-transfer.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/phone-portrait-light-transfer.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/phone-portrait-light.txt"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/phone-portrait-light.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/shared-time-motion.gif"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/shared-time-motion.gif"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/shared-time-motion.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/shared-time-motion.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -1591,9 +1331,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/tablet-landscape-dark-review.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/tablet-landscape-dark-review.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -1605,9 +1343,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/tablet-landscape-dark-time.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/tablet-landscape-dark-time.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -1619,9 +1355,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/tablet-landscape-dark.txt"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/tablet-landscape-dark.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
@@ -1668,9 +1402,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/tablet-landscape-light-review.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/tablet-landscape-light-review.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -1682,9 +1414,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/tablet-landscape-light-time.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/tablet-landscape-light-time.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -1696,9 +1426,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/tablet-landscape-light.txt"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/tablet-landscape-light.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
@@ -1731,9 +1459,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/tablet-portrait-dark-keyboard.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/tablet-portrait-dark-keyboard.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -1745,9 +1471,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/tablet-portrait-dark-review.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/tablet-portrait-dark-review.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -1759,23 +1483,17 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/tablet-portrait-dark-time.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/tablet-portrait-dark-time.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/tablet-portrait-dark-transfer.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/tablet-portrait-dark-transfer.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/tablet-portrait-dark.txt"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/tablet-portrait-dark.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
@@ -1822,9 +1540,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/tablet-portrait-light-review.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/tablet-portrait-light-review.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -1836,9 +1552,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/tablet-portrait-light-time.png"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/tablet-portrait-light-time.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -1850,9 +1564,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-matrix/tablet-portrait-light.txt"
-      ],
+      "include": ["design/android-review/native/check-in-matrix/tablet-portrait-light.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
@@ -1927,9 +1639,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-startup-matrix/cover-landscape-dark.txt"
-      ],
+      "include": ["design/android-review/native/check-in-startup-matrix/cover-landscape-dark.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
@@ -2004,9 +1714,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-startup-matrix/cover-landscape-light.txt"
-      ],
+      "include": ["design/android-review/native/check-in-startup-matrix/cover-landscape-light.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
@@ -2081,9 +1789,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-startup-matrix/cover-portrait-dark.txt"
-      ],
+      "include": ["design/android-review/native/check-in-startup-matrix/cover-portrait-dark.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
@@ -2158,9 +1864,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-startup-matrix/cover-portrait-light.txt"
-      ],
+      "include": ["design/android-review/native/check-in-startup-matrix/cover-portrait-light.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
@@ -2235,9 +1939,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-startup-matrix/inner-landscape-dark.txt"
-      ],
+      "include": ["design/android-review/native/check-in-startup-matrix/inner-landscape-dark.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
@@ -2312,9 +2014,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-startup-matrix/inner-landscape-light.txt"
-      ],
+      "include": ["design/android-review/native/check-in-startup-matrix/inner-landscape-light.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
@@ -2389,9 +2089,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-startup-matrix/inner-portrait-dark.txt"
-      ],
+      "include": ["design/android-review/native/check-in-startup-matrix/inner-portrait-dark.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
@@ -2466,9 +2164,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-startup-matrix/inner-portrait-light.txt"
-      ],
+      "include": ["design/android-review/native/check-in-startup-matrix/inner-portrait-light.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
@@ -2529,9 +2225,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-startup-matrix/large-text-dark-time.png"
-      ],
+      "include": ["design/android-review/native/check-in-startup-matrix/large-text-dark-time.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -2543,9 +2237,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-startup-matrix/large-text-dark.txt"
-      ],
+      "include": ["design/android-review/native/check-in-startup-matrix/large-text-dark.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
@@ -2606,9 +2298,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-startup-matrix/large-text-light-time.png"
-      ],
+      "include": ["design/android-review/native/check-in-startup-matrix/large-text-light-time.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -2620,16 +2310,12 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-startup-matrix/large-text-light.txt"
-      ],
+      "include": ["design/android-review/native/check-in-startup-matrix/large-text-light.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-startup-matrix/matrix-all-profiles.png"
-      ],
+      "include": ["design/android-review/native/check-in-startup-matrix/matrix-all-profiles.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -2641,9 +2327,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-startup-matrix/matrix-connected-dark.png"
-      ],
+      "include": ["design/android-review/native/check-in-startup-matrix/matrix-connected-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -2725,16 +2409,12 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-startup-matrix/matrix-keyboard-dark.png"
-      ],
+      "include": ["design/android-review/native/check-in-startup-matrix/matrix-keyboard-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-startup-matrix/matrix-keyboard-light.png"
-      ],
+      "include": ["design/android-review/native/check-in-startup-matrix/matrix-keyboard-light.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -2767,16 +2447,12 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-startup-matrix/matrix-review-dark.png"
-      ],
+      "include": ["design/android-review/native/check-in-startup-matrix/matrix-review-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-startup-matrix/matrix-review-light.png"
-      ],
+      "include": ["design/android-review/native/check-in-startup-matrix/matrix-review-light.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -2809,16 +2485,12 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-startup-matrix/matrix-time-dark.png"
-      ],
+      "include": ["design/android-review/native/check-in-startup-matrix/matrix-time-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-startup-matrix/matrix-time-light.png"
-      ],
+      "include": ["design/android-review/native/check-in-startup-matrix/matrix-time-light.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -2830,16 +2502,12 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-startup-matrix/matrix-transfer-dark.png"
-      ],
+      "include": ["design/android-review/native/check-in-startup-matrix/matrix-transfer-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-startup-matrix/matrix-transfer-light.png"
-      ],
+      "include": ["design/android-review/native/check-in-startup-matrix/matrix-transfer-light.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -2914,9 +2582,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-startup-matrix/phone-landscape-dark.txt"
-      ],
+      "include": ["design/android-review/native/check-in-startup-matrix/phone-landscape-dark.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
@@ -2991,9 +2657,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-startup-matrix/phone-landscape-light.txt"
-      ],
+      "include": ["design/android-review/native/check-in-startup-matrix/phone-landscape-light.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
@@ -3068,9 +2732,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-startup-matrix/phone-portrait-dark.txt"
-      ],
+      "include": ["design/android-review/native/check-in-startup-matrix/phone-portrait-dark.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
@@ -3173,23 +2835,17 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-startup-matrix/phone-portrait-light.txt"
-      ],
+      "include": ["design/android-review/native/check-in-startup-matrix/phone-portrait-light.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-startup-matrix/shared-time-motion.gif"
-      ],
+      "include": ["design/android-review/native/check-in-startup-matrix/shared-time-motion.gif"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-startup-matrix/shared-time-motion.png"
-      ],
+      "include": ["design/android-review/native/check-in-startup-matrix/shared-time-motion.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -3264,9 +2920,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-startup-matrix/tablet-landscape-dark.txt"
-      ],
+      "include": ["design/android-review/native/check-in-startup-matrix/tablet-landscape-dark.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
@@ -3418,9 +3072,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-startup-matrix/tablet-portrait-dark.txt"
-      ],
+      "include": ["design/android-review/native/check-in-startup-matrix/tablet-portrait-dark.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
@@ -3495,37 +3147,27 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/check-in-startup-matrix/tablet-portrait-light.txt"
-      ],
+      "include": ["design/android-review/native/check-in-startup-matrix/tablet-portrait-light.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
     {
-      "include": [
-        "design/android-review/native/consumer/check-in-dark-320-font200.png"
-      ],
+      "include": ["design/android-review/native/consumer/check-in-dark-320-font200.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/consumer/check-in-light-390-font100.png"
-      ],
+      "include": ["design/android-review/native/consumer/check-in-light-390-font100.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/consumer/editor-dark-320-font200.png"
-      ],
+      "include": ["design/android-review/native/consumer/editor-dark-320-font200.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/consumer/service-form-light-320-font200.png"
-      ],
+      "include": ["design/android-review/native/consumer/service-form-light-320-font200.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -3575,9 +3217,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/first-use/permission-dark-200.png"
-      ],
+      "include": ["design/android-review/native/first-use/permission-dark-200.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -3597,16 +3237,12 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/first-use/system-full-screen-settings.png"
-      ],
+      "include": ["design/android-review/native/first-use/system-full-screen-settings.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/first-use/system-grant-return.png"
-      ],
+      "include": ["design/android-review/native/first-use/system-grant-return.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -3626,44 +3262,32 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/onboarding/android-full-screen-settings.png"
-      ],
+      "include": ["design/android-review/native/onboarding/android-full-screen-settings.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/onboarding/full-screen-access.png"
-      ],
+      "include": ["design/android-review/native/onboarding/full-screen-access.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/pickers/large-date-dark-keyboard.png"
-      ],
+      "include": ["design/android-review/native/pickers/large-date-dark-keyboard.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/pickers/large-date-light-keyboard.png"
-      ],
+      "include": ["design/android-review/native/pickers/large-date-light-keyboard.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/pickers/large-time-dark-keyboard.png"
-      ],
+      "include": ["design/android-review/native/pickers/large-time-dark-keyboard.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/pickers/large-time-light-keyboard.png"
-      ],
+      "include": ["design/android-review/native/pickers/large-time-light-keyboard.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -3688,16 +3312,12 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/responsive/expanded-editor.png"
-      ],
+      "include": ["design/android-review/native/responsive/expanded-editor.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/responsive/landscape-editor.png"
-      ],
+      "include": ["design/android-review/native/responsive/landscape-editor.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -3712,16 +3332,12 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/cover-landscape-dark-connected.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/cover-landscape-dark-connected.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/cover-landscape-dark-connection.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/cover-landscape-dark-connection.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -3733,51 +3349,37 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/cover-landscape-dark-keyboard.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/cover-landscape-dark-keyboard.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/cover-landscape-dark-permissions.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/cover-landscape-dark-permissions.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/cover-landscape-dark-review.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/cover-landscape-dark-review.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/cover-landscape-dark-time.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/cover-landscape-dark-time.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/cover-landscape-dark-transfer.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/cover-landscape-dark-transfer.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/cover-landscape-light-connected.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/cover-landscape-light-connected.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/cover-landscape-light-connection.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/cover-landscape-light-connection.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -3789,9 +3391,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/cover-landscape-light-keyboard.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/cover-landscape-light-keyboard.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -3803,93 +3403,67 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/cover-landscape-light-review.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/cover-landscape-light-review.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/cover-landscape-light-time.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/cover-landscape-light-time.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/cover-landscape-light-transfer.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/cover-landscape-light-transfer.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/cover-portrait-dark-connected.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/cover-portrait-dark-connected.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/cover-portrait-dark-connection.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/cover-portrait-dark-connection.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/cover-portrait-dark-introduction.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/cover-portrait-dark-introduction.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/cover-portrait-dark-keyboard.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/cover-portrait-dark-keyboard.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/cover-portrait-dark-permissions.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/cover-portrait-dark-permissions.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/cover-portrait-dark-review.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/cover-portrait-dark-review.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/cover-portrait-dark-time.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/cover-portrait-dark-time.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/cover-portrait-dark-transfer.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/cover-portrait-dark-transfer.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/cover-portrait-light-connected.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/cover-portrait-light-connected.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/cover-portrait-light-connection.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/cover-portrait-light-connection.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -3901,51 +3475,37 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/cover-portrait-light-keyboard.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/cover-portrait-light-keyboard.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/cover-portrait-light-permissions.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/cover-portrait-light-permissions.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/cover-portrait-light-review.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/cover-portrait-light-review.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/cover-portrait-light-time.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/cover-portrait-light-time.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/cover-portrait-light-transfer.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/cover-portrait-light-transfer.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/inner-landscape-dark-connected.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/inner-landscape-dark-connected.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/inner-landscape-dark-connection.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/inner-landscape-dark-connection.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -3957,51 +3517,37 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/inner-landscape-dark-keyboard.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/inner-landscape-dark-keyboard.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/inner-landscape-dark-permissions.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/inner-landscape-dark-permissions.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/inner-landscape-dark-review.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/inner-landscape-dark-review.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/inner-landscape-dark-time.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/inner-landscape-dark-time.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/inner-landscape-dark-transfer.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/inner-landscape-dark-transfer.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/inner-landscape-light-connected.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/inner-landscape-light-connected.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/inner-landscape-light-connection.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/inner-landscape-light-connection.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -4013,9 +3559,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/inner-landscape-light-keyboard.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/inner-landscape-light-keyboard.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -4027,93 +3571,67 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/inner-landscape-light-review.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/inner-landscape-light-review.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/inner-landscape-light-time.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/inner-landscape-light-time.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/inner-landscape-light-transfer.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/inner-landscape-light-transfer.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/inner-portrait-dark-connected.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/inner-portrait-dark-connected.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/inner-portrait-dark-connection.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/inner-portrait-dark-connection.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/inner-portrait-dark-introduction.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/inner-portrait-dark-introduction.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/inner-portrait-dark-keyboard.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/inner-portrait-dark-keyboard.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/inner-portrait-dark-permissions.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/inner-portrait-dark-permissions.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/inner-portrait-dark-review.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/inner-portrait-dark-review.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/inner-portrait-dark-time.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/inner-portrait-dark-time.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/inner-portrait-dark-transfer.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/inner-portrait-dark-transfer.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/inner-portrait-light-connected.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/inner-portrait-light-connected.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/inner-portrait-light-connection.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/inner-portrait-light-connection.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -4125,198 +3643,142 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/inner-portrait-light-keyboard.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/inner-portrait-light-keyboard.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/inner-portrait-light-permissions.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/inner-portrait-light-permissions.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/inner-portrait-light-review.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/inner-portrait-light-review.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/inner-portrait-light-time.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/inner-portrait-light-time.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/inner-portrait-light-transfer.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/inner-portrait-light-transfer.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/large-text-dark-connected.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/large-text-dark-connected.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/large-text-dark-connection.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/large-text-dark-connection.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/large-text-dark-introduction.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/large-text-dark-introduction.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/large-text-dark-keyboard.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/large-text-dark-keyboard.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/large-text-dark-permissions.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/large-text-dark-permissions.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/large-text-dark-review.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/large-text-dark-review.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/large-text-dark-time.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/large-text-dark-time.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/large-text-dark-transfer.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/large-text-dark-transfer.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/large-text-light-connected.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/large-text-light-connected.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/large-text-light-connection.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/large-text-light-connection.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/large-text-light-introduction.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/large-text-light-introduction.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/large-text-light-keyboard.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/large-text-light-keyboard.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/large-text-light-permissions.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/large-text-light-permissions.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/large-text-light-review.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/large-text-light-review.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/large-text-light-time.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/large-text-light-time.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/large-text-light-transfer.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/large-text-light-transfer.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/matrix-all-profiles.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/matrix-all-profiles.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/matrix-connected-accessibility.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/matrix-connected-accessibility.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/matrix-connected-dark.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/matrix-connected-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/matrix-connected-light.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/matrix-connected-light.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/matrix-connection-accessibility.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/matrix-connection-accessibility.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/matrix-connection-dark.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/matrix-connection-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/matrix-connection-light.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/matrix-connection-light.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -4328,135 +3790,97 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/matrix-introduction-dark.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/matrix-introduction-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/matrix-introduction-light.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/matrix-introduction-light.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/matrix-keyboard-accessibility.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/matrix-keyboard-accessibility.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/matrix-keyboard-dark.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/matrix-keyboard-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/matrix-keyboard-light.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/matrix-keyboard-light.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/matrix-permissions-accessibility.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/matrix-permissions-accessibility.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/matrix-permissions-dark.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/matrix-permissions-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/matrix-permissions-light.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/matrix-permissions-light.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/matrix-review-accessibility.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/matrix-review-accessibility.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/matrix-review-dark.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/matrix-review-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/matrix-review-light.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/matrix-review-light.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/matrix-time-accessibility.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/matrix-time-accessibility.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/matrix-time-dark.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/matrix-time-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/matrix-time-light.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/matrix-time-light.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/matrix-transfer-accessibility.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/matrix-transfer-accessibility.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/matrix-transfer-dark.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/matrix-transfer-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/matrix-transfer-light.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/matrix-transfer-light.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/phone-landscape-dark-connected.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/phone-landscape-dark-connected.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/phone-landscape-dark-connection.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/phone-landscape-dark-connection.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -4468,51 +3892,37 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/phone-landscape-dark-keyboard.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/phone-landscape-dark-keyboard.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/phone-landscape-dark-permissions.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/phone-landscape-dark-permissions.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/phone-landscape-dark-review.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/phone-landscape-dark-review.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/phone-landscape-dark-time.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/phone-landscape-dark-time.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/phone-landscape-dark-transfer.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/phone-landscape-dark-transfer.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/phone-landscape-light-connected.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/phone-landscape-light-connected.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/phone-landscape-light-connection.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/phone-landscape-light-connection.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -4524,9 +3934,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/phone-landscape-light-keyboard.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/phone-landscape-light-keyboard.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -4538,93 +3946,67 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/phone-landscape-light-review.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/phone-landscape-light-review.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/phone-landscape-light-time.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/phone-landscape-light-time.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/phone-landscape-light-transfer.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/phone-landscape-light-transfer.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/phone-portrait-dark-connected.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/phone-portrait-dark-connected.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/phone-portrait-dark-connection.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/phone-portrait-dark-connection.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/phone-portrait-dark-introduction.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/phone-portrait-dark-introduction.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/phone-portrait-dark-keyboard.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/phone-portrait-dark-keyboard.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/phone-portrait-dark-permissions.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/phone-portrait-dark-permissions.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/phone-portrait-dark-review.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/phone-portrait-dark-review.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/phone-portrait-dark-time.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/phone-portrait-dark-time.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/phone-portrait-dark-transfer.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/phone-portrait-dark-transfer.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/phone-portrait-light-connected.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/phone-portrait-light-connected.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/phone-portrait-light-connection.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/phone-portrait-light-connection.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -4636,93 +4018,67 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/phone-portrait-light-keyboard.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/phone-portrait-light-keyboard.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/phone-portrait-light-motion-16.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/phone-portrait-light-motion-16.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/phone-portrait-light-motion-240.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/phone-portrait-light-motion-240.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/phone-portrait-light-motion-800.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/phone-portrait-light-motion-800.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/phone-portrait-light-motion-96.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/phone-portrait-light-motion-96.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/phone-portrait-light-permissions.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/phone-portrait-light-permissions.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/phone-portrait-light-review.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/phone-portrait-light-review.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/phone-portrait-light-time.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/phone-portrait-light-time.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/phone-portrait-light-transfer.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/phone-portrait-light-transfer.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/shared-time-motion.gif"
-      ],
+      "include": ["design/android-review/native/setup-matrix/shared-time-motion.gif"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/shared-time-motion.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/shared-time-motion.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/tablet-landscape-dark-connected.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/tablet-landscape-dark-connected.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/tablet-landscape-dark-connection.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/tablet-landscape-dark-connection.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -4734,9 +4090,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/tablet-landscape-dark-keyboard.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/tablet-landscape-dark-keyboard.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -4748,30 +4102,22 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/tablet-landscape-dark-review.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/tablet-landscape-dark-review.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/tablet-landscape-dark-time.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/tablet-landscape-dark-time.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/tablet-landscape-dark-transfer.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/tablet-landscape-dark-transfer.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/tablet-landscape-light-connected.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/tablet-landscape-light-connected.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -4790,9 +4136,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/tablet-landscape-light-keyboard.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/tablet-landscape-light-keyboard.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -4804,37 +4148,27 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/tablet-landscape-light-review.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/tablet-landscape-light-review.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/tablet-landscape-light-time.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/tablet-landscape-light-time.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/tablet-landscape-light-transfer.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/tablet-landscape-light-transfer.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/tablet-portrait-dark-connected.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/tablet-portrait-dark-connected.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/tablet-portrait-dark-connection.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/tablet-portrait-dark-connection.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -4846,51 +4180,37 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/tablet-portrait-dark-keyboard.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/tablet-portrait-dark-keyboard.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/tablet-portrait-dark-permissions.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/tablet-portrait-dark-permissions.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/tablet-portrait-dark-review.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/tablet-portrait-dark-review.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/tablet-portrait-dark-time.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/tablet-portrait-dark-time.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/tablet-portrait-dark-transfer.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/tablet-portrait-dark-transfer.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/tablet-portrait-light-connected.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/tablet-portrait-light-connected.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/tablet-portrait-light-connection.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/tablet-portrait-light-connection.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -4902,9 +4222,7 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/tablet-portrait-light-keyboard.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/tablet-portrait-light-keyboard.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -4916,954 +4234,682 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/tablet-portrait-light-review.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/tablet-portrait-light-review.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/tablet-portrait-light-time.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/tablet-portrait-light-time.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/setup-matrix/tablet-portrait-light-transfer.png"
-      ],
+      "include": ["design/android-review/native/setup-matrix/tablet-portrait-light-transfer.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/cover-landscape-dark-account.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/cover-landscape-dark-account.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/cover-landscape-dark-check-in.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/cover-landscape-dark-check-in.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/cover-landscape-dark-daily.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/cover-landscape-dark-daily.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/cover-landscape-dark-editor.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/cover-landscape-dark-editor.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/cover-landscape-dark-readiness.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/cover-landscape-dark-readiness.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/cover-landscape-dark-settings.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/cover-landscape-dark-settings.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/cover-landscape-light-account.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/cover-landscape-light-account.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/cover-landscape-light-check-in.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/cover-landscape-light-check-in.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/cover-landscape-light-daily.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/cover-landscape-light-daily.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/cover-landscape-light-editor.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/cover-landscape-light-editor.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/cover-landscape-light-readiness.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/cover-landscape-light-readiness.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/cover-landscape-light-settings.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/cover-landscape-light-settings.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/cover-portrait-dark-account.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/cover-portrait-dark-account.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/cover-portrait-dark-check-in.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/cover-portrait-dark-check-in.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/cover-portrait-dark-daily.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/cover-portrait-dark-daily.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/cover-portrait-dark-editor.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/cover-portrait-dark-editor.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/cover-portrait-dark-readiness.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/cover-portrait-dark-readiness.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/cover-portrait-dark-settings.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/cover-portrait-dark-settings.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/cover-portrait-light-account.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/cover-portrait-light-account.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/cover-portrait-light-check-in.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/cover-portrait-light-check-in.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/cover-portrait-light-daily.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/cover-portrait-light-daily.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/cover-portrait-light-editor.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/cover-portrait-light-editor.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/cover-portrait-light-readiness.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/cover-portrait-light-readiness.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/cover-portrait-light-settings.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/cover-portrait-light-settings.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/inner-landscape-dark-account.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/inner-landscape-dark-account.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/inner-landscape-dark-check-in.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/inner-landscape-dark-check-in.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/inner-landscape-dark-daily.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/inner-landscape-dark-daily.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/inner-landscape-dark-editor.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/inner-landscape-dark-editor.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/inner-landscape-dark-readiness.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/inner-landscape-dark-readiness.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/inner-landscape-dark-settings.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/inner-landscape-dark-settings.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/inner-landscape-light-account.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/inner-landscape-light-account.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/inner-landscape-light-check-in.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/inner-landscape-light-check-in.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/inner-landscape-light-daily.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/inner-landscape-light-daily.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/inner-landscape-light-editor.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/inner-landscape-light-editor.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/inner-landscape-light-readiness.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/inner-landscape-light-readiness.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/inner-landscape-light-settings.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/inner-landscape-light-settings.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/inner-portrait-dark-account.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/inner-portrait-dark-account.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/inner-portrait-dark-check-in.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/inner-portrait-dark-check-in.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/inner-portrait-dark-daily.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/inner-portrait-dark-daily.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/inner-portrait-dark-editor.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/inner-portrait-dark-editor.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/inner-portrait-dark-readiness.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/inner-portrait-dark-readiness.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/inner-portrait-dark-settings.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/inner-portrait-dark-settings.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/inner-portrait-light-account.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/inner-portrait-light-account.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/inner-portrait-light-check-in.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/inner-portrait-light-check-in.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/inner-portrait-light-daily.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/inner-portrait-light-daily.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/inner-portrait-light-editor.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/inner-portrait-light-editor.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/inner-portrait-light-readiness.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/inner-portrait-light-readiness.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/inner-portrait-light-settings.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/inner-portrait-light-settings.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/large-text-dark-account.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/large-text-dark-account.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/large-text-dark-check-in.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/large-text-dark-check-in.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/large-text-dark-daily.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/large-text-dark-daily.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/large-text-dark-editor.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/large-text-dark-editor.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/large-text-dark-readiness.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/large-text-dark-readiness.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/large-text-dark-settings.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/large-text-dark-settings.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/large-text-light-account.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/large-text-light-account.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/large-text-light-check-in.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/large-text-light-check-in.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/large-text-light-daily.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/large-text-light-daily.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/large-text-light-editor.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/large-text-light-editor.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/large-text-light-readiness.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/large-text-light-readiness.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/large-text-light-settings.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/large-text-light-settings.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/matrix-account-accessibility.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/matrix-account-accessibility.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/matrix-account-dark.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/matrix-account-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/matrix-account-light.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/matrix-account-light.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/matrix-check-in-accessibility.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/matrix-check-in-accessibility.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/matrix-check-in-dark.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/matrix-check-in-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/matrix-check-in-light.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/matrix-check-in-light.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/matrix-daily-accessibility.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/matrix-daily-accessibility.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/matrix-daily-dark.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/matrix-daily-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/matrix-daily-light.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/matrix-daily-light.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/matrix-editor-accessibility.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/matrix-editor-accessibility.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/matrix-editor-dark.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/matrix-editor-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/matrix-editor-light.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/matrix-editor-light.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/matrix-navigation-accessibility.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/matrix-navigation-accessibility.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/matrix-navigation-dark.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/matrix-navigation-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/matrix-navigation-light.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/matrix-navigation-light.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/matrix-readiness-accessibility.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/matrix-readiness-accessibility.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/matrix-readiness-dark.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/matrix-readiness-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/matrix-readiness-light.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/matrix-readiness-light.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/matrix-settings-accessibility.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/matrix-settings-accessibility.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/matrix-settings-dark.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/matrix-settings-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/matrix-settings-light.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/matrix-settings-light.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/phone-landscape-dark-account.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/phone-landscape-dark-account.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/phone-landscape-dark-check-in.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/phone-landscape-dark-check-in.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/phone-landscape-dark-daily.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/phone-landscape-dark-daily.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/phone-landscape-dark-editor.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/phone-landscape-dark-editor.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/phone-landscape-dark-readiness.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/phone-landscape-dark-readiness.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/phone-landscape-dark-settings.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/phone-landscape-dark-settings.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/phone-landscape-light-account.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/phone-landscape-light-account.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/phone-landscape-light-check-in.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/phone-landscape-light-check-in.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/phone-landscape-light-daily.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/phone-landscape-light-daily.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/phone-landscape-light-editor.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/phone-landscape-light-editor.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/phone-landscape-light-readiness.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/phone-landscape-light-readiness.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/phone-landscape-light-settings.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/phone-landscape-light-settings.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/phone-portrait-dark-account.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/phone-portrait-dark-account.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/phone-portrait-dark-check-in.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/phone-portrait-dark-check-in.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/phone-portrait-dark-daily.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/phone-portrait-dark-daily.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/phone-portrait-dark-editor.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/phone-portrait-dark-editor.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/phone-portrait-dark-readiness.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/phone-portrait-dark-readiness.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/phone-portrait-dark-settings.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/phone-portrait-dark-settings.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/phone-portrait-light-account.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/phone-portrait-light-account.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/phone-portrait-light-check-in.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/phone-portrait-light-check-in.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/phone-portrait-light-daily.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/phone-portrait-light-daily.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/phone-portrait-light-editor.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/phone-portrait-light-editor.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/phone-portrait-light-readiness.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/phone-portrait-light-readiness.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/phone-portrait-light-settings.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/phone-portrait-light-settings.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/tablet-landscape-dark-account.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/tablet-landscape-dark-account.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/tablet-landscape-dark-check-in.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/tablet-landscape-dark-check-in.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/tablet-landscape-dark-daily.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/tablet-landscape-dark-daily.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/tablet-landscape-dark-editor.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/tablet-landscape-dark-editor.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/tablet-landscape-dark-readiness.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/tablet-landscape-dark-readiness.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/tablet-landscape-dark-settings.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/tablet-landscape-dark-settings.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/tablet-landscape-light-account.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/tablet-landscape-light-account.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/tablet-landscape-light-check-in.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/tablet-landscape-light-check-in.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/tablet-landscape-light-daily.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/tablet-landscape-light-daily.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/tablet-landscape-light-editor.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/tablet-landscape-light-editor.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/tablet-landscape-light-readiness.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/tablet-landscape-light-readiness.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/tablet-landscape-light-settings.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/tablet-landscape-light-settings.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/tablet-portrait-dark-account.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/tablet-portrait-dark-account.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/tablet-portrait-dark-check-in.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/tablet-portrait-dark-check-in.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/tablet-portrait-dark-daily.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/tablet-portrait-dark-daily.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/tablet-portrait-dark-editor.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/tablet-portrait-dark-editor.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/tablet-portrait-dark-readiness.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/tablet-portrait-dark-readiness.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/tablet-portrait-dark-settings.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/tablet-portrait-dark-settings.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/tablet-portrait-light-account.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/tablet-portrait-light-account.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/tablet-portrait-light-check-in.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/tablet-portrait-light-check-in.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/tablet-portrait-light-daily.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/tablet-portrait-light-daily.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/tablet-portrait-light-editor.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/tablet-portrait-light-editor.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/tablet-portrait-light-readiness.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/tablet-portrait-light-readiness.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/task-matrix/tablet-portrait-light-settings.png"
-      ],
+      "include": ["design/android-review/native/task-matrix/tablet-portrait-light-settings.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/welcome-matrix/cover-landscape-dark.png"
-      ],
+      "include": ["design/android-review/native/welcome-matrix/cover-landscape-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/welcome-matrix/cover-landscape-light.png"
-      ],
+      "include": ["design/android-review/native/welcome-matrix/cover-landscape-light.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/welcome-matrix/cover-portrait-dark.png"
-      ],
+      "include": ["design/android-review/native/welcome-matrix/cover-portrait-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/welcome-matrix/cover-portrait-light.png"
-      ],
+      "include": ["design/android-review/native/welcome-matrix/cover-portrait-light.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -5873,163 +4919,117 @@
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/welcome-matrix/inner-landscape-dark.png"
-      ],
+      "include": ["design/android-review/native/welcome-matrix/inner-landscape-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/welcome-matrix/inner-landscape-light.png"
-      ],
+      "include": ["design/android-review/native/welcome-matrix/inner-landscape-light.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/welcome-matrix/inner-portrait-dark.png"
-      ],
+      "include": ["design/android-review/native/welcome-matrix/inner-portrait-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/welcome-matrix/inner-portrait-light.png"
-      ],
+      "include": ["design/android-review/native/welcome-matrix/inner-portrait-light.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/welcome-matrix/large-text-dark.png"
-      ],
+      "include": ["design/android-review/native/welcome-matrix/large-text-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/welcome-matrix/large-text-light.png"
-      ],
+      "include": ["design/android-review/native/welcome-matrix/large-text-light.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/welcome-matrix/launcher-icon-review.png"
-      ],
+      "include": ["design/android-review/native/welcome-matrix/launcher-icon-review.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/welcome-matrix/matrix-accessibility.png"
-      ],
+      "include": ["design/android-review/native/welcome-matrix/matrix-accessibility.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/welcome-matrix/matrix-dark.png"
-      ],
+      "include": ["design/android-review/native/welcome-matrix/matrix-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/welcome-matrix/matrix-light.png"
-      ],
+      "include": ["design/android-review/native/welcome-matrix/matrix-light.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/welcome-matrix/matrix-postures.png"
-      ],
+      "include": ["design/android-review/native/welcome-matrix/matrix-postures.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/welcome-matrix/phone-landscape-dark.png"
-      ],
+      "include": ["design/android-review/native/welcome-matrix/phone-landscape-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/welcome-matrix/phone-landscape-light.png"
-      ],
+      "include": ["design/android-review/native/welcome-matrix/phone-landscape-light.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/welcome-matrix/phone-portrait-dark.png"
-      ],
+      "include": ["design/android-review/native/welcome-matrix/phone-portrait-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/welcome-matrix/phone-portrait-light.png"
-      ],
+      "include": ["design/android-review/native/welcome-matrix/phone-portrait-light.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/welcome-matrix/tablet-landscape-dark.png"
-      ],
+      "include": ["design/android-review/native/welcome-matrix/tablet-landscape-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/welcome-matrix/tablet-landscape-light.png"
-      ],
+      "include": ["design/android-review/native/welcome-matrix/tablet-landscape-light.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/welcome-matrix/tablet-portrait-dark.png"
-      ],
+      "include": ["design/android-review/native/welcome-matrix/tablet-portrait-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/welcome-matrix/tablet-portrait-light.png"
-      ],
+      "include": ["design/android-review/native/welcome-matrix/tablet-portrait-light.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/welcome-matrix/welcome-posture-book-dark.png"
-      ],
+      "include": ["design/android-review/native/welcome-matrix/welcome-posture-book-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/welcome-matrix/welcome-posture-book-light.png"
-      ],
+      "include": ["design/android-review/native/welcome-matrix/welcome-posture-book-light.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/welcome-matrix/welcome-posture-tabletop-dark.png"
-      ],
+      "include": ["design/android-review/native/welcome-matrix/welcome-posture-tabletop-dark.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
     {
-      "include": [
-        "design/android-review/native/welcome-matrix/welcome-posture-tabletop-light.png"
-      ],
+      "include": ["design/android-review/native/welcome-matrix/welcome-posture-tabletop-light.png"],
       "kind": "binary",
       "reason": "Binary media, font, signing, or tool archive; no text formatter applies."
     },
@@ -6149,9 +5149,7 @@
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
     {
-      "include": [
-        "docs/evidence/check-in-2026-10-21/ci-input-baseline-native.txt"
-      ],
+      "include": ["docs/evidence/check-in-2026-10-21/ci-input-baseline-native.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
@@ -6161,23 +5159,17 @@
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
     {
-      "include": [
-        "docs/evidence/check-in-2026-10-21/ci-input-readiness-red-native.txt"
-      ],
+      "include": ["docs/evidence/check-in-2026-10-21/ci-input-readiness-red-native.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
     {
-      "include": [
-        "docs/evidence/check-in-2026-10-21/ci-input-window-full-native.txt"
-      ],
+      "include": ["docs/evidence/check-in-2026-10-21/ci-input-window-full-native.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
     {
-      "include": [
-        "docs/evidence/check-in-2026-10-21/ci-input-window-targeted-native.txt"
-      ],
+      "include": ["docs/evidence/check-in-2026-10-21/ci-input-window-targeted-native.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
@@ -6197,30 +5189,22 @@
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
     {
-      "include": [
-        "docs/evidence/check-in-2026-10-21/notification-final-targeted-native.txt"
-      ],
+      "include": ["docs/evidence/check-in-2026-10-21/notification-final-targeted-native.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
     {
-      "include": [
-        "docs/evidence/check-in-2026-10-21/notification-full-native.txt"
-      ],
+      "include": ["docs/evidence/check-in-2026-10-21/notification-full-native.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
     {
-      "include": [
-        "docs/evidence/check-in-2026-10-21/notification-red-native.txt"
-      ],
+      "include": ["docs/evidence/check-in-2026-10-21/notification-red-native.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
     {
-      "include": [
-        "docs/evidence/check-in-2026-10-21/phone-landscape-light-crash-log.txt"
-      ],
+      "include": ["docs/evidence/check-in-2026-10-21/phone-landscape-light-crash-log.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
@@ -6237,30 +5221,22 @@
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
     {
-      "include": [
-        "docs/evidence/check-in-2026-10-21/startup-crash-guard-red.txt"
-      ],
+      "include": ["docs/evidence/check-in-2026-10-21/startup-crash-guard-red.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
     {
-      "include": [
-        "docs/evidence/check-in-2026-10-21/startup-final-crash-buffer.txt"
-      ],
+      "include": ["docs/evidence/check-in-2026-10-21/startup-final-crash-buffer.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
     {
-      "include": [
-        "docs/evidence/check-in-2026-10-21/startup-final-targeted-native.txt"
-      ],
+      "include": ["docs/evidence/check-in-2026-10-21/startup-final-targeted-native.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
     {
-      "include": [
-        "docs/evidence/check-in-2026-10-21/startup-resize-red-native.txt"
-      ],
+      "include": ["docs/evidence/check-in-2026-10-21/startup-resize-red-native.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
@@ -6270,9 +5246,7 @@
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
     {
-      "include": [
-        "docs/evidence/setup-2026-10-21/ci-release-39565347115-checksums.txt"
-      ],
+      "include": ["docs/evidence/setup-2026-10-21/ci-release-39565347115-checksums.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
@@ -6312,9 +5286,7 @@
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
     {
-      "include": [
-        "docs/evidence/setup-2026-10-21/restoration-and-selection-red.txt"
-      ],
+      "include": ["docs/evidence/setup-2026-10-21/restoration-and-selection-red.txt"],
       "kind": "non-formattable",
       "reason": "Legal text, frozen observation, exact dependency/registration list, or opaque document data; preserve its consumer representation."
     },
