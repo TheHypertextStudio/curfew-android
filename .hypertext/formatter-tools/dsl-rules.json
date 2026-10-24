@@ -1,0 +1,16 @@
+{
+  "setup": [],
+  "rules": [
+    {
+      "name": "Studio ProGuard whitespace v1",
+      "patterns": ["**/*.pro", "*.pro"],
+      "argv": [
+        "python3",
+        "{repo}/.hypertext/formatter-tools/dsl.py",
+        "proguard",
+        "--path",
+        "{path}"
+      ]
+    }
+  ]
+}

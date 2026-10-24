@@ -20,3 +20,6 @@ local.properties
 /app/src/screenshotTest/kotlin/studio/hypertext/curfew/screenshots/CatalogPreviews.kt
 
 __pycache__/
+/.hypertext/formatter-tools/runtime.json
+/.hypertext/formatter-tools/bin/
+/.hypertext/formatter-tools/__pycache__/
