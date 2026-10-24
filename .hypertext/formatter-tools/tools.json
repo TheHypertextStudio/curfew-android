@@ -1,17 +1,16 @@
 {
   "schema_version": 1,
   "prettier": {
-    "version": "3.9.6"
+    "version": "3.9.10"
   },
   "npm": {
     "prettier-plugin-toml": "4.1.0",
     "prettier-plugin-sh": "0.20.2",
     "@prettier/plugin-xml": "3.4.2",
-    "prettier-plugin-properties": "0.3.1"
+    "prettier-plugin-properties": "0.3.1",
+    "@thehypertextstudio/format-config": "0.0.1"
   },
-  "ruff": "0.15.9",
-  "native_setup": [
-    ["python3", ".hypertext/formatter-tools/native.py", "--setup"]
-  ],
+  "ruff": "0.17.2",
+  "native_setup": [["python3", ".hypertext/formatter-tools/native.py", "--setup"]],
   "sql_dialect": "postgresql"
 }
