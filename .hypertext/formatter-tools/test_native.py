@@ -12,6 +12,13 @@ HELPER = Path(__file__).with_name("native.py")
 
 
 class NativeFormatterTests(unittest.TestCase):
+    def test_literal_percent_and_modulo_preserve_bytes(self):
+        command = [sys.executable, str(HELPER), "ktlint", "sample.gradle.kts"]
+        source = b'val pattern = "%m %% %s %n"\nval remainder = 7 % 3\n'
+        result = subprocess.run(command, input=source, capture_output=True)
+        self.assertEqual(result.returncode, 0, result.stderr.decode())
+        self.assertEqual(result.stdout, source)
+
     def test_unknown_formatter_fails_closed(self):
         result = subprocess.run(
             [sys.executable, str(HELPER), "unknown", "sample.kt"],
