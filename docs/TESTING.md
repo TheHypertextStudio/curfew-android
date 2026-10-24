@@ -1393,3 +1393,5 @@ and does not claim that a printed code was physically aimed at the lens.
 ## Combined main integration
 
 The consumer code flow and bounded recovery grants retain the screenshot catalog and current onboarding/editor behavior from main. Editor save taps wait for native dialog and IME dismissal, then target the current Save alarm action. Welcome backgrounds remain full bleed, with safe insets on the foreground panes only. Catalog tests require consumer enrollment states alongside advanced-service fixtures. Existing API 33–36 instrumentation, Plain/GMS unit/lint/build checks and catalog generation validate the combined candidate before integration. Production activation and installer publication remain held.
+
+The combined API35 native matrix exposed a real landscape regression: all 208 native suite tests passed, but the printed-code scene could not display Scan code beside Save/Print. The shared setup default remains unchanged; the consumer code pane explicitly requests its existing 640 dp landscape threshold. The same full capture assertion requires all four actions to be displayed together and remains unchanged.

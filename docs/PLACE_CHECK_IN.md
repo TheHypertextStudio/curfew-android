@@ -132,3 +132,5 @@ it does not subtract whole-window system insets inside a bounded card. The app
 scaffold owns those insets. The standalone load-error destination has its own
 safe-area scaffold. Existing compact-height and enlarged-text layout assertions
 remain unchanged alongside the cutout and full-bleed background regressions.
+
+The printed-code setup uses two foreground panes in landscape when at least 640 dp of effective text width is available. This keeps Save, Print, Scan and Cancel visible together on ordinary landscape phones; portrait and enlarged-text layouts scroll as needed. Other setup tasks retain their existing wider-pane threshold. System insets protect these panes without shrinking the immersive background.

@@ -109,7 +109,7 @@
     "app/src/main/java/studio/hypertext/curfew/ui/CurfewOnboarding.kt": "70b93690d72f3b1c79669cb466dc4b53630dae07ee19951bfd53329ca51147d9",
     "app/src/main/java/studio/hypertext/curfew/ui/CurfewSettingsScreens.kt": "a64549cdf202d9ca5664d01132dacbc60eaece834be318d6aa5070d2babf21d8",
     "app/src/main/java/studio/hypertext/curfew/ui/FirstUseLoadErrorScreen.kt": "a4274e91427e44490ef8d5555eff58cad82fe608ca6b1e3c2565287889b49182",
-    "app/src/main/java/studio/hypertext/curfew/ui/SetupTaskContent.kt": "77160f2c615827e4dc1c1f009ae3739664a4686c589a539d07e91df2210ed196",
+    "app/src/main/java/studio/hypertext/curfew/ui/SetupTaskContent.kt": "8d2ee3a81f5ffd977f11e52ade2d4aacb0831fd340e4a4a005ff16597bb0bdaa",
     "app/src/main/java/studio/hypertext/curfew/ui/SunriseDailyScreen.kt": "cf182f90d91e97aa272f8d8f2e7331fd30582ea97b2a5d8a0def977fb9eec9bd",
     "app/src/main/java/studio/hypertext/curfew/ui/SunriseScheduleEditor.kt": "0b98a470037a75eed7cca18fcb72635bbd0bc97f46f859c25817a99d4c6cef89",
     "app/src/main/java/studio/hypertext/curfew/ui/theme/Color.kt": "02d94fc322504a941803b682e6565be5ec66c36ea26f4717e5e6745ab8b83b42",
@@ -117,7 +117,7 @@
     "app/src/main/java/studio/hypertext/curfew/ui/theme/Type.kt": "856d74df3f95045ce2f24568ac940373c10c5460b1e354ff017ab6f3d1a50c98",
     "app/src/main/res/values/strings.xml": "dde1eb88cb4cb54a74d7a51da613ceff5f10091ea1f2ff29c03b8d3de2765b38",
     "app/src/screenshotTest/kotlin/studio/hypertext/curfew/screenshots/CatalogFixtures.kt": "c118884ab2f72f47ec40b08eb8e4a7700a6501132ce1da66d76ef54aa8ca05f6",
-    "app/src/main/java/studio/hypertext/curfew/ui/PlaceCheckInSetup.kt": "59d2650a0ebaaae58bbdfd986fc1f75052fbc8515649eb07006740b02e2ceab3",
+    "app/src/main/java/studio/hypertext/curfew/ui/PlaceCheckInSetup.kt": "846d67fc37c43e7eaec5ec6e6ef9cd6f02139d6ec7925581f215b7c080364bea",
     "app/src/main/java/studio/hypertext/curfew/ui/PlaceScanScreen.kt": "2e1e94841b583c74f0b506b93843d4f02f59b434c4ec6bc8c6bd286b47141f4e"
   },
   "notes": [

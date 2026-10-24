@@ -87,7 +87,7 @@ internal fun PlaceCheckInSetup(
     var name by rememberSaveable { mutableStateOf("Bathroom") }
     val retryRegion = remember { BringIntoViewRequester() }
     LaunchedEffect(error) { if (error != null) { withFrameNanos { }; retryRegion.bringIntoView() } }
-    SetupTaskContent(introduction = {
+    SetupTaskContent(pairedMinWidth = 640.dp, introduction = {
         SetupIntroduction(R.drawable.ic_link_rounded,
             if (draft != null) "Put your code away from bed" else if (enrollment != null) enrollment.label else "Scan a code away from bed",
             if (draft != null) "Save or print the code, place it away from bed, then scan it to finish setup."
