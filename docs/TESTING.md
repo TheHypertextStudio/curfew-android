@@ -6,7 +6,7 @@ Instrumented tests cover schedule editing, wake-condition save/verification read
 
 CI builds and lints both distributions and runs unit tests for each. Emulator jobs exercise API 33–36 where hosted acceleration is available. `verifyPlainRuntimeIsolation` resolves the plain release graph and rejects Firebase or Google Play Services. The behavioral verifier at `verification/curfew-wake.json` lets Cello invoke alarm and wake-proof suites without a shell.
 
-For P1, run the alarm on the connected Pixel, including locked-screen delivery, Doze, DND, full-screen denial, exact-alarm revocation, reboot, package replacement, timezone change, audio focus loss, and manufacturer battery management. Those physical-device results cannot be substituted by host tests. Non-Pixel testing belongs to later compatibility work and does not gate P1.
+For P1, run the alarm on the connected Pixel, including locked-screen delivery, DND, full-screen denial, exact-alarm revocation, reboot, package replacement, timezone change, audio focus loss, and manufacturer battery management. Those physical-device results cannot be substituted by host tests. Non-Pixel testing belongs to later compatibility work and does not gate P1.
 
 The current P1 implementation and acceptance ledger is [SUNRISE_P1.md](SUNRISE_P1.md). A unit result, an emulator observation, physical sound, and a signed production release are distinct evidence. Do not infer physical acceptance from a compiled or installed APK.
 
@@ -1327,3 +1327,18 @@ required. No physical test is running.
 
 See [SCREENSHOT_CATALOG.md](SCREENSHOT_CATALOG.md) for the maintained production-UI matrix,
 native onboarding capture, failure handling, and local/CI update commands.
+
+## Bounded network recovery grants
+
+`WakeConvergenceReducerTest` checks that an override advertised as active is
+rejected when its start is in the future or its derived end has been reached.
+The device uses its current clock as well as the authenticated server response.
+Cancelled grants remain rejected. A valid bounded grant releases only its
+declared participants. Both polling paths use the same validation before
+persisting an override; a failed validation leaves the occurrence pending.
+
+The expiry and future-start cases failed against the previous reducer before
+the correction. These host checks do not establish installed multi-device
+convergence, revocation propagation, offline paired codes, or service availability.
+Explicit physical Pixel Doze testing is excluded by owner direction; this
+changes acceptance scope, not Android's standby behavior.

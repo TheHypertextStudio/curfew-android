@@ -49,14 +49,8 @@ class WakeStatusPollWorker(
             fetch<RemoteOverride>("remote-overrides/active", campaignId, accessToken)
         }.getOrNull()
         if (activeOverride != null && proofAuthenticator.deviceId() in activeOverride.targetDeviceIds) {
-            val startsAt = Instant.parse(activeOverride.startsAt)
             val terminal = runCatching {
-                AlarmCampaignEngine().override(
-                    local,
-                    startsAt,
-                    activeOverride.overrideId,
-                    startsAt.plusSeconds(activeOverride.durationMinutes * 60),
-                )
+                WakeConvergenceReducer().overrideState(local, activeOverride)
             }.getOrNull()
             if (terminal != null) {
                 val nextVersion = runtime.statusVersion(campaignId) + 1
@@ -103,13 +97,7 @@ class WakeStatusPollWorker(
                         override,
                         status.statusVersion,
                     )
-                    val startsAt = Instant.parse(override.startsAt)
-                    AlarmCampaignEngine().override(
-                        local,
-                        startsAt,
-                        override.overrideId,
-                        startsAt.plusSeconds(override.durationMinutes * 60),
-                    )
+                    WakeConvergenceReducer().overrideState(local, override)
                 }
                 WakeCampaignState.QuietInterval,
                 WakeCampaignState.RingingAttempt,
