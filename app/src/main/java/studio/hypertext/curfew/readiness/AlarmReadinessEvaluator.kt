@@ -4,7 +4,7 @@ data class AlarmCapabilities(
     val canScheduleExactAlarms: Boolean,
     val notificationsGranted: Boolean,
     val fullScreenIntentAllowed: Boolean,
-    val alarmChannelAudible: Boolean,
+    val alarmChannelEnabled: Boolean,
     val testSoundCompleted: Boolean,
     val limitationsAcknowledged: Boolean,
     val alarmVolumeAudible: Boolean = true,
@@ -42,46 +42,49 @@ data class AlarmReadiness(
 
 class AlarmReadinessEvaluator {
     fun evaluate(capabilities: AlarmCapabilities): AlarmReadiness {
-        val requiredActions = buildSet {
-            if (!capabilities.canScheduleExactAlarms) {
-                add(ReadinessAction.GRANT_EXACT_ALARM_ACCESS)
+        val requiredActions =
+            buildSet {
+                if (!capabilities.canScheduleExactAlarms) {
+                    add(ReadinessAction.GRANT_EXACT_ALARM_ACCESS)
+                }
+                if (!capabilities.notificationsGranted) {
+                    add(ReadinessAction.GRANT_NOTIFICATIONS)
+                }
+                if (!capabilities.fullScreenIntentAllowed) {
+                    add(ReadinessAction.GRANT_FULL_SCREEN_ACCESS)
+                }
+                if (!capabilities.alarmChannelEnabled) {
+                    add(ReadinessAction.REPAIR_ALARM_CHANNEL)
+                }
+                if (!capabilities.alarmVolumeAudible) {
+                    add(ReadinessAction.RAISE_ALARM_VOLUME)
+                }
+                if (!capabilities.testSoundCompleted) {
+                    add(ReadinessAction.PLAY_TEST_SOUND)
+                }
+                if (!capabilities.limitationsAcknowledged) {
+                    add(ReadinessAction.ACKNOWLEDGE_LIMITATIONS)
+                }
             }
-            if (!capabilities.notificationsGranted) {
-                add(ReadinessAction.GRANT_NOTIFICATIONS)
+        val disclosures =
+            buildSet {
+                add(ReadinessDisclosure.DO_NOT_DISTURB_BEHAVIOR)
+                add(ReadinessDisclosure.BATTERY_AND_OEM_LIMITATIONS)
+                add(ReadinessDisclosure.OS_POWER_CONTROLS)
+                if (!capabilities.fullScreenIntentAllowed) {
+                    add(ReadinessDisclosure.FULL_SCREEN_FALLBACK)
+                }
             }
-            if (!capabilities.fullScreenIntentAllowed) {
-                add(ReadinessAction.GRANT_FULL_SCREEN_ACCESS)
-            }
-            if (!capabilities.alarmChannelAudible) {
-                add(ReadinessAction.REPAIR_ALARM_CHANNEL)
-            }
-            if (!capabilities.alarmVolumeAudible) {
-                add(ReadinessAction.RAISE_ALARM_VOLUME)
-            }
-            if (!capabilities.testSoundCompleted) {
-                add(ReadinessAction.PLAY_TEST_SOUND)
-            }
-            if (!capabilities.limitationsAcknowledged) {
-                add(ReadinessAction.ACKNOWLEDGE_LIMITATIONS)
-            }
-        }
-        val disclosures = buildSet {
-            add(ReadinessDisclosure.DO_NOT_DISTURB_BEHAVIOR)
-            add(ReadinessDisclosure.BATTERY_AND_OEM_LIMITATIONS)
-            add(ReadinessDisclosure.OS_POWER_CONTROLS)
-            if (!capabilities.fullScreenIntentAllowed) {
-                add(ReadinessDisclosure.FULL_SCREEN_FALLBACK)
-            }
-        }
         return AlarmReadiness(
             canArm = requiredActions.isEmpty(),
             requiredActions = requiredActions,
             disclosures = disclosures,
-            presentation = if (capabilities.fullScreenIntentAllowed) {
-                AlarmPresentation.FULL_SCREEN
-            } else {
-                AlarmPresentation.LOCK_SCREEN_NOTIFICATION
-            },
+            presentation =
+                if (capabilities.fullScreenIntentAllowed) {
+                    AlarmPresentation.FULL_SCREEN
+                } else {
+                    AlarmPresentation.LOCK_SCREEN_NOTIFICATION
+                },
         )
     }
 }

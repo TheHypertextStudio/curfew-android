@@ -91,9 +91,9 @@
   ],
   "reviewedSources": {
     "app/src/main/AndroidManifest.xml": "7a08b3beb68eb101f925e9bc0628fdf6e46877b95b5642c9287d76869675d392",
-    "app/src/main/java/studio/hypertext/curfew/MainActivity.kt": "b0c5f6e2efecf22c74bdd1152cee6991c95902ef1f8dd9ab008ada13b939037e",
+    "app/src/main/java/studio/hypertext/curfew/MainActivity.kt": "ced7adf9ca3a62f2e3310846de54f220cfac370d0a517732aaa3b58d71d8633f",
     "app/src/main/java/studio/hypertext/curfew/account/AccountRecoveryCoordinator.kt": "fb4b77cf5446e12797d248c5b3251dcb61b09816c35bfe8a71eea3ff8767b022",
-    "app/src/main/java/studio/hypertext/curfew/readiness/AlarmReadinessEvaluator.kt": "291dc52352c461431f11aad11bab085d056ad92561e2d3205c7c3d2df46c363f",
+    "app/src/main/java/studio/hypertext/curfew/readiness/AlarmReadinessEvaluator.kt": "9b315e2178f91f40749d856d55acc7c86f3b4f3dc6567bfe8ba32d8c6906f120",
     "app/src/main/java/studio/hypertext/curfew/ui/AlarmPickers.kt": "56846d165442d0b8d808ebbd837bbc344a8c558057b0c12f10256cee0fa2502a",
     "app/src/main/java/studio/hypertext/curfew/ui/AlarmRecoveryScreen.kt": "471bc939c17b34343bc6fce76561260a64d2d52bfa72ddc26404c32aa1370e35",
     "app/src/main/java/studio/hypertext/curfew/ui/AlarmRingingScreen.kt": "38a4100b403255572e91c3393fa2c3971749d26fabdce19edd0c4f42401b2e7c",
@@ -107,7 +107,7 @@
     "app/src/main/java/studio/hypertext/curfew/ui/CurfewLayoutMode.kt": "43ed41092f61eb3ef414d0e39e4b122f097610455d4e0c58dc27d9231ff1395f",
     "app/src/main/java/studio/hypertext/curfew/ui/CurfewMotion.kt": "b1c224ff93b63f84aaefb46e6432c044ad84420e305566ea1aa2481a4ebc4e66",
     "app/src/main/java/studio/hypertext/curfew/ui/CurfewOnboarding.kt": "70b93690d72f3b1c79669cb466dc4b53630dae07ee19951bfd53329ca51147d9",
-    "app/src/main/java/studio/hypertext/curfew/ui/CurfewSettingsScreens.kt": "a64549cdf202d9ca5664d01132dacbc60eaece834be318d6aa5070d2babf21d8",
+    "app/src/main/java/studio/hypertext/curfew/ui/CurfewSettingsScreens.kt": "b6b7463546917300973e7e08e7fcf366554bf15e713a2c696c26bf31e209c8f9",
     "app/src/main/java/studio/hypertext/curfew/ui/FirstUseLoadErrorScreen.kt": "a4274e91427e44490ef8d5555eff58cad82fe608ca6b1e3c2565287889b49182",
     "app/src/main/java/studio/hypertext/curfew/ui/SetupTaskContent.kt": "8d2ee3a81f5ffd977f11e52ade2d4aacb0831fd340e4a4a005ff16597bb0bdaa",
     "app/src/main/java/studio/hypertext/curfew/ui/SunriseDailyScreen.kt": "cf182f90d91e97aa272f8d8f2e7331fd30582ea97b2a5d8a0def977fb9eec9bd",
@@ -123,6 +123,7 @@
   "notes": [
     "PR #18 screen content uses production composables; app navigation and IME are covered by native capture scripts.",
     "Each finite destination, permission step, saved/editing/error/busy condition, and recovery input boundary is represented. Animation frames, native credential prompts and physical posture are separate runtime evidence.",
-    "Printed-code enrollment, exported draft, readiness, error and busy content use production composables. Permission denial and actual CameraX lifecycle remain native instrumentation coverage; no camera frames enter the catalog."
+    "Printed-code enrollment, exported draft, readiness, error and busy content use production composables. Permission denial and actual CameraX lifecycle remain native instrumentation coverage; no camera frames enter the catalog.",
+    "The channel repair state explains high-priority presentation without a competing notification sound; alarm-volume and heard-sound checks remain separate states. The settings route opens the playback channel, while focus return and persisted channel migration use installed instrumentation."
   ]
 }

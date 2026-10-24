@@ -13,22 +13,29 @@ import studio.hypertext.curfew.readiness.AlarmCapabilities
 import studio.hypertext.curfew.readiness.AlarmReadiness
 import studio.hypertext.curfew.readiness.AlarmReadinessEvaluator
 
-class AndroidAlarmReadiness(context: Context) {
+class AndroidAlarmReadiness(
+    context: Context,
+) {
     private val context = context.applicationContext
 
     fun evaluate(preferences: CurfewPreferenceState): AlarmReadiness {
         val notifications = context.getSystemService(NotificationManager::class.java)
         return AlarmReadinessEvaluator().evaluate(
             AlarmCapabilities(
-                canScheduleExactAlarms = context.getSystemService(AlarmManager::class.java)
-                    .canScheduleExactAlarms(),
-                notificationsGranted = notifications.areNotificationsEnabled() &&
-                    ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) ==
-                    PackageManager.PERMISSION_GRANTED,
+                canScheduleExactAlarms =
+                    context
+                        .getSystemService(AlarmManager::class.java)
+                        .canScheduleExactAlarms(),
+                notificationsGranted =
+                    notifications.areNotificationsEnabled() &&
+                        ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) ==
+                        PackageManager.PERMISSION_GRANTED,
                 fullScreenIntentAllowed = Build.VERSION.SDK_INT < 34 || notifications.canUseFullScreenIntent(),
-                alarmChannelAudible = PerpetualAlarmService.alarmChannelIsAudible(context),
-                alarmVolumeAudible = context.getSystemService(AudioManager::class.java)
-                    .getStreamVolume(AudioManager.STREAM_ALARM) > 0,
+                alarmChannelEnabled = PerpetualAlarmService.alarmChannelAllowsPresentation(context),
+                alarmVolumeAudible =
+                    context
+                        .getSystemService(AudioManager::class.java)
+                        .getStreamVolume(AudioManager.STREAM_ALARM) > 0,
                 testSoundCompleted = preferences.testSoundCompleted,
                 limitationsAcknowledged = preferences.readinessAcknowledged,
             ),
