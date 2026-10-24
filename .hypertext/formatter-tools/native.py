@@ -115,7 +115,8 @@ public final class KtlintStdin {
             return Unit.INSTANCE;
         });
         if (failed[0]) System.exit(1);
-        System.out.print(result);
+        System.out.write(result.getBytes(StandardCharsets.UTF_8));
+        System.out.flush();
     }
 }
 """
