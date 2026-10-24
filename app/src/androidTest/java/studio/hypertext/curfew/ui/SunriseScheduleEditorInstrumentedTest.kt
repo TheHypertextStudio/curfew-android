@@ -317,10 +317,15 @@ class SunriseScheduleEditorInstrumentedTest {
                 )
             }
         val input = compose.onAllNodes(hasSetTextAction())[0]
+        focusPickerInput(input)
+        input.performTextReplacement(digits)
+    }
+
+    private fun focusPickerInput(input: SemanticsNodeInteraction) {
         input.performClick().assertIsFocused()
-        // Material DateInput requests focus asynchronously. Its IME can move the
-        // dialog after semantics are idle, so establish the real input window
-        // before entering text and tapping the dialog action.
+        // A text field can be ready in semantics before its IME moves the dialog.
+        // Establish the focused native input window before replacing text or
+        // injecting the next picker tap.
         compose.waitUntil(5_000) {
             var ready = false
             compose.runOnUiThread {
@@ -342,7 +347,6 @@ class SunriseScheduleEditorInstrumentedTest {
             }
             ready
         }
-        input.performTextReplacement(digits)
     }
 
     private fun enterTime(
@@ -365,8 +369,12 @@ class SunriseScheduleEditorInstrumentedTest {
             android.text.format.DateFormat
                 .is24HourFormat(context)
         val displayHour = if (use24Hour) hour else (hour % 12).takeIf { it != 0 } ?: 12
-        compose.onNodeWithTag("alarm-hour").performTextReplacement(displayHour.toString())
-        compose.onNodeWithTag("alarm-minute").performTextReplacement(minute.toString().padStart(2, '0'))
+        val hourInput = compose.onNodeWithTag("alarm-hour")
+        focusPickerInput(hourInput)
+        hourInput.performTextReplacement(displayHour.toString())
+        val minuteInput = compose.onNodeWithTag("alarm-minute")
+        focusPickerInput(minuteInput)
+        minuteInput.performTextReplacement(minute.toString().padStart(2, '0'))
         if (!use24Hour) {
             val label = LocalTime.of(hour, minute).format(DateTimeFormatter.ofPattern("a", context.resources.configuration.locales[0]))
             compose.onNode(hasText(label) and hasAnyAncestor(isDialog()), useUnmergedTree = true).performClick()
