@@ -75,6 +75,52 @@ def java_command():
     return [java, "-Djava.awt.headless=true", "-jar", str(JAR)]
 
 
+KTLINT_STDIN = r"""
+import com.pinterest.ktlint.rule.engine.api.Code;
+import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults;
+import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride;
+import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine;
+import com.pinterest.ktlint.ruleset.standard.StandardRuleSetProvider;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import kotlin.Unit;
+
+/** Preserve staged stdin bytes and the original config path without CLI printf expansion. */
+public final class KtlintStdin {
+    @SuppressWarnings("deprecation")
+    public static void main(String[] args) throws Exception {
+        ((ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger("ROOT"))
+            .setLevel(ch.qos.logback.classic.Level.OFF);
+        String input = new String(System.in.readAllBytes(), StandardCharsets.UTF_8);
+        var engine = new KtLintRuleEngine(
+            new StandardRuleSetProvider().getRuleProviders(),
+            EditorConfigDefaults.Companion.getEMPTY_EDITOR_CONFIG_DEFAULTS(),
+            EditorConfigOverride.Companion.getEMPTY_EDITOR_CONFIG_OVERRIDE(),
+            true,
+            FileSystems.getDefault());
+        var code = Code.Companion.fromSnippetWithPath(input, Path.of(args[0]));
+        boolean[] failed = {false};
+        String result = engine.format(code, (error, corrected) -> {
+            if (!corrected) {
+                failed[0] = true;
+                System.err.println(error);
+            }
+            return Unit.INSTANCE;
+        });
+        // Check the final result as well: a non-correctable rule must block the hook.
+        engine.lint(Code.Companion.fromSnippetWithPath(result, Path.of(args[0])), error -> {
+            failed[0] = true;
+            System.err.println(error);
+            return Unit.INSTANCE;
+        });
+        if (failed[0]) System.exit(1);
+        System.out.print(result);
+    }
+}
+"""
+
+
 def main():
     if sys.argv[1:] == ["--setup"]:
         setup()
@@ -85,17 +131,19 @@ def main():
         raise ValueError(
             "Pinned KtLint is missing or changed. Run python3 .hypertext/formatter-tools/native.py --setup before committing"
         )
-    # The virtual source path preserves nested .editorconfig discovery and script
-    # parsing, while --stdin ensures the source file itself is never opened for write.
-    command = java_command() + [
-        "--log-level=none",
-        "--format",
-        "--stdin",
-        "--stdin-path",
-        str((Path(__file__).resolve().parents[2] / sys.argv[2]).resolve()),
-    ]
-    source = sys.stdin.buffer.read()
-    result = subprocess.run(command, input=source, capture_output=True)
+    # ktlint 1.8 CLI passes formatted stdin to printf, corrupting literal %
+    # sequences. Use the same verified engine API and original virtual path.
+    with tempfile.TemporaryDirectory(prefix="hypertext-ktlint-") as directory:
+        bridge = Path(directory) / "KtlintStdin.java"
+        bridge.write_text(KTLINT_STDIN, encoding="utf-8")
+        command = java_command()[:2] + [
+            "--class-path",
+            str(JAR),
+            str(bridge),
+            str((Path(__file__).resolve().parents[2] / sys.argv[2]).resolve()),
+        ]
+        source = sys.stdin.buffer.read()
+        result = subprocess.run(command, input=source, capture_output=True)
     # KtLint can report a parse error on stderr and exit zero with
     # no stdout. Never expose that as a successful formatting operation.
     if (
