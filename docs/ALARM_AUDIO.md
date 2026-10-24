@@ -24,6 +24,24 @@ stopped alarm or disturbing a newer sound. Leaving ringing cancels an in-flight
 startup. Audio-focus loss releases the sound; gain makes a new playback attempt.
 The occurrence's ringing boundary does not move when playback restarts.
 
+The ringing notification uses a high-importance channel without its own sound.
+The service player owns the looping alarm; a second SystemUI ringtone would
+retain audio focus above it after a transient interruption. The notification
+remains eligible for full-screen presentation and heads-up alerts; it is not
+marked silent. Existing channel importance (including blocked or reduced
+importance), vibration, lock-screen visibility, badge, lights, and DND choices
+carry to the playback channel on first use. Later channel edits remain under
+the owner's control. If the owner enables notification sound, readiness requests
+repair instead of overwriting that choice or treating the two audio owners as ready. Readiness checks notification presentation separately
+from alarm-stream volume and the owner's sound rehearsal.
+
+`AlarmAudioFocusInstrumentedTest` checks that a transient interruption resumes
+the same ringing attempt. `AlarmNotificationChannelInstrumentedTest` checks
+the single audio owner and preservation of blocked, reduced-importance, and
+vibration choices during channel migration. Real notification-manager fixtures
+check persisted migration, repeated setup, and preservation of an owner-selected
+sound that requires repair.
+
 The bundled `sunrise_fallback.wav` is an original Curfew synthesis. It contains
 four alternating 660/880Hz pulses in a two-second loop. It uses 22,050Hz mono
 16-bit PCM with short attack/release envelopes and a peak amplitude of 14,000.
@@ -54,13 +72,11 @@ Rollback restores the prior player without changing saved occurrences.
 Sources: [Android MediaPlayer](https://developer.android.com/reference/android/media/MediaPlayer)
 and [Android Ringtone](https://developer.android.com/reference/android/media/Ringtone).
 
-
 Resource ownership also covers the interval after preparation while descriptor
 cleanup suspends. The player remains under the preparation function's cleanup
 until the caller can accept it. Cancellation in that interval releases the
 prepared player. Host suites, both app/test APKs, and both lint variants pass
 again after that cleanup refactor (`audio-resource-checks.txt`, 50s).
-
 
 ## Playback denied during boot recovery
 

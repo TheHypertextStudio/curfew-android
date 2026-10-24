@@ -72,6 +72,10 @@
     {
       "include": ["*.properties"],
       "argv": ["node", ".hypertext/formatter-tools/prettier.mjs", "{path}", "properties"]
+    },
+    {
+      "include": [".editorconfig"],
+      "argv": ["python3", ".hypertext/formatter-tools/text.py"]
     }
   ],
   "exclude": [

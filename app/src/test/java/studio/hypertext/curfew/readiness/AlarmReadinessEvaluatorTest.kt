@@ -18,12 +18,13 @@ class AlarmReadinessEvaluatorTest {
 
     @Test
     fun `notification and audible channel failures block arming`() {
-        val result = evaluator.evaluate(
-            readyCapabilities().copy(
-                notificationsGranted = false,
-                alarmChannelAudible = false,
-            ),
-        )
+        val result =
+            evaluator.evaluate(
+                readyCapabilities().copy(
+                    notificationsGranted = false,
+                    alarmChannelEnabled = false,
+                ),
+            )
 
         assertFalse(result.canArm)
         assertTrue(result.requiredActions.contains(ReadinessAction.GRANT_NOTIFICATIONS))
@@ -42,12 +43,13 @@ class AlarmReadinessEvaluatorTest {
 
     @Test
     fun `test sound and limitation acknowledgement are required`() {
-        val result = evaluator.evaluate(
-            readyCapabilities().copy(
-                testSoundCompleted = false,
-                limitationsAcknowledged = false,
-            ),
-        )
+        val result =
+            evaluator.evaluate(
+                readyCapabilities().copy(
+                    testSoundCompleted = false,
+                    limitationsAcknowledged = false,
+                ),
+            )
 
         assertFalse(result.canArm)
         assertTrue(result.requiredActions.contains(ReadinessAction.PLAY_TEST_SOUND))
@@ -75,12 +77,13 @@ class AlarmReadinessEvaluatorTest {
         assertFalse(result.mayChangeSystemVolume)
     }
 
-    private fun readyCapabilities() = AlarmCapabilities(
-        canScheduleExactAlarms = true,
-        notificationsGranted = true,
-        fullScreenIntentAllowed = true,
-        alarmChannelAudible = true,
-        testSoundCompleted = true,
-        limitationsAcknowledged = true,
-    )
+    private fun readyCapabilities() =
+        AlarmCapabilities(
+            canScheduleExactAlarms = true,
+            notificationsGranted = true,
+            fullScreenIntentAllowed = true,
+            alarmChannelEnabled = true,
+            testSoundCompleted = true,
+            limitationsAcknowledged = true,
+        )
 }
