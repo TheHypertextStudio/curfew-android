@@ -19,20 +19,20 @@ jobs:
       matrix:
         distribution: [Plain, Gms]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           path: curfew-android
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           repository: TheHypertextStudio/curfew-protocols
           ref: v0.0.13
           path: curfew-protocols
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: "21"
           cache: gradle
-      - uses: android-actions/setup-android@v3
+      - uses: android-actions/setup-android@v4
         with:
           packages: platform-tools
       - name: Install compile SDK
@@ -94,20 +94,20 @@ jobs:
           - api: 36
             distribution: Gms
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           path: curfew-android
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           repository: TheHypertextStudio/curfew-protocols
           ref: v0.0.13
           path: curfew-protocols
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: "21"
           cache: gradle
-      - uses: android-actions/setup-android@v3
+      - uses: android-actions/setup-android@v4
         with:
           packages: platform-tools
       - name: Install compile SDK
@@ -152,20 +152,20 @@ jobs:
   release-evidence:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           path: curfew-android
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           repository: TheHypertextStudio/curfew-protocols
           ref: v0.0.13
           path: curfew-protocols
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: "21"
           cache: gradle
-      - uses: android-actions/setup-android@v3
+      - uses: android-actions/setup-android@v4
         with:
           packages: platform-tools
       - name: Install compile SDK
