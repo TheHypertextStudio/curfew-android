@@ -230,7 +230,7 @@ class PerpetualAlarmService : Service() {
 
         val token =
             AndroidKeystoreSecretStore(this)
-                .get("account:access-token")
+                .get(ProductionServices.ACCESS_TOKEN_KEY)
                 ?.toString(Charsets.UTF_8)
                 ?: return
         serviceScope.launch {

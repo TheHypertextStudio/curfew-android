@@ -463,7 +463,7 @@ class MainActivity : ComponentActivity() {
                         onSetupActivated = { lifecycleScope.launch { runCatching { firstUsePreferences.clearDraft() } } },
                         accountEnrolled = preferenceState.accountEnrolled,
                         accountSignedIn = preferenceState.accountSignedIn,
-                        accountRecoveryState = accountRecoveryState,
+                        accountRecoveryState = accountRecoveryState.takeIf { preferenceState.accountSignedIn },
                         onGrantExactAlarm = ::requestExactAlarmAccess,
                         onGrantNotifications = ::requestNotifications,
                         onGrantFullScreen = ::requestFullScreenAccess,

@@ -82,6 +82,14 @@ jobs:
         working-directory: curfew-android
         run: ./gradlew :app:checkLicense --no-parallel --no-configuration-cache
 
+      - name: Retain isolated phone test APK
+        if: matrix.distribution == 'Plain'
+        uses: actions/upload-artifact@v7
+        with:
+          name: curfew-android-plain-acceptance
+          path: curfew-android/app/build/outputs/apk/plain/debug/app-plain-debug.apk
+          if-no-files-found: error
+
   instrumented:
     runs-on: ubuntu-latest
     strategy:

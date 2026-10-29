@@ -68,7 +68,7 @@ class WakeStatusPublisher(
         withContext(Dispatchers.IO) {
             val accessToken =
                 AndroidKeystoreSecretStore(appContext)
-                    .get("account:access-token")
+                    .get(ProductionServices.ACCESS_TOKEN_KEY)
                     ?.toString(Charsets.UTF_8)
                     ?: return@withContext false
             val repository = AlarmRuntimeRepository(appContext)

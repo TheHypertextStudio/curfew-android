@@ -1367,3 +1367,18 @@ regressions; they do not prove a real account enrollment or device journey.
 See [launch boundaries](LAUNCH_READINESS.md) and the
 [Android enforcement design](ANDROID_ENFORCEMENT.md) before making release or
 phone-protection claims. No blocking service or new sensitive grant is added.
+
+`AccountSessionPreferencesTest` covers the non-destructive issuer upgrade:
+legacy flags cannot hide native sign-in, unrelated data and legacy flags remain
+stored, current enrollment survives reopen, and an old recovery acknowledgment
+cannot enroll a signed-out session. A fresh sign-in clears previous enrollment
+until current recovery finishes. Old root/recovery keys and tokens are preserved
+under their legacy identifiers but never reused as current-authority credentials.
+
+Recovery failure is also covered: a fresh exchange cannot mark the session
+signed in until recovery returns a result, so network failure leaves native
+retry reachable and encrypted background work disarmed.
+
+A recreated authenticated session still awaiting recovery routes its existing
+Continue setup action into native enrollment again, where recovery can be
+reconstructed. Fully enrolled sessions retain account management on the web.
