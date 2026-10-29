@@ -10,7 +10,13 @@ class ProductionServicesTest {
     fun `HTTPS proof and websocket authorities match the same production service`() {
         assertTrue(ProductionServices.isSyncRequest(URI("${ProductionServices.SYNC_ORIGIN}/sync/socket?campaignId=one")))
         assertTrue(ProductionServices.isSyncSocket(URI("${ProductionServices.SYNC_SOCKET_ORIGIN}/sync/socket?campaignId=one")))
-        assertTrue(ProductionServices.OAUTH_CLIENT_CACHE_KEY.endsWith(ProductionServices.ACCOUNT_ORIGIN))
+        listOf(
+            ProductionServices.OAUTH_CLIENT_CACHE_KEY,
+            ProductionServices.ACCESS_TOKEN_KEY,
+            ProductionServices.REFRESH_TOKEN_KEY,
+            ProductionServices.ROOT_KEY,
+            ProductionServices.PENDING_RECOVERY_KEY,
+        ).forEach { key -> assertTrue(key, key.endsWith(ProductionServices.ACCOUNT_ORIGIN)) }
     }
 
     @Test

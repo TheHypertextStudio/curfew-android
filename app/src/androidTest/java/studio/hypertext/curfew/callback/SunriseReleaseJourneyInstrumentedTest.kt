@@ -17,6 +17,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import studio.hypertext.curfew.alarm.AlarmCampaignState
 import studio.hypertext.curfew.alarm.SunriseSchedule
+import studio.hypertext.curfew.config.ProductionServices
 import studio.hypertext.curfew.persistence.CurfewDatabase
 import studio.hypertext.curfew.persistence.CurfewPreferences
 import studio.hypertext.curfew.platform.AlarmRuntimeRepository
@@ -185,7 +186,7 @@ class SunriseReleaseJourneyInstrumentedTest {
             val secrets =
                 studio.hypertext.curfew.security
                     .AndroidKeystoreSecretStore(context)
-            org.junit.Assert.assertNull("This fixture must not use a live account", secrets.get("account:access-token"))
+            org.junit.Assert.assertNull("This fixture must not use a live account", secrets.get(ProductionServices.ACCESS_TOKEN_KEY))
             shell("pm grant ${context.packageName} android.permission.POST_NOTIFICATIONS")
             shell("pm grant ${context.packageName} android.permission.CAMERA")
             shell("appops set ${context.packageName} SCHEDULE_EXACT_ALARM allow")

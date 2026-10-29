@@ -140,7 +140,7 @@ class NativeAccountRecoveryTransport(
 
     private companion object {
         const val SYNC_ORIGIN = ProductionServices.SYNC_ORIGIN
-        const val ACCESS_TOKEN_KEY = "account:access-token"
+        const val ACCESS_TOKEN_KEY = ProductionServices.ACCESS_TOKEN_KEY
         const val MAX_RESPONSE_BYTES = 32 * 1024
     }
 }

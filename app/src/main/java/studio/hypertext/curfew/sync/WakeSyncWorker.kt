@@ -12,11 +12,13 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import studio.hypertext.curfew.account.AndroidAccountRecovery
 import studio.hypertext.curfew.account.NativeDeviceProofAuthenticator
 import studio.hypertext.curfew.config.ProductionServices
 import studio.hypertext.curfew.persistence.CurfewDatabase
+import studio.hypertext.curfew.persistence.CurfewPreferences
 import studio.hypertext.curfew.security.AndroidKeystoreSecretStore
 import java.net.HttpURLConnection
 import java.net.URI
@@ -29,6 +31,9 @@ class WakeSyncWorker(
 ) : CoroutineWorker(appContext, workerParameters) {
     override suspend fun doWork(): Result =
         withContext(Dispatchers.IO) {
+            if (!CurfewPreferences(applicationContext).state.first().accountEnrolled) {
+                return@withContext Result.success()
+            }
             val dao = CurfewDatabase.open(applicationContext).syncOutboxDao()
             runCatching {
                 AndroidAccountRecovery(applicationContext).distributeRootKeyToPeers()
@@ -37,7 +42,7 @@ class WakeSyncWorker(
             if (operations.isEmpty()) return@withContext Result.success()
             val accessToken =
                 AndroidKeystoreSecretStore(applicationContext)
-                    .get("account:access-token")
+                    .get(ProductionServices.ACCESS_TOKEN_KEY)
                     ?.toString(Charsets.UTF_8)
                     ?: return@withContext Result.retry()
             val proofAuthenticator = NativeDeviceProofAuthenticator(applicationContext)

@@ -44,7 +44,7 @@ class WakeStatusPollWorker(
         }
         val accessToken =
             AndroidKeystoreSecretStore(applicationContext)
-                .get("account:access-token")
+                .get(ProductionServices.ACCESS_TOKEN_KEY)
                 ?.toString(Charsets.UTF_8)
                 ?: return Result.success()
         val proofAuthenticator = NativeDeviceProofAuthenticator(applicationContext)

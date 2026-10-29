@@ -13,8 +13,15 @@ The canonical production authorities are `https://account.thecurfew.app` and
 account management, the sync authority for encrypted records, wake status,
 device proof and sockets. Do not follow retired-authority redirects with bearer
 tokens or proofs. Existing local schedules, callback secrets and encrypted data
-must survive this routing repair. An account created on a retired authority may
-need an explicit sign-in again; do not wipe local data to hide that failure.
+must survive this routing repair. An account created on a retired authority needs an explicit native sign-in
+again. Session flags, bearer tokens and account root/recovery-key readiness
+are scoped to the current issuer, so the existing sign-in action remains
+available. Legacy secrets and flags stay stored; no alarm data is cleared.
+The existing Continue setup action resumes native enrollment after a process
+restart if recovery is incomplete. Recovery network failure also leaves native
+retry reachable. Background peer-key distribution and encrypted outbox uploads wait for current
+enrollment and recovery to finish. Reauthentication must not certify an old
+root key as ready or replay a legacy pending Recovery Key acknowledgment.
 
 Production OAuth metadata and sync health can establish routing only. They do
 not establish native passkey, Apple or Google account creation, key recovery,
@@ -33,7 +40,10 @@ to work around a signature mismatch.
 Use `-Pcurfew.acceptance=true` for an installable, debug-signed test APK with
 package `studio.hypertext.curfew.acceptance`. It is isolated from real alarm
 storage, and account sign-in is deliberately disabled. It is not a production
-upgrade, a production-signed release or a phone-enforcement build. An unsigned
+upgrade, a production-signed release or a phone-enforcement build. The existing
+Plain verification job retains this isolated APK as
+`curfew-android-plain-acceptance` after its checks succeed, so an authenticated
+repository user can download the test artifact from that workflow run. An unsigned
 release APK can verify R8 packaging but cannot be installed as a signed update.
 
 Before a production launch: provide the existing production keystore inputs,

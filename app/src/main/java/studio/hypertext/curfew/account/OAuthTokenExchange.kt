@@ -79,9 +79,10 @@ class OAuthTokenExchange(
                         ?.content
                         ?.takeIf(String::isNotBlank)
                         ?: error("OAuth token response omitted refresh_token")
+                CurfewPreferences(activity).setAccountSignedIn(false)
                 AndroidKeystoreSecretStore(activity).apply {
-                    put("account:access-token", accessToken.toByteArray())
-                    put("account:refresh-token", refreshToken.toByteArray())
+                    put(ProductionServices.ACCESS_TOKEN_KEY, accessToken.toByteArray())
+                    put(ProductionServices.REFRESH_TOKEN_KEY, refreshToken.toByteArray())
                 }
                 val pkceChallenge =
                     Base64.getUrlEncoder().withoutPadding().encodeToString(
@@ -90,8 +91,9 @@ class OAuthTokenExchange(
                             .digest(verifier.toByteArray(StandardCharsets.US_ASCII)),
                     )
                 NativeDeviceEnrollmentClient(activity).enroll(accessToken, pkceChallenge, state)
-                CurfewPreferences(activity).setAccountSignedIn(true)
-                AndroidAccountRecovery(activity).resumeAfterEnrollment()
+                CurfewPreferences(activity).completeAccountSignIn {
+                    AndroidAccountRecovery(activity).resumeAfterEnrollment()
+                }
             } finally {
                 connection.disconnect()
             }
