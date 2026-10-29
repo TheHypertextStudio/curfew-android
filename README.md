@@ -11,7 +11,9 @@ a sleeping user.
 
 The default campaign rings for two minutes, stays quiet for one minute, and repeats until a verified callback release or a fresh authorized override arrives. There is no ordinary dismiss or snooze action.
 
-Accounts are optional. Local schedules, generic HTTPS callbacks, and offline licenses continue to work without one. Account enrollment adds end-to-end encrypted settings, device coordination, purchases, and remote controls. The public account portal is [curfew.hypertext.studio/account](https://curfew.hypertext.studio/account).
+Accounts are optional. Local schedules, generic HTTPS callbacks, and offline licenses continue to work without one. Account enrollment adds end-to-end encrypted settings, device coordination, purchases, and remote controls. The public account portal is [account.thecurfew.app/account](https://account.thecurfew.app/account).
+
+See [Android launch scope](docs/LAUNCH_READINESS.md) for current device, account, signing and enforcement boundaries.
 
 ## Build distributions
 
@@ -42,13 +44,13 @@ Production signing uses these protected environment variables for both release v
 - `CURFEW_ANDROID_KEY_ALIAS`
 - `CURFEW_ANDROID_KEY_PASSWORD`
 
-Without them, release builds remain unsigned and are not production artifacts. CI release evidence uses an explicit test keystore; it does not establish production signing.
+Without them, release builds remain unsigned and are not production artifacts. CI release evidence contains unsigned verification artifacts; it does not establish production signing.
 
 ## Project boundaries
 
 - Shared wire types come only from the pinned `curfew-protocols` 0.0.13 contract. Android does not maintain parallel callback or wake DTOs.
 - The callback is deliberately generic: label, HTTPS endpoint, random secret, poll policy, and optional opaque action URL.
-- Encrypted settings are synchronized through `curfew-sync.hypertext.studio`; FCM never carries decrypted settings or authoritative state.
+- Encrypted settings are synchronized through `sync.thecurfew.app`; FCM never carries decrypted settings or authoritative state.
 - Android cannot defeat OS-level force-stop, uninstall, power-off, permission revocation, or every manufacturer battery policy. Readiness discloses those limits before arming. After a restart, the owner must unlock the phone before alarms can resume.
 
 Connect an existing trusted service using [verifier setup](docs/VERIFIER_SETUP.md).

@@ -7,24 +7,25 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import kotlinx.coroutines.CancellationException
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
+import studio.hypertext.curfew.account.NativeDeviceProofAuthenticator
+import studio.hypertext.curfew.alarm.AlarmCampaignEngine
+import studio.hypertext.curfew.alarm.AlarmCampaignState
+import studio.hypertext.curfew.config.ProductionServices
+import studio.hypertext.curfew.platform.AlarmRuntimeRepository
+import studio.hypertext.curfew.platform.SunriseScheduler
+import studio.hypertext.curfew.protocols.RemoteOverride
+import studio.hypertext.curfew.protocols.WakeCampaignState
+import studio.hypertext.curfew.protocols.WakeStatus
+import studio.hypertext.curfew.security.AndroidKeystoreSecretStore
 import java.net.HttpURLConnection
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.TimeUnit
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
-import studio.hypertext.curfew.alarm.AlarmCampaignEngine
-import studio.hypertext.curfew.alarm.AlarmCampaignState
-import studio.hypertext.curfew.platform.AlarmRuntimeRepository
-import studio.hypertext.curfew.platform.SunriseScheduler
-import kotlinx.coroutines.CancellationException
-import studio.hypertext.curfew.protocols.RemoteOverride
-import studio.hypertext.curfew.protocols.WakeCampaignState
-import studio.hypertext.curfew.protocols.WakeStatus
-import studio.hypertext.curfew.security.AndroidKeystoreSecretStore
-import studio.hypertext.curfew.account.NativeDeviceProofAuthenticator
 
 class WakeStatusPollWorker(
     appContext: Context,
@@ -38,20 +39,25 @@ class WakeStatusPollWorker(
         if (local !is AlarmCampaignState.Scheduled &&
             local !is AlarmCampaignState.Ringing &&
             local !is AlarmCampaignState.Quiet
-        ) return completeCampaign(campaignId)
-        val accessToken = AndroidKeystoreSecretStore(applicationContext)
-            .get("account:access-token")
-            ?.toString(Charsets.UTF_8)
-            ?: return Result.success()
+        ) {
+            return completeCampaign(campaignId)
+        }
+        val accessToken =
+            AndroidKeystoreSecretStore(applicationContext)
+                .get("account:access-token")
+                ?.toString(Charsets.UTF_8)
+                ?: return Result.success()
         val proofAuthenticator = NativeDeviceProofAuthenticator(applicationContext)
 
-        val activeOverride = runCatching {
-            fetch<RemoteOverride>("remote-overrides/active", campaignId, accessToken)
-        }.getOrNull()
-        if (activeOverride != null && proofAuthenticator.deviceId() in activeOverride.targetDeviceIds) {
-            val terminal = runCatching {
-                WakeConvergenceReducer().overrideState(local, activeOverride)
+        val activeOverride =
+            runCatching {
+                fetch<RemoteOverride>("remote-overrides/active", campaignId, accessToken)
             }.getOrNull()
+        if (activeOverride != null && proofAuthenticator.deviceId() in activeOverride.targetDeviceIds) {
+            val terminal =
+                runCatching {
+                    WakeConvergenceReducer().overrideState(local, activeOverride)
+                }.getOrNull()
             if (terminal != null) {
                 val nextVersion = runtime.statusVersion(campaignId) + 1
                 runtime.save(terminal, writerCounter = nextVersion)
@@ -59,52 +65,62 @@ class WakeStatusPollWorker(
             }
         }
 
-        val status = runCatching {
-            fetch<WakeStatus>("wake-status", campaignId, accessToken)
-        }.getOrElse {
-            WakeStatusPollScheduler.schedule(
-                applicationContext,
-                campaignId,
-                retryDelay(failureCount),
-                (failureCount + 1).coerceAtMost(30),
-            )
-            return Result.success()
-        }
-
-        val terminal = runCatching {
-            when (status.state) {
-                WakeCampaignState.Satisfied -> WakeConvergenceReducer().apply(
-                    local,
-                    status,
-                    runtime.statusVersion(campaignId),
-                ).let {
-                    AlarmCampaignEngine().satisfy(
-                        local,
-                        Instant.parse(status.updatedAt),
-                        "Selected device condition",
-                    )
-                }
-                WakeCampaignState.Overridden -> {
-                    val override = fetch<RemoteOverride>(
-                        "remote-overrides/active",
-                        campaignId,
-                        accessToken,
-                    )
-                    val localDeviceId = proofAuthenticator.deviceId()
-                    if (localDeviceId !in override.targetDeviceIds) return@runCatching null
-                    WakeConvergenceReducer().applyOverride(
-                        local,
-                        override,
-                        status.statusVersion,
-                    )
-                    WakeConvergenceReducer().overrideState(local, override)
-                }
-                WakeCampaignState.QuietInterval,
-                WakeCampaignState.RingingAttempt,
-                WakeCampaignState.Scheduled,
-                -> null
+        val status =
+            runCatching {
+                fetch<WakeStatus>("wake-status", campaignId, accessToken)
+            }.getOrElse {
+                WakeStatusPollScheduler.schedule(
+                    applicationContext,
+                    campaignId,
+                    retryDelay(failureCount),
+                    (failureCount + 1).coerceAtMost(30),
+                )
+                return Result.success()
             }
-        }.getOrNull()
+
+        val terminal =
+            runCatching {
+                when (status.state) {
+                    WakeCampaignState.Satisfied -> {
+                        WakeConvergenceReducer()
+                            .apply(
+                                local,
+                                status,
+                                runtime.statusVersion(campaignId),
+                            ).let {
+                                AlarmCampaignEngine().satisfy(
+                                    local,
+                                    Instant.parse(status.updatedAt),
+                                    "Selected device condition",
+                                )
+                            }
+                    }
+
+                    WakeCampaignState.Overridden -> {
+                        val override =
+                            fetch<RemoteOverride>(
+                                "remote-overrides/active",
+                                campaignId,
+                                accessToken,
+                            )
+                        val localDeviceId = proofAuthenticator.deviceId()
+                        if (localDeviceId !in override.targetDeviceIds) return@runCatching null
+                        WakeConvergenceReducer().applyOverride(
+                            local,
+                            override,
+                            status.statusVersion,
+                        )
+                        WakeConvergenceReducer().overrideState(local, override)
+                    }
+
+                    WakeCampaignState.QuietInterval,
+                    WakeCampaignState.RingingAttempt,
+                    WakeCampaignState.Scheduled,
+                    -> {
+                        null
+                    }
+                }
+            }.getOrNull()
 
         if (terminal != null) {
             runtime.save(terminal, writerCounter = status.statusVersion)
@@ -120,15 +136,16 @@ class WakeStatusPollWorker(
         return Result.success()
     }
 
-    internal suspend fun completeCampaign(campaignId: String): Result = try {
-        SunriseScheduler(applicationContext).completeOccurrence(campaignId)
-        Result.success()
-    } catch (failure: CancellationException) {
-        throw failure
-    } catch (_: Exception) {
-        android.util.Log.w("SunriseRelease", "Next alarm needs attention")
-        Result.retry()
-    }
+    internal suspend fun completeCampaign(campaignId: String): Result =
+        try {
+            SunriseScheduler(applicationContext).completeOccurrence(campaignId)
+            Result.success()
+        } catch (failure: CancellationException) {
+            throw failure
+        } catch (_: Exception) {
+            android.util.Log.w("SunriseRelease", "Next alarm needs attention")
+            Result.retry()
+        }
 
     private inline fun <reified T> fetch(
         resource: String,
@@ -136,14 +153,16 @@ class WakeStatusPollWorker(
         accessToken: String,
     ): T {
         val encodedCampaign = URLEncoder.encode(campaignId, StandardCharsets.UTF_8)
-        val path = when (resource) {
-            "wake-status" -> "sync/wake/status"
-            "remote-overrides/active" -> "sync/remote-overrides/active"
-            else -> error("unsupported sync resource")
-        }
-        val endpoint = java.net.URI(
-            "https://curfew-sync.hypertext.studio/$path?campaignId=$encodedCampaign",
-        )
+        val path =
+            when (resource) {
+                "wake-status" -> "sync/wake/status"
+                "remote-overrides/active" -> "sync/remote-overrides/active"
+                else -> error("unsupported sync resource")
+            }
+        val endpoint =
+            java.net.URI(
+                "${ProductionServices.SYNC_ORIGIN}/$path?campaignId=$encodedCampaign",
+            )
         val url = endpoint.toURL()
         val connection = url.openConnection() as HttpURLConnection
         return try {
@@ -166,11 +185,12 @@ class WakeStatusPollWorker(
             val status = connection.responseCode
             if (status in 300..399) error("sync redirects are rejected")
             if (status !in 200..299) error("sync returned HTTP $status")
-            val body = connection.inputStream.bufferedReader().use { reader ->
-                val text = reader.readText()
-                require(text.length <= 32 * 1024) { "sync response is too large" }
-                text
-            }
+            val body =
+                connection.inputStream.bufferedReader().use { reader ->
+                    val text = reader.readText()
+                    require(text.length <= 32 * 1024) { "sync response is too large" }
+                    text
+                }
             Json.decodeFromString(body)
         } finally {
             connection.disconnect()
@@ -195,15 +215,16 @@ object WakeStatusPollScheduler {
         delay: Duration = Duration.ZERO,
         failureCount: Int = 0,
     ) {
-        val request = OneTimeWorkRequestBuilder<WakeStatusPollWorker>()
-            .setInputData(
-                Data.Builder()
-                    .putString(WakeStatusPollWorker.KEY_CAMPAIGN_ID, campaignId)
-                    .putInt(WakeStatusPollWorker.KEY_FAILURE_COUNT, failureCount)
-                    .build(),
-            )
-            .setInitialDelay(delay.toMillis(), TimeUnit.MILLISECONDS)
-            .build()
+        val request =
+            OneTimeWorkRequestBuilder<WakeStatusPollWorker>()
+                .setInputData(
+                    Data
+                        .Builder()
+                        .putString(WakeStatusPollWorker.KEY_CAMPAIGN_ID, campaignId)
+                        .putInt(WakeStatusPollWorker.KEY_FAILURE_COUNT, failureCount)
+                        .build(),
+                ).setInitialDelay(delay.toMillis(), TimeUnit.MILLISECONDS)
+                .build()
         WorkManager.getInstance(context).enqueueUniqueWork(
             "curfew-wake-status-$campaignId",
             ExistingWorkPolicy.REPLACE,

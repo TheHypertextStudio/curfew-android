@@ -6,8 +6,7 @@ With an optional account, the service stores identity and entitlement metadata, 
 
 Generic callbacks disclose the campaign identifiers, timestamps, nonce, and authenticated status fields defined by protocol v2 to the user-configured HTTPS endpoint. The optional action URL is opened as an opaque user action and is not interpreted as a product integration.
 
-Removing the app erases its Keystore keys and makes remaining encrypted local blobs unreadable. Account deletion/export is handled through [the Curfew account portal](https://curfew.hypertext.studio/account).
-
+Removing the app erases its Keystore keys and makes remaining encrypted local blobs unreadable. Account deletion/export is handled through [the Curfew account portal](https://account.thecurfew.app/account).
 
 The optional place-code check-in uses the camera only while the scanner is open.
 Frames are decoded on the phone and are neither saved nor uploaded. The active

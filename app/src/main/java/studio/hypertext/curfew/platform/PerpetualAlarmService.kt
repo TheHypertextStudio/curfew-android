@@ -34,6 +34,7 @@ import studio.hypertext.curfew.alarm.AlarmCampaignState
 import studio.hypertext.curfew.alarm.AlarmPlaybackPlanner
 import studio.hypertext.curfew.callback.CallbackConfigurationRepository
 import studio.hypertext.curfew.callback.CallbackPollScheduler
+import studio.hypertext.curfew.config.ProductionServices
 import studio.hypertext.curfew.security.AndroidKeystoreSecretStore
 import studio.hypertext.curfew.sync.ForegroundWakeSocket
 import studio.hypertext.curfew.sync.WakeStatusPollScheduler
@@ -239,7 +240,7 @@ class PerpetualAlarmService : Service() {
                     java.nio.charset.StandardCharsets.UTF_8,
                 )
             val canonicalUrl =
-                "https://curfew-sync.hypertext.studio/sync/socket?campaignId=$campaign"
+                "${ProductionServices.SYNC_ORIGIN}/sync/socket?campaignId=$campaign"
             val proofAuthenticator = NativeDeviceProofAuthenticator(this@PerpetualAlarmService)
             val socket = ForegroundWakeSocket()
             wakeSocket = socket
@@ -247,7 +248,7 @@ class PerpetualAlarmService : Service() {
                 socket.connect(
                     endpoint =
                         java.net.URI(
-                            "wss://curfew-sync.hypertext.studio/sync/socket?campaignId=$campaign",
+                            "${ProductionServices.SYNC_SOCKET_ORIGIN}/sync/socket?campaignId=$campaign",
                         ),
                     bearerToken = token,
                     deviceId = proofAuthenticator.deviceId(),

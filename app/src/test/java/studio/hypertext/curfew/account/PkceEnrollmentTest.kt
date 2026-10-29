@@ -1,31 +1,32 @@
 package studio.hypertext.curfew.account
 
-import java.net.URI
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.net.URI
 
 class PkceEnrollmentTest {
     @Test
     fun `PKCE challenge matches RFC 7636 and uses the system browser contract`() {
         val verifier = "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk"
 
-        val request = OAuthEnrollmentRequest.create(
-            issuer = URI("https://curfew-account.hypertext.studio"),
-            clientId = "studio.hypertext.curfew.android",
-            redirectUri = URI("studio.hypertext.curfew://oauth/callback"),
-            state = "state-123",
-            codeVerifier = verifier,
-        )
+        val request =
+            OAuthEnrollmentRequest.create(
+                issuer = URI("https://account.thecurfew.app"),
+                clientId = "studio.hypertext.curfew.android",
+                redirectUri = URI("studio.hypertext.curfew://oauth/callback"),
+                state = "state-123",
+                codeVerifier = verifier,
+            )
 
         assertEquals(
             "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM",
             request.codeChallenge,
         )
         assertEquals("https", request.authorizationUri.scheme)
-        assertEquals("curfew-account.hypertext.studio", request.authorizationUri.host)
+        assertEquals("account.thecurfew.app", request.authorizationUri.host)
         assertEquals(
             "/api/auth/oauth2/authorize",
             request.authorizationUri.path,
@@ -35,7 +36,7 @@ class PkceEnrollmentTest {
         assertTrue(request.authorizationUri.rawQuery.contains("state=state-123"))
         assertTrue(
             request.authorizationUri.query.contains(
-                "resource=https://curfew-sync.hypertext.studio",
+                "resource=https://sync.thecurfew.app",
             ),
         )
         assertTrue(
@@ -53,7 +54,7 @@ class PkceEnrollmentTest {
     fun `non HTTPS issuer is rejected`() {
         assertThrows(IllegalArgumentException::class.java) {
             OAuthEnrollmentRequest.create(
-                issuer = URI("http://curfew-account.hypertext.studio"),
+                issuer = URI("http://account.thecurfew.app"),
                 clientId = "studio.hypertext.curfew.android",
                 redirectUri = URI("studio.hypertext.curfew://oauth/callback"),
                 state = "state-123",
@@ -79,12 +80,34 @@ class PkceEnrollmentTest {
     fun `redirect must be the registered public native callback`() {
         assertThrows(IllegalArgumentException::class.java) {
             OAuthEnrollmentRequest.create(
-                issuer = URI("https://curfew-account.hypertext.studio"),
+                issuer = URI("https://account.thecurfew.app"),
                 clientId = "studio.hypertext.curfew.android",
                 redirectUri = URI("studio.hypertext.curfew:/unexpected"),
                 state = "state-123",
                 codeVerifier = "verifier-with-at-least-forty-three-characters-1234",
             )
+        }
+    }
+
+    @Test
+    fun `issuer must exactly match production authority without credentials or paths`() {
+        listOf(
+            "https://curfew-account.hypertext.studio",
+            "https://account.thecurfew.app:444",
+            "https://user@account.thecurfew.app",
+            "https://account.thecurfew.app/unexpected",
+            "https://account.thecurfew.app?redirect=unexpected",
+            "https://account.thecurfew.app#unexpected",
+        ).forEach { issuer ->
+            assertThrows(issuer, IllegalArgumentException::class.java) {
+                OAuthEnrollmentRequest.create(
+                    issuer = URI(issuer),
+                    clientId = "studio.hypertext.curfew.android",
+                    redirectUri = URI("studio.hypertext.curfew://oauth/callback"),
+                    state = "state-123",
+                    codeVerifier = "verifier-with-at-least-forty-three-characters-1234",
+                )
+            }
         }
     }
 }

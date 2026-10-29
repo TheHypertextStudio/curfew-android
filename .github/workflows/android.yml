@@ -37,6 +37,9 @@ jobs:
           packages: platform-tools
       - name: Install compile SDK
         run: sdkmanager "platforms;android-37.0" "build-tools;37.0.0"
+      - name: Verify production service routing
+        working-directory: curfew-android
+        run: python3 -B scripts/tests/test_service_origins.py
       - name: Test, lint, and assemble
         working-directory: curfew-android
         run: >-
@@ -170,7 +173,7 @@ jobs:
           packages: platform-tools
       - name: Install compile SDK
         run: sdkmanager "platforms;android-37.0" "build-tools;37.0.0"
-      - name: Produce local signed evidence
+      - name: Produce unsigned verification evidence
         working-directory: curfew-android
         run: ./gradlew writeReleaseChecksums generateCurfewSbom writeBuildProvenance
       - uses: actions/upload-artifact@v7

@@ -1,15 +1,14 @@
 package studio.hypertext.curfew.account
 
+import studio.hypertext.curfew.config.ProductionServices
+import studio.hypertext.curfew.protocols.CurfewFirstPartyOAuthScope
 import java.net.URI
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 import java.security.SecureRandom
 import java.util.Base64
-import studio.hypertext.curfew.protocols.CurfewFirstPartyOAuthScope
 
-private const val CURFEW_ACCOUNT_HOST = "curfew-account.hypertext.studio"
-private const val CURFEW_SYNC_RESOURCE = "https://curfew-sync.hypertext.studio"
 private const val CURFEW_ANDROID_REDIRECT = "studio.hypertext.curfew://oauth/callback"
 internal val CURFEW_ANDROID_SCOPES: String =
     (listOf("openid", "offline_access") + CurfewFirstPartyOAuthScope.entries.map { it.value })
@@ -31,8 +30,7 @@ data class OAuthEnrollmentRequest(
             state: String = randomUrlSafe(32),
             codeVerifier: String = randomUrlSafe(64),
         ): OAuthEnrollmentRequest {
-            require(issuer.scheme == "https") { "OAuth issuer must use HTTPS" }
-            require(issuer.host == CURFEW_ACCOUNT_HOST) { "Unexpected Curfew account host" }
+            require(ProductionServices.isAccountIssuer(issuer)) { "Unexpected Curfew account issuer" }
             require(clientId.isNotBlank())
             require(state.isNotBlank())
             require(codeVerifier.length in 43..128) { "PKCE verifier must be 43-128 characters" }
@@ -40,22 +38,25 @@ data class OAuthEnrollmentRequest(
                 "OAuth redirect must be Curfew's registered native callback"
             }
 
-            val challenge = Base64.getUrlEncoder().withoutPadding().encodeToString(
-                MessageDigest.getInstance("SHA-256")
-                    .digest(codeVerifier.toByteArray(StandardCharsets.US_ASCII)),
-            )
-            val query = linkedMapOf(
-                "client_id" to clientId,
-                "redirect_uri" to redirectUri.toASCIIString(),
-                "response_type" to "code",
-                "scope" to CURFEW_ANDROID_SCOPES,
-                "resource" to CURFEW_SYNC_RESOURCE,
-                "state" to state,
-                "code_challenge" to challenge,
-                "code_challenge_method" to "S256",
-            ).entries.joinToString("&") { (key, value) ->
-                "${encode(key)}=${encode(value)}"
-            }
+            val challenge =
+                Base64.getUrlEncoder().withoutPadding().encodeToString(
+                    MessageDigest
+                        .getInstance("SHA-256")
+                        .digest(codeVerifier.toByteArray(StandardCharsets.US_ASCII)),
+                )
+            val query =
+                linkedMapOf(
+                    "client_id" to clientId,
+                    "redirect_uri" to redirectUri.toASCIIString(),
+                    "response_type" to "code",
+                    "scope" to CURFEW_ANDROID_SCOPES,
+                    "resource" to ProductionServices.SYNC_ORIGIN,
+                    "state" to state,
+                    "code_challenge" to challenge,
+                    "code_challenge_method" to "S256",
+                ).entries.joinToString("&") { (key, value) ->
+                    "${encode(key)}=${encode(value)}"
+                }
             val base = issuer.toASCIIString().trimEnd('/')
             return OAuthEnrollmentRequest(
                 authorizationUri = URI("$base/api/auth/oauth2/authorize?$query"),
@@ -71,9 +72,11 @@ data class OAuthEnrollmentRequest(
                 Base64.getUrlEncoder().withoutPadding().encodeToString(it)
             }
 
-        private fun encode(value: String): String = URLEncoder.encode(
-            value,
-            StandardCharsets.UTF_8,
-        ).replace("+", "%20")
+        private fun encode(value: String): String =
+            URLEncoder
+                .encode(
+                    value,
+                    StandardCharsets.UTF_8,
+                ).replace("+", "%20")
     }
 }
