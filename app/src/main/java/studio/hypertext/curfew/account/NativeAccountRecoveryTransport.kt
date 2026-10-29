@@ -1,18 +1,20 @@
 package studio.hypertext.curfew.account
 
 import android.content.Context
-import java.net.HttpURLConnection
-import java.net.URI
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import studio.hypertext.curfew.config.ProductionServices
+import studio.hypertext.curfew.protocols.AccountDeviceEnrollment
 import studio.hypertext.curfew.protocols.RecoveryKeyEnvelope
 import studio.hypertext.curfew.protocols.RootKeyEnvelope
-import studio.hypertext.curfew.protocols.AccountDeviceEnrollment
 import studio.hypertext.curfew.security.AndroidKeystoreSecretStore
+import java.net.HttpURLConnection
+import java.net.URI
 
-class NativeAccountRecoveryTransport(context: Context) :
-    AccountRecoveryTransport,
+class NativeAccountRecoveryTransport(
+    context: Context,
+) : AccountRecoveryTransport,
     PeerRootEnvelopeTransport {
     private val secrets = AndroidKeystoreSecretStore(context)
     private val authenticator = NativeDeviceProofAuthenticator(context)
@@ -26,10 +28,11 @@ class NativeAccountRecoveryTransport(context: Context) :
         )
     }
 
-    override fun getRecoveryEnvelope(): RecoveryKeyEnvelope? = get(
-        URI("$SYNC_ORIGIN/sync/e2ee/recovery-envelope"),
-        authenticator.deviceId(),
-    )
+    override fun getRecoveryEnvelope(): RecoveryKeyEnvelope? =
+        get(
+            URI("$SYNC_ORIGIN/sync/e2ee/recovery-envelope"),
+            authenticator.deviceId(),
+        )
 
     override fun putRecoveryEnvelope(envelope: RecoveryKeyEnvelope): Boolean {
         val endpoint = URI("$SYNC_ORIGIN/sync/e2ee/recovery-envelope")
@@ -49,15 +52,17 @@ class NativeAccountRecoveryTransport(context: Context) :
 
     override fun currentDeviceId(): String = authenticator.deviceId()
 
-    override fun listDevices(): List<AccountDeviceEnrollment> = get(
-        URI("$SYNC_ORIGIN/sync/devices"),
-        authenticator.deviceId(),
-    ) ?: emptyList()
+    override fun listDevices(): List<AccountDeviceEnrollment> =
+        get(
+            URI("$SYNC_ORIGIN/sync/devices"),
+            authenticator.deviceId(),
+        ) ?: emptyList()
 
     override fun putRootEnvelope(envelope: RootKeyEnvelope) {
-        val endpoint = URI(
-            "$SYNC_ORIGIN/sync/devices/${envelope.recipientDeviceId}/root-key-envelope",
-        )
+        val endpoint =
+            URI(
+                "$SYNC_ORIGIN/sync/devices/${envelope.recipientDeviceId}/root-key-envelope",
+            )
         val body = json.encodeToString(envelope)
         val connection = openAuthenticated(endpoint, "PUT", body)
         try {
@@ -69,18 +74,30 @@ class NativeAccountRecoveryTransport(context: Context) :
         }
     }
 
-    private inline fun <reified T> get(endpoint: URI, deviceId: String): T? {
+    private inline fun <reified T> get(
+        endpoint: URI,
+        deviceId: String,
+    ): T? {
         val connection = openAuthenticated(endpoint, "GET", null, deviceId)
         return try {
             when (val status = connection.responseCode) {
-                404 -> null
+                404 -> {
+                    null
+                }
+
                 in 200..299 -> {
                     val response = connection.inputStream.bufferedReader().use { it.readText() }
                     require(response.length <= MAX_RESPONSE_BYTES)
                     json.decodeFromString(response)
                 }
-                in 300..399 -> error("encrypted-key recovery redirects are rejected")
-                else -> error("encrypted-key recovery returned HTTP $status")
+
+                in 300..399 -> {
+                    error("encrypted-key recovery redirects are rejected")
+                }
+
+                else -> {
+                    error("encrypted-key recovery returned HTTP $status")
+                }
             }
         } finally {
             connection.disconnect()
@@ -93,15 +110,17 @@ class NativeAccountRecoveryTransport(context: Context) :
         body: String?,
         deviceId: String = authenticator.deviceId(),
     ): HttpURLConnection {
-        val accessToken = requireNotNull(secrets.get(ACCESS_TOKEN_KEY)) {
-            "account access token is missing"
-        }.toString(Charsets.UTF_8)
-        val proof = authenticator.proof(
-            accessToken = accessToken,
-            method = method,
-            canonicalUrl = endpoint.toASCIIString(),
-            jsonBody = body,
-        )
+        val accessToken =
+            requireNotNull(secrets.get(ACCESS_TOKEN_KEY)) {
+                "account access token is missing"
+            }.toString(Charsets.UTF_8)
+        val proof =
+            authenticator.proof(
+                accessToken = accessToken,
+                method = method,
+                canonicalUrl = endpoint.toASCIIString(),
+                jsonBody = body,
+            )
         return (endpoint.toURL().openConnection() as HttpURLConnection).apply {
             instanceFollowRedirects = false
             requestMethod = method
@@ -120,8 +139,8 @@ class NativeAccountRecoveryTransport(context: Context) :
     }
 
     private companion object {
-        const val SYNC_ORIGIN = "https://curfew-sync.hypertext.studio"
-        const val ACCESS_TOKEN_KEY = "account:access-token"
+        const val SYNC_ORIGIN = ProductionServices.SYNC_ORIGIN
+        const val ACCESS_TOKEN_KEY = ProductionServices.ACCESS_TOKEN_KEY
         const val MAX_RESPONSE_BYTES = 32 * 1024
     }
 }

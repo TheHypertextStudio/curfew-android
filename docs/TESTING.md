@@ -1351,3 +1351,34 @@ and does not claim that a printed code was physically aimed at the lens.
 The consumer code flow and bounded recovery grants retain the screenshot catalog and current onboarding/editor behavior from main. Editor save taps wait for native dialog and IME dismissal, then target the current Save alarm action. Welcome backgrounds remain full bleed, with safe insets on the foreground panes only. Catalog tests require consumer enrollment states alongside advanced-service fixtures. Existing API 33–36 instrumentation, Plain/GMS unit/lint/build checks and catalog generation validate the combined candidate before integration. Production activation and installer publication remain held.
 
 The combined API35 native matrix exposed a real landscape regression: all 208 native suite tests passed, but the printed-code scene could not display Scan code beside Save/Print. The shared setup default remains unchanged; the consumer code pane explicitly requests its existing 640 dp landscape threshold. The same full capture assertion requires all four actions to be displayed together and remains unchanged.
+
+## Production service routing
+
+`python3 -B scripts/tests/test_service_origins.py` protects every shipping Kotlin
+endpoint from retired first-party hosts and keeps production routing in one
+configuration. It failed on the retired endpoints and missing configuration
+before the repair. `PkceEnrollmentTest` binds OAuth to the exact production
+issuer, current resource and registered redirect, including rejection of retired
+authorities, credentials, alternate ports and issuer paths.
+`NativeDeviceProofFactoryTest` binds proofs to the current HTTPS sync authority
+and rejects retired or lookalike origins. These are routing and authorization
+regressions; they do not prove a real account enrollment or device journey.
+
+See [launch boundaries](LAUNCH_READINESS.md) and the
+[Android enforcement design](ANDROID_ENFORCEMENT.md) before making release or
+phone-protection claims. No blocking service or new sensitive grant is added.
+
+`AccountSessionPreferencesTest` covers the non-destructive issuer upgrade:
+legacy flags cannot hide native sign-in, unrelated data and legacy flags remain
+stored, current enrollment survives reopen, and an old recovery acknowledgment
+cannot enroll a signed-out session. A fresh sign-in clears previous enrollment
+until current recovery finishes. Old root/recovery keys and tokens are preserved
+under their legacy identifiers but never reused as current-authority credentials.
+
+Recovery failure is also covered: a fresh exchange cannot mark the session
+signed in until recovery returns a result, so network failure leaves native
+retry reachable and encrypted background work disarmed.
+
+A recreated authenticated session still awaiting recovery routes its existing
+Continue setup action into native enrollment again, where recovery can be
+reconstructed. Fully enrolled sessions retain account management on the web.

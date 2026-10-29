@@ -1,41 +1,47 @@
 package studio.hypertext.curfew.account
 
 import android.content.Context
-import java.net.HttpURLConnection
-import java.net.URI
-import java.util.UUID
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
+import studio.hypertext.curfew.config.ProductionServices
 import studio.hypertext.curfew.security.AndroidDeviceSigner
 import studio.hypertext.curfew.security.AndroidKeystoreSecretStore
 import studio.hypertext.curfew.security.NativeDeviceProofFactory
+import java.net.HttpURLConnection
+import java.net.URI
+import java.util.UUID
 
-class NativeDeviceProofAuthenticator(context: Context) {
+class NativeDeviceProofAuthenticator(
+    context: Context,
+) {
     private val secrets = AndroidKeystoreSecretStore(context)
     private val signer = AndroidDeviceSigner()
 
-    fun deviceId(): String = secrets.getOrPut(DEVICE_ID_KEY) {
-        UUID.randomUUID().toString().toByteArray(Charsets.UTF_8)
-    }.toString(Charsets.UTF_8)
+    fun deviceId(): String =
+        secrets
+            .getOrPut(DEVICE_ID_KEY) {
+                UUID.randomUUID().toString().toByteArray(Charsets.UTF_8)
+            }.toString(Charsets.UTF_8)
 
     fun proof(
         accessToken: String,
         method: String,
         canonicalUrl: String,
         jsonBody: String? = null,
-    ): String = NativeDeviceProofFactory(signer).create(
-        accessToken = accessToken,
-        nonce = challenge(accessToken),
-        method = method,
-        canonicalUrl = canonicalUrl,
-        jsonBody = jsonBody,
-    )
+    ): String =
+        NativeDeviceProofFactory(signer).create(
+            accessToken = accessToken,
+            nonce = challenge(accessToken),
+            method = method,
+            canonicalUrl = canonicalUrl,
+            jsonBody = jsonBody,
+        )
 
     fun challenge(accessToken: String): String {
-        val endpoint = URI("https://curfew-sync.hypertext.studio/sync/device-proof/challenge")
+        val endpoint = URI("${ProductionServices.SYNC_ORIGIN}/sync/device-proof/challenge")
         val connection = endpoint.toURL().openConnection() as HttpURLConnection
         try {
             connection.instanceFollowRedirects = false
@@ -53,7 +59,10 @@ class NativeDeviceProofAuthenticator(context: Context) {
             check(status in 200..299) { "device proof challenge returned HTTP $status" }
             val response = connection.inputStream.bufferedReader().use { it.readText() }
             require(response.length <= 8 * 1024)
-            return Json.parseToJsonElement(response).jsonObject.getValue("nonce")
+            return Json
+                .parseToJsonElement(response)
+                .jsonObject
+                .getValue("nonce")
                 .jsonPrimitive.content
         } finally {
             connection.disconnect()

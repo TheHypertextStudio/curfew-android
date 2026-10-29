@@ -52,6 +52,7 @@ import studio.hypertext.curfew.alarm.campaignStartedAt
 import studio.hypertext.curfew.callback.AndroidWakeConditionSetup
 import studio.hypertext.curfew.callback.CallbackConfigurationRepository
 import studio.hypertext.curfew.checkin.PlaceApprovalResult
+import studio.hypertext.curfew.config.ProductionServices
 import studio.hypertext.curfew.persistence.CurfewPreferenceState
 import studio.hypertext.curfew.persistence.CurfewPreferences
 import studio.hypertext.curfew.persistence.FirstUseChoice
@@ -462,7 +463,7 @@ class MainActivity : ComponentActivity() {
                         onSetupActivated = { lifecycleScope.launch { runCatching { firstUsePreferences.clearDraft() } } },
                         accountEnrolled = preferenceState.accountEnrolled,
                         accountSignedIn = preferenceState.accountSignedIn,
-                        accountRecoveryState = accountRecoveryState,
+                        accountRecoveryState = accountRecoveryState.takeIf { preferenceState.accountSignedIn },
                         onGrantExactAlarm = ::requestExactAlarmAccess,
                         onGrantNotifications = ::requestNotifications,
                         onGrantFullScreen = ::requestFullScreenAccess,
@@ -476,7 +477,7 @@ class MainActivity : ComponentActivity() {
                             startActivity(
                                 Intent(
                                     Intent.ACTION_VIEW,
-                                    Uri.parse("https://curfew.hypertext.studio/account"),
+                                    Uri.parse(ProductionServices.ACCOUNT_PORTAL),
                                 ),
                             )
                         },

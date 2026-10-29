@@ -33,6 +33,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import studio.hypertext.curfew.R
 import studio.hypertext.curfew.account.AccountRecoveryState
+import studio.hypertext.curfew.persistence.AccountSessionState
 import studio.hypertext.curfew.readiness.AlarmReadiness
 import studio.hypertext.curfew.readiness.AlarmSoundCheckState
 import studio.hypertext.curfew.readiness.ReadinessAction
@@ -266,7 +267,7 @@ internal fun CurfewAccountScreen(
 
             AccountRecoveryState.Ready, null -> {
                 Button(
-                    onClick = if (!signedIn) onEnrollAccount else onOpenAccount,
+                    onClick = if (AccountSessionState(signedIn, enrolled).needsEnrollment) onEnrollAccount else onOpenAccount,
                     modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
                 ) {
                     Text(
