@@ -1,64 +1,74 @@
 package studio.hypertext.curfew.account
 
 import android.content.Context
-import java.net.HttpURLConnection
-import java.net.URI
-import java.time.Instant
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import studio.hypertext.curfew.config.ProductionServices
 import studio.hypertext.curfew.protocols.DeviceEnrollmentRequest
 import studio.hypertext.curfew.protocols.DeviceProof
 import studio.hypertext.curfew.security.AndroidDeviceEncryptionKey
 import studio.hypertext.curfew.security.AndroidDeviceSigner
 import studio.hypertext.curfew.security.NativeDeviceProofFactory
+import java.net.HttpURLConnection
+import java.net.URI
+import java.time.Instant
 
-class NativeDeviceEnrollmentClient(context: Context) {
+class NativeDeviceEnrollmentClient(
+    context: Context,
+) {
     private val signingKey = AndroidDeviceSigner()
     private val encryptionKey = AndroidDeviceEncryptionKey()
     private val proofAuthenticator = NativeDeviceProofAuthenticator(context)
 
-    fun enroll(accessToken: String, pkceChallenge: String, state: String) {
+    fun enroll(
+        accessToken: String,
+        pkceChallenge: String,
+        state: String,
+    ) {
         val deviceId = proofAuthenticator.deviceId()
         val challenge = proofAuthenticator.challenge(accessToken)
         val enrolledAt = Instant.now().toString()
         val signingJwk = signingKey.publicJwk()
         val encryptionJwk = encryptionKey.publicJwk()
-        val unsignedBody = buildJsonObject {
-            put("coordinatorNonce", challenge)
-            put("deviceId", deviceId)
-            put("encryptionPublicKeyJwk", Json.parseToJsonElement(Json.encodeToString(encryptionJwk)))
-            put("enrolledAt", enrolledAt)
-            put("keyEpoch", 1)
-            put("protocolVersion", "0.3")
-            put("pkceChallenge", pkceChallenge)
-            put("remoteControlEnabled", false)
-            put("signingPublicKeyJwk", Json.parseToJsonElement(Json.encodeToString(signingJwk)))
-            put("state", state)
-        }.toString()
-        val endpoint = URI("https://curfew-sync.hypertext.studio/sync/devices/enroll")
-        val proof = NativeDeviceProofFactory(signingKey).create(
-            accessToken = accessToken,
-            nonce = challenge,
-            method = "POST",
-            canonicalUrl = endpoint.toASCIIString(),
-            jsonBody = unsignedBody,
-        )
-        val request = DeviceEnrollmentRequest(
-            coordinatorNonce = challenge,
-            deviceId = deviceId,
-            deviceProof = DeviceProof(proof),
-            encryptionPublicKeyJwk = encryptionJwk,
-            enrolledAt = enrolledAt,
-            keyEpoch = 1,
-            protocolVersion = "0.3",
-            pkceChallenge = pkceChallenge,
-            // Android has not offered remote-control consent in its setup flow.
-            remoteControlEnabled = false,
-            signingPublicKeyJwk = signingJwk,
-            state = state,
-        )
+        val unsignedBody =
+            buildJsonObject {
+                put("coordinatorNonce", challenge)
+                put("deviceId", deviceId)
+                put("encryptionPublicKeyJwk", Json.parseToJsonElement(Json.encodeToString(encryptionJwk)))
+                put("enrolledAt", enrolledAt)
+                put("keyEpoch", 1)
+                put("protocolVersion", "0.3")
+                put("pkceChallenge", pkceChallenge)
+                put("remoteControlEnabled", false)
+                put("signingPublicKeyJwk", Json.parseToJsonElement(Json.encodeToString(signingJwk)))
+                put("state", state)
+            }.toString()
+        val endpoint = URI("${ProductionServices.SYNC_ORIGIN}/sync/devices/enroll")
+        val proof =
+            NativeDeviceProofFactory(signingKey).create(
+                accessToken = accessToken,
+                nonce = challenge,
+                method = "POST",
+                canonicalUrl = endpoint.toASCIIString(),
+                jsonBody = unsignedBody,
+            )
+        val request =
+            DeviceEnrollmentRequest(
+                coordinatorNonce = challenge,
+                deviceId = deviceId,
+                deviceProof = DeviceProof(proof),
+                encryptionPublicKeyJwk = encryptionJwk,
+                enrolledAt = enrolledAt,
+                keyEpoch = 1,
+                protocolVersion = "0.3",
+                pkceChallenge = pkceChallenge,
+                // Android has not offered remote-control consent in its setup flow.
+                remoteControlEnabled = false,
+                signingPublicKeyJwk = signingJwk,
+                state = state,
+            )
         val connection = endpoint.toURL().openConnection() as HttpURLConnection
         try {
             connection.instanceFollowRedirects = false
@@ -76,5 +86,4 @@ class NativeDeviceEnrollmentClient(context: Context) {
             connection.disconnect()
         }
     }
-
 }

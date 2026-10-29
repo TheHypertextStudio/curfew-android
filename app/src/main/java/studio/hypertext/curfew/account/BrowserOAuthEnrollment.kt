@@ -3,26 +3,31 @@ package studio.hypertext.curfew.account
 import android.app.Activity
 import android.net.Uri
 import androidx.browser.customtabs.CustomTabsIntent
-import java.net.URI
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import studio.hypertext.curfew.config.ProductionServices
 import studio.hypertext.curfew.security.AndroidKeystoreSecretStore
+import java.net.URI
 
-class BrowserOAuthEnrollment(activity: Activity) {
+class BrowserOAuthEnrollment(
+    activity: Activity,
+) {
     private val hostActivity = activity
     private val secrets = AndroidKeystoreSecretStore(activity)
 
     suspend fun begin(): OAuthEnrollmentRequest {
         check(canUseAccountSignIn(hostActivity.packageName)) { "Account sign-in is unavailable in this test build." }
         val clientId = OAuthDynamicClientRegistrar(hostActivity).registeredClientId()
-        val request = OAuthEnrollmentRequest.create(
-            issuer = URI("https://curfew-account.hypertext.studio"),
-            clientId = clientId,
-            redirectUri = URI("studio.hypertext.curfew://oauth/callback"),
-        )
+        val request =
+            OAuthEnrollmentRequest.create(
+                issuer = URI(ProductionServices.ACCOUNT_ORIGIN),
+                clientId = clientId,
+                redirectUri = URI("studio.hypertext.curfew://oauth/callback"),
+            )
         secrets.put("oauth:${request.state}:verifier", request.codeVerifier.toByteArray())
         withContext(Dispatchers.Main) {
-            CustomTabsIntent.Builder()
+            CustomTabsIntent
+                .Builder()
                 .setShowTitle(true)
                 .build()
                 .launchUrl(hostActivity, Uri.parse(request.authorizationUri.toASCIIString()))
