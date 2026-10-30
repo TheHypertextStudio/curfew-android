@@ -17,7 +17,7 @@ room = '2.8.5'
 datastore = '1.2.1'
 work = '2.12.0'
 browser = '1.10.0'
-firebaseMessaging = '25.1.1'
+firebaseMessaging = '26.0.1'
 fragment = '1.9.1'
 okhttp = '5.2.3'
 
