@@ -97,7 +97,7 @@ android {
 }
 
 dependencies {
-    "screenshotTestImplementation"("com.android.tools.screenshot:screenshot-validation-api:0.0.1-alpha16")
+    "screenshotTestImplementation"("com.android.tools.screenshot:screenshot-validation-api:0.0.1-alpha17")
     "screenshotTestImplementation"(libs.androidx.compose.ui.tooling)
     constraints {
         add("gmsImplementation", libs.androidx.fragment.get()) {
