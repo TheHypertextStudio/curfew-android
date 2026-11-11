@@ -115,66 +115,182 @@ internal fun SunriseDailyScreen(
         alarm.occurrence == null && alarm.completedThrough?.let { it >= date } == true
     } ?: false
     BoxWithConstraints(Modifier.fillMaxSize()) {
+        val isTablet = maxWidth >= 720.dp
         // Leave room for recurrence and the check-in action when the viewport is short.
-        val timeSizeLimit = (maxHeight.value * 0.30f / LocalDensity.current.fontScale).coerceIn(48f, 100f)
-        TaskContent(spacing = 12.dp, verticalPadding = 12.dp) {
-            Surface(shape = MaterialTheme.shapes.extraLarge, color = MaterialTheme.colorScheme.surfaceContainerLow) {
-                Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    if (saved == null) {
-                        Text("No alarm set", style = MaterialTheme.typography.titleLarge)
-                        FilledTonalButton(onClick = onEdit, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp).semantics { contentDescription = "Edit alarm" }) {
-                            Text("Choose a wake time")
-                        }
-                    } else {
-                        if (complete || saved.enabled && !canArm) {
-                            Text(if (complete) "One-night alarm complete" else "Needs attention",
-                                style = MaterialTheme.typography.titleMedium)
-                        }
-                        Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                            Box(Modifier.weight(1f).heightIn(min = 48.dp).curfewSharedBounds("alarm-time").clickable(role = Role.Button, onClick = onEdit)
-                                .semantics {
-                                    contentDescription = "Edit alarm"
-                                    alarm.occurrence?.startsAt?.atZone(ZoneId.systemDefault())?.let { occurrence ->
-                                        stateDescription = "${occurrence.toLocalDate().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale))}, ${timeLabel(occurrence.toLocalTime(), context, locale)}"
-                                    }
-                                }) {
-                                DailyAlarmTime(saved.wakeTime, DateFormat.is24HourFormat(context), locale, Modifier.fillMaxWidth(), timeSizeLimit)
+        val timeSizeLimit = if (isTablet) 140f else (maxHeight.value * 0.30f / LocalDensity.current.fontScale).coerceIn(48f, 100f)
+
+        if (isTablet) {
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState(LocalTaskInitialScroll.current))
+                    .padding(horizontal = 32.dp, vertical = 24.dp)
+                    .imePadding(),
+                horizontalArrangement = Arrangement.spacedBy(24.dp),
+                verticalAlignment = androidx.compose.ui.Alignment.Top,
+            ) {
+                // Primary Column: Large Hero Alarm Card
+                Surface(
+                    modifier = Modifier.weight(1.3f),
+                    shape = MaterialTheme.shapes.extraLarge,
+                    color = MaterialTheme.colorScheme.surfaceContainerLow,
+                ) {
+                    Column(
+                        Modifier.fillMaxWidth().padding(horizontal = 28.dp, vertical = 24.dp),
+                        verticalArrangement = Arrangement.spacedBy(20.dp),
+                    ) {
+                        if (saved == null) {
+                            Text("No alarm set", style = MaterialTheme.typography.headlineMedium)
+                            FilledTonalButton(
+                                onClick = onEdit,
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp).semantics { contentDescription = "Edit alarm" },
+                            ) {
+                                Text("Choose a wake time")
                             }
-                            if (!complete) Switch(
-                                checked = saved.enabled, onCheckedChange = onToggle,
-                                enabled = !busy && (saved.enabled || canArm),
-                                modifier = Modifier.semantics { contentDescription = "Alarm" },
-                            )
-                        }
-                        if (saved.onceDate == null) {
-                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                                DayOfWeek.entries.forEach { day ->
-                                    val selected = day in saved.weekdays
-                                    Surface(modifier = Modifier.weight(1f), shape = MaterialTheme.shapes.extraLarge, color = if (selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent) {
-                                        Box(Modifier.fillMaxWidth().heightIn(min = 32.dp).padding(vertical = 6.dp), contentAlignment = androidx.compose.ui.Alignment.Center) {
-                                            Text(day.getDisplayName(TextStyle.NARROW, locale), style = MaterialTheme.typography.labelLarge,
-                                                color = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
-                                                textAlign = TextAlign.Center,
-                                                modifier = Modifier.fillMaxWidth().semantics { contentDescription = "${day.getDisplayName(TextStyle.FULL, locale)}, ${if (selected) "selected" else "not selected"}" })
+                        } else {
+                            if (complete || saved.enabled && !canArm) {
+                                Text(
+                                    if (complete) "One-night alarm complete" else "Needs attention",
+                                    style = MaterialTheme.typography.titleMedium,
+                                )
+                            }
+                            Row(
+                                Modifier.fillMaxWidth(),
+                                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            ) {
+                                Box(
+                                    Modifier.weight(1f).heightIn(min = 64.dp).curfewSharedBounds("alarm-time").clickable(role = Role.Button, onClick = onEdit)
+                                        .semantics {
+                                            contentDescription = "Edit alarm"
+                                            alarm.occurrence?.startsAt?.atZone(ZoneId.systemDefault())?.let { occurrence ->
+                                                stateDescription = "${occurrence.toLocalDate().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale))}, ${timeLabel(occurrence.toLocalTime(), context, locale)}"
+                                            }
+                                        },
+                                ) {
+                                    DailyAlarmTime(saved.wakeTime, DateFormat.is24HourFormat(context), locale, Modifier.fillMaxWidth(), timeSizeLimit)
+                                }
+                                if (!complete) Switch(
+                                    checked = saved.enabled, onCheckedChange = onToggle,
+                                    enabled = !busy && (saved.enabled || canArm),
+                                    modifier = Modifier.semantics { contentDescription = "Alarm" },
+                                )
+                            }
+                            if (saved.onceDate == null) {
+                                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    DayOfWeek.entries.forEach { day ->
+                                        val selected = day in saved.weekdays
+                                        Surface(
+                                            modifier = Modifier.weight(1f),
+                                            shape = MaterialTheme.shapes.extraLarge,
+                                            color = if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainer,
+                                        ) {
+                                            Box(
+                                                Modifier.fillMaxWidth().heightIn(min = 40.dp).padding(vertical = 8.dp),
+                                                contentAlignment = androidx.compose.ui.Alignment.Center,
+                                            ) {
+                                                Text(
+                                                    day.getDisplayName(TextStyle.SHORT, locale),
+                                                    style = MaterialTheme.typography.labelLarge,
+                                                    color = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+                                                    textAlign = TextAlign.Center,
+                                                    modifier = Modifier.fillMaxWidth().semantics {
+                                                        contentDescription = "${day.getDisplayName(TextStyle.FULL, locale)}, ${if (selected) "selected" else "not selected"}"
+                                                    },
+                                                )
+                                            }
                                         }
                                     }
                                 }
                             }
-                        }
-                        saved.onceDate?.let { date ->
-                            Text(date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale)),
-                                style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            saved.onceDate?.let { date ->
+                                Text(
+                                    date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale)),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
                         }
                     }
                 }
+
+                // Secondary Column: Check-in, Bedtime, Readiness status
+                Column(
+                    modifier = Modifier.weight(0.9f),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                ) {
+                    Surface(shape = MaterialTheme.shapes.extraLarge, color = MaterialTheme.colorScheme.surfaceContainerLow) {
+                        SettingRow(
+                            conditionLabel ?: "Check-in",
+                            if (conditionLabel == null) "Not connected" else if (!conditionVerified) "Not tested" else null,
+                            R.drawable.ic_link_rounded,
+                            onCheckIn,
+                        )
+                    }
+                    if (error != null) TaskMessage(error, error = true)
+                    if (!canArm) Button(onClick = onSetup, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Finish setup") }
+                }
             }
-            Surface(shape = MaterialTheme.shapes.large, color = MaterialTheme.colorScheme.surfaceContainerLow) {
-                SettingRow(conditionLabel ?: "Check-in", if (conditionLabel == null) "Not connected" else if (!conditionVerified) "Not tested" else null,
-                    R.drawable.ic_link_rounded, onCheckIn)
+        } else {
+            TaskContent(spacing = 12.dp, verticalPadding = 12.dp) {
+                Surface(shape = MaterialTheme.shapes.extraLarge, color = MaterialTheme.colorScheme.surfaceContainerLow) {
+                    Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        if (saved == null) {
+                            Text("No alarm set", style = MaterialTheme.typography.titleLarge)
+                            FilledTonalButton(onClick = onEdit, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp).semantics { contentDescription = "Edit alarm" }) {
+                                Text("Choose a wake time")
+                            }
+                        } else {
+                            if (complete || saved.enabled && !canArm) {
+                                Text(if (complete) "One-night alarm complete" else "Needs attention",
+                                    style = MaterialTheme.typography.titleMedium)
+                            }
+                            Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                Box(Modifier.weight(1f).heightIn(min = 48.dp).curfewSharedBounds("alarm-time").clickable(role = Role.Button, onClick = onEdit)
+                                    .semantics {
+                                        contentDescription = "Edit alarm"
+                                        alarm.occurrence?.startsAt?.atZone(ZoneId.systemDefault())?.let { occurrence ->
+                                            stateDescription = "${occurrence.toLocalDate().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale))}, ${timeLabel(occurrence.toLocalTime(), context, locale)}"
+                                        }
+                                    }) {
+                                    DailyAlarmTime(saved.wakeTime, DateFormat.is24HourFormat(context), locale, Modifier.fillMaxWidth(), timeSizeLimit)
+                                }
+                                if (!complete) Switch(
+                                    checked = saved.enabled, onCheckedChange = onToggle,
+                                    enabled = !busy && (saved.enabled || canArm),
+                                    modifier = Modifier.semantics { contentDescription = "Alarm" },
+                                )
+                            }
+                            if (saved.onceDate == null) {
+                                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                    DayOfWeek.entries.forEach { day ->
+                                        val selected = day in saved.weekdays
+                                        Surface(modifier = Modifier.weight(1f), shape = MaterialTheme.shapes.extraLarge, color = if (selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent) {
+                                            Box(Modifier.fillMaxWidth().heightIn(min = 32.dp).padding(vertical = 6.dp), contentAlignment = androidx.compose.ui.Alignment.Center) {
+                                                Text(day.getDisplayName(TextStyle.NARROW, locale), style = MaterialTheme.typography.labelLarge,
+                                                    color = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+                                                    textAlign = TextAlign.Center,
+                                                    modifier = Modifier.fillMaxWidth().semantics { contentDescription = "${day.getDisplayName(TextStyle.FULL, locale)}, ${if (selected) "selected" else "not selected"}" })
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            saved.onceDate?.let { date ->
+                                Text(date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale)),
+                                    style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        }
+                    }
+                }
+                Surface(shape = MaterialTheme.shapes.large, color = MaterialTheme.colorScheme.surfaceContainerLow) {
+                    SettingRow(conditionLabel ?: "Check-in", if (conditionLabel == null) "Not connected" else if (!conditionVerified) "Not tested" else null,
+                        R.drawable.ic_link_rounded, onCheckIn)
+                }
+                if (error != null) TaskMessage(error, error = true)
+                if (!canArm) Button(onClick = onSetup, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Finish setup") }
             }
-            if (error != null) TaskMessage(error, error = true)
-            if (!canArm) Button(onClick = onSetup, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Finish setup") }
         }
     }
 }

@@ -1,12 +1,11 @@
 package studio.hypertext.curfew.ui
 
 import android.app.Application
-import android.content.Intent
 import android.os.SystemClock
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import java.time.Instant
 import java.util.UUID
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,16 +15,13 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import studio.hypertext.curfew.account.AccountRecoveryState
 import studio.hypertext.curfew.account.AndroidAccountRecovery
-import studio.hypertext.curfew.account.OAuthTokenExchange
 import studio.hypertext.curfew.alarm.AlarmCampaignState
 import studio.hypertext.curfew.alarm.AlarmRuntimeSnapshot
 import studio.hypertext.curfew.alarm.AlarmSetupDraft
-import studio.hypertext.curfew.alarm.SavedSunriseAlarm
 import studio.hypertext.curfew.alarm.SunriseSchedule
 import studio.hypertext.curfew.callback.AndroidWakeConditionSetup
 import studio.hypertext.curfew.checkin.CheckInCatalog
@@ -40,27 +36,25 @@ import studio.hypertext.curfew.persistence.FirstUseChoice
 import studio.hypertext.curfew.persistence.FirstUseLoadState
 import studio.hypertext.curfew.persistence.FirstUsePreferences
 import studio.hypertext.curfew.platform.AlarmRuntimeRepository
-import studio.hypertext.curfew.platform.AndroidAlarmClockGateway
 import studio.hypertext.curfew.platform.AndroidAlarmReadiness
 import studio.hypertext.curfew.platform.AndroidAlarmSoundPreview
+import studio.hypertext.curfew.platform.SunriseScheduler
 import studio.hypertext.curfew.readiness.AlarmSoundCheck
-import studio.hypertext.curfew.readiness.AlarmSoundCheckState
 
 /**
- * Production ViewModel managing state and domain operations according to
- * Google's Android Architecture guidelines.
+ * Production ViewModel with constructor dependency injection and automatic closeable cleanup.
  */
 class CurfewViewModel(
-    application: Application,
-) : AndroidViewModel(application) {
-
-    private val preferences = CurfewPreferences(application)
-    private val enforcementPreferences = EnforcementPreferences(application)
-    private val firstUsePreferences = FirstUsePreferences(application)
-    private val sunriseScheduler = studio.hypertext.curfew.platform.SunriseScheduler(application)
-    private val runtimeRepository = AlarmRuntimeRepository(application)
-    private val wakeConditionSetup = AndroidWakeConditionSetup(application)
-    private val accountRecovery = AndroidAccountRecovery(application)
+    private val application: Application,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    private val preferences: CurfewPreferences = CurfewPreferences(application),
+    private val enforcementPreferences: EnforcementPreferences = EnforcementPreferences(application),
+    private val firstUsePreferences: FirstUsePreferences = FirstUsePreferences(application),
+    private val sunriseScheduler: SunriseScheduler = SunriseScheduler(application),
+    private val runtimeRepository: AlarmRuntimeRepository = AlarmRuntimeRepository(application),
+    private val wakeConditionSetup: AndroidWakeConditionSetup = AndroidWakeConditionSetup(application),
+    private val accountRecovery: AndroidAccountRecovery = AndroidAccountRecovery(application),
+) : ViewModel() {
 
     private val soundPreview by lazy { AndroidAlarmSoundPreview(application) }
     private val soundCheck by lazy {
@@ -82,6 +76,10 @@ class CurfewViewModel(
 
     init {
         _accountRecoveryState.value = accountRecovery.pendingState()
+        addCloseable {
+            cancelTestSound()
+            soundCheck.close()
+        }
     }
 
     private val alarmAndPrefsFlow = combine(
@@ -121,7 +119,7 @@ class CurfewViewModel(
         val firstUseState = (firstUseLoad as? FirstUseLoadState.Ready)?.state
 
         val conditionVerified = selectedCheckIn?.available == true &&
-            prefState.selectedCallbackId != null && prefState.selectedCallbackId == prefState.verifiedCallbackId
+            prefState.selectedCallbackId == prefState.verifiedCallbackId
 
         CurfewUiState(
             readiness = readiness,

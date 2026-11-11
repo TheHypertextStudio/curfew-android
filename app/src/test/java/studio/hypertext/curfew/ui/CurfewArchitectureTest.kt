@@ -126,4 +126,23 @@ class CurfewArchitectureTest {
         )
         assertTrue(readyState.canArm)
     }
+
+    @Test
+    fun `PrimaryNavItems exposes core app destinations with valid resources`() {
+        val destinations = PrimaryNavItems.map { it.destination }
+        assertEquals(
+            listOf(
+                CurfewDestination.Daily,
+                CurfewDestination.Enforcement,
+                CurfewDestination.Settings,
+                CurfewDestination.Account,
+            ),
+            destinations,
+        )
+
+        for (item in PrimaryNavItems) {
+            assertTrue(item.label.isNotBlank())
+            assertTrue(item.iconRes != 0)
+        }
+    }
 }
