@@ -27,7 +27,9 @@ import androidx.navigation3.ui.NavDisplay
 import studio.hypertext.curfew.R
 
 /**
- * Encapsulated Navigation3 NavDisplay graph dispatching to modular feature routes.
+ * Renders the Navigation 3 back stack with transitions and screen semantics. The entry
+ * decorators retain each destination's saveable state and give its ViewModels a separate
+ * store.
  */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -77,6 +79,9 @@ internal fun CurfewNavGraph(
     }
 }
 
+/**
+ * Localized title used by navigation surfaces and accessibility to identify a destination.
+ */
 internal val CurfewDestination.paneTitle: Int
     get() = when (this) {
         CurfewDestination.Daily -> R.string.pane_alarm

@@ -6,17 +6,29 @@ import java.time.ZoneId
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
+/**
+ * Persisted Sunrise schedule and its currently assigned occurrence. [completedThrough]
+ * prevents a completed local date from being selected again.
+ */
 data class SavedSunriseAlarm(
     val schedule: SunriseSchedule,
     val occurrence: SunriseOccurrence?,
     val completedThrough: LocalDate? = null,
 )
 
+/**
+ * Reads and writes the durable alarm journal. The schedule controller uses this port so its
+ * decisions can be tested without DataStore.
+ */
 interface SunriseScheduleStore {
     suspend fun read(): SavedSunriseAlarm?
     suspend fun write(alarm: SavedSunriseAlarm)
 }
 
+/**
+ * Represents the platform work required to arm, inspect, and cancel occurrences. The
+ * controller separates this work from its planning and journal logic.
+ */
 interface SunriseScheduleRuntime {
     suspend fun canArm(callbackId: String): Boolean
     suspend fun phase(campaignId: String): SunriseOccurrencePhase?
@@ -24,8 +36,16 @@ interface SunriseScheduleRuntime {
     suspend fun cancel(campaignId: String)
 }
 
+/**
+ * Raised when an enabled schedule has no future occurrence. Callers can show the date
+ * correction without depending on exception text.
+ */
 internal class FutureAlarmTimeRequired : IllegalArgumentException()
 
+/**
+ * Coordinates schedule planning, runtime registration, and journal updates under one lock. A
+ * save publishes a new schedule only after it is safe to arm the corresponding occurrence.
+ */
 class SunriseScheduleController(
     private val store: SunriseScheduleStore,
     private val runtime: SunriseScheduleRuntime,

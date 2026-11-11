@@ -8,6 +8,9 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
+/**
+ * Binds the production secure storage implementation behind the [SecretStore] interface.
+ */
 @Module
 @InstallIn(SingletonComponent::class)
 object SecurityModule {

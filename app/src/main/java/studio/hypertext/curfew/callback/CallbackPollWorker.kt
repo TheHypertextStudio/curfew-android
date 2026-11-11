@@ -32,6 +32,11 @@ import studio.hypertext.curfew.sync.WakeOutboxPublisher
 import studio.hypertext.curfew.sync.WakeSyncScheduler
 import studio.hypertext.curfew.sync.WakeStatusPublisher
 
+/**
+ * Runs one verifier poll or finishes a campaign that already committed a terminal result.
+ * WorkManager owns its lifetime; repeated polling is scheduled as unique work for that
+ * campaign.
+ */
 class CallbackPollWorker(
     appContext: Context,
     workerParameters: WorkerParameters,

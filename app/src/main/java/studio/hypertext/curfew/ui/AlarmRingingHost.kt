@@ -20,6 +20,11 @@ import studio.hypertext.curfew.alarm.campaignStartedAt
 import studio.hypertext.curfew.checkin.PlaceApprovalResult
 import studio.hypertext.curfew.platform.rememberOwnerRecovery
 
+/**
+ * Switches between the active alarm, its place-code scanner, and owner recovery. The running
+ * occurrence and check-in binding come from the alarm model; this host owns only presentation
+ * and transient UI.
+ */
 @Composable
 internal fun AlarmRingingHost(
     alarm: RingingAlarmPresentation,

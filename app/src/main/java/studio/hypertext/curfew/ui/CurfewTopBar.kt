@@ -36,7 +36,8 @@ import androidx.compose.ui.unit.dp
 import studio.hypertext.curfew.R
 
 /**
- * Top app bar providing hierarchical title, branding, back navigation, and actions.
+ * Shows the current destination title, Back, and the compact Settings action. Its labels come
+ * from the same resources as navigation and accessibility.
  */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable

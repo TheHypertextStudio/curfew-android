@@ -18,6 +18,10 @@ import studio.hypertext.curfew.persistence.FirstUsePreferences
 import java.time.LocalDate
 import java.time.LocalTime
 
+/**
+ * Exercises real Activity startup on isolated setup journals, including the Welcome screen and
+ * a document result delivered after recreation.
+ */
 class SetupColdStartInstrumentedTest {
     @get:Rule val compose = createEmptyComposeRule()
     private val journals = SetupJournalFixture(InstrumentationRegistry.getInstrumentation().targetContext)

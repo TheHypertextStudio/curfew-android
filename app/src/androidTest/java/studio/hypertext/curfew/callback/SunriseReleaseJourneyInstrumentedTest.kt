@@ -30,6 +30,10 @@ import java.time.Instant
 import java.time.ZoneOffset
 import java.util.UUID
 
+/**
+ * Exercises scheduled Sunrise playback and local or verifier release on an isolated Android
+ * installation, with a known callback or code.
+ */
 class SunriseReleaseJourneyInstrumentedTest {
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private val runtime = AlarmRuntimeRepository(context)

@@ -19,6 +19,10 @@ import studio.hypertext.curfew.security.AndroidKeystoreSecretStore
 import java.time.Instant
 import java.util.UUID
 
+/**
+ * Exercises encrypted place-code persistence, exact occurrence binding, and repeat scans using
+ * the production Android repository wiring.
+ */
 class PlaceCheckInRepositoryInstrumentedTest {
     @Test fun enrollmentAndRevocationPersistWithoutAService(): Unit =
         runBlocking {

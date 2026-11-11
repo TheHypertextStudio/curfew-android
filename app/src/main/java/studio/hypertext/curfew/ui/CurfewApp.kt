@@ -17,10 +17,22 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.dp
 
+/** Minimum window width for Curfew's wide navigation layouts. */
 private const val WIDE_WINDOW_DP = 600
+/**
+ * Minimum height for a wide window to use the rail instead of short landscape navigation.
+ */
 private const val NAV_RAIL_MIN_HEIGHT_DP = 480
+/**
+ * Maximum usable height at which a visible keyboard moves the check-in header into the task
+ * content.
+ */
 private const val INLINE_HEADER_MAX_HEIGHT_DP = 200
 
+/**
+ * Adaptive navigation shell. It chooses a rail, bottom bar, or compact top bar for the current
+ * window and renders the destination supplied by its caller. It owns no feature state.
+ */
 @Composable
 internal fun CurfewApp(
     navigation: CurfewNavigationState,

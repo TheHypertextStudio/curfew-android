@@ -11,12 +11,29 @@ import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+/** MIME type passed to the Android document picker for verifier setup files. */
 private const val SETUP_FILE_MIME_TYPE = "application/json"
+/**
+ * Suggested filename for a verifier setup file; the system picker lets the user change it.
+ */
 private const val SETUP_FILE_NAME = "curfew-check-in.json"
+/**
+ * ContentResolver mode that replaces a document's existing bytes rather than leaving trailing
+ * data.
+ */
 private const val TRUNCATE_WRITE_MODE = "wt"
 
+/**
+ * Result of registering the verifier document picker. [pickerOpen] disables duplicate exports,
+ * and [launch] starts the picker for a particular check-in ID.
+ */
 internal data class VerifierSetupExport(val pickerOpen: Boolean, val launch: (String) -> Unit)
 
+/**
+ * Registers the document picker at the check-in entry. Only the pending ID survives
+ * recreation; the JSON and its secret are loaded after a document is selected and written on
+ * an I/O dispatcher.
+ */
 @Composable
 internal fun rememberVerifierSetupExport(
     onExport: (callbackId: String, write: suspend (String) -> Unit) -> Unit,

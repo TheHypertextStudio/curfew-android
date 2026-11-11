@@ -20,8 +20,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 
 /**
- * MD3 Expressive horizontal Navigation Bar for mobile landscape and compact screens.
- * Uses soft pill active indicators around selected destinations.
+ * Primary navigation for short landscape windows. It shares destination labels and selection
+ * behavior with the rail.
  */
 @Composable
 fun CurfewNavigationBar(

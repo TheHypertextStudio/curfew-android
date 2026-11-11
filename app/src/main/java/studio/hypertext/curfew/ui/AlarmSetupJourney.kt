@@ -18,6 +18,10 @@ import studio.hypertext.curfew.alarm.AlarmSetupEntry
 import studio.hypertext.curfew.alarm.AlarmSetupUiState
 import studio.hypertext.curfew.alarm.SunriseSchedule
 
+/**
+ * Persistence operations shared by the multi-screen alarm setup journey. Draft and welcome
+ * writes suspend so navigation cannot get ahead of storage.
+ */
 internal data class AlarmSetupActions(
     val onSaveAlarm: (SunriseSchedule) -> Unit,
     val onToggleAlarm: (Boolean) -> Unit,
@@ -26,6 +30,10 @@ internal data class AlarmSetupActions(
     val onSetupActivated: () -> Unit,
 )
 
+/**
+ * Holds the setup mode, draft, and pending navigation work that span multiple alarm screens. A
+ * check-in form owns its own state and supplies only a temporary back-navigation callback.
+ */
 @Stable
 internal class AlarmSetupJourney(
     val navigation: CurfewNavigationState,
@@ -97,6 +105,10 @@ internal class AlarmSetupJourney(
     }
 }
 
+/**
+ * Chooses the first unfinished task for a draft: wake time, check-in, platform readiness, or
+ * review.
+ */
 private fun nextAlarmSetupDestination(draft: AlarmSetupDraft?, state: AlarmSetupUiState): CurfewDestination = when {
     draft == null -> CurfewDestination.Edit
     !state.conditionVerified || state.callbackId == null || state.conditionLabel == null -> CurfewDestination.CheckIn
@@ -104,6 +116,10 @@ private fun nextAlarmSetupDestination(draft: AlarmSetupDraft?, state: AlarmSetup
     else -> CurfewDestination.Review
 }
 
+/**
+ * Restores the back stack and the setup draft for this composition. The initial persisted
+ * state is used only when there is no saved navigation state.
+ */
 @Composable
 internal fun rememberAlarmSetupJourney(entry: AlarmSetupEntry, state: AlarmSetupUiState): AlarmSetupJourney {
     val firstDestination = when {

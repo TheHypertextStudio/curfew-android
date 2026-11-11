@@ -18,7 +18,10 @@ import org.junit.Test
 import studio.hypertext.curfew.checkin.PlaceCheckIn
 import studio.hypertext.curfew.ui.theme.CurfewTheme
 
-/** Injected window geometry, not a claim about a physical notch or navigation mode. */
+/**
+ * Checks that injected system insets and keyboard changes do not hide or
+ * overlap task controls. This fixture does not establish physical notch or navigation behavior.
+ */
 class ScreenInsetsInstrumentedTest {
     @get:Rule val compose = createAndroidComposeRule<ComponentActivity>()
 

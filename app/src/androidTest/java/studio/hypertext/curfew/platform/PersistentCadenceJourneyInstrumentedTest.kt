@@ -32,7 +32,10 @@ import studio.hypertext.curfew.callback.LocalHttpsVerifier
 import studio.hypertext.curfew.persistence.CurfewDatabase
 import studio.hypertext.curfew.persistence.CurfewPreferences
 
-/** Opt-in wall-clock acceptance; default CI runs must not count its skipped case as evidence. */
+/**
+ * Runs opt-in emulator fixtures for offline ring/quiet cadence and for observing delivery
+ * after process loss. A skipped default CI run does not establish cadence or process-loss acceptance.
+ */
 class PersistentCadenceJourneyInstrumentedTest {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context = ApplicationProvider.getApplicationContext<Context>()

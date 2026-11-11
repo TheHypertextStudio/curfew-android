@@ -17,6 +17,10 @@ import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 import java.util.Base64
 
+/**
+ * Validates and exchanges a native OAuth return, enrolls the device, and resumes key recovery.
+ * It consumes the PKCE verifier once; a missing or replayed state cannot complete sign-in.
+ */
 class OAuthTokenExchange(
     private val context: Context,
 ) {

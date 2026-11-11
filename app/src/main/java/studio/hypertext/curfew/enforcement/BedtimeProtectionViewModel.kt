@@ -13,18 +13,32 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+/**
+ * Provides the two time sources needed for bounded protection sessions and an immediate
+ * in-memory disarm. Keeping these calls behind a port lets the model avoid direct Android
+ * service calls.
+ */
 internal interface ProtectionRuntime {
     fun wallClockMillis(): Long
     fun elapsedRealtimeMillis(): Long
     fun disarm()
 }
 
+/**
+ * The protection screen's current session, chosen apps, and accessibility capability. The
+ * intercepted app banner belongs to the navigation entry, not this durable state.
+ */
 internal data class BedtimeProtectionUiState(
     val session: EnforcementSession? = null,
     val chosenApps: Set<String> = emptySet(),
     val accessibilityEnabled: Boolean = false,
 )
 
+/**
+ * Owns session start and stop and edits to the chosen app list while the protection entry
+ * exists. App selection is saved atomically; emergency stop disarms the service before writing
+ * the cancelled state.
+ */
 @HiltViewModel
 internal class BedtimeProtectionViewModel @Inject constructor(
     private val preferences: EnforcementPreferences,

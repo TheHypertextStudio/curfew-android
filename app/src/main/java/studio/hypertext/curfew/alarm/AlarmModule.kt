@@ -18,6 +18,11 @@ import studio.hypertext.curfew.readiness.AlarmSoundOutput
 import studio.hypertext.curfew.ui.NextAlarmTransition
 import javax.inject.Singleton
 
+/**
+ * Wires Sunrise, the alarm readiness reader, the clock calculation, and sound output into
+ * Hilt. Readiness uses application services, while each sound check gets its own playback
+ * resource.
+ */
 @Module
 @InstallIn(SingletonComponent::class)
 object AlarmModule {

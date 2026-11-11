@@ -12,6 +12,11 @@ import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 
+/**
+ * Encrypts local secrets with a device-held Android Keystore key and stores ciphertext in
+ * no-backup files. Callers use stable identifiers; plaintext is returned only after successful
+ * decryption.
+ */
 class AndroidKeystoreSecretStore(
     context: Context,
     private val keyAlias: String = "curfew-device-secrets-v1",

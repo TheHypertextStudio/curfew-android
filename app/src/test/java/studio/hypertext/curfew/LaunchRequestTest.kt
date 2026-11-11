@@ -4,6 +4,10 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Test
 
+/**
+ * Covers launch precedence and validation without an Android runtime, including redaction of
+ * OAuth return data.
+ */
 class LaunchRequestTest {
     @Test
     fun oauthCallbackWinsAndItsCodeIsNotLoggedByToString() {

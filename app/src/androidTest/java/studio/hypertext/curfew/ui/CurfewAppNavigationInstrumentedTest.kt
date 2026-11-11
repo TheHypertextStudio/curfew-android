@@ -37,6 +37,10 @@ import studio.hypertext.curfew.readiness.AlarmReadiness
 import studio.hypertext.curfew.readiness.ReadinessAction
 import studio.hypertext.curfew.ui.theme.CurfewTheme
 
+/**
+ * Exercises real navigation and setup interactions using deterministic feature fixtures,
+ * including failed saves, permission steps, and account access.
+ */
 class CurfewAppNavigationInstrumentedTest {
     @get:Rule val compose = createComposeRule()
     private val saved = SavedSunriseAlarm(

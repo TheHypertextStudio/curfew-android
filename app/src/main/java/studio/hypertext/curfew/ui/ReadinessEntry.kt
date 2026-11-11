@@ -9,6 +9,10 @@ import studio.hypertext.curfew.alarm.AlarmSetupUiState
 import studio.hypertext.curfew.platform.SystemSettingsLauncher
 import studio.hypertext.curfew.readiness.AlarmSoundCheckViewModel
 
+/**
+ * Resolves the readiness sound-check model and permission launcher at the NavEntry. When that
+ * entry pauses or leaves composition, it stops any unconfirmed preview.
+ */
 @Composable
 internal fun ReadinessEntry(
     journey: AlarmSetupJourney,

@@ -8,6 +8,10 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
+/**
+ * Binds the account recovery adapter and the token exchange port in the application component.
+ * These implementations use application context and do not retain a screen.
+ */
 @Module
 @InstallIn(SingletonComponent::class)
 object AccountModule {

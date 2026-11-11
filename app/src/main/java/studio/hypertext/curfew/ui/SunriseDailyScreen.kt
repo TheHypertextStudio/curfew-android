@@ -40,6 +40,10 @@ import studio.hypertext.curfew.R
 import studio.hypertext.curfew.alarm.SavedSunriseAlarm
 import studio.hypertext.curfew.alarm.SunriseSchedule
 
+/**
+ * Curfew's reusable brand mark for navigation and welcome surfaces. Size is supplied by the
+ * caller when it differs from the default.
+ */
 @Composable
 internal fun CurfewHorizonMark(modifier: Modifier = Modifier.size(28.dp, 24.dp)) {
     val ink = MaterialTheme.colorScheme.onSurface
@@ -52,6 +56,10 @@ internal fun CurfewHorizonMark(modifier: Modifier = Modifier.size(28.dp, 24.dp))
     }
 }
 
+/**
+ * Reusable scrollable layout for a task screen. It applies shared content width, spacing, and
+ * padding without owning task state.
+ */
 @Composable
 internal fun TaskContent(spacing: Dp = 24.dp, verticalPadding: Dp = 20.dp, content: @Composable ColumnScope.() -> Unit) {
     // The screen scaffold owns system insets; this content may occupy a smaller pane.
@@ -64,12 +72,17 @@ internal fun TaskContent(spacing: Dp = 24.dp, verticalPadding: Dp = 20.dp, conte
     }
 }
 
+/** Displays a task status or error with the matching color and semantics. */
 @Composable
 internal fun TaskMessage(message: String, error: Boolean = false) {
     Text(message, color = if (error) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
 }
 
+/**
+ * A clickable settings row with a title, optional supporting detail, and optional icon. The
+ * caller owns what the action does.
+ */
 @Composable
 internal fun SettingRow(title: String, detail: String? = null, @DrawableRes icon: Int? = null, onClick: () -> Unit) {
     BoxWithConstraints(Modifier.fillMaxWidth()) {
@@ -85,10 +98,18 @@ internal fun SettingRow(title: String, detail: String? = null, @DrawableRes icon
     }
 }
 
+/**
+ * Formats a wake time in the supplied locale and honors the Android device's 12- or 24-hour
+ * preference.
+ */
 internal fun timeLabel(time: LocalTime, context: Context, locale: Locale): String = time.format(
     DateTimeFormatter.ofPattern(if (DateFormat.is24HourFormat(context)) "HH:mm" else "h:mm a", locale),
 )
 
+/**
+ * Builds the display label for a one-time or repeating Sunrise schedule using the supplied
+ * locale.
+ */
 internal fun recurrenceLabel(schedule: SunriseSchedule, locale: Locale): String {
     schedule.onceDate?.let { return it.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale)) }
     if (schedule.weekdays.size == 7) return "Every day"
@@ -96,6 +117,10 @@ internal fun recurrenceLabel(schedule: SunriseSchedule, locale: Locale): String 
     return DayOfWeek.entries.filter { it in schedule.weekdays }.joinToString(", ") { it.getDisplayName(TextStyle.SHORT, locale) }
 }
 
+/**
+ * Displays the saved Sunrise alarm and setup state with adaptive layouts. The caller supplies
+ * edit, check-in, readiness, and toggle actions.
+ */
 @Composable
 internal fun SunriseDailyScreen(
     alarm: SavedSunriseAlarm?,
@@ -296,6 +321,10 @@ internal fun SunriseDailyScreen(
     }
 }
 
+/**
+ * Renders the main wake time using the supplied clock format and font-size limit. It changes
+ * presentation without changing the schedule.
+ */
 @Composable
 internal fun DailyAlarmTime(time: LocalTime, use24Hour: Boolean, locale: Locale, modifier: Modifier = Modifier, maxFontSize: Float = 100f) {
     val numeric = time.format(DateTimeFormatter.ofPattern(if (use24Hour) "HH:mm" else "h:mm", locale))

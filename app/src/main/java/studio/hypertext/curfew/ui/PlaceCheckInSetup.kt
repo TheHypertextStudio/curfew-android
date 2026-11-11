@@ -12,6 +12,10 @@ import kotlinx.coroutines.launch
 import studio.hypertext.curfew.R
 import studio.hypertext.curfew.checkin.*
 
+/**
+ * Owns the setup screen's draft, loaded enrollment, and short-lived form work. It uses the
+ * injected setup interface for durable changes and delegates platform actions to the host.
+ */
 @Composable
 internal fun PlaceCheckInDestination(
     selectedId: String?, repository: PlaceCheckInSetupAccess, refresh: Int, externalBusy: Boolean = false, externalError: String? = null,
@@ -73,6 +77,10 @@ internal fun PlaceCheckInDestination(
     }
 }
 
+/**
+ * Renders the place-code setup steps for the supplied draft or enrollment. The caller supplies
+ * the actual save, print, scan, and removal operations.
+ */
 @Composable
 internal fun PlaceCheckInSetup(
     draft: PlaceDraft?, enrollment: PlaceEnrollment?, busy: Boolean, error: String?,

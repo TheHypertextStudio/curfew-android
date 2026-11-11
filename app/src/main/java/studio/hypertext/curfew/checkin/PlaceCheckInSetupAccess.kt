@@ -1,5 +1,9 @@
 package studio.hypertext.curfew.checkin
 
+/**
+ * Operations needed by the place-code setup screens: read, create, export, enroll, and revoke
+ * a code. It contains no alarm-release operation or Android UI handle.
+ */
 interface PlaceCheckInSetupAccess {
     fun cameraReady(): Boolean
     suspend fun draft(): PlaceDraft?
@@ -11,6 +15,10 @@ interface PlaceCheckInSetupAccess {
     suspend fun remove(id: String)
 }
 
+/**
+ * Approves one scanned place code against one campaign. Keeping this separate from setup
+ * prevents the ringing UI from changing the saved place-code configuration.
+ */
 internal fun interface PlaceCheckInApprover {
     suspend fun approve(campaignId: String, code: String): PlaceApprovalResult
 }

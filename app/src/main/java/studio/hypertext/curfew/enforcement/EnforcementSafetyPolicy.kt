@@ -1,10 +1,18 @@
 package studio.hypertext.curfew.enforcement
 
+/**
+ * Policy result for one foreground event. Allow is the safe default when protection is
+ * inactive, uncertain, or exempt.
+ */
 enum class InterceptionDecision {
     INTERCEPT,
     ALLOW,
 }
 
+/**
+ * Snapshot of platform facts relevant to safe interception, such as the active call, launcher,
+ * dialer, or navigation app. The pure policy reads it without asking Android directly.
+ */
 data class SafetyContext(
     val curfewPackage: String,
     val defaultDialerPackage: String? = null,
@@ -15,6 +23,10 @@ data class SafetyContext(
     val isInCall: Boolean = false,
 )
 
+/**
+ * Decides whether a bounded active session may intercept an explicitly selected package.
+ * Exempt system apps, calls, expired sessions, and unknown packages are always allowed.
+ */
 object EnforcementSafetyPolicy {
 
     /**

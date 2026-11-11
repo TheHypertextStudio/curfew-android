@@ -9,6 +9,10 @@ import org.junit.Assert.assertNull
 import studio.hypertext.curfew.callback.callbackPollScheduler
 import studio.hypertext.curfew.persistence.CurfewDatabase
 
+/**
+ * Cancels the fixture's delivery and polling, waits for its service to finish, and confirms
+ * its Room row stays removed. It refuses to stop another pending campaign.
+ */
 @Suppress("DEPRECATION")
 internal suspend fun cleanupAlarmFixture(context: Context, campaignId: String) {
     val gateway = AndroidAlarmClockGateway(context)

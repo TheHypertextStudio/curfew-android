@@ -14,6 +14,10 @@ import studio.hypertext.curfew.R
 import studio.hypertext.curfew.account.BrowserOAuthEnrollment
 import studio.hypertext.curfew.config.ProductionServices
 
+/**
+ * Opens Android settings and browser destinations from the current Activity. Its Hilt Activity
+ * scope ensures no singleton retains a window or tries to launch UI with a stale Activity.
+ */
 @ActivityScoped
 internal class SystemSettingsLauncher @Inject constructor(private val activity: Activity) {
     private val packageUri get() = Uri.fromParts("package", activity.packageName, null)

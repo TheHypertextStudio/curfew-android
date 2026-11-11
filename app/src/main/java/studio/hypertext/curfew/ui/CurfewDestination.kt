@@ -1,7 +1,8 @@
 package studio.hypertext.curfew.ui
 
 /**
- * Type-safe navigation destinations for Navigation 3.
+ * The app's stable navigation keys. The route string is saved with the back stack, so existing
+ * values should remain readable across upgrades.
  */
 enum class CurfewDestination(val route: String) {
     Daily("daily"),

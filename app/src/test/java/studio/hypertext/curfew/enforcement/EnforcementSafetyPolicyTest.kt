@@ -5,6 +5,9 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
+/**
+ * Tests the allow-by-default safety rules with deterministic session and platform facts.
+ */
 class EnforcementSafetyPolicyTest {
 
     private val curfewPackage = "studio.hypertext.curfew"

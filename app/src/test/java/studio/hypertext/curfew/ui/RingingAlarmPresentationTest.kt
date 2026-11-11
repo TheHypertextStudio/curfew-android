@@ -12,6 +12,10 @@ import studio.hypertext.curfew.alarm.AlarmRecurrencePolicy
 import studio.hypertext.curfew.alarm.AlarmRuntimeSnapshot
 import studio.hypertext.curfew.checkin.CheckInDescription
 
+/**
+ * Checks presentation changes across scheduled, ringing, quiet, and satisfied snapshots,
+ * including missing check-in metadata.
+ */
 class RingingAlarmPresentationTest {
     private val now = Instant.parse("2026-11-11T15:00:00Z")
     private val policy = AlarmRecurrencePolicy.default()

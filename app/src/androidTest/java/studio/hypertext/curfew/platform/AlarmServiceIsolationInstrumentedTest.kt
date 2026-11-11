@@ -30,6 +30,10 @@ import java.util.UUID
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
+/**
+ * Checks that ending a fixture's alarm does not disturb another occurrence's playback or
+ * scheduling.
+ */
 class AlarmServiceIsolationInstrumentedTest {
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private val repository = AlarmRuntimeRepository(context)

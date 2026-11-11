@@ -5,7 +5,8 @@ import androidx.annotation.StringRes
 import studio.hypertext.curfew.R
 
 /**
- * Top-level destination item specification for primary navigation.
+ * A primary destination with the resource IDs for its label and icon. Rail and bottom
+ * navigation use the same list.
  */
 data class CurfewNavItem(
     val destination: CurfewDestination,
@@ -13,6 +14,7 @@ data class CurfewNavItem(
     @DrawableRes val iconRes: Int,
 )
 
+/** Destinations shown in the primary navigation controls, in their display order. */
 val PrimaryNavItems = listOf(
     CurfewNavItem(CurfewDestination.Daily, R.string.pane_alarm, R.drawable.ic_alarm_rounded),
     CurfewNavItem(CurfewDestination.Enforcement, R.string.nav_bedtime, R.drawable.ic_lock_rounded),

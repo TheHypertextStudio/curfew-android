@@ -8,12 +8,21 @@ import studio.hypertext.curfew.alarm.AlarmCampaignState
 import studio.hypertext.curfew.alarm.AlarmRuntimeSnapshot
 import studio.hypertext.curfew.checkin.CheckInDescription
 
+/**
+ * The active occurrence, its bound check-in, and the next ring time during quiet. These values
+ * are separate from the schedule currently being edited.
+ */
 internal data class RingingAlarmPresentation(
     val snapshot: AlarmRuntimeSnapshot,
     val condition: CheckInDescription?,
     val nextRingAt: Instant? = null,
 )
 
+/**
+ * Projects persisted snapshots into active alarm UI only for ringing and quiet phases. Missing
+ * check-in metadata leaves the alarm and owner recovery reachable; terminal states remove
+ * presentation.
+ */
 internal fun Flow<AlarmRuntimeSnapshot?>.ringingPresentation(
     findCondition: suspend (campaignId: String) -> CheckInDescription?,
 ): Flow<RingingAlarmPresentation?> = map { snapshot ->

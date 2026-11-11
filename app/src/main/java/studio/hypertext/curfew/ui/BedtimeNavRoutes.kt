@@ -17,6 +17,11 @@ import studio.hypertext.curfew.enforcement.BedtimeProtectionViewModel
 import studio.hypertext.curfew.enforcement.EnforcementPurpose
 import studio.hypertext.curfew.platform.SystemSettingsLauncher
 
+/**
+ * Resolves the protection model from the current NavEntry and refreshes accessibility on
+ * resume. The intercepted package is saveable within this entry and is consumed after
+ * navigation.
+ */
 @Composable
 internal fun BedtimeEntry(
     systemSettings: SystemSettingsLauncher,
@@ -45,6 +50,10 @@ internal fun BedtimeEntry(
     )
 }
 
+/**
+ * Renders protection state and sends user actions to the entry's callbacks. It has no service
+ * or persistence dependencies.
+ */
 @Composable
 internal fun BedtimeRoute(
     state: BedtimeProtectionUiState,

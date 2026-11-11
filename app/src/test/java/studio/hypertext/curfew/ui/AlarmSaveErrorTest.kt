@@ -7,6 +7,10 @@ import studio.hypertext.curfew.alarm.AlarmSaveFailure
 import studio.hypertext.curfew.alarm.FutureAlarmTimeRequired
 import studio.hypertext.curfew.alarm.alarmSaveFailure
 
+/**
+ * Checks that only typed validation failures get specific advice and that internal error
+ * details stay out of screen messages.
+ */
 class AlarmSaveErrorTest {
     @Test fun knownDateValidationKeepsItsUsefulCorrection() {
         assertEquals(AlarmSaveFailure.FUTURE_TIME_REQUIRED, alarmSaveFailure(FutureAlarmTimeRequired()))

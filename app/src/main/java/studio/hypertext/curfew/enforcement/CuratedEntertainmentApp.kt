@@ -1,10 +1,18 @@
 package studio.hypertext.curfew.enforcement
 
+/**
+ * A suggested entertainment app, identified by its Android package and shown with a friendly
+ * name. A suggestion does not authorize interception.
+ */
 data class CuratedEntertainmentApp(
     val packageName: String,
     val displayName: String,
 )
 
+/**
+ * The fixed suggestions shown during protection setup. Only packages the user chooses enter
+ * the session's allowed interception set.
+ */
 object CuratedEntertainmentApps {
     val ALL = listOf(
         CuratedEntertainmentApp("com.zhiliaoapp.musically", "TikTok"),

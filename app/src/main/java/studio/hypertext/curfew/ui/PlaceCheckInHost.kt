@@ -24,6 +24,10 @@ import studio.hypertext.curfew.checkin.PlaceCodePrinter
 import studio.hypertext.curfew.checkin.PlaceDraft
 import studio.hypertext.curfew.checkin.PlaceEnrollment
 
+/**
+ * Identifies whether a scanner is enrolling a new draft or checking an existing code. Each
+ * variant carries only the data needed for that scan.
+ */
 private sealed interface PlaceScanTarget {
     val label: String
     data class Draft(override val label: String, val draftId: String) : PlaceScanTarget
@@ -31,8 +35,8 @@ private sealed interface PlaceScanTarget {
 }
 
 /**
- * Host component managing Place check-in export, printing, and scanning delegates.
- * Decouples file I/O, camera scanning, and activity result contracts from MainActivity.
+ * Connects place-code setup with Android's document picker, print service, and camera.
+ * Persistence is supplied through the setup interface rather than constructed in Compose.
  */
 @Composable
 internal fun PlaceCheckInHost(

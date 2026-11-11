@@ -4,8 +4,16 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
+/**
+ * Stages of an alarm-sound rehearsal. Playback alone is not confirmation, and a failed
+ * preference write leaves the user able to retry.
+ */
 enum class AlarmSoundCheckState { CLOSED, PLAYING, AWAITING_CONFIRMATION, FAILED, SAVING, SAVE_FAILED }
 
+/**
+ * Runs bounded preview and durable sound confirmation. Closing stops audio and invalidates a
+ * late playback result; confirmation is reported only after the save callback returns.
+ */
 class AlarmSoundCheck(
     private val play: suspend () -> Boolean,
     private val stop: () -> Unit,

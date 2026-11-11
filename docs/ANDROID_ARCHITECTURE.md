@@ -35,6 +35,11 @@ schedule completion and uses the injected `CallbackPollScheduler` for retry;
 `AccountPlaceCheckInPublisher` owns the optional account outbox write. The
 terminal local write precedes both.
 
+The polling scheduler is bound once in Hilt's application component. Android
+services and receivers inject it; WorkManager's worker resolves it through an
+application entry point. Scheduling, continuing, and cancelling work require
+only the campaign ID and any applicable polling options.
+
 The next data boundary is the platform work still orchestrated by
 `SunriseScheduler`: clock scheduling, callback polling, and wake sync. Extract
 one consumer-facing port at a time and reuse the existing scheduling and

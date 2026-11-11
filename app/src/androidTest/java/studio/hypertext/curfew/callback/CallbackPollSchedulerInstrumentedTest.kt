@@ -12,6 +12,10 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
+/**
+ * Uses real WorkManager to check that duplicate first polls are kept and continuations append
+ * to the campaign's existing work chain.
+ */
 class CallbackPollSchedulerInstrumentedTest {
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private val manager = WorkManager.getInstance(context)

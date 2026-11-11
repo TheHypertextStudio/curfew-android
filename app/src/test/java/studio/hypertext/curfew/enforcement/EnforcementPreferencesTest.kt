@@ -13,6 +13,10 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 
+/**
+ * Exercises durable protection preferences with a temporary DataStore and checks that session
+ * changes preserve independent app configuration.
+ */
 class EnforcementPreferencesTest {
 
     @get:Rule

@@ -9,10 +9,19 @@ import java.security.MessageDigest
 import java.security.SecureRandom
 import java.util.Base64
 
+/**
+ * Scopes requested for native enrollment. Standard identity and refresh scopes are combined
+ * with the Curfew protocol's first-party scopes.
+ */
 internal val CURFEW_ANDROID_SCOPES: String =
     (listOf("openid", "offline_access") + CurfewFirstPartyOAuthScope.entries.map { it.value })
         .joinToString(" ")
 
+/**
+ * A PKCE enrollment request containing browser and token endpoints plus the one-time verifier
+ * and state. Treat the verifier and state as sensitive; send only the authorization URL to the
+ * browser.
+ */
 data class OAuthEnrollmentRequest(
     val authorizationUri: URI,
     val tokenUri: URI,

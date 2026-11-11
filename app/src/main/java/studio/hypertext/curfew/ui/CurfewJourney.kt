@@ -8,6 +8,11 @@ import kotlinx.coroutines.flow.StateFlow
 import studio.hypertext.curfew.alarm.AlarmSetupEntry
 import studio.hypertext.curfew.alarm.AlarmSetupUiState
 
+/**
+ * Connects the shared alarm setup journey to the navigation shell. Alarm routes collect their
+ * state where they render; account, protection, and settings are supplied by their own entry
+ * functions.
+ */
 @Composable
 internal fun CurfewJourney(
     entry: AlarmSetupEntry,
@@ -42,6 +47,10 @@ internal fun CurfewJourney(
     }
 }
 
+/**
+ * Watches an in-progress schedule save and exits setup only when the enabled schedule matching
+ * its draft has been saved. Errors keep the current task available for retry.
+ */
 @Composable
 private fun ObserveAlarmSave(
     alarm: StateFlow<AlarmSetupUiState>,

@@ -15,10 +15,18 @@ import kotlinx.coroutines.Dispatchers
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
+/**
+ * Qualifier for coroutines that perform storage or network I/O. Inject it when a consumer
+ * needs to move blocking work off the main thread.
+ */
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class IoDispatcher
 
+/**
+ * Provides Android system services and the qualified I/O dispatcher to Hilt. Consumers can
+ * receive a service directly at the platform edge without retaining a screen.
+ */
 @Module
 @InstallIn(SingletonComponent::class)
 object PlatformModule {

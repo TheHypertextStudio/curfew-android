@@ -24,10 +24,19 @@ import studio.hypertext.curfew.persistence.FirstUsePreferences
 import studio.hypertext.curfew.platform.SunriseScheduler
 import studio.hypertext.curfew.readiness.AlarmReadiness
 
+/**
+ * Reads the alarm's current platform capabilities and evaluates them alongside saved readiness
+ * preferences. This port does not request permissions or create notification channels.
+ */
 internal fun interface AlarmReadinessReader {
     fun evaluate(preferences: CurfewPreferenceState): AlarmReadiness
 }
 
+/**
+ * Shares the saved alarm and prerequisites across the alarm setup journey. It persists changes
+ * and exposes an entry snapshot for cold launch; it does not own route forms, navigation, or
+ * playback.
+ */
 @HiltViewModel
 internal class AlarmSetupViewModel @Inject constructor(
     private val scheduler: SunriseScheduler,

@@ -14,13 +14,25 @@ import studio.hypertext.curfew.enforcement.EnforcementPreferences
 import studio.hypertext.curfew.enforcement.EnforcementSessionState
 import studio.hypertext.curfew.persistence.CurfewPreferences
 
+/**
+ * The three protection summaries used on Settings. Only the protection route holds the
+ * editable app list and session controls.
+ */
 internal enum class ProtectionStatus { ACTIVE, READY, NEEDS_ATTENTION }
 
+/**
+ * The settings entry's account and protection summary. Alarm and check-in readiness come from
+ * the alarm journey instead of being duplicated here.
+ */
 internal data class SettingsUiState(
     val accountSignedIn: Boolean = false,
     val protection: ProtectionStatus = ProtectionStatus.NEEDS_ATTENTION,
 )
 
+/**
+ * Reads the status needed by Settings only. It recomputes the accessibility summary on resume
+ * without creating a protection session or loading its editable app list.
+ */
 @HiltViewModel
 internal class SettingsViewModel @Inject constructor(
     preferences: CurfewPreferences,

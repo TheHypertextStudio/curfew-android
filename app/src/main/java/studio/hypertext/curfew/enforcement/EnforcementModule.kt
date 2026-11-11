@@ -9,6 +9,10 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
+/**
+ * Binds app-wide protection preferences, accessibility status, clocks, and the immediate
+ * disarm adapter for Hilt consumers.
+ */
 @Module
 @InstallIn(SingletonComponent::class)
 object EnforcementModule {

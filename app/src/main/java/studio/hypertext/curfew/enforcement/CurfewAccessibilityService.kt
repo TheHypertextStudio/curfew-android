@@ -16,6 +16,11 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import studio.hypertext.curfew.MainActivity
 
+/**
+ * Receives Android foreground-window events and applies the opt-in protection policy. It
+ * delegates allow and intercept decisions to the policy engine and does not read window
+ * content.
+ */
 class CurfewAccessibilityService : AccessibilityService() {
 
     private val engine = EnforcementEngine()

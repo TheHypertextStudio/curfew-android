@@ -9,6 +9,10 @@ import androidx.core.app.NotificationCompat
 import studio.hypertext.curfew.MainActivity
 import studio.hypertext.curfew.R
 
+/**
+ * Builds the ongoing protection notification, including its route back to Curfew and the
+ * emergency stop action. Android delivery lives here rather than in the policy engine.
+ */
 object EnforcementNotificationHelper {
     const val ENFORCEMENT_CHANNEL_ID = "curfew_enforcement"
     const val ENFORCEMENT_NOTIFICATION_ID = 4001
