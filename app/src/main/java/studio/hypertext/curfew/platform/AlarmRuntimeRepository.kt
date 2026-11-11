@@ -19,13 +19,25 @@ import studio.hypertext.curfew.alarm.AlarmRuntimeSnapshot
 import studio.hypertext.curfew.alarm.AlarmRuntimeClock
 import studio.hypertext.curfew.alarm.AlarmRecoveryPlanner
 import studio.hypertext.curfew.alarm.AlarmCampaignEngine
+import studio.hypertext.curfew.persistence.AlarmCampaignDao
 import studio.hypertext.curfew.persistence.AlarmCampaignEntity
 import studio.hypertext.curfew.persistence.CurfewDatabase
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class AlarmRuntimeRepository(context: Context) {
-    private val appContext = context.applicationContext
-    private val database = CurfewDatabase.open(appContext)
-    private val dao = database.alarmCampaignDao()
+@Singleton
+class AlarmRuntimeRepository @Inject constructor(
+    private val database: CurfewDatabase,
+    private val dao: AlarmCampaignDao,
+    private val bootIdProvider: BootIdProvider,
+) {
+    constructor(context: Context) : this(
+        database = CurfewDatabase.open(context),
+        dao = CurfewDatabase.open(context).alarmCampaignDao(),
+        bootIdProvider = {
+            "boot-${Settings.Global.getInt(context.applicationContext.contentResolver, Settings.Global.BOOT_COUNT, 0)}"
+        },
+    )
 
     suspend fun create(
         campaignId: String,
@@ -234,9 +246,5 @@ class AlarmRuntimeRepository(context: Context) {
         is AlarmCampaignState.Satisfied, is AlarmCampaignState.Overridden -> Long.MAX_VALUE
     }
 
-    private fun bootId(): String = "boot-${Settings.Global.getInt(
-        appContext.contentResolver,
-        Settings.Global.BOOT_COUNT,
-        0,
-    )}"
+    private fun bootId(): String = bootIdProvider.currentBootId()
 }

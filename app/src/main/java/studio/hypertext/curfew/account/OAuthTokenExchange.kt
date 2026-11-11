@@ -1,6 +1,6 @@
 package studio.hypertext.curfew.account
 
-import android.app.Activity
+import android.content.Context
 import android.net.Uri
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -18,7 +18,7 @@ import java.security.MessageDigest
 import java.util.Base64
 
 class OAuthTokenExchange(
-    private val activity: Activity,
+    private val context: Context,
 ) {
     suspend fun exchange(callback: Uri): AccountRecoveryState =
         withContext(Dispatchers.IO) {
@@ -30,11 +30,11 @@ class OAuthTokenExchange(
             val code =
                 callback.getQueryParameter("code")?.takeIf(String::isNotBlank)
                     ?: error("OAuth callback omitted authorization code")
-            val browserEnrollment = BrowserOAuthEnrollment(activity)
+            val browserEnrollment = BrowserOAuthEnrollment(context)
             val verifier =
                 browserEnrollment.consumeVerifier(state)
                     ?: error("OAuth callback state is missing or replayed")
-            val clientId = OAuthDynamicClientRegistrar(activity).registeredClientId()
+            val clientId = OAuthDynamicClientRegistrar(context).registeredClientId()
             val endpoint = URI("${ProductionServices.ACCOUNT_ORIGIN}/api/auth/oauth2/token")
             val form =
                 linkedMapOf(
@@ -79,8 +79,8 @@ class OAuthTokenExchange(
                         ?.content
                         ?.takeIf(String::isNotBlank)
                         ?: error("OAuth token response omitted refresh_token")
-                CurfewPreferences(activity).setAccountSignedIn(false)
-                AndroidKeystoreSecretStore(activity).apply {
+                CurfewPreferences(context).setAccountSignedIn(false)
+                AndroidKeystoreSecretStore(context).apply {
                     put(ProductionServices.ACCESS_TOKEN_KEY, accessToken.toByteArray())
                     put(ProductionServices.REFRESH_TOKEN_KEY, refreshToken.toByteArray())
                 }
@@ -90,9 +90,9 @@ class OAuthTokenExchange(
                             .getInstance("SHA-256")
                             .digest(verifier.toByteArray(StandardCharsets.US_ASCII)),
                     )
-                NativeDeviceEnrollmentClient(activity).enroll(accessToken, pkceChallenge, state)
-                CurfewPreferences(activity).completeAccountSignIn {
-                    AndroidAccountRecovery(activity).resumeAfterEnrollment()
+                NativeDeviceEnrollmentClient(context).enroll(accessToken, pkceChallenge, state)
+                CurfewPreferences(context).completeAccountSignIn {
+                    AndroidAccountRecovery(context).resumeAfterEnrollment()
                 }
             } finally {
                 connection.disconnect()

@@ -77,12 +77,21 @@ fun CurfewApp(
             onDismissInterceptionBanner = viewModel::dismissInterceptionBanner,
         )
     }
-    CurfewApp(
-        state = state,
-        actions = actions,
-        modifier = modifier,
-        placeCheckInContent = placeCheckInContent,
-    )
+    val ringingSnap = state.ringingSnapshot
+    if (state.isAlarmRinging && ringingSnap != null) {
+        AlarmRingingHost(
+            snapshot = ringingSnap,
+            ringingCondition = null,
+            onAlarmDismissed = viewModel::clearRequestedAlarm,
+        )
+    } else {
+        CurfewApp(
+            state = state,
+            actions = actions,
+            modifier = modifier,
+            placeCheckInContent = placeCheckInContent,
+        )
+    }
 }
 
 /**

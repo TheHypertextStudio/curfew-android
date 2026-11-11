@@ -1,6 +1,7 @@
 package studio.hypertext.curfew.ui
 
 import android.app.Application
+import android.net.Uri
 import android.os.SystemClock
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -19,6 +20,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import studio.hypertext.curfew.account.AccountRecoveryState
 import studio.hypertext.curfew.account.AndroidAccountRecovery
+import studio.hypertext.curfew.account.OAuthTokenExchange
 import studio.hypertext.curfew.alarm.AlarmCampaignState
 import studio.hypertext.curfew.alarm.AlarmRuntimeSnapshot
 import studio.hypertext.curfew.alarm.AlarmSetupDraft
@@ -43,11 +45,17 @@ import studio.hypertext.curfew.platform.SunriseScheduler
 import studio.hypertext.curfew.readiness.AlarmReadiness
 import studio.hypertext.curfew.readiness.AlarmSoundCheck
 
+import dagger.hilt.android.lifecycle.HiltViewModel
+import studio.hypertext.curfew.di.IoDispatcher
+import studio.hypertext.curfew.enforcement.AccessibilityChecker
+import javax.inject.Inject
+
 /**
  * Production ViewModel with inverted dependencies, constructor injection, and automatic closeable cleanup.
  * Free of direct framework references in its primary constructor for pure JVM unit testability.
  */
-class CurfewViewModel(
+@HiltViewModel
+class CurfewViewModel @Inject constructor(
     private val preferences: CurfewPreferences,
     private val enforcementPreferences: EnforcementPreferences,
     private val firstUsePreferences: FirstUsePreferences,
@@ -56,10 +64,11 @@ class CurfewViewModel(
     private val wakeConditionSetup: AndroidWakeConditionSetup,
     private val accountRecovery: AndroidAccountRecovery,
     private val checkInCatalog: CheckInCatalog,
-    private val alarmReadinessEvaluator: (CurfewPreferenceState) -> AlarmReadiness,
-    private val isAccessibilityEnabled: () -> Boolean,
+    private val alarmReadiness: AndroidAlarmReadiness,
+    private val accessibilityChecker: AccessibilityChecker,
     private val soundPreview: AndroidAlarmSoundPreview,
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    private val oauthTokenExchange: OAuthTokenExchange,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
 
     constructor(
@@ -74,9 +83,10 @@ class CurfewViewModel(
         wakeConditionSetup = AndroidWakeConditionSetup(application),
         accountRecovery = AndroidAccountRecovery(application),
         checkInCatalog = CheckInCatalog(application),
-        alarmReadinessEvaluator = { AndroidAlarmReadiness(application).evaluate(it) },
-        isAccessibilityEnabled = { AccessibilityServiceStatus.isEnabled(application) },
+        alarmReadiness = AndroidAlarmReadiness(application),
+        accessibilityChecker = AccessibilityChecker { AccessibilityServiceStatus.isEnabled(application) },
         soundPreview = AndroidAlarmSoundPreview(application),
+        oauthTokenExchange = OAuthTokenExchange(application),
         ioDispatcher = ioDispatcher,
     )
 
@@ -136,8 +146,8 @@ class CurfewViewModel(
     ) { (prefState, savedAlarm, firstUseLoad), (session, chosenApps), (soundCheckState, alarmBusy, alarmError) ->
         val selectedCheckIn = prefState.selectedCallbackId?.let { checkInCatalog.find(it) }
         val alarmCheckIn = savedAlarm?.let { checkInCatalog.find(it.schedule.callbackId) }
-        val readiness = alarmReadinessEvaluator(prefState)
-        val isAccessibilityReady = isAccessibilityEnabled()
+        val readiness = alarmReadiness.evaluate(prefState)
+        val isAccessibilityReady = accessibilityChecker.isEnabled()
         val firstUseState = (firstUseLoad as? FirstUseLoadState.Ready)?.state
 
         val conditionVerified = selectedCheckIn?.available == true &&
@@ -172,13 +182,48 @@ class CurfewViewModel(
             firstUseLoadError = firstUseLoad is FirstUseLoadState.Error && savedAlarm == null,
             ringingAlarm = _activeCampaignSnapshot.value?.state is AlarmCampaignState.Ringing ||
                 _activeCampaignSnapshot.value?.state is AlarmCampaignState.Quiet,
-            campaignId = savedAlarm?.occurrence?.campaignId,
+            campaignId = _activeCampaignSnapshot.value?.state?.campaignId ?: savedAlarm?.occurrence?.campaignId,
+            ringingSnapshot = _activeCampaignSnapshot.value,
         )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = CurfewUiState(),
     )
+
+    fun onForegroundResume() {
+        viewModelScope.launch(ioDispatcher) {
+            runCatching { sunriseScheduler.restore() }
+        }
+    }
+
+    fun loadRequestedAlarm(campaignId: String) {
+        viewModelScope.launch(ioDispatcher) {
+            val snapshot = runCatching { runtimeRepository.snapshot(campaignId) }.getOrNull()
+            _activeCampaignSnapshot.value = snapshot
+        }
+    }
+
+    fun clearRequestedAlarm() {
+        _activeCampaignSnapshot.value = null
+    }
+
+    fun handleOAuthCallback(uri: Uri): Boolean {
+        if (uri.scheme != "studio.hypertext.curfew" || uri.host != "oauth" || uri.path != "/callback") {
+            return false
+        }
+        viewModelScope.launch(ioDispatcher) {
+            runCatching {
+                oauthTokenExchange.exchange(uri)
+            }.onSuccess { state ->
+                _accountRecoveryState.value = state
+                if (state == AccountRecoveryState.Ready) {
+                    preferences.setAccountEnrolled(true)
+                }
+            }
+        }
+        return true
+    }
 
     fun setAccountRecoveryState(state: AccountRecoveryState) {
         _accountRecoveryState.value = state

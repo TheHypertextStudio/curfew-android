@@ -6,4 +6,14 @@ plugins {
     id("com.google.devtools.ksp") version "2.3.13" apply false
     id("androidx.room") version "2.8.5" apply false
     id("com.github.jk1.dependency-license-report") version "3.1.5" apply false
+    id("com.google.dagger.hilt.android") version "2.59.2" apply false
+}
+
+allprojects {
+    configurations.all {
+        resolutionStrategy {
+            force("org.jetbrains.kotlin:kotlin-metadata-jvm:2.4.21")
+            force("org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.9.0")
+        }
+    }
 }

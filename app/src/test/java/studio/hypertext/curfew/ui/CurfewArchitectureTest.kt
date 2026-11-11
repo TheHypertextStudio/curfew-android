@@ -145,4 +145,43 @@ class CurfewArchitectureTest {
             assertTrue(item.iconRes != 0)
         }
     }
+
+    @Test
+    fun `CurfewUiState evaluates isAlarmRinging correctly based on campaign state`() {
+        val nonRingingState = CurfewUiState(ringingSnapshot = null)
+        assertFalse(nonRingingState.isAlarmRinging)
+
+        val now = java.time.Instant.now()
+        val scheduledState = CurfewUiState(
+            ringingSnapshot = studio.hypertext.curfew.alarm.AlarmRuntimeSnapshot(
+                state = studio.hypertext.curfew.alarm.AlarmCampaignState.Scheduled(
+                    campaignId = "camp-1",
+                    startsAt = now,
+                    policy = studio.hypertext.curfew.alarm.AlarmRecurrencePolicy.default(),
+                    selectedDeviceIds = setOf("dev-1"),
+                ),
+                persistedAtWall = now,
+                persistedAtElapsedMillis = 1000L,
+                bootId = "boot-1",
+            ),
+        )
+        assertFalse(scheduledState.isAlarmRinging)
+
+        val ringingState = CurfewUiState(
+            ringingSnapshot = studio.hypertext.curfew.alarm.AlarmRuntimeSnapshot(
+                state = studio.hypertext.curfew.alarm.AlarmCampaignState.Ringing(
+                    campaignId = "camp-1",
+                    attempt = 1,
+                    ringStartedAt = now,
+                    ringEndsAt = now.plusSeconds(60),
+                    policy = studio.hypertext.curfew.alarm.AlarmRecurrencePolicy.default(),
+                    selectedDeviceIds = setOf("dev-1"),
+                ),
+                persistedAtWall = now,
+                persistedAtElapsedMillis = 1000L,
+                bootId = "boot-1",
+            ),
+        )
+        assertTrue(ringingState.isAlarmRinging)
+    }
 }

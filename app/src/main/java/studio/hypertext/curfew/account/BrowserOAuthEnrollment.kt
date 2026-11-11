@@ -1,6 +1,6 @@
 package studio.hypertext.curfew.account
 
-import android.app.Activity
+import android.content.Context
 import android.net.Uri
 import androidx.browser.customtabs.CustomTabsIntent
 import kotlinx.coroutines.Dispatchers
@@ -10,14 +10,14 @@ import studio.hypertext.curfew.security.AndroidKeystoreSecretStore
 import java.net.URI
 
 class BrowserOAuthEnrollment(
-    activity: Activity,
+    context: Context,
 ) {
-    private val hostActivity = activity
-    private val secrets = AndroidKeystoreSecretStore(activity)
+    private val hostContext = context
+    private val secrets = AndroidKeystoreSecretStore(context)
 
     suspend fun begin(): OAuthEnrollmentRequest {
-        check(canUseAccountSignIn(hostActivity.packageName)) { "Account sign-in is unavailable in this test build." }
-        val clientId = OAuthDynamicClientRegistrar(hostActivity).registeredClientId()
+        check(canUseAccountSignIn(hostContext.packageName)) { "Account sign-in is unavailable in this test build." }
+        val clientId = OAuthDynamicClientRegistrar(hostContext).registeredClientId()
         val request =
             OAuthEnrollmentRequest.create(
                 issuer = URI(ProductionServices.ACCOUNT_ORIGIN),
@@ -30,7 +30,7 @@ class BrowserOAuthEnrollment(
                 .Builder()
                 .setShowTitle(true)
                 .build()
-                .launchUrl(hostActivity, Uri.parse(request.authorizationUri.toASCIIString()))
+                .launchUrl(hostContext, Uri.parse(request.authorizationUri.toASCIIString()))
         }
         return request
     }

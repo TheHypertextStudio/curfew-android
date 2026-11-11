@@ -15,12 +15,12 @@ import javax.crypto.spec.GCMParameterSpec
 class AndroidKeystoreSecretStore(
     context: Context,
     private val keyAlias: String = "curfew-device-secrets-v1",
-) {
+) : SecretStore {
     private val directory = File(context.noBackupFilesDir, "secure-secrets").also {
         check(it.mkdirs() || it.isDirectory) { "secure secret storage is unavailable" }
     }
 
-    fun put(identifier: String, secret: ByteArray) = synchronized(operationLock) {
+    override fun put(identifier: String, secret: ByteArray) = synchronized(operationLock) {
         require(identifier.isNotBlank())
         require(secret.isNotEmpty())
         val cipher = Cipher.getInstance(CIPHER_TRANSFORMATION)
@@ -39,7 +39,7 @@ class AndroidKeystoreSecretStore(
         check(temporary.renameTo(destination)) { "could not persist encrypted secret" }
     }
 
-    fun get(identifier: String): ByteArray? = synchronized(operationLock) {
+    override fun get(identifier: String): ByteArray? = synchronized(operationLock) {
         val source = fileFor(identifier)
         if (!source.exists()) return@synchronized null
         val payload = source.readBytes()
@@ -57,11 +57,11 @@ class AndroidKeystoreSecretStore(
         cipher.doFinal(payload.copyOfRange(1 + ivSize, payload.size))
     }
 
-    fun getOrPut(identifier: String, create: () -> ByteArray): ByteArray = synchronized(operationLock) {
+    override fun getOrPut(identifier: String, create: () -> ByteArray): ByteArray = synchronized(operationLock) {
         get(identifier) ?: create().also { put(identifier, it) }
     }
 
-    fun delete(identifier: String) = synchronized(operationLock) {
+    override fun delete(identifier: String) = synchronized(operationLock) {
         val file = fileFor(identifier)
         if (file.exists()) check(file.delete()) { "could not delete encrypted secret" }
     }
