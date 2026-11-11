@@ -11,6 +11,7 @@
     <string name="account_enter_recovery_key">Signed in. Enter your Curfew Recovery Key to restore your settings.</string>
     <string name="account_save_recovery_key">Signed in. Save your Curfew Recovery Key to protect your settings.</string>
     <string name="account_sign_in_failed">Sign-in could not be completed. Please try again.</string>
+    <string name="system_destination_unavailable">Couldn’t open this screen on your device.</string>
     <string name="accessibility_service_description">Interrupts chosen entertainment apps during active bedtime and focus sessions to protect your rest and work boundaries. Only observes foreground package names when a session is active. Never reads screen contents, collects keystrokes, or transmits activity.</string>
     <string name="enforcement_channel_name">Bedtime &amp; Focus Protection</string>
     <string name="enforcement_channel_description">Ongoing status and emergency stop for active bedtime and focus protection sessions</string>
