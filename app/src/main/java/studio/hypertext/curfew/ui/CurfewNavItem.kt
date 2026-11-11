@@ -1,6 +1,7 @@
 package studio.hypertext.curfew.ui
 
 import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import studio.hypertext.curfew.R
 
 /**
@@ -8,13 +9,13 @@ import studio.hypertext.curfew.R
  */
 data class CurfewNavItem(
     val destination: CurfewDestination,
-    val label: String,
+    @StringRes val labelRes: Int,
     @DrawableRes val iconRes: Int,
 )
 
 val PrimaryNavItems = listOf(
-    CurfewNavItem(CurfewDestination.Daily, "Alarm", R.drawable.ic_alarm_rounded),
-    CurfewNavItem(CurfewDestination.Enforcement, "Bedtime", R.drawable.ic_lock_rounded),
-    CurfewNavItem(CurfewDestination.Settings, "Settings", R.drawable.ic_settings_rounded),
-    CurfewNavItem(CurfewDestination.Account, "Account", R.drawable.ic_link_rounded),
+    CurfewNavItem(CurfewDestination.Daily, R.string.pane_alarm, R.drawable.ic_alarm_rounded),
+    CurfewNavItem(CurfewDestination.Enforcement, R.string.nav_bedtime, R.drawable.ic_lock_rounded),
+    CurfewNavItem(CurfewDestination.Settings, R.string.pane_settings, R.drawable.ic_settings_rounded),
+    CurfewNavItem(CurfewDestination.Account, R.string.pane_account, R.drawable.ic_link_rounded),
 )

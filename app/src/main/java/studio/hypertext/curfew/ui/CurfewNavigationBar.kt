@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
@@ -34,6 +35,7 @@ fun CurfewNavigationBar(
         windowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom),
     ) {
         PrimaryNavItems.forEach { item ->
+            val label = stringResource(item.labelRes)
             val isSelected = currentDestination == item.destination ||
                 (item.destination == CurfewDestination.Daily &&
                     (currentDestination == CurfewDestination.Edit ||
@@ -53,7 +55,7 @@ fun CurfewNavigationBar(
                 },
                 label = {
                     Text(
-                        text = item.label,
+                        text = label,
                         style = MaterialTheme.typography.labelMedium,
                     )
                 },
@@ -65,7 +67,7 @@ fun CurfewNavigationBar(
                     unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 ),
                 modifier = Modifier.semantics {
-                    contentDescription = item.label
+                    contentDescription = label
                 },
             )
         }

@@ -142,7 +142,7 @@ class CurfewArchitectureTest {
         )
 
         for (item in PrimaryNavItems) {
-            assertTrue(item.label.isNotBlank())
+            assertTrue(item.labelRes != 0)
             assertTrue(item.iconRes != 0)
         }
     }

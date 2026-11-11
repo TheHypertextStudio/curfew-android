@@ -5,10 +5,11 @@ import java.net.URISyntaxException
 import studio.hypertext.curfew.account.AccountOAuthRedirect
 
 internal const val ACTION_SHOW_ENFORCEMENT = "studio.hypertext.curfew.action.SHOW_ENFORCEMENT"
+private const val REDACTED_CALLBACK_LABEL = "OAuthCallback"
 
 internal sealed interface LaunchRequest {
     class OAuthCallback(val url: String) : LaunchRequest {
-        override fun toString() = "OAuthCallback"
+        override fun toString() = REDACTED_CALLBACK_LABEL
     }
     data class ShowAlarm(val campaignId: String) : LaunchRequest
     data class Enforcement(val interceptedPackage: String?) : LaunchRequest

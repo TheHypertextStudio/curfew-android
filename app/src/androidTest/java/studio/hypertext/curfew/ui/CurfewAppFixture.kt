@@ -6,6 +6,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import kotlinx.coroutines.flow.MutableStateFlow
 import studio.hypertext.curfew.account.AccountUiState
+import studio.hypertext.curfew.alarm.AlarmSaveFailure
 import studio.hypertext.curfew.alarm.AlarmSetupEntry
 import studio.hypertext.curfew.alarm.AlarmSetupUiState
 import studio.hypertext.curfew.enforcement.BedtimeProtectionUiState
@@ -46,7 +47,7 @@ internal fun CurfewAppFixture(
     conditionLabel: String?,
     alarmConditionLabel: String? = conditionLabel.takeIf { callbackId == sunriseAlarm?.schedule?.callbackId },
     alarmBusy: Boolean,
-    alarmError: String?,
+    alarmError: AlarmSaveFailure?,
     onSaveAlarm: (SunriseSchedule) -> Unit,
     onToggleAlarm: (Boolean) -> Unit,
     onRaiseAlarmVolume: () -> Unit = onRepairAlarmChannel,

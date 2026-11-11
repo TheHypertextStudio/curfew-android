@@ -23,7 +23,6 @@ import studio.hypertext.curfew.persistence.FirstUseLoadState
 import studio.hypertext.curfew.persistence.FirstUsePreferences
 import studio.hypertext.curfew.platform.SunriseScheduler
 import studio.hypertext.curfew.readiness.AlarmReadiness
-import studio.hypertext.curfew.ui.alarmSaveError
 
 internal fun interface AlarmReadinessReader {
     fun evaluate(preferences: CurfewPreferenceState): AlarmReadiness
@@ -37,7 +36,7 @@ internal class AlarmSetupViewModel @Inject constructor(
     private val checkIns: CheckInCatalog,
     private val readiness: AlarmReadinessReader,
 ) : ViewModel() {
-    private data class SaveState(val busy: Boolean = false, val error: String? = null)
+    private data class SaveState(val busy: Boolean = false, val error: AlarmSaveFailure? = null)
 
     private val save = MutableStateFlow(SaveState())
     private val capabilityRevision = MutableStateFlow(0)
@@ -120,7 +119,7 @@ internal class AlarmSetupViewModel @Inject constructor(
                 save.value = SaveState()
                 throw cancelled
             } catch (failure: Exception) {
-                save.value = SaveState(error = alarmSaveError(failure))
+                save.value = SaveState(error = alarmSaveFailure(failure))
             }
         }
     }

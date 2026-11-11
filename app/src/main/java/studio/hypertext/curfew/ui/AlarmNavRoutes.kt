@@ -19,7 +19,7 @@ internal fun DailyRoute(
         state.conditionVerified && state.sunriseAlarm?.schedule?.callbackId == state.callbackId,
         state.canArm && (state.sunriseAlarm == null || state.sunriseAlarm.schedule.callbackId == state.callbackId),
         state.alarmBusy,
-        state.alarmError,
+        alarmSaveMessage(state.alarmError),
         onEdit = {
             appState.setupMode = state.sunriseAlarm == null
             appState.navigate(CurfewDestination.Edit)
@@ -58,7 +58,7 @@ internal fun EditRoute(
         state.callbackId,
         state.canArm,
         state.alarmBusy || appState.saving || appState.preparing,
-        state.alarmError ?: appState.setupError?.let { stringResource(it) },
+        alarmSaveMessage(state.alarmError) ?: appState.setupError?.let { stringResource(it) },
         onSave = {
             appState.saving = true
             actions.onSaveAlarm(it)
@@ -133,7 +133,7 @@ internal fun ReviewRoute(
             prepared,
             state.conditionLabel ?: stringResource(R.string.check_in_label),
             state.alarmBusy || appState.saving,
-            state.alarmError ?: appState.setupError?.let { stringResource(it) },
+            alarmSaveMessage(state.alarmError) ?: appState.setupError?.let { stringResource(it) },
             onEdit = { appState.navigate(CurfewDestination.Edit) },
         ) {
             if (!state.canArm) {

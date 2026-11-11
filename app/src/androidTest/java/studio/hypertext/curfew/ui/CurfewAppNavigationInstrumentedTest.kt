@@ -1,6 +1,7 @@
 package studio.hypertext.curfew.ui
 
 import studio.hypertext.curfew.alarm.AlarmSetupDraft
+import studio.hypertext.curfew.alarm.AlarmSaveFailure
 
 import android.graphics.Bitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
@@ -42,7 +43,7 @@ class CurfewAppNavigationInstrumentedTest {
         SunriseSchedule("sunrise-1", LocalTime.of(7, 0), LocalDate.of(2026, 10, 20), emptySet(), true, "condition-1"),
         SunriseOccurrence("morning-1", LocalDate.of(2026, 10, 20), Instant.parse("2026-10-20T14:00:00Z")),
     )
-    private val failure = mutableStateOf<String?>(null)
+    private val failure = mutableStateOf<AlarmSaveFailure?>(null)
     private val hasConnection = mutableStateOf(true)
     private var saves = 0
     private val callbackGeneration = mutableStateOf(0)
@@ -80,7 +81,7 @@ class CurfewAppNavigationInstrumentedTest {
                     conditionLabel = if (replacement) "Replacement check-in" else if (hasConnection.value) "Morning check-in" else null,
                     alarmBusy = false,
                     alarmError = failure.value,
-                    onSaveAlarm = { saves++; if (failSave) failure.value = "Could not save the alarm. Try again." },
+                    onSaveAlarm = { saves++; if (failSave) failure.value = AlarmSaveFailure.SAVE_FAILED },
                     onToggleAlarm = {},
                     onRaiseAlarmVolume = { volumeRequests++; missingActions.value = emptySet() },
                     conditionVerified = hasConnection.value,
@@ -179,7 +180,7 @@ class CurfewAppNavigationInstrumentedTest {
         compose.onNodeWithContentDescription("Edit alarm").performClick()
         compose.onNodeWithText("Repeat").performClick()
         compose.onNodeWithText("Save alarm").performScrollTo().performClick()
-        compose.onNodeWithText("Could not save the alarm. Try again.").assertIsDisplayed()
+        compose.onNodeWithText("Couldn’t save the alarm. Try again.").assertIsDisplayed()
         compose.onNodeWithText("Repeat").assertIsSelected()
         compose.onNodeWithText("Save alarm").assertIsDisplayed()
         compose.runOnIdle { assertEquals(1, saves) }
