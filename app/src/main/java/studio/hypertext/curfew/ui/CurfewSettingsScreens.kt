@@ -44,9 +44,11 @@ internal fun CurfewSettingsScreen(
     conditionVerified: Boolean,
     readinessComplete: Boolean,
     signedIn: Boolean,
+    enforcementSummary: String? = null,
     onCheckIn: () -> Unit,
     onReadiness: () -> Unit,
     onAccount: () -> Unit,
+    onBedtimeProtection: () -> Unit = {},
 ) {
     TaskContent {
         Surface(shape = MaterialTheme.shapes.large, color = MaterialTheme.colorScheme.surfaceContainerLow) {
@@ -60,6 +62,12 @@ internal fun CurfewSettingsScreen(
                     onCheckIn,
                 )
                 SettingRow("Alarm setup", if (readinessComplete) "Ready" else "Needs attention", R.drawable.ic_lock_rounded, onReadiness)
+                SettingRow(
+                    "Bedtime & focus protection",
+                    enforcementSummary ?: "App interruption",
+                    R.drawable.ic_lock_rounded,
+                    onBedtimeProtection,
+                )
             }
         }
         Surface(shape = MaterialTheme.shapes.large, color = MaterialTheme.colorScheme.surfaceContainerLow) {

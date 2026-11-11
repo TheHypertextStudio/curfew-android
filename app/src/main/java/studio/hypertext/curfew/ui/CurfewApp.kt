@@ -30,6 +30,9 @@ import studio.hypertext.curfew.R
 import studio.hypertext.curfew.account.AccountRecoveryState
 import studio.hypertext.curfew.alarm.SavedSunriseAlarm
 import studio.hypertext.curfew.alarm.SunriseSchedule
+import studio.hypertext.curfew.enforcement.EnforcementPurpose
+import studio.hypertext.curfew.enforcement.EnforcementSession
+import studio.hypertext.curfew.enforcement.EnforcementSessionState
 import studio.hypertext.curfew.readiness.AlarmReadiness
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -76,6 +79,15 @@ fun CurfewApp(
     conditionSetupFileSaved: Boolean = false,
     placeCodeSelected: Boolean = false,
     placeCheckInContent: (@Composable (() -> Unit, () -> Unit, (() -> Unit)?) -> Unit)? = null,
+    enforcementSession: EnforcementSession? = null,
+    enforcementChosenApps: Set<String> = emptySet(),
+    isAccessibilityReady: Boolean = false,
+    onToggleChosenApp: (String, Boolean) -> Unit = { _, _ -> },
+    onOpenAccessibilitySettings: () -> Unit = {},
+    onStartEnforcementSession: (EnforcementPurpose, Int) -> Unit = { _, _ -> },
+    onEmergencyStopEnforcement: () -> Unit = {},
+    interceptedPackage: String? = null,
+    onDismissInterceptionBanner: () -> Unit = {},
 ) {
     val onGrantExactAlarmState = rememberUpdatedState(onGrantExactAlarm)
     val onGrantNotificationsState = rememberUpdatedState(onGrantNotifications)
@@ -171,6 +183,11 @@ fun CurfewApp(
             open("account")
         }
     }
+    LaunchedEffect(interceptedPackage) {
+        if (interceptedPackage != null) {
+            open("enforcement")
+        }
+    }
     LaunchedEffect(alarmBusy, alarmError, saving, sunriseAlarm, setupMode, draft?.id) {
         val activated = setupMode && sunriseAlarm?.schedule?.let { it.id == draft?.id && it.enabled } == true
         if (!alarmBusy && activated) {
@@ -208,6 +225,7 @@ fun CurfewApp(
         "settings" -> "Settings"
         "account" -> "Account"
         "review" -> "Your alarm"
+        "enforcement" -> "Bedtime & focus"
         else -> "Curfew"
     }
     val spatial = MaterialTheme.motionScheme.defaultSpatialSpec<IntOffset>()
@@ -384,7 +402,28 @@ fun CurfewApp(
                                         }
                                         "settings" -> CurfewSettingsScreen(
                                             conditionLabel, conditionVerified, readiness.canArm, accountSignedIn,
-                                            onCheckIn = { open("check-in") }, onReadiness = { open("readiness") }, onAccount = { open("account") },
+                                            enforcementSummary = if (enforcementSession?.state == EnforcementSessionState.ACTIVE) {
+                                                "Active session"
+                                            } else if (isAccessibilityReady) {
+                                                "Ready"
+                                            } else {
+                                                "Needs attention"
+                                            },
+                                            onCheckIn = { open("check-in") },
+                                            onReadiness = { open("readiness") },
+                                            onAccount = { open("account") },
+                                            onBedtimeProtection = { open("enforcement") },
+                                        )
+                                        "enforcement" -> BedtimeProtectionScreen(
+                                            isAccessibilityReady = isAccessibilityReady,
+                                            activeSession = enforcementSession,
+                                            chosenApps = enforcementChosenApps,
+                                            onToggleChosenApp = onToggleChosenApp,
+                                            onOpenAccessibilitySettings = onOpenAccessibilitySettings,
+                                            onStartSession = onStartEnforcementSession,
+                                            onEmergencyStop = onEmergencyStopEnforcement,
+                                            interceptedPackage = interceptedPackage,
+                                            onDismissInterceptionBanner = onDismissInterceptionBanner,
                                         )
                                         "account" -> CurfewAccountScreen(
                                             accountEnrolled, accountSignedIn, accountRecoveryState, onOpenAccount,

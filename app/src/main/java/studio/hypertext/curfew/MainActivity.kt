@@ -91,6 +91,8 @@ private data class SetupInputs(
 
 class MainActivity : ComponentActivity() {
     private lateinit var preferences: CurfewPreferences
+    private lateinit var enforcementPreferences: studio.hypertext.curfew.enforcement.EnforcementPreferences
+    private var interceptedPackage by mutableStateOf<String?>(null)
     private val soundPreview by lazy { AndroidAlarmSoundPreview(this) }
     private val soundCheck by lazy {
         AlarmSoundCheck(soundPreview::play, soundPreview::stop) { preferences.setTestSoundConfirmed(true) }
@@ -220,6 +222,10 @@ class MainActivity : ComponentActivity() {
         PerpetualAlarmService.ensureChannels(this)
         WakeSyncScheduler.install(this)
         preferences = CurfewPreferences(this)
+        enforcementPreferences = studio.hypertext.curfew.enforcement.EnforcementPreferences(this)
+        if (intent.action == studio.hypertext.curfew.enforcement.CurfewAccessibilityService.ACTION_SHOW_ENFORCEMENT) {
+            interceptedPackage = intent.getStringExtra(studio.hypertext.curfew.enforcement.CurfewAccessibilityService.EXTRA_INTERCEPTED_PACKAGE)
+        }
         val requestedId = intent.getStringExtra(AndroidAlarmClockGateway.EXTRA_CAMPAIGN_ID)
         if (intent.getBooleanExtra(EXTRA_SHOW_ALARM, false) && requestedId != null) {
             lifecycleScope.launch {
@@ -448,6 +454,9 @@ class MainActivity : ComponentActivity() {
                     val preferenceState = inputs.preferences
                     val readiness = currentReadiness(preferenceState)
                     val conditionLabel = inputs.selected?.displayLabel
+                    val enforcementSession = enforcementPreferences.sessionFlow.collectAsStateWithLifecycle(initialValue = null).value
+                    val enforcementChosenApps = enforcementPreferences.chosenAppsFlow.collectAsStateWithLifecycle(initialValue = emptySet()).value
+                    val accessibilityReady = studio.hypertext.curfew.enforcement.AccessibilityServiceStatus.isEnabled(this@MainActivity)
                     CurfewApp(
                         soundCheckState = soundCheckState,
                         onConfirmSound = { lifecycleScope.launch { soundCheck.confirm() } },
@@ -648,6 +657,45 @@ class MainActivity : ComponentActivity() {
                         alarmError = sunriseError,
                         onSaveAlarm = ::saveSunrise,
                         onToggleAlarm = { enabled -> changeSunrise(enabled = enabled) },
+                        enforcementSession = enforcementSession,
+                        enforcementChosenApps = enforcementChosenApps,
+                        isAccessibilityReady = accessibilityReady,
+                        onToggleChosenApp = { pkg, checked ->
+                            lifecycleScope.launch {
+                                val current = enforcementPreferences.readChosenApps().toMutableSet()
+                                if (checked) current.add(pkg) else current.remove(pkg)
+                                enforcementPreferences.setChosenApps(current)
+                            }
+                        },
+                        onOpenAccessibilitySettings = {
+                            startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+                        },
+                        onStartEnforcementSession = { purpose, durationMinutes ->
+                            lifecycleScope.launch {
+                                val now = System.currentTimeMillis()
+                                val elapsed = android.os.SystemClock.elapsedRealtime()
+                                val session = studio.hypertext.curfew.enforcement.EnforcementSession(
+                                    sessionId = java.util.UUID.randomUUID().toString(),
+                                    purpose = purpose,
+                                    startEpochMs = now,
+                                    elapsedRealtimeStartMs = elapsed,
+                                    durationMinutes = durationMinutes,
+                                    wallClockExpiryEpochMs = now + (durationMinutes * 60 * 1000L),
+                                    chosenAppPackages = enforcementPreferences.readChosenApps(),
+                                    consentRevision = 1,
+                                    state = studio.hypertext.curfew.enforcement.EnforcementSessionState.ACTIVE,
+                                )
+                                enforcementPreferences.saveSession(session)
+                            }
+                        },
+                        onEmergencyStopEnforcement = {
+                            lifecycleScope.launch {
+                                studio.hypertext.curfew.enforcement.CurfewAccessibilityService.disarmActiveSession()
+                                enforcementPreferences.emergencyStop("user_stop")
+                            }
+                        },
+                        interceptedPackage = interceptedPackage,
+                        onDismissInterceptionBanner = { interceptedPackage = null },
                     )
                 }
             }
@@ -684,6 +732,9 @@ class MainActivity : ComponentActivity() {
         super.onNewIntent(intent)
         if (handleOAuthCallback(intent)) {
             setIntent(Intent(this, MainActivity::class.java))
+        } else if (intent.action == studio.hypertext.curfew.enforcement.CurfewAccessibilityService.ACTION_SHOW_ENFORCEMENT) {
+            setIntent(intent)
+            interceptedPackage = intent.getStringExtra(studio.hypertext.curfew.enforcement.CurfewAccessibilityService.EXTRA_INTERCEPTED_PACKAGE)
         } else {
             setIntent(intent)
             recreate()
