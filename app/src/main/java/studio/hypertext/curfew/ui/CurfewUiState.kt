@@ -1,11 +1,8 @@
 package studio.hypertext.curfew.ui
 
 import studio.hypertext.curfew.account.AccountRecoveryState
-import studio.hypertext.curfew.alarm.AlarmCampaignState
-import studio.hypertext.curfew.alarm.AlarmRuntimeSnapshot
 import studio.hypertext.curfew.alarm.AlarmSetupDraft
 import studio.hypertext.curfew.alarm.SavedSunriseAlarm
-import studio.hypertext.curfew.checkin.CheckInDescription
 import studio.hypertext.curfew.enforcement.EnforcementSession
 import studio.hypertext.curfew.readiness.AlarmPresentation
 import studio.hypertext.curfew.readiness.AlarmReadiness
@@ -46,13 +43,8 @@ data class CurfewUiState(
     val openEnforcement: Boolean = false,
     val initialDataReady: Boolean = false,
     val firstUseLoadError: Boolean = false,
-    val ringingSnapshot: AlarmRuntimeSnapshot? = null,
-    val ringingCondition: CheckInDescription? = null,
 ) {
     val canArm: Boolean
         get() = readiness.canArm && callbackId != null && conditionLabel != null && conditionVerified
 
-    val isAlarmRinging: Boolean
-        get() = ringingSnapshot?.state is AlarmCampaignState.Ringing ||
-            ringingSnapshot?.state is AlarmCampaignState.Quiet
 }

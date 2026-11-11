@@ -2,11 +2,18 @@ package studio.hypertext.curfew.ui
 
 import android.widget.Toast
 import androidx.activity.compose.LocalActivity
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -21,6 +28,8 @@ import studio.hypertext.curfew.ui.theme.CurfewTheme
 @Composable
 internal fun CurfewRoot(viewModel: CurfewViewModel, systemSettings: SystemSettingsLauncher) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val ringing by viewModel.ringingAlarm.collectAsStateWithLifecycle()
+    val shellState = rememberSaveableStateHolder()
     val context = LocalContext.current
     val activity = LocalActivity.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -36,16 +45,28 @@ internal fun CurfewRoot(viewModel: CurfewViewModel, systemSettings: SystemSettin
         }
     }
     if (activity != null) {
-        ShowOverKeyguardEffect(activity, active = state.isAlarmRinging)
+        ShowOverKeyguardEffect(activity, active = ringing != null)
     }
 
     CurfewTheme {
-        val ringingSnapshot = state.ringingSnapshot
-        if (state.isAlarmRinging && ringingSnapshot != null) {
-            key(ringingSnapshot.state.campaignId) {
-                AlarmRingingHost(snapshot = ringingSnapshot, ringingCondition = state.ringingCondition)
+        val alarm = ringing
+        when {
+            alarm != null -> {
+                key(alarm.snapshot.state.campaignId) {
+                    AlarmRingingHost(snapshot = alarm.snapshot, ringingCondition = alarm.condition)
+                }
+                return@CurfewTheme
             }
-            return@CurfewTheme
+            !state.initialDataReady -> {
+                Surface(Modifier.fillMaxSize()) {
+                    Box(contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+                }
+                return@CurfewTheme
+            }
+            state.firstUseLoadError -> {
+                FirstUseLoadErrorScreen(viewModel::retryFirstUse)
+                return@CurfewTheme
+            }
         }
         val actions = CurfewUiActions(
             onGrantExactAlarm = systemSettings::requestExactAlarmAccess,
@@ -85,17 +106,19 @@ internal fun CurfewRoot(viewModel: CurfewViewModel, systemSettings: SystemSettin
             onDismissInterceptionBanner = viewModel::dismissInterceptionBanner,
             onEnforcementOpened = viewModel::onEnforcementOpened,
         )
-        CurfewApp(
-            state = state,
-            actions = actions,
-            placeCheckInContent = { advanced, done, useForAlarm ->
-                PlaceCheckInHost(
-                    selectedId = state.callbackId,
-                    onAdvanced = advanced,
-                    onDone = done,
-                    onUseForAlarm = useForAlarm,
-                )
-            },
-        )
+        shellState.SaveableStateProvider("app") {
+            CurfewApp(
+                state = state,
+                actions = actions,
+                placeCheckInContent = { advanced, done, useForAlarm ->
+                    PlaceCheckInHost(
+                        selectedId = state.callbackId,
+                        onAdvanced = advanced,
+                        onDone = done,
+                        onUseForAlarm = useForAlarm,
+                    )
+                },
+            )
+        }
     }
 }
