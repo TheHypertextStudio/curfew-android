@@ -25,6 +25,13 @@ class SetupColdStartInstrumentedTest {
     @Before fun isolateJournals(): Unit = runBlocking { journals.isolate() }
     @After fun restoreJournals(): Unit = runBlocking { journals.restore() }
 
+    @Test fun aFreshLaunchWaitsForSetupBeforeChoosingTheFirstScreen() {
+        ActivityScenario.launch(MainActivity::class.java).use {
+            compose.waitUntil(10_000) { compose.onAllNodesWithText("Get started").fetchSemanticsNodes().isNotEmpty() }
+            compose.onNodeWithText("Get started").assertIsDisplayed()
+        }
+    }
+
     @Test fun exportRetainsItsIdentityAcrossRecreation(): Unit = runBlocking {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val preferences = CurfewPreferences(context)

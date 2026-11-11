@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -119,6 +120,7 @@ class CurfewViewModel @Inject constructor(
     private val _accountRecoveryState = MutableStateFlow<AccountRecoveryState?>(null)
     private val _exportedVerifierId = MutableStateFlow<String?>(null)
     private val capabilitiesEpoch = MutableStateFlow(0)
+    private val firstUseRetry = MutableStateFlow(0)
     private val accountMessageChannel = Channel<Int>(Channel.BUFFERED)
     internal val accountMessages = accountMessageChannel.receiveAsFlow()
 
@@ -133,7 +135,7 @@ class CurfewViewModel @Inject constructor(
     private val savedAlarmFlow = sunriseScheduler.state.catch { emit(null) }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val ringingAlarmFlow = requestedCampaignId
+    internal val ringingAlarm = requestedCampaignId
         .flatMapLatest { requestedId ->
             if (requestedId != null) flowOf(requestedId) else savedAlarmFlow.map { it?.occurrence?.campaignId }
         }
@@ -143,34 +145,28 @@ class CurfewViewModel @Inject constructor(
                 flowOf(null)
             } else {
                 runtimeRepository.observeSnapshot(id)
-                    .map { snapshot ->
+                    .onEach { snapshot ->
                         when (snapshot?.state) {
-                            is AlarmCampaignState.Ringing, is AlarmCampaignState.Quiet -> {
-                                val condition = try {
-                                    runtimeRepository.callbackId(id)?.let { checkInCatalog.find(it) }
-                                } catch (cancelled: CancellationException) {
-                                    throw cancelled
-                                } catch (_: Exception) {
-                                    null
-                                }
-                                snapshot to condition
-                            }
-                            is AlarmCampaignState.Satisfied, is AlarmCampaignState.Overridden -> {
+                            is AlarmCampaignState.Satisfied, is AlarmCampaignState.Overridden ->
                                 requestedCampaignId.compareAndSet(id, null)
-                                null
-                            }
-                            else -> null
+                            else -> Unit
                         }
+                    }
+                    .ringingPresentation { campaignId ->
+                        runtimeRepository.callbackId(campaignId)?.let { checkInCatalog.find(it) }
                     }
                     .onStart { emit(null) }
                     .catch { emit(null) }
             }
-        }
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000, replayExpirationMillis = 0), null)
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val firstUseLoad = firstUseRetry.flatMapLatest { firstUsePreferences.loadState }
 
     private val alarmAndPrefsFlow = combine(
         preferences.state,
         savedAlarmFlow,
-        firstUsePreferences.loadState,
+        firstUseLoad,
     ) { pref, alarm, firstUse ->
         Triple(pref, alarm, firstUse)
     }
@@ -236,13 +232,10 @@ class CurfewViewModel @Inject constructor(
     val uiState: StateFlow<CurfewUiState> = combine(
         baseUiState,
         _accountRecoveryState,
-        ringingAlarmFlow,
         enforcementEntry,
-    ) { base, recovery, ringing, enforcement ->
+    ) { base, recovery, enforcement ->
         base.copy(
             accountRecoveryState = recovery.takeIf { base.accountSignedIn },
-            ringingSnapshot = ringing?.first,
-            ringingCondition = ringing?.second,
             interceptedPackage = enforcement.interceptedPackage,
             openEnforcement = enforcement.open,
         )
@@ -254,6 +247,10 @@ class CurfewViewModel @Inject constructor(
 
     fun refreshCapabilities() {
         capabilitiesEpoch.update { it + 1 }
+    }
+
+    fun retryFirstUse() {
+        firstUseRetry.update { it + 1 }
     }
 
     fun onForegroundResume() {

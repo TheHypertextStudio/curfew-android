@@ -1,6 +1,7 @@
 package studio.hypertext.curfew.ui
 
 import android.content.Intent
+import android.os.Build
 import android.view.WindowManager
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
@@ -12,6 +13,7 @@ import java.time.Instant
 import java.util.UUID
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
 import studio.hypertext.curfew.MainActivity
@@ -26,8 +28,12 @@ class LiveAlarmPresentationInstrumentedTest {
     @get:Rule val compose = createEmptyComposeRule()
 
     @Test
-    fun showsTheOccurrencesCheckInAndTracksQuietAndCompletion() = runBlocking {
+    fun showsTheOccurrencesCheckInAndTracksQuietAndCompletion(): Unit = runBlocking {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
+        assumeTrue(
+            "Alarm presentation fixtures require a disposable emulator or isolated acceptance app",
+            Build.HARDWARE in setOf("ranchu", "goldfish") || context.packageName.endsWith(".acceptance"),
+        )
         val runtime = AlarmRuntimeRepository(context)
         check(runtime.pending().isEmpty()) { "Do not run the fixture with an active alarm" }
         val id = UUID.randomUUID().toString()
