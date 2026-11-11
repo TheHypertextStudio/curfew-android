@@ -29,6 +29,11 @@ Leaving the readiness screen also stops an unconfirmed preview. Notification
 channel reads have no setup side effects; channel creation belongs to alarm
 readiness or actual playback.
 
+Place check-in setup and alarm approval have separate interfaces. Their
+repository shares the schedule lock with Sunrise and delegates polling,
+completion, and wake publication to an Android adapter. The terminal local
+write still precedes those side effects.
+
 The next data boundary is the platform work still orchestrated by
 `SunriseScheduler`: clock scheduling, callback polling, and wake sync. Extract
 one consumer-facing port at a time and reuse the existing scheduling and

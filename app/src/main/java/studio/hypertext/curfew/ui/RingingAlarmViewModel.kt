@@ -19,7 +19,7 @@ import kotlinx.coroutines.flow.stateIn
 import studio.hypertext.curfew.alarm.AlarmCampaignState
 import studio.hypertext.curfew.alarm.AlarmRuntimeSnapshot
 import studio.hypertext.curfew.checkin.CheckInCatalog
-import studio.hypertext.curfew.checkin.PlaceCheckInRepository
+import studio.hypertext.curfew.checkin.PlaceCheckInApprover
 import studio.hypertext.curfew.platform.AlarmRuntimeRepository
 import studio.hypertext.curfew.platform.SunriseScheduler
 
@@ -33,7 +33,7 @@ internal class RingingAlarmViewModel @Inject constructor(
     private val runtime: AlarmRuntimeRepository,
     scheduler: SunriseScheduler,
     private val checkIns: CheckInCatalog,
-    private val places: PlaceCheckInRepository,
+    private val places: PlaceCheckInApprover,
     private val nextTransition: NextAlarmTransition,
 ) : ViewModel() {
     private val requestedCampaign = MutableStateFlow<String?>(null)

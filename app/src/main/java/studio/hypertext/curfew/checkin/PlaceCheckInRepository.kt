@@ -1,34 +1,39 @@
 package studio.hypertext.curfew.checkin
 
 import android.content.Context
-import dagger.hilt.android.qualifiers.ApplicationContext
 import java.time.Instant
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
-import studio.hypertext.curfew.account.NativeDeviceProofAuthenticator
 import studio.hypertext.curfew.alarm.AlarmCampaignState
-import studio.hypertext.curfew.callback.CallbackPollScheduler
+import studio.hypertext.curfew.alarm.SunriseScheduleLock
+import studio.hypertext.curfew.di.IoDispatcher
+import studio.hypertext.curfew.platform.AndroidPlaceCheckInEffects
 import studio.hypertext.curfew.persistence.CurfewPreferences
 import studio.hypertext.curfew.platform.AlarmRuntimeRepository
-import studio.hypertext.curfew.platform.SunriseScheduler
-import studio.hypertext.curfew.protocols.Result
-import studio.hypertext.curfew.protocols.WakeOutcome
 import studio.hypertext.curfew.security.AndroidKeystoreSecretStore
 import studio.hypertext.curfew.security.SecretStore
-import studio.hypertext.curfew.sync.WakeOutboxPublisher
-import studio.hypertext.curfew.sync.WakeSyncScheduler
 import javax.inject.Inject
 import javax.inject.Singleton
 
 enum class PlaceApprovalResult { CHECKED_IN, NOT_ACTIVE, NEXT_ALARM_UNAVAILABLE }
 
+internal interface PlaceCheckInEffects {
+    suspend fun revokeCondition(id: String, revoke: suspend () -> Unit)
+    suspend fun completeOccurrence(campaignId: String)
+    fun retryCompletion(campaignId: String)
+    suspend fun publishWakeOutcome(terminal: AlarmCampaignState.Satisfied)
+}
+
 @Singleton
-class PlaceCheckInRepository @Inject constructor(
+class PlaceCheckInRepository @Inject internal constructor(
     private val secrets: SecretStore,
     private val preferences: CurfewPreferences,
     private val cameraChecker: CameraAvailabilityChecker,
-    @ApplicationContext private val context: Context,
+    private val runtime: AlarmRuntimeRepository,
+    private val effects: PlaceCheckInEffects,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : PlaceCheckInSetupAccess {
     constructor(context: Context) : this(
         secrets = AndroidKeystoreSecretStore(context),
@@ -40,40 +45,42 @@ class PlaceCheckInRepository @Inject constructor(
             ) == android.content.pm.PackageManager.PERMISSION_GRANTED &&
                 context.packageManager.hasSystemFeature(android.content.pm.PackageManager.FEATURE_CAMERA_ANY)
         },
-        context = context.applicationContext,
+        runtime = AlarmRuntimeRepository(context),
+        effects = AndroidPlaceCheckInEffects(context),
+        ioDispatcher = Dispatchers.IO,
     )
 
     override fun cameraReady(): Boolean = cameraChecker.isCameraReady()
 
-    override suspend fun draft(): PlaceDraft? = withContext(Dispatchers.IO) {
+    override suspend fun draft(): PlaceDraft? = withContext(ioDispatcher) {
         secrets.get(DRAFT)?.let { bytes ->
             val json = JSONObject(bytes.toString(Charsets.UTF_8))
             PlaceDraft(decode(json), json.getString("payload"), json.optBoolean("exported", false))
         }
     }
 
-    override suspend fun begin(label: String): PlaceDraft = withContext(Dispatchers.IO) {
-        SunriseScheduler.serialized {
+    override suspend fun begin(label: String): PlaceDraft = withContext(ioDispatcher) {
+        SunriseScheduleLock.serialized {
             PlaceCheckIn.create(label).also {
                 secrets.put(DRAFT, encode(it.enrollment).put("payload", it.payload).toString().toByteArray())
             }
         }
     }
 
-    override suspend fun markExported(id: String) = withContext(Dispatchers.IO) {
-        SunriseScheduler.serialized {
+    override suspend fun markExported(id: String) = withContext(ioDispatcher) {
+        SunriseScheduleLock.serialized {
             val pending = requireNotNull(draft())
             require(pending.enrollment.id == id) { "The code was replaced while saving." }
             secrets.put(DRAFT, encode(pending.enrollment).put("payload", pending.payload).put("exported", true).toString().toByteArray())
         }
     }
 
-    override suspend fun cancelDraft() = withContext(Dispatchers.IO) {
-        SunriseScheduler.serialized { secrets.delete(DRAFT) }
+    override suspend fun cancelDraft() = withContext(ioDispatcher) {
+        SunriseScheduleLock.serialized { secrets.delete(DRAFT) }
     }
 
-    override suspend fun enroll(draftId: String, scanned: String): PlaceEnrollment = withContext(Dispatchers.IO) {
-        SunriseScheduler.serialized {
+    override suspend fun enroll(draftId: String, scanned: String): PlaceEnrollment = withContext(ioDispatcher) {
+        SunriseScheduleLock.serialized {
             val pending = requireNotNull(draft()) { "Create a new code before scanning." }
             require(pending.enrollment.id == draftId) { "This setup was replaced. Scan the new code." }
             val enrollment = PlaceCheckIn.enroll(pending, scanned)
@@ -85,13 +92,13 @@ class PlaceCheckInRepository @Inject constructor(
         }
     }
 
-    override suspend fun find(id: String): PlaceEnrollment? = withContext(Dispatchers.IO) {
+    override suspend fun find(id: String): PlaceEnrollment? = withContext(ioDispatcher) {
         secrets.get(key(id))?.let { decode(JSONObject(it.toString(Charsets.UTF_8))) }
     }
 
-    override suspend fun remove(id: String) = withContext(Dispatchers.IO) {
+    override suspend fun remove(id: String) = withContext(ioDispatcher) {
         // Disable future delivery before revoking. The scheduler preserves a ringing gate.
-        SunriseScheduler(context).revokeCondition(id) {
+        effects.revokeCondition(id) {
             secrets.delete(key(id))
             // Selecting a different connection must never be cleared by a late removal.
             preferences.clearCallbackIfSelected(id)
@@ -99,10 +106,9 @@ class PlaceCheckInRepository @Inject constructor(
     }
 
     /** The result reports local state only; it is never a remote acknowledgment. */
-    suspend fun approve(campaignId: String, scanned: String): PlaceApprovalResult = withContext(Dispatchers.IO) {
-        val runtime = AlarmRuntimeRepository(context)
+    suspend fun approve(campaignId: String, scanned: String): PlaceApprovalResult = withContext(ioDispatcher) {
         var released: AlarmCampaignState.Satisfied? = null
-        SunriseScheduler.serialized {
+        SunriseScheduleLock.serialized {
             runtime.updateExisting(campaignId) { snapshot ->
                 val current = snapshot.state
                 if (current is AlarmCampaignState.Satisfied || current is AlarmCampaignState.Overridden) {
@@ -119,23 +125,15 @@ class PlaceCheckInRepository @Inject constructor(
         withContext(kotlinx.coroutines.NonCancellable) {
             // The terminal Room write precedes all scheduling and network side effects.
             val completed = try {
-                SunriseScheduler(context).completeOccurrence(campaignId)
+                effects.completeOccurrence(campaignId)
                 true
             } catch (cancelled: kotlinx.coroutines.CancellationException) {
                 throw cancelled
             } catch (_: Exception) {
-                CallbackPollScheduler.schedule(context, campaignId)
+                effects.retryCompletion(campaignId)
                 false
             }
-            try {
-                val device = NativeDeviceProofAuthenticator(context).deviceId()
-                WakeOutboxPublisher(context).publish(WakeOutcome(campaignId = campaignId, releasedAt = terminal.satisfiedAt.toString(), result = Result.Satisfied, satisfyingDeviceId = device), writerDeviceId = device, version = 1)
-                WakeSyncScheduler.accelerate(context)
-            } catch (cancelled: kotlinx.coroutines.CancellationException) {
-                throw cancelled
-            } catch (_: Exception) {
-                android.util.Log.w("PlaceCheckIn", "Local check-in saved; account sync needs attention")
-            }
+            effects.publishWakeOutcome(terminal)
             if (completed) PlaceApprovalResult.CHECKED_IN else PlaceApprovalResult.NEXT_ALARM_UNAVAILABLE
         }
     }
