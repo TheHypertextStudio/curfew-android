@@ -14,6 +14,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -43,7 +44,7 @@ fun CurfewApp(
     onRepairAlarmChannel: () -> Unit = {},
     onRaiseAlarmVolume: () -> Unit = {},
     onOpenAccount: () -> Unit = {},
-    onEnrollAccount: () -> Unit = {},
+    onEnrollAccount: () -> Unit,
     onOpenAccessibilitySettings: () -> Unit = {},
     placeCheckInContent: (@Composable (() -> Unit, () -> Unit, (() -> Unit)?) -> Unit)? = null,
 ) {
@@ -79,11 +80,12 @@ fun CurfewApp(
     }
     val ringingSnap = state.ringingSnapshot
     if (state.isAlarmRinging && ringingSnap != null) {
-        AlarmRingingHost(
-            snapshot = ringingSnap,
-            ringingCondition = null,
-            onAlarmDismissed = viewModel::clearRequestedAlarm,
-        )
+        key(ringingSnap.state.campaignId) {
+            AlarmRingingHost(
+                snapshot = ringingSnap,
+                ringingCondition = state.ringingCondition,
+            )
+        }
     } else {
         CurfewApp(
             state = state,

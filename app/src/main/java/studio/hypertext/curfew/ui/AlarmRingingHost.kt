@@ -36,7 +36,6 @@ import java.util.Date
 internal fun AlarmRingingHost(
     snapshot: AlarmRuntimeSnapshot,
     ringingCondition: CheckInDescription?,
-    onAlarmDismissed: () -> Unit,
 ) {
     val context = LocalContext.current
     val activity = context as? ComponentActivity
@@ -57,9 +56,6 @@ internal fun AlarmRingingHost(
                         OwnerRecoveryResult.NotSaved -> "Couldn’t stop the alarm. Try again."
                     }
                     Toast.makeText(context, message, Toast.LENGTH_LONG).show()
-                    if (result == OwnerRecoveryResult.Recovered || result == OwnerRecoveryResult.RecoveredNextAlarmUnavailable) {
-                        onAlarmDismissed()
-                    }
                 },
             )
         } else null
@@ -104,9 +100,6 @@ internal fun AlarmRingingHost(
                             PlaceApprovalResult.NEXT_ALARM_UNAVAILABLE -> "Checked in. Check tomorrow’s alarm."
                         }
                         Toast.makeText(context, message, Toast.LENGTH_LONG).show()
-                        if (result == PlaceApprovalResult.CHECKED_IN || result == PlaceApprovalResult.NEXT_ALARM_UNAVAILABLE) {
-                            onAlarmDismissed()
-                        }
                     } finally {
                         scanning = false
                     }
