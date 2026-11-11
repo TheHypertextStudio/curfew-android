@@ -70,6 +70,10 @@ internal fun CurfewRoot(viewModel: CurfewViewModel, systemSettings: SystemSettin
         }
         val actions = CurfewUiActions(
             onGrantExactAlarm = systemSettings::requestExactAlarmAccess,
+            onEnterAlarmReadiness = {
+                systemSettings.prepareAlarmNotifications()
+                viewModel.refreshCapabilities()
+            },
             onGrantNotifications = requestNotifications,
             onGrantFullScreen = systemSettings::requestFullScreenAccess,
             onRepairAlarmChannel = systemSettings::openAlarmChannel,

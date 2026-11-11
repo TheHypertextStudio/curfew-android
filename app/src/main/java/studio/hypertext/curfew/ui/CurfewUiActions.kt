@@ -9,6 +9,7 @@ import studio.hypertext.curfew.enforcement.EnforcementPurpose
  */
 data class CurfewUiActions(
     val onGrantExactAlarm: () -> Unit = {},
+    val onEnterAlarmReadiness: () -> Unit = {},
     val onGrantNotifications: () -> Unit = {},
     val onGrantFullScreen: () -> Unit = {},
     val onRepairAlarmChannel: () -> Unit = {},

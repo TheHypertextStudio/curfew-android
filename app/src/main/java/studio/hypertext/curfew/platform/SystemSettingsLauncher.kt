@@ -34,6 +34,8 @@ internal class SystemSettingsLauncher @Inject constructor(private val activity: 
 
     fun openSoundSettings() = open(Intent(Settings.ACTION_SOUND_SETTINGS))
 
+    fun prepareAlarmNotifications() = PerpetualAlarmService.ensureChannels(activity)
+
     fun openAccessibilitySettings() = open(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
 
     fun openAccountPortal() = open(Intent(Intent.ACTION_VIEW, Uri.parse(ProductionServices.ACCOUNT_PORTAL)))
