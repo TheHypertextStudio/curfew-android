@@ -13,15 +13,11 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import studio.hypertext.curfew.account.AccountRecoveryState
 import studio.hypertext.curfew.alarm.AlarmSetupDraft
 import studio.hypertext.curfew.alarm.SavedSunriseAlarm
@@ -30,72 +26,6 @@ import studio.hypertext.curfew.enforcement.EnforcementPurpose
 import studio.hypertext.curfew.enforcement.EnforcementSession
 import studio.hypertext.curfew.readiness.AlarmReadiness
 import studio.hypertext.curfew.readiness.AlarmSoundCheckState
-
-/**
- * Modern ViewModel-driven entry point for Curfew app shell.
- */
-@Composable
-fun CurfewApp(
-    viewModel: CurfewViewModel,
-    modifier: Modifier = Modifier,
-    onGrantExactAlarm: () -> Unit = {},
-    onGrantNotifications: () -> Unit = {},
-    onGrantFullScreen: () -> Unit = {},
-    onRepairAlarmChannel: () -> Unit = {},
-    onRaiseAlarmVolume: () -> Unit = {},
-    onOpenAccount: () -> Unit = {},
-    onEnrollAccount: () -> Unit,
-    onOpenAccessibilitySettings: () -> Unit = {},
-    placeCheckInContent: (@Composable (() -> Unit, () -> Unit, (() -> Unit)?) -> Unit)? = null,
-) {
-    val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val actions = remember(viewModel) {
-        CurfewUiActions(
-            onGrantExactAlarm = onGrantExactAlarm,
-            onGrantNotifications = onGrantNotifications,
-            onGrantFullScreen = onGrantFullScreen,
-            onRepairAlarmChannel = onRepairAlarmChannel,
-            onRaiseAlarmVolume = onRaiseAlarmVolume,
-            onPlayTestSound = viewModel::playTestSound,
-            onConfirmSound = viewModel::confirmSound,
-            onCancelSound = viewModel::cancelTestSound,
-            onAcknowledgeLimitations = viewModel::acknowledgeLimitations,
-            onOpenAccount = onOpenAccount,
-            onEnrollAccount = onEnrollAccount,
-            onRestoreRecoveryKey = { key -> viewModel.restoreRecoveryKey(key) {} },
-            onAcknowledgeRecoveryKey = viewModel::acknowledgeRecoveryKey,
-            onSaveCallback = viewModel::saveCallback,
-            onVerifyCondition = { viewModel.verifyCondition(state.callbackId) },
-            onSaveAlarm = viewModel::saveAlarm,
-            onToggleAlarm = viewModel::toggleAlarm,
-            onWelcomeChoice = viewModel::chooseWelcome,
-            onPrepareDraft = viewModel::prepareDraft,
-            onSetupActivated = viewModel::clearDraft,
-            onToggleChosenApp = viewModel::toggleChosenApp,
-            onOpenAccessibilitySettings = onOpenAccessibilitySettings,
-            onStartEnforcementSession = viewModel::startEnforcementSession,
-            onEmergencyStopEnforcement = viewModel::emergencyStopEnforcement,
-            onDismissInterceptionBanner = viewModel::dismissInterceptionBanner,
-            onEnforcementOpened = viewModel::onEnforcementOpened,
-        )
-    }
-    val ringingSnap = state.ringingSnapshot
-    if (state.isAlarmRinging && ringingSnap != null) {
-        key(ringingSnap.state.campaignId) {
-            AlarmRingingHost(
-                snapshot = ringingSnap,
-                ringingCondition = state.ringingCondition,
-            )
-        }
-    } else {
-        CurfewApp(
-            state = state,
-            actions = actions,
-            modifier = modifier,
-            placeCheckInContent = placeCheckInContent,
-        )
-    }
-}
 
 /**
  * Core Composable structured with clear UI state, actions, and adaptive layouts.
