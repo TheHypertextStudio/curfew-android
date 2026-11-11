@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.WindowManager
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -90,6 +91,7 @@ private data class SetupInputs(
 )
 
 class MainActivity : ComponentActivity() {
+    private val viewModel: studio.hypertext.curfew.ui.CurfewViewModel by viewModels()
     private lateinit var preferences: CurfewPreferences
     private lateinit var enforcementPreferences: studio.hypertext.curfew.enforcement.EnforcementPreferences
     private var interceptedPackage by mutableStateOf<String?>(null)
@@ -458,30 +460,12 @@ class MainActivity : ComponentActivity() {
                     val enforcementChosenApps = enforcementPreferences.chosenAppsFlow.collectAsStateWithLifecycle(initialValue = emptySet()).value
                     val accessibilityReady = studio.hypertext.curfew.enforcement.AccessibilityServiceStatus.isEnabled(this@MainActivity)
                     CurfewApp(
-                        soundCheckState = soundCheckState,
-                        onConfirmSound = { lifecycleScope.launch { soundCheck.confirm() } },
-                        onCancelSound = ::cancelTestSound,
-                        readiness = readiness,
-                        showWelcome = firstUse?.needsWelcome(savedAlarm != null) == true,
-                        startSetup = savedAlarm == null && firstUse?.choice == FirstUseChoice.STARTED,
-                        setupDraft = firstUse?.draft.takeIf { savedAlarm == null },
-                        onWelcomeChoice = { start ->
-                            if (start) firstUsePreferences.chooseContinue() else firstUsePreferences.chooseNotNow()
-                        },
-                        onPrepareDraft = { draft -> firstUsePreferences.saveDraft(draft) },
-                        onSetupActivated = { lifecycleScope.launch { runCatching { firstUsePreferences.clearDraft() } } },
-                        accountEnrolled = preferenceState.accountEnrolled,
-                        accountSignedIn = preferenceState.accountSignedIn,
-                        accountRecoveryState = accountRecoveryState.takeIf { preferenceState.accountSignedIn },
+                        viewModel = viewModel,
                         onGrantExactAlarm = ::requestExactAlarmAccess,
                         onGrantNotifications = ::requestNotifications,
                         onGrantFullScreen = ::requestFullScreenAccess,
                         onRepairAlarmChannel = ::openAlarmChannelSettings,
                         onRaiseAlarmVolume = { startActivity(Intent(Settings.ACTION_SOUND_SETTINGS)) },
-                        onPlayTestSound = ::playTestSound,
-                        onAcknowledgeLimitations = {
-                            lifecycleScope.launch { preferences.acknowledgeLimitations() }
-                        },
                         onOpenAccount = {
                             startActivity(
                                 Intent(
@@ -504,91 +488,9 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                         },
-                        onRestoreRecoveryKey = { encodedKey ->
-                            lifecycleScope.launch {
-                                runCatching {
-                                    kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                                        AndroidAccountRecovery(this@MainActivity).restore(encodedKey)
-                                    }
-                                }.onSuccess { state ->
-                                    accountRecoveryState = state
-                                    preferences.setAccountEnrolled(true)
-                                }.onFailure {
-                                    Toast
-                                        .makeText(
-                                            this@MainActivity,
-                                            "That recovery key couldn’t restore your settings.",
-                                            Toast.LENGTH_LONG,
-                                        ).show()
-                                }
-                            }
+                        onOpenAccessibilitySettings = {
+                            startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
                         },
-                        onAcknowledgeRecoveryKey = {
-                            lifecycleScope.launch {
-                                AndroidAccountRecovery(this@MainActivity)
-                                    .acknowledgeSavedRecoveryKey()
-                                accountRecoveryState = AccountRecoveryState.Ready
-                                preferences.setAccountEnrolled(true)
-                            }
-                        },
-                        onSaveCallback = { label, endpoint, actionUrl ->
-                            conditionBusy = true
-                            conditionMessage = null
-                            try {
-                                wakeConditionSetup.save(label, endpoint, actionUrl).callbackId
-                            } finally {
-                                conditionBusy = false
-                            }
-                        },
-                        conditionVerified =
-                            inputs.selected?.available == true &&
-                                (inputs.selected.placeCode.not() || places.cameraReady()) && preferenceState.selectedCallbackId?.let {
-                                    preferenceState.isCallbackReady(it)
-                                } ?: false,
-                        conditionBusy = conditionBusy,
-                        conditionMessage = conditionMessage,
-                        conditionSetupFileSaved = exportedVerifierId != null && exportedVerifierId == preferenceState.selectedCallbackId,
-                        onExportCondition = {
-                            val id = preferenceState.selectedCallbackId
-                            if (id != null && !conditionBusy) {
-                                lifecycleScope.launch {
-                                    conditionBusy = true
-                                    try {
-                                        wakeConditionSetup.provision(id)
-                                        pendingVerifierExportId = id
-                                        exportVerifier.launch("curfew-check-in.json")
-                                    } catch (failure: Exception) {
-                                        pendingVerifierExportId = null
-                                        conditionMessage = "Couldn’t read this check-in. Save it again before saving its setup file."
-                                    } finally {
-                                        conditionBusy = false
-                                    }
-                                }
-                            }
-                        },
-                        onVerifyCondition = {
-                            val id = preferenceState.selectedCallbackId
-                            if (id != null && !conditionBusy) {
-                                lifecycleScope.launch {
-                                    conditionBusy = true
-                                    conditionMessage = "Testing the connection…"
-                                    try {
-                                        conditionMessage =
-                                            if (wakeConditionSetup.verify(id)) {
-                                                null
-                                            } else {
-                                                "Your check-in changed. Test the connection again."
-                                            }
-                                    } catch (failure: Exception) {
-                                        conditionMessage =
-                                            "Couldn’t connect. Ask the person running your service to check its setup, then try again."
-                                    } finally {
-                                        conditionBusy = false
-                                    }
-                                }
-                            }
-                        },
-                        placeCodeSelected = inputs.selected?.placeCode == true,
                         placeCheckInContent = { advanced, done, useForAlarm ->
                             studio.hypertext.curfew.ui.PlaceCheckInDestination(
                                 selectedId = preferenceState.selectedCallbackId,
@@ -649,53 +551,6 @@ class MainActivity : ComponentActivity() {
                                 onUseForAlarm = useForAlarm,
                             )
                         },
-                        sunriseAlarm = savedAlarm,
-                        callbackId = preferenceState.selectedCallbackId,
-                        conditionLabel = if (sunriseReadFailed) null else conditionLabel,
-                        alarmConditionLabel = inputs.alarmConnection?.displayLabel,
-                        alarmBusy = sunriseSaving,
-                        alarmError = sunriseError,
-                        onSaveAlarm = ::saveSunrise,
-                        onToggleAlarm = { enabled -> changeSunrise(enabled = enabled) },
-                        enforcementSession = enforcementSession,
-                        enforcementChosenApps = enforcementChosenApps,
-                        isAccessibilityReady = accessibilityReady,
-                        onToggleChosenApp = { pkg, checked ->
-                            lifecycleScope.launch {
-                                val current = enforcementPreferences.readChosenApps().toMutableSet()
-                                if (checked) current.add(pkg) else current.remove(pkg)
-                                enforcementPreferences.setChosenApps(current)
-                            }
-                        },
-                        onOpenAccessibilitySettings = {
-                            startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
-                        },
-                        onStartEnforcementSession = { purpose, durationMinutes ->
-                            lifecycleScope.launch {
-                                val now = System.currentTimeMillis()
-                                val elapsed = android.os.SystemClock.elapsedRealtime()
-                                val session = studio.hypertext.curfew.enforcement.EnforcementSession(
-                                    sessionId = java.util.UUID.randomUUID().toString(),
-                                    purpose = purpose,
-                                    startEpochMs = now,
-                                    elapsedRealtimeStartMs = elapsed,
-                                    durationMinutes = durationMinutes,
-                                    wallClockExpiryEpochMs = now + (durationMinutes * 60 * 1000L),
-                                    chosenAppPackages = enforcementPreferences.readChosenApps(),
-                                    consentRevision = 1,
-                                    state = studio.hypertext.curfew.enforcement.EnforcementSessionState.ACTIVE,
-                                )
-                                enforcementPreferences.saveSession(session)
-                            }
-                        },
-                        onEmergencyStopEnforcement = {
-                            lifecycleScope.launch {
-                                studio.hypertext.curfew.enforcement.CurfewAccessibilityService.disarmActiveSession()
-                                enforcementPreferences.emergencyStop("user_stop")
-                            }
-                        },
-                        interceptedPackage = interceptedPackage,
-                        onDismissInterceptionBanner = { interceptedPackage = null },
                     )
                 }
             }
