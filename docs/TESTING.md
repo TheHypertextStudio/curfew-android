@@ -21,6 +21,12 @@ after setup preferences load. `RingingAlarmPresentationTest` checks the alarm
 projection separately, including recovery when the bound check-in cannot be
 loaded. The alarm observer does not wait for onboarding or settings reads.
 
+On a fresh disposable installation, run `FreshAlarmChannelsInstrumentedTest`
+with the `freshAlarmChannels=true` instrumentation argument. Process startup and
+readiness reads must leave the alarm channel absent. Alarm readiness setup
+creates the channels, and the playback service also ensures them when it has
+an alarm to present. Neither path replaces an existing channel.
+
 CI builds and lints both distributions and runs unit tests for each. Emulator jobs exercise API 33–36 where hosted acceleration is available. `verifyPlainRuntimeIsolation` resolves the plain release graph and rejects Firebase or Google Play Services. The behavioral verifier at `verification/curfew-wake.json` lets Cello invoke alarm and wake-proof suites without a shell.
 
 For P1, run the alarm on the connected Pixel, including locked-screen delivery, DND, full-screen denial, exact-alarm revocation, reboot, package replacement, timezone change, audio focus loss, and manufacturer battery management. Those physical-device results cannot be substituted by host tests. Non-Pixel testing belongs to later compatibility work and does not gate P1.

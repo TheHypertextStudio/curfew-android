@@ -315,7 +315,8 @@ class PerpetualAlarmService : Service() {
                 manager,
                 alarmNotificationChannel(context, manager.getNotificationChannel(LEGACY_ALARM_CHANNEL_ID)),
             )
-            manager.createNotificationChannel(
+            ensureAlarmNotificationChannel(
+                manager,
                 NotificationChannel(
                     STATUS_CHANNEL_ID,
                     context.getString(R.string.status_channel_name),
@@ -360,7 +361,6 @@ class PerpetualAlarmService : Service() {
             }
 
         fun alarmChannelAllowsPresentation(context: Context): Boolean {
-            ensureChannels(context)
             val channel =
                 context
                     .getSystemService(NotificationManager::class.java)

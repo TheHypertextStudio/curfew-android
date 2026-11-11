@@ -1,6 +1,7 @@
 package studio.hypertext.curfew.ui
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 
 @Composable
 internal fun DailyRoute(
@@ -75,6 +76,7 @@ internal fun ReadinessRoute(
     state: CurfewUiState,
     actions: CurfewUiActions,
 ) {
+    LaunchedEffect(Unit) { actions.onEnterAlarmReadiness() }
     AlarmReadinessScreen(
         state.readiness,
         actions.onGrantExactAlarm,
