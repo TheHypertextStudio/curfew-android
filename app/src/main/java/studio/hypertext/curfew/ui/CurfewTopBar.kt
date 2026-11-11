@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
@@ -48,16 +49,8 @@ fun CurfewTopBar(
 ) {
     if (currentDestination == CurfewDestination.Welcome) return
 
-    val title = when (currentDestination) {
-        CurfewDestination.Edit -> "Wake time"
-        CurfewDestination.Readiness -> "Alarm setup"
-        CurfewDestination.CheckIn -> "Check-in"
-        CurfewDestination.Settings -> "Settings"
-        CurfewDestination.Account -> "Account"
-        CurfewDestination.Review -> "Your alarm"
-        CurfewDestination.Enforcement -> "Bedtime & focus"
-        else -> "Curfew"
-    }
+    val title = stringResource(if (currentDestination == CurfewDestination.Daily) R.string.brand_name else currentDestination.paneTitle)
+    val settingsLabel = stringResource(R.string.pane_settings)
 
     TopAppBar(
         modifier = modifier,
@@ -88,7 +81,7 @@ fun CurfewTopBar(
         navigationIcon = {
             if (currentDestination != CurfewDestination.Daily) {
                 IconButton(onClick = onBack) {
-                    Icon(painterResource(R.drawable.ic_arrow_back_rounded), "Back")
+                    Icon(painterResource(R.drawable.ic_arrow_back_rounded), stringResource(R.string.nav_back))
                 }
             }
         },
@@ -100,9 +93,9 @@ fun CurfewTopBar(
                         PlainTooltip(
                             Modifier.semantics {
                                 liveRegion = LiveRegionMode.Assertive
-                                paneTitle = "Settings"
+                                paneTitle = settingsLabel
                             },
-                        ) { Text("Settings") }
+                        ) { Text(settingsLabel) }
                     },
                     state = rememberTooltipState(),
                 ) {
@@ -115,7 +108,7 @@ fun CurfewTopBar(
                         ),
                         modifier = Modifier.padding(end = 8.dp),
                     ) {
-                        Icon(painterResource(R.drawable.ic_settings_rounded), "Settings")
+                        Icon(painterResource(R.drawable.ic_settings_rounded), settingsLabel)
                     }
                 }
             }

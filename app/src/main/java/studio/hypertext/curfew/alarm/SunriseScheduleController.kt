@@ -24,6 +24,8 @@ interface SunriseScheduleRuntime {
     suspend fun cancel(campaignId: String)
 }
 
+internal class FutureAlarmTimeRequired : IllegalArgumentException()
+
 class SunriseScheduleController(
     private val store: SunriseScheduleStore,
     private val runtime: SunriseScheduleRuntime,
@@ -86,9 +88,7 @@ class SunriseScheduleController(
             previous?.completedThrough?.takeIf { sameAlarm },
         )
         val next = SavedSunriseAlarm(schedule, plan.occurrence, plan.completedThrough)
-        if (requireOccurrence && schedule.enabled) {
-            requireNotNull(plan.occurrence) { "Choose a future date and time." }
-        }
+        if (requireOccurrence && schedule.enabled && plan.occurrence == null) throw FutureAlarmTimeRequired()
         val shouldArm = plan.occurrence != null && phase != SunriseOccurrencePhase.ACTIVE
         if (schedule.enabled && plan.occurrence != null &&
             (requireOccurrence || phase != SunriseOccurrencePhase.ACTIVE) &&

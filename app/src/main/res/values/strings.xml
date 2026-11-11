@@ -34,6 +34,8 @@
     <string name="check_in_label">Check-in</string>
     <string name="setup_save_wake_time_failed">Couldn’t save your wake time. Try again.</string>
     <string name="setup_choose_future_time">Choose a future wake time.</string>
+    <string name="alarm_choose_future_date_time">Choose a future date and time.</string>
+    <string name="alarm_save_failed">Couldn’t save the alarm. Try again.</string>
     <string name="protection_status_active">Active session</string>
     <string name="protection_status_ready">Ready</string>
     <string name="protection_status_needs_attention">Needs attention</string>
@@ -45,6 +47,10 @@
     <string name="pane_account">Account</string>
     <string name="pane_protection">Bedtime &amp; focus</string>
     <string name="pane_welcome">Welcome to Curfew</string>
+    <string name="brand_name">Curfew</string>
+    <string name="nav_back">Back</string>
+    <string name="nav_bedtime">Bedtime</string>
+    <string name="nav_edit_alarm">Edit alarm</string>
     <string name="system_destination_unavailable">Couldn’t open this screen on your device.</string>
     <string name="accessibility_service_description">Interrupts chosen entertainment apps during active bedtime and focus sessions to protect your rest and work boundaries. Only observes foreground package names when a session is active. Never reads screen contents, collects keystrokes, or transmits activity.</string>
     <string name="enforcement_channel_name">Bedtime &amp; Focus Protection</string>

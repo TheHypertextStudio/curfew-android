@@ -77,7 +77,7 @@ internal fun CurfewNavGraph(
     }
 }
 
-private val CurfewDestination.paneTitle: Int
+internal val CurfewDestination.paneTitle: Int
     get() = when (this) {
         CurfewDestination.Daily -> R.string.pane_alarm
         CurfewDestination.Readiness -> R.string.pane_alarm_setup

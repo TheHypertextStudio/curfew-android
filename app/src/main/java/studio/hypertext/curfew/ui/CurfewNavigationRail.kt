@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
@@ -73,7 +74,7 @@ fun CurfewNavigationRail(
 
                     Spacer(Modifier.height(16.dp))
 
-                    // Expressive Pill Action Button ("Wake time")
+                    val editAlarmLabel = stringResource(R.string.nav_edit_alarm)
                     Surface(
                         onClick = onEditAlarm,
                         shape = MaterialTheme.shapes.extraLarge,
@@ -82,7 +83,7 @@ fun CurfewNavigationRail(
                             .fillMaxWidth()
                             .heightIn(min = 52.dp)
                             .semantics {
-                                contentDescription = "Edit alarm"
+                                contentDescription = editAlarmLabel
                                 role = Role.Button
                             },
                     ) {
@@ -99,7 +100,7 @@ fun CurfewNavigationRail(
                             )
                             Spacer(Modifier.height(4.dp))
                             Text(
-                                text = "Wake time",
+                                text = stringResource(R.string.pane_wake_time),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onPrimaryContainer,
                                 maxLines = 1,
@@ -118,6 +119,7 @@ fun CurfewNavigationRail(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 PrimaryNavItems.forEach { item ->
+                    val label = stringResource(item.labelRes)
                     val isSelected = currentDestination == item.destination ||
                         (item.destination == CurfewDestination.Daily &&
                             (currentDestination == CurfewDestination.Edit ||
@@ -137,7 +139,7 @@ fun CurfewNavigationRail(
                         },
                         label = {
                             Text(
-                                text = item.label,
+                                text = label,
                                 style = MaterialTheme.typography.labelMedium,
                             )
                         },
@@ -149,7 +151,7 @@ fun CurfewNavigationRail(
                             unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
                         ),
                         modifier = Modifier.semantics {
-                            contentDescription = item.label
+                            contentDescription = label
                         },
                     )
                     Spacer(Modifier.height(12.dp))
