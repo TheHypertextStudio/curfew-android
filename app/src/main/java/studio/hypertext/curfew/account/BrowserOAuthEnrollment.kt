@@ -22,7 +22,7 @@ class BrowserOAuthEnrollment(
             OAuthEnrollmentRequest.create(
                 issuer = URI(ProductionServices.ACCOUNT_ORIGIN),
                 clientId = clientId,
-                redirectUri = URI("studio.hypertext.curfew://oauth/callback"),
+                redirectUri = URI(AccountOAuthRedirect.URL),
             )
         secrets.put("oauth:${request.state}:verifier", request.codeVerifier.toByteArray())
         withContext(Dispatchers.Main) {
