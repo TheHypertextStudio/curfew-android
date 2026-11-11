@@ -257,8 +257,15 @@ class CurfewViewModel @Inject constructor(
     }
 
     fun onForegroundResume() {
+        refreshCapabilities()
         viewModelScope.launch(ioDispatcher) {
-            runCatching { sunriseScheduler.restore() }
+            try {
+                sunriseScheduler.restore()
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                // The readiness state exposes any capabilities the user needs to repair.
+            }
         }
     }
 
