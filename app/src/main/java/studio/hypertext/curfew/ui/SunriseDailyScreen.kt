@@ -2,6 +2,7 @@ package studio.hypertext.curfew.ui
 
 import android.content.Context
 import android.text.format.DateFormat
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -70,7 +71,7 @@ internal fun TaskMessage(message: String, error: Boolean = false) {
 }
 
 @Composable
-internal fun SettingRow(title: String, detail: String? = null, icon: Int? = null, onClick: () -> Unit) {
+internal fun SettingRow(title: String, detail: String? = null, @DrawableRes icon: Int? = null, onClick: () -> Unit) {
     BoxWithConstraints(Modifier.fillMaxWidth()) {
         val showLeadingIcon = maxWidth.value / LocalDensity.current.fontScale.coerceAtLeast(1f) >= 180f
         ListItem(

@@ -2,7 +2,6 @@ package studio.hypertext.curfew.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -19,9 +18,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.NavigationRailItemDefaults
@@ -30,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -37,22 +34,6 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import studio.hypertext.curfew.R
-
-/**
- * Top-level destination item specification for primary navigation.
- */
-data class CurfewNavItem(
-    val destination: CurfewDestination,
-    val label: String,
-    val iconRes: Int,
-)
-
-val PrimaryNavItems = listOf(
-    CurfewNavItem(CurfewDestination.Daily, "Alarm", R.drawable.ic_alarm_rounded),
-    CurfewNavItem(CurfewDestination.Enforcement, "Bedtime", R.drawable.ic_lock_rounded),
-    CurfewNavItem(CurfewDestination.Settings, "Settings", R.drawable.ic_settings_rounded),
-    CurfewNavItem(CurfewDestination.Account, "Account", R.drawable.ic_link_rounded),
-)
 
 /**
  * MD3 Expressive Navigation Rail for large screens (tablets, unfolded foldables).
@@ -76,7 +57,7 @@ fun CurfewNavigationRail(
             modifier = Modifier
                 .width(112.dp)
                 .fillMaxHeight(),
-            containerColor = androidx.compose.ui.graphics.Color.Transparent,
+            containerColor = Color.Transparent,
             windowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Vertical + WindowInsetsSides.Start),
             header = {
                 Column(
@@ -174,60 +155,6 @@ fun CurfewNavigationRail(
                     Spacer(Modifier.height(12.dp))
                 }
             }
-        }
-    }
-}
-
-/**
- * MD3 Expressive horizontal Navigation Bar for mobile landscape and compact screens.
- * Uses soft pill active indicators around selected destinations.
- */
-@Composable
-fun CurfewNavigationBar(
-    currentDestination: CurfewDestination,
-    onNavigate: (CurfewDestination) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    NavigationBar(
-        modifier = modifier,
-        containerColor = MaterialTheme.colorScheme.surfaceContainer,
-        windowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom),
-    ) {
-        PrimaryNavItems.forEach { item ->
-            val isSelected = currentDestination == item.destination ||
-                (item.destination == CurfewDestination.Daily &&
-                    (currentDestination == CurfewDestination.Edit ||
-                        currentDestination == CurfewDestination.Readiness ||
-                        currentDestination == CurfewDestination.CheckIn ||
-                        currentDestination == CurfewDestination.Review))
-
-            NavigationBarItem(
-                selected = isSelected,
-                onClick = { onNavigate(item.destination) },
-                icon = {
-                    Icon(
-                        painter = painterResource(item.iconRes),
-                        contentDescription = null,
-                        modifier = Modifier.size(24.dp),
-                    )
-                },
-                label = {
-                    Text(
-                        text = item.label,
-                        style = MaterialTheme.typography.labelMedium,
-                    )
-                },
-                colors = NavigationBarItemDefaults.colors(
-                    indicatorColor = MaterialTheme.colorScheme.primaryContainer,
-                    selectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    selectedTextColor = MaterialTheme.colorScheme.onSurface,
-                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                ),
-                modifier = Modifier.semantics {
-                    contentDescription = item.label
-                },
-            )
         }
     }
 }

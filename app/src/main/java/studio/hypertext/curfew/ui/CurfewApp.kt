@@ -14,18 +14,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlinx.coroutines.launch
 import studio.hypertext.curfew.account.AccountRecoveryState
 import studio.hypertext.curfew.alarm.AlarmSetupDraft
 import studio.hypertext.curfew.alarm.SavedSunriseAlarm
@@ -101,119 +96,45 @@ fun CurfewApp(
     navigationState: CurfewNavigationState? = null,
     placeCheckInContent: (@Composable (() -> Unit, () -> Unit, (() -> Unit)?) -> Unit)? = null,
 ) {
-    val scope = rememberCoroutineScope()
-    var preparing by remember { mutableStateOf(false) }
-    var setupMode by rememberSaveable { mutableStateOf(state.startSetup || state.showWelcome) }
-    var draft by rememberSaveable(stateSaver = AlarmSetupDraftSaver) { mutableStateOf(state.setupDraft) }
-    val checkInState = rememberCheckInState()
-    var setupError by remember { mutableStateOf<String?>(null) }
-    var choiceError by remember { mutableStateOf<String?>(null) }
-    var saving by remember { mutableStateOf(false) }
-
-    val initialDestination = when {
-        state.showWelcome -> CurfewDestination.Welcome
-        state.startSetup && state.setupDraft != null -> {
-            if (!state.conditionVerified || state.callbackId == null || state.conditionLabel == null) {
-                CurfewDestination.CheckIn
-            } else if (!state.readiness.canArm) {
-                CurfewDestination.Readiness
-            } else {
-                CurfewDestination.Review
-            }
-        }
-        state.startSetup -> CurfewDestination.Edit
-        else -> CurfewDestination.Daily
-    }
-
-    val navState = navigationState ?: rememberCurfewNavigationState(
-        initialDestination = initialDestination,
-        startSetup = state.startSetup,
-        hasDraft = state.setupDraft != null,
+    val appState = rememberCurfewAppState(
+        state = state,
+        navigationState = navigationState,
+        placeCheckInContent = placeCheckInContent,
     )
-
-    fun open(destination: CurfewDestination) {
-        navState.navigate(destination)
-    }
-
-    fun back() {
-        if (preparing || saving || state.alarmBusy) return
-        if (navState.currentDestination == CurfewDestination.CheckIn && checkInState.editing) {
-            checkInState.editing = false
-            return
-        }
-        if (navState.currentDestination == CurfewDestination.CheckIn && checkInState.advanced && placeCheckInContent != null) {
-            checkInState.advanced = false
-            checkInState.preferCode = true
-            return
-        }
-        navState.popBack()
-    }
-
-    fun daily() {
-        navState.navigateToRoot()
-    }
-
-    fun nextSetupTask() {
-        open(
-            when {
-                draft == null -> CurfewDestination.Edit
-                !state.conditionVerified || state.callbackId == null || state.conditionLabel == null -> CurfewDestination.CheckIn
-                !state.readiness.canArm -> CurfewDestination.Readiness
-                else -> CurfewDestination.Review
-            },
-        )
-    }
-
-    fun deferSetup() {
-        if (preparing) return
-        preparing = true
-        choiceError = null
-        scope.launch {
-            try {
-                actions.onWelcomeChoice(false)
-                setupMode = false
-                daily()
-            } catch (_: java.io.IOException) {
-                choiceError = "Couldn’t save your wake time. Try again."
-            } finally {
-                preparing = false
-            }
-        }
-    }
 
     LaunchedEffect(state.accountRecoveryState) {
         if (state.accountRecoveryState is AccountRecoveryState.EnterRecoveryKey ||
             state.accountRecoveryState is AccountRecoveryState.SaveRecoveryKey
         ) {
-            open(CurfewDestination.Account)
+            appState.navigate(CurfewDestination.Account)
         }
     }
 
     LaunchedEffect(state.interceptedPackage) {
         if (state.interceptedPackage != null) {
-            open(CurfewDestination.Enforcement)
+            appState.navigate(CurfewDestination.Enforcement)
         }
     }
 
-    LaunchedEffect(state.alarmBusy, state.alarmError, saving, state.sunriseAlarm, setupMode, draft?.id) {
-        val activated = setupMode && state.sunriseAlarm?.schedule?.let { it.id == draft?.id && it.enabled } == true
+    LaunchedEffect(state.alarmBusy, state.alarmError, appState.saving, state.sunriseAlarm, appState.setupMode, appState.draft?.id) {
+        val activated = appState.setupMode && state.sunriseAlarm?.schedule?.let { it.id == appState.draft?.id && it.enabled } == true
         if (!state.alarmBusy && activated) {
-            saving = false
+            appState.saving = false
             actions.onSetupActivated()
-            setupMode = false
-            draft = null
-            daily()
-        } else if (saving && !state.alarmBusy) {
+            appState.setupMode = false
+            appState.draft = null
+            appState.navigateToRoot()
+        } else if (appState.saving && !state.alarmBusy) {
             if (state.alarmError != null) {
-                saving = false
-            } else if (!setupMode) {
-                saving = false
-                draft = null
+                appState.saving = false
+            } else if (!appState.setupMode) {
+                appState.saving = false
+                appState.draft = null
             }
         }
     }
 
-    // Window size and orientation detection for adaptive layout
+    // Responsive window layout detection
     val configuration = LocalConfiguration.current
     val widthDp = configuration.screenWidthDp
     val heightDp = configuration.screenHeightDp
@@ -224,16 +145,16 @@ fun CurfewApp(
     val density = LocalDensity.current
     val imeHeight = WindowInsets.ime.getBottom(density)
     val availableHeight = with(density) { (LocalWindowInfo.current.containerSize.height - imeHeight).toDp() }
-    val compactKeyboard = navState.currentDestination == CurfewDestination.CheckIn && imeHeight > 0 && availableHeight < 200.dp
+    val compactKeyboard = appState.currentDestination == CurfewDestination.CheckIn && imeHeight > 0 && availableHeight < 200.dp
 
     val topBarComposable: @Composable () -> Unit = {
         if (!compactKeyboard) {
             CurfewTopBar(
-                currentDestination = navState.currentDestination,
-                onBack = { back() },
+                currentDestination = appState.currentDestination,
+                onBack = { appState.back(state) },
                 onOpenSettings = {
-                    setupMode = false
-                    open(CurfewDestination.Settings)
+                    appState.setupMode = false
+                    appState.navigate(CurfewDestination.Settings)
                 },
                 showSettingsAction = !useNavRail && !useLandscapeNavBar,
             )
@@ -242,13 +163,13 @@ fun CurfewApp(
 
     if (useNavRail) {
         Row(modifier = modifier.fillMaxSize()) {
-            if (navState.currentDestination != CurfewDestination.Welcome) {
+            if (appState.currentDestination != CurfewDestination.Welcome) {
                 CurfewNavigationRail(
-                    currentDestination = navState.currentDestination,
-                    onNavigate = { open(it) },
+                    currentDestination = appState.currentDestination,
+                    onNavigate = { appState.navigate(it) },
                     onEditAlarm = {
-                        setupMode = state.sunriseAlarm == null
-                        open(CurfewDestination.Edit)
+                        appState.setupMode = state.sunriseAlarm == null
+                        appState.navigate(CurfewDestination.Edit)
                     },
                 )
             }
@@ -256,102 +177,44 @@ fun CurfewApp(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight(),
-                contentWindowInsets = if (navState.currentDestination == CurfewDestination.Welcome) WindowInsets(0, 0, 0, 0) else WindowInsets.safeDrawing,
+                contentWindowInsets = if (appState.currentDestination == CurfewDestination.Welcome) WindowInsets(0, 0, 0, 0) else WindowInsets.safeDrawing,
                 topBar = topBarComposable,
             ) { padding ->
                 CurfewNavGraph(
-                    navState = navState,
+                    appState = appState,
                     state = state,
                     actions = actions,
-                    draft = draft,
-                    setupMode = setupMode,
-                    saving = saving,
-                    preparing = preparing,
-                    setupError = setupError,
-                    choiceError = choiceError,
-                    checkInState = checkInState,
                     compactKeyboard = compactKeyboard,
                     taskTopBar = topBarComposable,
-                    onDraftPrepared = { prepared ->
-                        scope.launch {
-                            preparing = true
-                            setupError = null
-                            try {
-                                actions.onPrepareDraft(prepared)
-                                draft = prepared
-                                nextSetupTask()
-                            } catch (_: java.io.IOException) {
-                                setupError = "Couldn’t save your wake time. Try again."
-                            } finally {
-                                preparing = false
-                            }
-                        }
-                    },
-                    onSetupError = { setupError = it },
-                    onSaveStarted = { saving = true },
-                    onEnterSetupMode = { setupMode = it },
-                    onBack = { back() },
-                    onNextSetupTask = { nextSetupTask() },
-                    onDeferSetup = { deferSetup() },
                     modifier = Modifier
                         .padding(padding)
                         .consumeWindowInsets(padding),
-                    placeCheckInContent = placeCheckInContent,
                 )
             }
         }
     } else {
         Scaffold(
             modifier = modifier.fillMaxSize(),
-            contentWindowInsets = if (navState.currentDestination == CurfewDestination.Welcome) WindowInsets(0, 0, 0, 0) else WindowInsets.safeDrawing,
+            contentWindowInsets = if (appState.currentDestination == CurfewDestination.Welcome) WindowInsets(0, 0, 0, 0) else WindowInsets.safeDrawing,
             topBar = topBarComposable,
             bottomBar = {
-                if (useLandscapeNavBar && navState.currentDestination != CurfewDestination.Welcome && !compactKeyboard) {
+                if (useLandscapeNavBar && appState.currentDestination != CurfewDestination.Welcome && !compactKeyboard) {
                     CurfewNavigationBar(
-                        currentDestination = navState.currentDestination,
-                        onNavigate = { open(it) },
+                        currentDestination = appState.currentDestination,
+                        onNavigate = { appState.navigate(it) },
                     )
                 }
             },
         ) { padding ->
             CurfewNavGraph(
-                navState = navState,
+                appState = appState,
                 state = state,
                 actions = actions,
-                draft = draft,
-                setupMode = setupMode,
-                saving = saving,
-                preparing = preparing,
-                setupError = setupError,
-                choiceError = choiceError,
-                checkInState = checkInState,
                 compactKeyboard = compactKeyboard,
                 taskTopBar = topBarComposable,
-                onDraftPrepared = { prepared ->
-                    scope.launch {
-                        preparing = true
-                        setupError = null
-                        try {
-                            actions.onPrepareDraft(prepared)
-                            draft = prepared
-                            nextSetupTask()
-                        } catch (_: java.io.IOException) {
-                            setupError = "Couldn’t save your wake time. Try again."
-                        } finally {
-                            preparing = false
-                        }
-                    }
-                },
-                onSetupError = { setupError = it },
-                onSaveStarted = { saving = true },
-                onEnterSetupMode = { setupMode = it },
-                onBack = { back() },
-                onNextSetupTask = { nextSetupTask() },
-                onDeferSetup = { deferSetup() },
                 modifier = Modifier
                     .padding(padding)
                     .consumeWindowInsets(padding),
-                placeCheckInContent = placeCheckInContent,
             )
         }
     }
