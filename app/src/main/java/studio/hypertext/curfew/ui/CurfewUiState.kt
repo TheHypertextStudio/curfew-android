@@ -5,6 +5,7 @@ import studio.hypertext.curfew.alarm.AlarmCampaignState
 import studio.hypertext.curfew.alarm.AlarmRuntimeSnapshot
 import studio.hypertext.curfew.alarm.AlarmSetupDraft
 import studio.hypertext.curfew.alarm.SavedSunriseAlarm
+import studio.hypertext.curfew.checkin.CheckInDescription
 import studio.hypertext.curfew.enforcement.EnforcementSession
 import studio.hypertext.curfew.readiness.AlarmPresentation
 import studio.hypertext.curfew.readiness.AlarmReadiness
@@ -44,9 +45,8 @@ data class CurfewUiState(
     val interceptedPackage: String? = null,
     val initialDataReady: Boolean = false,
     val firstUseLoadError: Boolean = false,
-    val ringingAlarm: Boolean = false,
-    val campaignId: String? = null,
     val ringingSnapshot: AlarmRuntimeSnapshot? = null,
+    val ringingCondition: CheckInDescription? = null,
 ) {
     val canArm: Boolean
         get() = readiness.canArm && callbackId != null && conditionLabel != null && conditionVerified

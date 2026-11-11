@@ -4,6 +4,14 @@ The unit suite uses a fake clock and deterministic instants to cover every state
 
 Instrumented tests cover schedule editing, wake-condition save/verification readiness, Room persistence, Android Keystore encryption under no-backup storage, manifest export/permission posture, and the no-dismiss/no-snooze ringing screen with a 48 dp action target.
 
+`LiveAlarmPresentationInstrumentedTest` launches the alarm UI for a locally
+persisted occurrence. It checks that the screen uses the occurrence's bound
+check-in label and action, stays visible in the quiet interval, and clears the
+window flag when the occurrence is satisfied. The fixture does not contact a
+verifier. For account acceptance, verify that Sign in opens the enrollment
+browser and that the returned app shows the appropriate success, recovery key,
+or retry message without displaying tokens or the recovery key in a toast.
+
 CI builds and lints both distributions and runs unit tests for each. Emulator jobs exercise API 33–36 where hosted acceleration is available. `verifyPlainRuntimeIsolation` resolves the plain release graph and rejects Firebase or Google Play Services. The behavioral verifier at `verification/curfew-wake.json` lets Cello invoke alarm and wake-proof suites without a shell.
 
 For P1, run the alarm on the connected Pixel, including locked-screen delivery, DND, full-screen denial, exact-alarm revocation, reboot, package replacement, timezone change, audio focus loss, and manufacturer battery management. Those physical-device results cannot be substituted by host tests. Non-Pixel testing belongs to later compatibility work and does not gate P1.

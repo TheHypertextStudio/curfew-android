@@ -6,23 +6,32 @@ import android.os.SystemClock
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import java.util.UUID
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import studio.hypertext.curfew.R
 import studio.hypertext.curfew.account.AccountRecoveryState
 import studio.hypertext.curfew.account.AndroidAccountRecovery
 import studio.hypertext.curfew.account.OAuthTokenExchange
 import studio.hypertext.curfew.alarm.AlarmCampaignState
-import studio.hypertext.curfew.alarm.AlarmRuntimeSnapshot
 import studio.hypertext.curfew.alarm.AlarmSetupDraft
 import studio.hypertext.curfew.alarm.SunriseSchedule
 import studio.hypertext.curfew.callback.AndroidWakeConditionSetup
@@ -103,9 +112,11 @@ class CurfewViewModel @Inject constructor(
     private val _conditionBusy = MutableStateFlow(false)
     private val _conditionMessage = MutableStateFlow<String?>(null)
     private val _interceptedPackage = MutableStateFlow<String?>(null)
-    private val _activeCampaignSnapshot = MutableStateFlow<AlarmRuntimeSnapshot?>(null)
+    private val requestedCampaignId = MutableStateFlow<String?>(null)
     private val _accountRecoveryState = MutableStateFlow<AccountRecoveryState?>(null)
     private val _exportedVerifierId = MutableStateFlow<String?>(null)
+    private val accountMessageChannel = Channel<Int>(Channel.BUFFERED)
+    internal val accountMessages = accountMessageChannel.receiveAsFlow()
 
     init {
         _accountRecoveryState.value = accountRecovery.pendingState()
@@ -115,9 +126,46 @@ class CurfewViewModel @Inject constructor(
         }
     }
 
+    private val savedAlarmFlow = sunriseScheduler.state.catch { emit(null) }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val ringingAlarmFlow = requestedCampaignId
+        .flatMapLatest { requestedId ->
+            if (requestedId != null) flowOf(requestedId) else savedAlarmFlow.map { it?.occurrence?.campaignId }
+        }
+        .distinctUntilChanged()
+        .flatMapLatest { id ->
+            if (id == null) {
+                flowOf(null)
+            } else {
+                runtimeRepository.observeSnapshot(id)
+                    .map { snapshot ->
+                        when (snapshot?.state) {
+                            is AlarmCampaignState.Ringing, is AlarmCampaignState.Quiet -> {
+                                val condition = try {
+                                    runtimeRepository.callbackId(id)?.let { checkInCatalog.find(it) }
+                                } catch (cancelled: CancellationException) {
+                                    throw cancelled
+                                } catch (_: Exception) {
+                                    null
+                                }
+                                snapshot to condition
+                            }
+                            is AlarmCampaignState.Satisfied, is AlarmCampaignState.Overridden -> {
+                                requestedCampaignId.compareAndSet(id, null)
+                                null
+                            }
+                            else -> null
+                        }
+                    }
+                    .onStart { emit(null) }
+                    .catch { emit(null) }
+            }
+        }
+
     private val alarmAndPrefsFlow = combine(
         preferences.state,
-        sunriseScheduler.state.catch { emit(null) },
+        savedAlarmFlow,
         firstUsePreferences.loadState,
     ) { pref, alarm, firstUse ->
         Triple(pref, alarm, firstUse)
@@ -138,8 +186,7 @@ class CurfewViewModel @Inject constructor(
         Triple(soundState, busy, error)
     }
 
-    // Consolidated reactive UI state
-    val uiState: StateFlow<CurfewUiState> = combine(
+    private val baseUiState = combine(
         alarmAndPrefsFlow,
         enforcementStateFlow,
         alarmStatusFlow,
@@ -169,7 +216,6 @@ class CurfewViewModel @Inject constructor(
             alarmError = alarmError,
             accountEnrolled = prefState.accountEnrolled,
             accountSignedIn = prefState.accountSignedIn,
-            accountRecoveryState = _accountRecoveryState.value.takeIf { prefState.accountSignedIn },
             soundCheckState = soundCheckState,
             showWelcome = firstUseState?.needsWelcome(savedAlarm != null) == true,
             startSetup = savedAlarm == null && firstUseState?.choice == FirstUseChoice.STARTED,
@@ -180,10 +226,18 @@ class CurfewViewModel @Inject constructor(
             interceptedPackage = _interceptedPackage.value,
             initialDataReady = firstUseLoad !is FirstUseLoadState.Loading,
             firstUseLoadError = firstUseLoad is FirstUseLoadState.Error && savedAlarm == null,
-            ringingAlarm = _activeCampaignSnapshot.value?.state is AlarmCampaignState.Ringing ||
-                _activeCampaignSnapshot.value?.state is AlarmCampaignState.Quiet,
-            campaignId = _activeCampaignSnapshot.value?.state?.campaignId ?: savedAlarm?.occurrence?.campaignId,
-            ringingSnapshot = _activeCampaignSnapshot.value,
+        )
+    }
+
+    val uiState: StateFlow<CurfewUiState> = combine(
+        baseUiState,
+        _accountRecoveryState,
+        ringingAlarmFlow,
+    ) { base, recovery, ringing ->
+        base.copy(
+            accountRecoveryState = recovery.takeIf { base.accountSignedIn },
+            ringingSnapshot = ringing?.first,
+            ringingCondition = ringing?.second,
         )
     }.stateIn(
         scope = viewModelScope,
@@ -198,14 +252,7 @@ class CurfewViewModel @Inject constructor(
     }
 
     fun loadRequestedAlarm(campaignId: String) {
-        viewModelScope.launch(ioDispatcher) {
-            val snapshot = runCatching { runtimeRepository.snapshot(campaignId) }.getOrNull()
-            _activeCampaignSnapshot.value = snapshot
-        }
-    }
-
-    fun clearRequestedAlarm() {
-        _activeCampaignSnapshot.value = null
+        requestedCampaignId.value = campaignId
     }
 
     fun handleOAuthCallback(uri: Uri): Boolean {
@@ -213,14 +260,23 @@ class CurfewViewModel @Inject constructor(
             return false
         }
         viewModelScope.launch(ioDispatcher) {
-            runCatching {
-                oauthTokenExchange.exchange(uri)
-            }.onSuccess { state ->
+            val message = try {
+                val state = oauthTokenExchange.exchange(uri)
                 _accountRecoveryState.value = state
                 if (state == AccountRecoveryState.Ready) {
                     preferences.setAccountEnrolled(true)
                 }
+                when (state) {
+                    AccountRecoveryState.Ready -> R.string.account_signed_in
+                    AccountRecoveryState.EnterRecoveryKey -> R.string.account_enter_recovery_key
+                    is AccountRecoveryState.SaveRecoveryKey -> R.string.account_save_recovery_key
+                }
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                R.string.account_sign_in_failed
             }
+            accountMessageChannel.send(message)
         }
         return true
     }

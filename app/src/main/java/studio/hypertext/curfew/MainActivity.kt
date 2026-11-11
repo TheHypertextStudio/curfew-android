@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -15,8 +16,14 @@ import androidx.activity.viewModels
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.launch
+import studio.hypertext.curfew.account.BrowserOAuthEnrollment
 import studio.hypertext.curfew.config.ProductionServices
 import studio.hypertext.curfew.enforcement.CurfewAccessibilityService
 import studio.hypertext.curfew.platform.AndroidAlarmClockGateway
@@ -54,6 +61,14 @@ class MainActivity : ComponentActivity() {
             CurfewTheme {
                 val state by viewModel.uiState.collectAsStateWithLifecycle()
 
+                LaunchedEffect(viewModel) {
+                    lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                        viewModel.accountMessages.collect { message ->
+                            Toast.makeText(this@MainActivity, message, Toast.LENGTH_LONG).show()
+                        }
+                    }
+                }
+
                 LaunchedEffect(state.isAlarmRinging) {
                     if (state.isAlarmRinging) {
                         presentOverKeyguard()
@@ -70,6 +85,7 @@ class MainActivity : ComponentActivity() {
                     onRepairAlarmChannel = ::openAlarmChannelSettings,
                     onRaiseAlarmVolume = ::openSoundSettings,
                     onOpenAccount = ::openAccountPortal,
+                    onEnrollAccount = ::openOAuthEnrollment,
                     onOpenAccessibilitySettings = ::openAccessibilitySettings,
                     placeCheckInContent = { advanced, done, useForAlarm ->
                         PlaceCheckInHost(
@@ -169,6 +185,18 @@ class MainActivity : ComponentActivity() {
 
     private fun openAccountPortal() {
         startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(ProductionServices.ACCOUNT_PORTAL)))
+    }
+
+    private fun openOAuthEnrollment() {
+        lifecycleScope.launch {
+            try {
+                BrowserOAuthEnrollment(this@MainActivity).begin()
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                Toast.makeText(this@MainActivity, R.string.account_enrollment_failed, Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
     companion object {
