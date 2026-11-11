@@ -43,6 +43,7 @@ data class CurfewUiState(
     val enforcementChosenApps: Set<String> = emptySet(),
     val isAccessibilityReady: Boolean = false,
     val interceptedPackage: String? = null,
+    val openEnforcement: Boolean = false,
     val initialDataReady: Boolean = false,
     val firstUseLoadError: Boolean = false,
     val ringingSnapshot: AlarmRuntimeSnapshot? = null,

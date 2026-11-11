@@ -120,7 +120,7 @@ class CurfewAccessibilityService : AccessibilityService() {
     }
 
     companion object {
-        const val ACTION_SHOW_ENFORCEMENT = "studio.hypertext.curfew.action.SHOW_ENFORCEMENT"
+        const val ACTION_SHOW_ENFORCEMENT = studio.hypertext.curfew.ACTION_SHOW_ENFORCEMENT
         const val EXTRA_INTERCEPTED_PACKAGE = "studio.hypertext.curfew.extra.INTERCEPTED_PACKAGE"
 
         @Volatile

@@ -76,6 +76,7 @@ fun CurfewApp(
             onStartEnforcementSession = viewModel::startEnforcementSession,
             onEmergencyStopEnforcement = viewModel::emergencyStopEnforcement,
             onDismissInterceptionBanner = viewModel::dismissInterceptionBanner,
+            onEnforcementOpened = viewModel::onEnforcementOpened,
         )
     }
     val ringingSnap = state.ringingSnapshot
@@ -121,9 +122,10 @@ fun CurfewApp(
         }
     }
 
-    LaunchedEffect(state.interceptedPackage) {
-        if (state.interceptedPackage != null) {
+    LaunchedEffect(state.openEnforcement) {
+        if (state.openEnforcement) {
             appState.navigate(CurfewDestination.Enforcement)
+            actions.onEnforcementOpened()
         }
     }
 
@@ -311,6 +313,7 @@ fun CurfewApp(
         enforcementChosenApps = enforcementChosenApps,
         isAccessibilityReady = isAccessibilityReady,
         interceptedPackage = interceptedPackage,
+        openEnforcement = interceptedPackage != null,
         initialDataReady = true,
     )
     val actions = CurfewUiActions(

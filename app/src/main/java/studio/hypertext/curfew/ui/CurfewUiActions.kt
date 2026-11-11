@@ -34,4 +34,5 @@ data class CurfewUiActions(
     val onStartEnforcementSession: (EnforcementPurpose, Int) -> Unit = { _, _ -> },
     val onEmergencyStopEnforcement: () -> Unit = {},
     val onDismissInterceptionBanner: () -> Unit = {},
+    val onEnforcementOpened: () -> Unit = {},
 )
