@@ -9,6 +9,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import java.time.Instant
+import studio.hypertext.curfew.callback.CallbackPollScheduler
 import studio.hypertext.curfew.platform.AndroidAlarmReadiness
 import studio.hypertext.curfew.platform.AndroidAlarmSoundPreview
 import studio.hypertext.curfew.platform.BootIdProvider
@@ -36,9 +37,10 @@ object AlarmModule {
 
     @Provides
     @Singleton
-    fun provideSunriseScheduler(
+    internal fun provideSunriseScheduler(
         @ApplicationContext context: Context,
-    ): SunriseScheduler = SunriseScheduler(context)
+        callbackPolling: CallbackPollScheduler,
+    ): SunriseScheduler = SunriseScheduler(context, callbackPolling)
 
     @Provides
     internal fun provideAlarmSoundOutput(

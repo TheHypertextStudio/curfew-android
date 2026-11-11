@@ -26,7 +26,7 @@ import studio.hypertext.curfew.MainActivity
 import studio.hypertext.curfew.alarm.AlarmCampaignEngine
 import studio.hypertext.curfew.alarm.AlarmCampaignState
 import studio.hypertext.curfew.alarm.AlarmRecurrencePolicy
-import studio.hypertext.curfew.callback.CallbackPollScheduler
+import studio.hypertext.curfew.callback.callbackPollScheduler
 import studio.hypertext.curfew.persistence.CurfewDatabase
 
 /** Requires an explicitly provisioned disposable emulator. Never supplies a real owner's credential. */
@@ -179,7 +179,7 @@ class OwnerRecoveryJourneyInstrumentedTest {
             }
         }
         AndroidAlarmClockGateway(context).cancel(id)
-        CallbackPollScheduler.cancel(context, id)
+        context.callbackPollScheduler().cancel(id)
         context.stopService(Intent(context, PerpetualAlarmService::class.java))
         database.alarmCampaignDao().delete(id)
         database.alarmRecoveryAuditDao().deleteForCampaign(id)

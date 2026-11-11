@@ -1,9 +1,6 @@
 package studio.hypertext.curfew.callback
 
-import android.Manifest
 import android.content.Context
-import android.content.pm.PackageManager
-import androidx.core.content.ContextCompat
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -11,11 +8,13 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import studio.hypertext.curfew.checkin.CameraAvailabilityChecker
 import studio.hypertext.curfew.checkin.PlaceCheckInApprover
-import studio.hypertext.curfew.checkin.PlaceCheckInEffects
+import studio.hypertext.curfew.checkin.PlaceCheckInAlarmLifecycle
+import studio.hypertext.curfew.checkin.PlaceCheckInPublisher
 import studio.hypertext.curfew.checkin.PlaceCheckInRepository
 import studio.hypertext.curfew.checkin.PlaceCheckInSetupAccess
-import studio.hypertext.curfew.platform.AndroidPlaceCheckInEffects
+import studio.hypertext.curfew.platform.AndroidCameraAvailabilityChecker
 import studio.hypertext.curfew.platform.SunriseScheduler
+import studio.hypertext.curfew.sync.AccountPlaceCheckInPublisher
 import javax.inject.Singleton
 
 @Module
@@ -26,10 +25,7 @@ object CheckInModule {
     @Singleton
     fun provideCameraAvailabilityChecker(
         @ApplicationContext context: Context,
-    ): CameraAvailabilityChecker = CameraAvailabilityChecker {
-        ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
-            context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)
-    }
+    ): CameraAvailabilityChecker = AndroidCameraAvailabilityChecker(context)
 
     @Provides
     @Singleton
@@ -44,8 +40,8 @@ object CheckInModule {
     internal fun providePlaceApprover(places: PlaceCheckInRepository): PlaceCheckInApprover = PlaceCheckInApprover(places::approve)
 
     @Provides
-    internal fun providePlaceEffects(
-        @ApplicationContext context: Context,
-        scheduler: SunriseScheduler,
-    ): PlaceCheckInEffects = AndroidPlaceCheckInEffects(context, scheduler)
+    internal fun providePlaceAlarmLifecycle(scheduler: SunriseScheduler): PlaceCheckInAlarmLifecycle = scheduler
+
+    @Provides
+    internal fun providePlacePublisher(@ApplicationContext context: Context): PlaceCheckInPublisher = AccountPlaceCheckInPublisher(context)
 }

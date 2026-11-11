@@ -18,7 +18,7 @@ import studio.hypertext.curfew.alarm.OwnerRecoveryAuthorization
 import studio.hypertext.curfew.alarm.SunriseSchedule
 import studio.hypertext.curfew.callback.AndroidWakeConditionSetup
 import studio.hypertext.curfew.callback.CallbackConfigurationRepository
-import studio.hypertext.curfew.callback.CallbackPollScheduler
+import studio.hypertext.curfew.callback.callbackPollScheduler
 import studio.hypertext.curfew.callback.LocalHttpsVerifier
 import studio.hypertext.curfew.persistence.CurfewDatabase
 import studio.hypertext.curfew.persistence.CurfewPreferences
@@ -36,6 +36,7 @@ class RecoveryCompletionResumeInstrumentedTest {
 
     @Test
     fun terminalAlarmTransitionFinishesInterruptedRecoveryAndSchedulesTheNextMorning() = runBlocking {
+        PerpetualAlarmService.ensureChannels(context)
         shell("pm grant ${context.packageName} android.permission.POST_NOTIFICATIONS")
         shell("appops set ${context.packageName} SCHEDULE_EXACT_ALARM allow")
         CurfewPreferences(context).apply { acknowledgeLimitations(); setTestSoundConfirmed(true) }
@@ -78,7 +79,7 @@ class RecoveryCompletionResumeInstrumentedTest {
                 scheduler.state.first()?.let { scheduler.save(it.schedule.copy(enabled = false)) }
                 for (fixtureId in listOfNotNull(id, nextId)) {
                     AndroidAlarmClockGateway(context).cancel(fixtureId)
-                    CallbackPollScheduler.cancel(context, fixtureId)
+                    context.callbackPollScheduler().cancel(fixtureId)
                     CurfewDatabase.open(context).alarmCampaignDao().delete(fixtureId)
                     CurfewDatabase.open(context).alarmRecoveryAuditDao().deleteForCampaign(fixtureId)
                 }

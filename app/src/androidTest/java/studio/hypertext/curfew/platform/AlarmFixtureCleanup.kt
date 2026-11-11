@@ -6,7 +6,7 @@ import android.content.Intent
 import android.os.SystemClock
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
-import studio.hypertext.curfew.callback.CallbackPollScheduler
+import studio.hypertext.curfew.callback.callbackPollScheduler
 import studio.hypertext.curfew.persistence.CurfewDatabase
 
 @Suppress("DEPRECATION")
@@ -18,7 +18,7 @@ internal suspend fun cleanupAlarmFixture(context: Context, campaignId: String) {
         gateway.cancel(campaignId)
         context.stopService(Intent(context, PerpetualAlarmService::class.java))
         dao.delete(campaignId)
-        CallbackPollScheduler.cancel(context, campaignId)
+        context.callbackPollScheduler().cancel(campaignId)
     }
     val manager = context.getSystemService(ActivityManager::class.java)
     fun serviceRunning() = manager.getRunningServices(Int.MAX_VALUE)
@@ -30,7 +30,7 @@ internal suspend fun cleanupAlarmFixture(context: Context, campaignId: String) {
     SunriseScheduler.serialized {
         gateway.cancel(campaignId)
         dao.delete(campaignId)
-        CallbackPollScheduler.cancel(context, campaignId)
+        context.callbackPollScheduler().cancel(campaignId)
     }
     assertNull("Fixture state must stay absent after restoration finishes", dao.find(campaignId))
 }

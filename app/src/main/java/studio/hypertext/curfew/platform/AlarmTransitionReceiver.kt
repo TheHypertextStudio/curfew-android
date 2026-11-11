@@ -4,7 +4,9 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import androidx.core.content.ContextCompat
+import dagger.hilt.android.AndroidEntryPoint
 import java.time.Instant
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -16,7 +18,9 @@ import studio.hypertext.curfew.callback.CallbackPollScheduler
 import studio.hypertext.curfew.sync.WakeStatusPublisher
 import studio.hypertext.curfew.sync.WakeSyncScheduler
 
+@AndroidEntryPoint
 class AlarmTransitionReceiver : BroadcastReceiver() {
+    @Inject internal lateinit var callbackPolling: CallbackPollScheduler
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != AndroidAlarmClockGateway.ACTION_ALARM_TRANSITION) return
         val campaignId = intent.getStringExtra(AndroidAlarmClockGateway.EXTRA_CAMPAIGN_ID) ?: return
@@ -54,7 +58,7 @@ class AlarmTransitionReceiver : BroadcastReceiver() {
                         definition?.actionUrl,
                     ),
                 )
-                if (definition != null) CallbackPollScheduler.schedule(context, campaignId)
+                if (definition != null) callbackPolling.schedule(campaignId)
                 repository.nextTransitionAt(campaignId)?.let { gateway.setAlarmClock(campaignId, it) }
             }
             is AlarmCampaignState.Quiet -> {
