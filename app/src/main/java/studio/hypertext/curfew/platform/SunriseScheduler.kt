@@ -6,8 +6,6 @@ import java.time.Instant
 import java.time.ZoneId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import studio.hypertext.curfew.account.NativeDeviceProofAuthenticator
 import studio.hypertext.curfew.alarm.AlarmCampaignState
@@ -15,6 +13,7 @@ import studio.hypertext.curfew.alarm.SavedSunriseAlarm
 import studio.hypertext.curfew.alarm.SunriseOccurrencePhase
 import studio.hypertext.curfew.alarm.SunriseSchedule
 import studio.hypertext.curfew.alarm.SunriseScheduleController
+import studio.hypertext.curfew.alarm.SunriseScheduleLock
 import studio.hypertext.curfew.alarm.SunriseOccurrenceCompletion
 import studio.hypertext.curfew.callback.CallbackConfigurationRepository
 import studio.hypertext.curfew.callback.CallbackPollScheduler
@@ -59,7 +58,7 @@ class SunriseScheduler(context: Context) {
         }
     }
 
-    private val controller by lazy { SunriseScheduleController(preferences, runtime, executionMutex) }
+    private val controller by lazy { SunriseScheduleController(preferences, runtime, SunriseScheduleLock.mutex) }
 
     suspend fun save(
         schedule: SunriseSchedule,
@@ -93,8 +92,6 @@ class SunriseScheduler(context: Context) {
     }
 
     companion object {
-        private val executionMutex = Mutex()
-
-        suspend fun <T> serialized(action: suspend () -> T): T = executionMutex.withLock { action() }
+        suspend fun <T> serialized(action: suspend () -> T): T = SunriseScheduleLock.serialized(action)
     }
 }

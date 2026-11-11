@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import studio.hypertext.curfew.R
-import studio.hypertext.curfew.checkin.PlaceCheckInRepository
 import studio.hypertext.curfew.checkin.PlaceCheckInSetupAccess
 
 internal data class CheckInUiState(
@@ -24,9 +23,8 @@ internal data class CheckInUiState(
 @HiltViewModel
 internal class CheckInViewModel @Inject constructor(
     private val setup: AndroidWakeConditionSetup,
-    places: PlaceCheckInRepository,
+    val placeSetup: PlaceCheckInSetupAccess,
 ) : ViewModel() {
-    val placeSetup: PlaceCheckInSetupAccess = places
     private val mutableState = MutableStateFlow(CheckInUiState())
     val state = mutableState.asStateFlow()
 

@@ -10,3 +10,7 @@ interface PlaceCheckInSetupAccess {
     suspend fun enroll(draftId: String, scanned: String): PlaceEnrollment
     suspend fun remove(id: String)
 }
+
+internal fun interface PlaceCheckInApprover {
+    suspend fun approve(campaignId: String, code: String): PlaceApprovalResult
+}
