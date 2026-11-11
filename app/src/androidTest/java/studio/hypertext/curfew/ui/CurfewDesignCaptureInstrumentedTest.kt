@@ -195,7 +195,7 @@ class CurfewDesignCaptureInstrumentedTest {
                 key(current.generation) {
                     CurfewTheme(darkTheme = current.dark, dynamicColor = false) {
                         Box(Modifier.width(current.width.dp).fillMaxHeight()) {
-                            CurfewApp(
+                            CurfewAppFixture(
                                 readiness = AlarmReadiness(required.isEmpty(), required, emptySet(), AlarmPresentation.FULL_SCREEN),
                                 accountEnrolled = false, accountSignedIn = false, accountRecoveryState = null,
                                 onGrantExactAlarm = {}, onGrantNotifications = {}, onRepairAlarmChannel = {},

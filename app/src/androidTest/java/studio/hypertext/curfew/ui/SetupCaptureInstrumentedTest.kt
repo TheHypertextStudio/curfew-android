@@ -33,7 +33,7 @@ class SetupCaptureInstrumentedTest {
         val exported = mutableStateOf(false)
         val required = mutableStateOf(setOf(ReadinessAction.GRANT_FULL_SCREEN_ACCESS))
         compose.setContent { CurfewTheme {
-            CurfewApp(
+            CurfewAppFixture(
                 readiness = AlarmReadiness(required.value.isEmpty(), required.value, emptySet(), AlarmPresentation.FULL_SCREEN),
                 accountEnrolled = false, accountSignedIn = false, accountRecoveryState = null,
                 onGrantExactAlarm = {}, onGrantNotifications = {}, onRepairAlarmChannel = {}, onPlayTestSound = {},

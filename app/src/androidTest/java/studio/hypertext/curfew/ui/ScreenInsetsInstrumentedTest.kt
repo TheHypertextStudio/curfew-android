@@ -64,7 +64,7 @@ class ScreenInsetsInstrumentedTest {
     @Test fun appNavigationConsumesSafeInsetsOnceAcrossDestinations() {
         compose.runOnUiThread { compose.activity.enableEdgeToEdge() }
         compose.setContent { CurfewTheme {
-            CurfewApp(
+            CurfewAppFixture(
                 readiness = studio.hypertext.curfew.readiness.AlarmReadiness(false,
                     setOf(studio.hypertext.curfew.readiness.ReadinessAction.GRANT_FULL_SCREEN_ACCESS),
                     emptySet(), studio.hypertext.curfew.readiness.AlarmPresentation.FULL_SCREEN),

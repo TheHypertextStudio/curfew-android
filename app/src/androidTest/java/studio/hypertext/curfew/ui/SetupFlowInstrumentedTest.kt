@@ -29,7 +29,7 @@ class SetupFlowInstrumentedTest {
                      retryableDeferral: Boolean = false, choiceGate: CompletableDeferred<Unit>? = null) {
         val content: @Composable () -> Unit = {
             CurfewTheme {
-                CurfewApp(
+                CurfewAppFixture(
                     readiness = AlarmReadiness(required.value.isEmpty(), required.value, emptySet(), AlarmPresentation.FULL_SCREEN),
                     accountEnrolled = false, accountSignedIn = false, accountRecoveryState = null,
                     onGrantExactAlarm = {}, onGrantNotifications = {}, onRepairAlarmChannel = {}, onPlayTestSound = {},

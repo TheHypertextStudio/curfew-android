@@ -57,7 +57,7 @@ class CurfewAppNavigationInstrumentedTest {
         compose.setContent {
             CurfewTheme {
                 val generation = callbackGeneration.value
-                CurfewApp(
+                CurfewAppFixture(
                     readiness = AlarmReadiness(missingActions.value.isEmpty(), missingActions.value, emptySet(), AlarmPresentation.FULL_SCREEN),
                     accountEnrolled = false,
                     accountSignedIn = false,
