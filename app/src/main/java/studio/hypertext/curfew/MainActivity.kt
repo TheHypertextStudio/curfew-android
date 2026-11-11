@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -28,6 +27,7 @@ import studio.hypertext.curfew.sync.WakeSyncScheduler
 import studio.hypertext.curfew.ui.CurfewApp
 import studio.hypertext.curfew.ui.CurfewViewModel
 import studio.hypertext.curfew.ui.PlaceCheckInHost
+import studio.hypertext.curfew.ui.ShowOverKeyguardEffect
 import studio.hypertext.curfew.ui.theme.CurfewTheme
 
 /**
@@ -67,13 +67,7 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                LaunchedEffect(state.isAlarmRinging) {
-                    if (state.isAlarmRinging) {
-                        presentOverKeyguard()
-                    } else {
-                        dismissKeyguardFlags()
-                    }
-                }
+                ShowOverKeyguardEffect(this@MainActivity, active = state.isAlarmRinging)
 
                 CurfewApp(
                     viewModel = viewModel,
@@ -113,18 +107,6 @@ class MainActivity : ComponentActivity() {
         val request = intent.toLaunchRequest()
         setIntent(if (request is LaunchRequest.OAuthCallback) Intent() else intent)
         viewModel.onLaunchRequest(request)
-    }
-
-    private fun presentOverKeyguard() {
-        setShowWhenLocked(true)
-        setTurnScreenOn(true)
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-    }
-
-    private fun dismissKeyguardFlags() {
-        setShowWhenLocked(false)
-        setTurnScreenOn(false)
-        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     }
 
     private fun requestNotifications() {
