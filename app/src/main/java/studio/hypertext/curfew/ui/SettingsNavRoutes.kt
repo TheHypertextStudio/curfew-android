@@ -1,44 +1,95 @@
 package studio.hypertext.curfew.ui
 
+import android.widget.Toast
 import androidx.compose.runtime.Composable
-import studio.hypertext.curfew.enforcement.EnforcementSessionState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.launch
+import studio.hypertext.curfew.R
+import studio.hypertext.curfew.account.AccountUiState
+import studio.hypertext.curfew.account.AccountViewModel
+import studio.hypertext.curfew.alarm.AlarmSetupUiState
+import studio.hypertext.curfew.platform.SystemSettingsLauncher
+
+@Composable
+internal fun SettingsEntry(journey: AlarmSetupJourney, alarm: AlarmSetupUiState) {
+    val model: SettingsViewModel = hiltViewModel()
+    val settings by model.state.collectAsStateWithLifecycle()
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { model.refreshCapabilities() }
+    SettingsRoute(journey, alarm, settings)
+}
 
 @Composable
 internal fun SettingsRoute(
-    appState: CurfewAppState,
-    state: CurfewUiState,
+    journey: AlarmSetupJourney,
+    alarm: AlarmSetupUiState,
+    settings: SettingsUiState,
 ) {
     CurfewSettingsScreen(
-        state.conditionLabel,
-        state.conditionVerified,
-        state.readiness.canArm,
-        state.accountSignedIn,
-        enforcementSummary = if (state.enforcementSession?.state == EnforcementSessionState.ACTIVE) {
-            "Active session"
-        } else if (state.isAccessibilityReady) {
-            "Ready"
-        } else {
-            "Needs attention"
+        alarm.conditionLabel,
+        alarm.conditionVerified,
+        alarm.readiness.canArm,
+        settings.accountSignedIn,
+        enforcementSummary = stringResource(
+            when (settings.protection) {
+                ProtectionStatus.ACTIVE -> R.string.protection_status_active
+                ProtectionStatus.READY -> R.string.protection_status_ready
+                ProtectionStatus.NEEDS_ATTENTION -> R.string.protection_status_needs_attention
+            },
+        ),
+        onCheckIn = { journey.navigate(CurfewDestination.CheckIn) },
+        onReadiness = { journey.navigate(CurfewDestination.Readiness) },
+        onAccount = { journey.navigate(CurfewDestination.Account) },
+        onBedtimeProtection = { journey.navigate(CurfewDestination.Enforcement) },
+    )
+}
+
+@Composable
+internal fun AccountEntry(model: AccountViewModel, systemSettings: SystemSettingsLauncher) {
+    val state by model.state.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    AccountRoute(
+        state = state,
+        onOpenAccount = systemSettings::openAccountPortal,
+        onEnroll = {
+            scope.launch {
+                try {
+                    systemSettings.enrollAccount()
+                } catch (cancelled: CancellationException) {
+                    throw cancelled
+                } catch (_: Exception) {
+                    Toast.makeText(context, R.string.account_enrollment_failed, Toast.LENGTH_LONG).show()
+                }
+            }
         },
-        onCheckIn = { appState.navigate(CurfewDestination.CheckIn) },
-        onReadiness = { appState.navigate(CurfewDestination.Readiness) },
-        onAccount = { appState.navigate(CurfewDestination.Account) },
-        onBedtimeProtection = { appState.navigate(CurfewDestination.Enforcement) },
+        onRestoreRecoveryKey = model::restoreRecoveryKey,
+        onAcknowledgeRecoveryKey = model::acknowledgeRecoveryKey,
     )
 }
 
 @Composable
 internal fun AccountRoute(
-    state: CurfewUiState,
-    actions: CurfewUiActions,
+    state: AccountUiState,
+    onOpenAccount: () -> Unit,
+    onEnroll: () -> Unit,
+    onRestoreRecoveryKey: (String) -> Unit,
+    onAcknowledgeRecoveryKey: () -> Unit,
 ) {
     CurfewAccountScreen(
         state.accountEnrolled,
         state.accountSignedIn,
-        state.accountRecoveryState,
-        actions.onOpenAccount,
-        actions.onEnrollAccount,
-        actions.onRestoreRecoveryKey,
-        actions.onAcknowledgeRecoveryKey,
+        state.recoveryState,
+        onOpenAccount,
+        onEnroll,
+        onRestoreRecoveryKey,
+        onAcknowledgeRecoveryKey,
     )
 }

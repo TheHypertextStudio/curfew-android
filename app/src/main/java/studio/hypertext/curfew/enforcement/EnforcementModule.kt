@@ -1,6 +1,7 @@
 package studio.hypertext.curfew.enforcement
 
 import android.content.Context
+import android.os.SystemClock
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -23,4 +24,11 @@ object EnforcementModule {
     fun provideAccessibilityChecker(
         @ApplicationContext context: Context,
     ): AccessibilityChecker = AccessibilityChecker { AccessibilityServiceStatus.isEnabled(context) }
+
+    @Provides
+    internal fun provideProtectionRuntime(): ProtectionRuntime = object : ProtectionRuntime {
+        override fun wallClockMillis() = System.currentTimeMillis()
+        override fun elapsedRealtimeMillis() = SystemClock.elapsedRealtime()
+        override fun disarm() = CurfewAccessibilityService.disarmActiveSession()
+    }
 }

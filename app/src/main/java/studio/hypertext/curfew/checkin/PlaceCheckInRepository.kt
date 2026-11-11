@@ -1,6 +1,7 @@
 package studio.hypertext.curfew.checkin
 
 import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
 import java.time.Instant
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -27,8 +28,8 @@ class PlaceCheckInRepository @Inject constructor(
     private val secrets: SecretStore,
     private val preferences: CurfewPreferences,
     private val cameraChecker: CameraAvailabilityChecker,
-    private val context: Context,
-) {
+    @ApplicationContext private val context: Context,
+) : PlaceCheckInSetupAccess {
     constructor(context: Context) : this(
         secrets = AndroidKeystoreSecretStore(context),
         preferences = CurfewPreferences(context),
@@ -42,16 +43,16 @@ class PlaceCheckInRepository @Inject constructor(
         context = context.applicationContext,
     )
 
-    fun cameraReady(): Boolean = cameraChecker.isCameraReady()
+    override fun cameraReady(): Boolean = cameraChecker.isCameraReady()
 
-    suspend fun draft(): PlaceDraft? = withContext(Dispatchers.IO) {
+    override suspend fun draft(): PlaceDraft? = withContext(Dispatchers.IO) {
         secrets.get(DRAFT)?.let { bytes ->
             val json = JSONObject(bytes.toString(Charsets.UTF_8))
             PlaceDraft(decode(json), json.getString("payload"), json.optBoolean("exported", false))
         }
     }
 
-    suspend fun begin(label: String): PlaceDraft = withContext(Dispatchers.IO) {
+    override suspend fun begin(label: String): PlaceDraft = withContext(Dispatchers.IO) {
         SunriseScheduler.serialized {
             PlaceCheckIn.create(label).also {
                 secrets.put(DRAFT, encode(it.enrollment).put("payload", it.payload).toString().toByteArray())
@@ -59,7 +60,7 @@ class PlaceCheckInRepository @Inject constructor(
         }
     }
 
-    suspend fun markExported(id: String) = withContext(Dispatchers.IO) {
+    override suspend fun markExported(id: String) = withContext(Dispatchers.IO) {
         SunriseScheduler.serialized {
             val pending = requireNotNull(draft())
             require(pending.enrollment.id == id) { "The code was replaced while saving." }
@@ -67,11 +68,11 @@ class PlaceCheckInRepository @Inject constructor(
         }
     }
 
-    suspend fun cancelDraft() = withContext(Dispatchers.IO) {
+    override suspend fun cancelDraft() = withContext(Dispatchers.IO) {
         SunriseScheduler.serialized { secrets.delete(DRAFT) }
     }
 
-    suspend fun enroll(draftId: String, scanned: String): PlaceEnrollment = withContext(Dispatchers.IO) {
+    override suspend fun enroll(draftId: String, scanned: String): PlaceEnrollment = withContext(Dispatchers.IO) {
         SunriseScheduler.serialized {
             val pending = requireNotNull(draft()) { "Create a new code before scanning." }
             require(pending.enrollment.id == draftId) { "This setup was replaced. Scan the new code." }
@@ -84,11 +85,11 @@ class PlaceCheckInRepository @Inject constructor(
         }
     }
 
-    suspend fun find(id: String): PlaceEnrollment? = withContext(Dispatchers.IO) {
+    override suspend fun find(id: String): PlaceEnrollment? = withContext(Dispatchers.IO) {
         secrets.get(key(id))?.let { decode(JSONObject(it.toString(Charsets.UTF_8))) }
     }
 
-    suspend fun remove(id: String) = withContext(Dispatchers.IO) {
+    override suspend fun remove(id: String) = withContext(Dispatchers.IO) {
         // Disable future delivery before revoking. The scheduler preserves a ringing gate.
         SunriseScheduler(context).revokeCondition(id) {
             secrets.delete(key(id))

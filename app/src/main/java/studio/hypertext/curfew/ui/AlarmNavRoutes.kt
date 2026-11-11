@@ -2,12 +2,16 @@ package studio.hypertext.curfew.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.res.stringResource
+import studio.hypertext.curfew.R
+import studio.hypertext.curfew.alarm.AlarmSetupUiState
+import studio.hypertext.curfew.readiness.AlarmSoundCheckState
 
 @Composable
 internal fun DailyRoute(
-    appState: CurfewAppState,
-    state: CurfewUiState,
-    actions: CurfewUiActions,
+    appState: AlarmSetupJourney,
+    state: AlarmSetupUiState,
+    actions: AlarmSetupActions,
 ) {
     SunriseDailyScreen(
         state.sunriseAlarm,
@@ -22,14 +26,14 @@ internal fun DailyRoute(
         },
         onCheckIn = { appState.navigate(CurfewDestination.CheckIn) },
         onSetup = {
-            val isSetupMode = state.sunriseAlarm == null
-            appState.setupMode = isSetupMode
-            if (isSetupMode) {
+            val alarm = state.sunriseAlarm
+            appState.setupMode = alarm == null
+            if (alarm == null) {
                 if (appState.draft != null) appState.navigate(CurfewDestination.Edit)
                 appState.nextSetupTask(state)
             } else {
                 appState.navigate(
-                    if (state.sunriseAlarm.schedule.callbackId != state.callbackId) {
+                    if (alarm.schedule.callbackId != state.callbackId) {
                         CurfewDestination.Edit
                     } else if (state.readiness.canArm) {
                         CurfewDestination.CheckIn
@@ -45,16 +49,16 @@ internal fun DailyRoute(
 
 @Composable
 internal fun EditRoute(
-    appState: CurfewAppState,
-    state: CurfewUiState,
-    actions: CurfewUiActions,
+    appState: AlarmSetupJourney,
+    state: AlarmSetupUiState,
+    actions: AlarmSetupActions,
 ) {
     SunriseScheduleEditor(
         state.sunriseAlarm,
         state.callbackId,
         state.canArm,
         state.alarmBusy || appState.saving || appState.preparing,
-        state.alarmError ?: appState.setupError,
+        state.alarmError ?: appState.setupError?.let { stringResource(it) },
         onSave = {
             appState.saving = true
             actions.onSaveAlarm(it)
@@ -65,18 +69,32 @@ internal fun EditRoute(
         setupMode = appState.setupMode && state.sunriseAlarm == null,
         initialDraft = appState.draft,
         onPrepare = { prepared ->
-            appState.prepareDraft(prepared, actions, state)
+            appState.prepareDraft(prepared, actions.onPrepareDraft, state)
         },
     )
 }
 
+internal data class ReadinessActions(
+    val onEnter: () -> Unit = {},
+    val onGrantExactAlarm: () -> Unit = {},
+    val onGrantNotifications: () -> Unit = {},
+    val onRepairAlarmChannel: () -> Unit = {},
+    val onPlayTestSound: () -> Unit = {},
+    val onAcknowledgeLimitations: () -> Unit = {},
+    val onRaiseAlarmVolume: () -> Unit = {},
+    val onGrantFullScreen: () -> Unit = {},
+    val onConfirmSound: () -> Unit = {},
+    val onCancelSound: () -> Unit = {},
+)
+
 @Composable
 internal fun ReadinessRoute(
-    appState: CurfewAppState,
-    state: CurfewUiState,
-    actions: CurfewUiActions,
+    appState: AlarmSetupJourney,
+    state: AlarmSetupUiState,
+    actions: ReadinessActions,
+    soundState: AlarmSoundCheckState,
 ) {
-    LaunchedEffect(Unit) { actions.onEnterAlarmReadiness() }
+    LaunchedEffect(Unit) { actions.onEnter() }
     AlarmReadinessScreen(
         state.readiness,
         actions.onGrantExactAlarm,
@@ -87,15 +105,15 @@ internal fun ReadinessRoute(
         actions.onRaiseAlarmVolume,
         onDone = {
             if (appState.setupMode) {
-                appState.navState.backStack.remove(CurfewDestination.Readiness)
+                appState.navigation.backStack.remove(CurfewDestination.Readiness)
                 appState.nextSetupTask(state)
             } else {
-                appState.back(state)
+                appState.back(state.alarmBusy)
             }
         },
         onGrantFullScreen = actions.onGrantFullScreen,
         inSetup = appState.setupMode,
-        soundState = state.soundCheckState,
+        soundState = soundState,
         onConfirmSound = actions.onConfirmSound,
         onCancelSound = actions.onCancelSound,
     )
@@ -103,19 +121,19 @@ internal fun ReadinessRoute(
 
 @Composable
 internal fun ReviewRoute(
-    appState: CurfewAppState,
-    state: CurfewUiState,
-    actions: CurfewUiActions,
+    appState: AlarmSetupJourney,
+    state: AlarmSetupUiState,
+    actions: AlarmSetupActions,
 ) {
     val prepared = appState.draft
     if (prepared == null) {
-        appState.navigate(CurfewDestination.Edit)
+        LaunchedEffect(Unit) { appState.navigate(CurfewDestination.Edit) }
     } else {
         AlarmSetupReview(
             prepared,
-            state.conditionLabel ?: "Check-in",
+            state.conditionLabel ?: stringResource(R.string.check_in_label),
             state.alarmBusy || appState.saving,
-            state.alarmError ?: appState.setupError,
+            state.alarmError ?: appState.setupError?.let { stringResource(it) },
             onEdit = { appState.navigate(CurfewDestination.Edit) },
         ) {
             if (!state.canArm) {
@@ -123,7 +141,7 @@ internal fun ReviewRoute(
             } else {
                 val schedule = prepared.toSchedule(requireNotNull(state.callbackId))
                 if (schedule.nextOccurrence(java.time.Instant.now(), java.time.ZoneId.systemDefault()) == null) {
-                    appState.setupError = "Choose a future wake time."
+                    appState.setupError = R.string.setup_choose_future_time
                 } else {
                     appState.setupError = null
                     appState.saving = true

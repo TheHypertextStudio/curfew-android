@@ -28,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
@@ -60,7 +61,7 @@ fun AlarmRingingScreen(
                 }
                 TextButton(onClick = onRecover, modifier = Modifier.heightIn(min = 48.dp)) {
                     Icon(painterResource(R.drawable.ic_lock_rounded), contentDescription = null)
-                    Text("Alarm recovery", Modifier.padding(start = 8.dp))
+                    Text(stringResource(R.string.alarm_recovery), Modifier.padding(start = 8.dp))
                 }
             }
         },
@@ -73,7 +74,7 @@ fun AlarmRingingScreen(
                 verticalArrangement = Arrangement.Center,
             ) {
                 Text(
-                    "Time to get up.",
+                    stringResource(R.string.alarm_notification_title),
                     style = MaterialTheme.typography.headlineLarge,
                     color = MaterialTheme.colorScheme.onSurface,
                     textAlign = TextAlign.Center,
@@ -94,7 +95,11 @@ fun AlarmRingingScreen(
                 )
                 Spacer(Modifier.height(20.dp))
                 Text(
-                    if (nextRingTime == null) "Waiting for $conditionLabel" else "Next ring at $nextRingTime",
+                    if (nextRingTime == null) {
+                        stringResource(R.string.alarm_notification_named_check_in, conditionLabel)
+                    } else {
+                        stringResource(R.string.alarm_next_ring_at, nextRingTime)
+                    },
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,

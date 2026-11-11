@@ -1,13 +1,7 @@
 package studio.hypertext.curfew.ui
 
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
-import android.os.SystemClock
-import android.provider.Settings
 import android.text.format.DateFormat
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -16,59 +10,49 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import java.util.Date
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
-import studio.hypertext.curfew.alarm.AlarmCampaignState
-import studio.hypertext.curfew.alarm.AlarmRuntimeClock
-import studio.hypertext.curfew.alarm.AlarmRuntimeSnapshot
+import studio.hypertext.curfew.R
 import studio.hypertext.curfew.alarm.OwnerRecoveryResult
 import studio.hypertext.curfew.alarm.campaignStartedAt
-import studio.hypertext.curfew.checkin.CheckInDescription
 import studio.hypertext.curfew.checkin.PlaceApprovalResult
-import studio.hypertext.curfew.platform.AndroidOwnerRecovery
-import java.time.Instant
-import java.util.Date
+import studio.hypertext.curfew.platform.rememberOwnerRecovery
 
-/**
- * Host component managing the ringing alarm presentation, scanner, and owner recovery flow.
- * Extracts active ringing/recovery presentation out of MainActivity into an isolated Composable.
- */
 @Composable
 internal fun AlarmRingingHost(
-    snapshot: AlarmRuntimeSnapshot,
-    ringingCondition: CheckInDescription?,
+    alarm: RingingAlarmPresentation,
+    onApprovePlaceCode: suspend (campaignId: String, code: String) -> PlaceApprovalResult,
+    onOpenCheckIn: (String) -> Unit,
+    onSecuritySettings: () -> Unit,
 ) {
     val context = LocalContext.current
-    val activity = context as? ComponentActivity
     val scope = rememberCoroutineScope()
+    val campaign = alarm.snapshot.state
+    val condition = alarm.condition
+    val conditionLabel = condition?.displayLabel ?: stringResource(R.string.alarm_check_in_fallback)
     var recoveryVisible by remember { mutableStateOf(false) }
     var scanning by remember { mutableStateOf(false) }
 
-    val ownerRecovery = remember(activity) {
-        if (activity != null) {
-            AndroidOwnerRecovery(
-                activity = activity,
-                onRecovered = { result: OwnerRecoveryResult ->
-                    recoveryVisible = false
-                    val message = when (result) {
-                        OwnerRecoveryResult.Recovered -> "Alarm stopped through recovery."
-                        OwnerRecoveryResult.RecoveredNextAlarmUnavailable -> "Alarm stopped. Check tomorrow’s alarm."
-                        OwnerRecoveryResult.NotActive -> "This alarm is not ringing."
-                        OwnerRecoveryResult.NotSaved -> "Couldn’t stop the alarm. Try again."
-                    }
-                    Toast.makeText(context, message, Toast.LENGTH_LONG).show()
-                },
-            )
-        } else null
+    val ownerRecovery = rememberOwnerRecovery { result ->
+        recoveryVisible = false
+        val message = when (result) {
+            OwnerRecoveryResult.Recovered -> R.string.alarm_recovered
+            OwnerRecoveryResult.RecoveredNextAlarmUnavailable -> R.string.alarm_recovered_next_unavailable
+            OwnerRecoveryResult.NotActive -> R.string.alarm_not_active
+            OwnerRecoveryResult.NotSaved -> R.string.alarm_recovery_failed
+        }
+        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
     }
-
     BackHandler(enabled = recoveryVisible) {
         ownerRecovery?.close()
         recoveryVisible = false
     }
 
-    if (recoveryVisible && ownerRecovery != null) {
-        AlarmRecoveryScreen(
-            conditionLabel = ringingCondition?.displayLabel ?: "your check-in",
+    when {
+        recoveryVisible && ownerRecovery != null -> AlarmRecoveryScreen(
+            conditionLabel = conditionLabel,
             credentialAvailable = ownerRecovery.credentialAvailable,
             busy = ownerRecovery.busy,
             error = ownerRecovery.error,
@@ -76,74 +60,53 @@ internal fun AlarmRingingHost(
                 ownerRecovery.close()
                 recoveryVisible = false
             },
-            onBeginHold = { reason ->
-                val campaignId = snapshot.state.campaignId
-                ownerRecovery.beginHold(campaignId, reason)
-            },
+            onBeginHold = { ownerRecovery.beginHold(campaign.campaignId, it) },
             onCancelHold = ownerRecovery::cancelHold,
             onConfirm = ownerRecovery::requestConfirmation,
-            onSecuritySettings = {
-                context.startActivity(Intent(Settings.ACTION_SECURITY_SETTINGS))
-            },
+            onSecuritySettings = onSecuritySettings,
         )
-    } else if (scanning) {
-        PlaceScanScreen(
-            label = ringingCondition?.displayLabel ?: "saved",
+        scanning -> PlaceScanScreen(
+            label = conditionLabel,
             onScan = { payload ->
                 scope.launch {
-                    try {
-                        val repository = studio.hypertext.curfew.checkin.PlaceCheckInRepository(context)
-                        val result = repository.approve(snapshot.state.campaignId, payload)
-                        val message = when (result) {
-                            PlaceApprovalResult.CHECKED_IN -> "Checked in."
-                            PlaceApprovalResult.NOT_ACTIVE -> "This alarm is no longer active."
-                            PlaceApprovalResult.NEXT_ALARM_UNAVAILABLE -> "Checked in. Check tomorrow’s alarm."
+                    val message = try {
+                        when (onApprovePlaceCode(campaign.campaignId, payload)) {
+                            PlaceApprovalResult.CHECKED_IN -> R.string.alarm_checked_in
+                            PlaceApprovalResult.NOT_ACTIVE -> R.string.alarm_not_active
+                            PlaceApprovalResult.NEXT_ALARM_UNAVAILABLE -> R.string.alarm_checked_in_next_unavailable
                         }
-                        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                    } catch (cancelled: CancellationException) {
+                        throw cancelled
+                    } catch (_: Exception) {
+                        R.string.alarm_check_in_scan_failed
                     } finally {
                         scanning = false
                     }
+                    Toast.makeText(context, message, Toast.LENGTH_LONG).show()
                 }
             },
             onCancel = { scanning = false },
         )
-    } else {
-        val clock = DateFormat.getTimeFormat(context)
-        val campaign = snapshot.state
-        val startedInstant = (campaign as? AlarmCampaignState)?.campaignStartedAt()
-        val timeString = startedInstant?.let { clock.format(Date.from(it)) } ?: ""
-
-        val nextRingTime = snapshot.takeIf { it.state is AlarmCampaignState.Quiet }?.let { quietSnap ->
-            AlarmRuntimeClock.nextTransitionAt(
-                quietSnap,
-                Instant.now(),
-                SystemClock.elapsedRealtime(),
-                snapshot.bootId,
-            )?.let { next -> clock.format(Date.from(next)) }
-        }
-
-        AlarmRingingScreen(
-            time = timeString,
-            nextRingTime = nextRingTime,
-            onRecover = { recoveryVisible = true },
-            conditionLabel = ringingCondition?.displayLabel ?: "your check-in",
-            actionLabel = if (ringingCondition?.placeCode == true) {
-                "Scan code"
-            } else {
-                ringingCondition?.actionUrl?.let { "Open check-in" }
-            },
-            onOpenAction = {
-                if (ringingCondition?.placeCode == true) {
-                    scanning = true
-                }
-                ringingCondition?.actionUrl?.let { url ->
-                    runCatching {
-                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
-                    }.onFailure {
-                        Toast.makeText(context, "Couldn’t open the check-in link.", Toast.LENGTH_LONG).show()
+        else -> {
+            val clock = DateFormat.getTimeFormat(context)
+            AlarmRingingScreen(
+                time = clock.format(Date.from(campaign.campaignStartedAt())),
+                nextRingTime = alarm.nextRingAt?.let { clock.format(Date.from(it)) },
+                onRecover = { recoveryVisible = true },
+                conditionLabel = conditionLabel,
+                actionLabel = when {
+                    condition?.placeCode == true -> stringResource(R.string.alarm_scan_code)
+                    condition?.actionUrl != null -> stringResource(R.string.alarm_open_check_in)
+                    else -> null
+                },
+                onOpenAction = {
+                    if (condition?.placeCode == true) {
+                        scanning = true
+                    } else {
+                        condition?.actionUrl?.let(onOpenCheckIn)
                     }
-                }
-            },
-        )
+                },
+            )
+        }
     }
 }

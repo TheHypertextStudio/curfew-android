@@ -1,7 +1,6 @@
 package studio.hypertext.curfew.ui
 
 import android.content.res.Configuration
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -12,146 +11,64 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.dp
-import studio.hypertext.curfew.account.AccountRecoveryState
 
-/**
- * Core Composable structured with clear UI state, actions, and adaptive layouts.
- */
+private const val WIDE_WINDOW_DP = 600
+private const val NAV_RAIL_MIN_HEIGHT_DP = 480
+private const val INLINE_HEADER_MAX_HEIGHT_DP = 200
+
 @Composable
-fun CurfewApp(
-    state: CurfewUiState,
-    actions: CurfewUiActions,
-    modifier: Modifier = Modifier,
-    navigationState: CurfewNavigationState? = null,
-    placeCheckInContent: (@Composable (() -> Unit, () -> Unit, (() -> Unit)?) -> Unit)? = null,
+internal fun CurfewApp(
+    navigation: CurfewNavigationState,
+    onBack: () -> Unit,
+    onEditAlarm: () -> Unit,
+    onOpenSettings: () -> Unit,
+    content: @Composable (CurfewDestination, inlineHeader: (@Composable () -> Unit)?) -> Unit,
 ) {
-    val appState = rememberCurfewAppState(
-        state = state,
-        navigationState = navigationState,
-        placeCheckInContent = placeCheckInContent,
-    )
-
-    LaunchedEffect(state.accountRecoveryState) {
-        if (state.accountRecoveryState is AccountRecoveryState.EnterRecoveryKey ||
-            state.accountRecoveryState is AccountRecoveryState.SaveRecoveryKey
-        ) {
-            appState.navigate(CurfewDestination.Account)
-        }
-    }
-
-    LaunchedEffect(state.openEnforcement) {
-        if (state.openEnforcement) {
-            appState.navigate(CurfewDestination.Enforcement)
-            actions.onEnforcementOpened()
-        }
-    }
-
-    LaunchedEffect(state.alarmBusy, state.alarmError, appState.saving, state.sunriseAlarm, appState.setupMode, appState.draft?.id) {
-        val activated = appState.setupMode && state.sunriseAlarm?.schedule?.let { it.id == appState.draft?.id && it.enabled } == true
-        if (!state.alarmBusy && activated) {
-            appState.saving = false
-            actions.onSetupActivated()
-            appState.setupMode = false
-            appState.draft = null
-            appState.navigateToRoot()
-        } else if (appState.saving && !state.alarmBusy) {
-            if (state.alarmError != null) {
-                appState.saving = false
-            } else if (!appState.setupMode) {
-                appState.saving = false
-                appState.draft = null
-            }
-        }
-    }
-
-    // Responsive window layout detection
     val configuration = LocalConfiguration.current
-    val widthDp = configuration.screenWidthDp
-    val heightDp = configuration.screenHeightDp
-    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-    val useNavRail = widthDp >= 600 && heightDp >= 480
-    val useLandscapeNavBar = isLandscape && heightDp < 480 && widthDp >= 600
-
+    val wide = configuration.screenWidthDp >= WIDE_WINDOW_DP
+    val useRail = wide && configuration.screenHeightDp >= NAV_RAIL_MIN_HEIGHT_DP
+    val useBottomBar = wide && !useRail && configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+    val destination = navigation.currentDestination
+    val showChrome = destination != CurfewDestination.Welcome
     val density = LocalDensity.current
     val imeHeight = WindowInsets.ime.getBottom(density)
     val availableHeight = with(density) { (LocalWindowInfo.current.containerSize.height - imeHeight).toDp() }
-    val compactKeyboard = appState.currentDestination == CurfewDestination.CheckIn && imeHeight > 0 && availableHeight < 200.dp
-
-    val topBarComposable: @Composable () -> Unit = {
-        if (!compactKeyboard) {
-            CurfewTopBar(
-                currentDestination = appState.currentDestination,
-                onBack = { appState.back(state) },
-                onOpenSettings = {
-                    appState.setupMode = false
-                    appState.navigate(CurfewDestination.Settings)
-                },
-                showSettingsAction = !useNavRail && !useLandscapeNavBar,
-            )
-        }
+    val compactKeyboard = destination == CurfewDestination.CheckIn && imeHeight > 0 && availableHeight < INLINE_HEADER_MAX_HEIGHT_DP.dp
+    val topBar: @Composable () -> Unit = {
+        CurfewTopBar(
+            currentDestination = destination,
+            onBack = onBack,
+            onOpenSettings = onOpenSettings,
+            showSettingsAction = !useRail && !useBottomBar,
+        )
     }
 
-    if (useNavRail) {
-        Row(modifier = modifier.fillMaxSize()) {
-            if (appState.currentDestination != CurfewDestination.Welcome) {
-                CurfewNavigationRail(
-                    currentDestination = appState.currentDestination,
-                    onNavigate = { appState.navigate(it) },
-                    onEditAlarm = {
-                        appState.setupMode = state.sunriseAlarm == null
-                        appState.navigate(CurfewDestination.Edit)
-                    },
-                )
-            }
-            Scaffold(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight(),
-                contentWindowInsets = if (appState.currentDestination == CurfewDestination.Welcome) WindowInsets(0, 0, 0, 0) else WindowInsets.safeDrawing,
-                topBar = topBarComposable,
-            ) { padding ->
-                CurfewNavGraph(
-                    appState = appState,
-                    state = state,
-                    actions = actions,
-                    compactKeyboard = compactKeyboard,
-                    taskTopBar = topBarComposable,
-                    modifier = Modifier
-                        .padding(padding)
-                        .consumeWindowInsets(padding),
-                )
-            }
+    Row(Modifier.fillMaxSize()) {
+        if (useRail && showChrome) {
+            CurfewNavigationRail(destination, onNavigate = navigation::navigate, onEditAlarm = onEditAlarm)
         }
-    } else {
         Scaffold(
-            modifier = modifier.fillMaxSize(),
-            contentWindowInsets = if (appState.currentDestination == CurfewDestination.Welcome) WindowInsets(0, 0, 0, 0) else WindowInsets.safeDrawing,
-            topBar = topBarComposable,
+            modifier = Modifier.weight(1f).fillMaxHeight(),
+            contentWindowInsets = if (showChrome) WindowInsets.safeDrawing else WindowInsets(0, 0, 0, 0),
+            topBar = { if (!compactKeyboard) topBar() },
             bottomBar = {
-                if (useLandscapeNavBar && appState.currentDestination != CurfewDestination.Welcome && !compactKeyboard) {
-                    CurfewNavigationBar(
-                        currentDestination = appState.currentDestination,
-                        onNavigate = { appState.navigate(it) },
-                    )
+                if (useBottomBar && showChrome && !compactKeyboard) {
+                    CurfewNavigationBar(destination, onNavigate = navigation::navigate)
                 }
             },
         ) { padding ->
             CurfewNavGraph(
-                appState = appState,
-                state = state,
-                actions = actions,
-                compactKeyboard = compactKeyboard,
-                taskTopBar = topBarComposable,
-                modifier = Modifier
-                    .padding(padding)
-                    .consumeWindowInsets(padding),
-            )
+                navigation = navigation,
+                onBack = onBack,
+                modifier = Modifier.padding(padding).consumeWindowInsets(padding),
+            ) { entry ->
+                content(entry, topBar.takeIf { compactKeyboard && entry == CurfewDestination.CheckIn })
+            }
         }
     }
 }

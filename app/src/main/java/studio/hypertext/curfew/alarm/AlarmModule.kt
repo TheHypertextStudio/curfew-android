@@ -1,19 +1,20 @@
 package studio.hypertext.curfew.alarm
 
 import android.content.Context
+import android.os.SystemClock
 import android.provider.Settings
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import studio.hypertext.curfew.persistence.AlarmCampaignDao
-import studio.hypertext.curfew.persistence.CurfewDatabase
-import studio.hypertext.curfew.platform.AlarmRuntimeRepository
+import java.time.Instant
 import studio.hypertext.curfew.platform.AndroidAlarmReadiness
 import studio.hypertext.curfew.platform.AndroidAlarmSoundPreview
 import studio.hypertext.curfew.platform.BootIdProvider
 import studio.hypertext.curfew.platform.SunriseScheduler
+import studio.hypertext.curfew.readiness.AlarmSoundOutput
+import studio.hypertext.curfew.ui.NextAlarmTransition
 import javax.inject.Singleton
 
 @Module
@@ -29,28 +30,30 @@ object AlarmModule {
     }
 
     @Provides
+    internal fun provideNextAlarmTransition(bootId: BootIdProvider): NextAlarmTransition = NextAlarmTransition { snapshot ->
+        AlarmRuntimeClock.nextTransitionAt(snapshot, Instant.now(), SystemClock.elapsedRealtime(), bootId.currentBootId())
+    }
+
+    @Provides
     @Singleton
     fun provideSunriseScheduler(
         @ApplicationContext context: Context,
     ): SunriseScheduler = SunriseScheduler(context)
 
     @Provides
-    @Singleton
-    fun provideAlarmRuntimeRepository(
-        database: CurfewDatabase,
-        dao: AlarmCampaignDao,
-        bootIdProvider: BootIdProvider,
-    ): AlarmRuntimeRepository = AlarmRuntimeRepository(database, dao, bootIdProvider)
+    internal fun provideAlarmSoundOutput(
+        @ApplicationContext context: Context,
+    ): AlarmSoundOutput {
+        val preview = AndroidAlarmSoundPreview(context)
+        return object : AlarmSoundOutput {
+            override suspend fun play() = preview.play()
+            override fun stop() = preview.stop()
+        }
+    }
 
     @Provides
     @Singleton
-    fun provideAlarmSoundPreview(
+    internal fun provideAlarmReadiness(
         @ApplicationContext context: Context,
-    ): AndroidAlarmSoundPreview = AndroidAlarmSoundPreview(context)
-
-    @Provides
-    @Singleton
-    fun provideAlarmReadiness(
-        @ApplicationContext context: Context,
-    ): AndroidAlarmReadiness = AndroidAlarmReadiness(context)
+    ): AlarmReadinessReader = AlarmReadinessReader(AndroidAlarmReadiness(context)::evaluate)
 }

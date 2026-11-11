@@ -1,5 +1,6 @@
 package studio.hypertext.curfew.ui
 
+import java.time.Instant
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -10,6 +11,7 @@ import studio.hypertext.curfew.checkin.CheckInDescription
 internal data class RingingAlarmPresentation(
     val snapshot: AlarmRuntimeSnapshot,
     val condition: CheckInDescription?,
+    val nextRingAt: Instant? = null,
 )
 
 internal fun Flow<AlarmRuntimeSnapshot?>.ringingPresentation(

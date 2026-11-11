@@ -18,6 +18,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import studio.hypertext.curfew.checkin.PlaceCheckIn
+import studio.hypertext.curfew.checkin.PlaceCheckInSetupAccess
 import studio.hypertext.curfew.checkin.PlaceCodeImage
 import studio.hypertext.curfew.checkin.PlaceCodePrinter
 import studio.hypertext.curfew.checkin.PlaceDraft
@@ -36,12 +37,12 @@ private sealed interface PlaceScanTarget {
 @Composable
 internal fun PlaceCheckInHost(
     selectedId: String?,
+    places: PlaceCheckInSetupAccess,
     onAdvanced: () -> Unit,
     onDone: () -> Unit,
     onUseForAlarm: (() -> Unit)?,
 ) {
     val context = LocalContext.current
-    val repository = remember { studio.hypertext.curfew.checkin.PlaceCheckInRepository(context) }
     val scope = rememberCoroutineScope()
     var exportBusy by remember { mutableStateOf(false) }
     var exportError by remember { mutableStateOf<String?>(null) }
@@ -68,7 +69,7 @@ internal fun PlaceCheckInHost(
                         } finally {
                             bitmap.recycle()
                         }
-                        repository.markExported(draft.enrollment.id)
+                        places.markExported(draft.enrollment.id)
                     }
                     refreshEpoch++
                 } catch (cancelled: CancellationException) {
@@ -92,7 +93,7 @@ internal fun PlaceCheckInHost(
                         withContext(Dispatchers.IO) {
                             when (target) {
                                 is PlaceScanTarget.Draft -> {
-                                    repository.enroll(target.draftId, payload)
+                                    places.enroll(target.draftId, payload)
                                 }
                                 is PlaceScanTarget.Existing -> {
                                     PlaceCheckIn.enroll(PlaceDraft(target.enrollment, payload), payload)
@@ -110,6 +111,7 @@ internal fun PlaceCheckInHost(
     } else {
         PlaceCheckInDestination(
             selectedId = selectedId,
+            repository = places,
             refresh = refreshEpoch,
             externalBusy = exportBusy,
             externalError = exportError,
