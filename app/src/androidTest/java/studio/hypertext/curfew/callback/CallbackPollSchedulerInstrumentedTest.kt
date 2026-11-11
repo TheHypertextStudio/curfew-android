@@ -35,9 +35,9 @@ class CallbackPollSchedulerInstrumentedTest {
 
     @Test
     fun repeatedNudgesPreserveTheExistingPollInsteadOfCancellingIt() {
-        CallbackPollScheduler.schedule(context, campaignId, delay).result.get(10, TimeUnit.SECONDS)
+        context.callbackPollScheduler().schedule(campaignId, delay).result.get(10, TimeUnit.SECONDS)
         val first = awaitCount(1).single()
-        CallbackPollScheduler.schedule(context, campaignId, delay).result.get(10, TimeUnit.SECONDS)
+        context.callbackPollScheduler().schedule(campaignId, delay).result.get(10, TimeUnit.SECONDS)
         val pending = work().filter { !it.state.isFinished }
         assertEquals(listOf(first.id), pending.map { it.id })
         assertEquals(WorkInfo.State.ENQUEUED, pending.single().state)
@@ -45,14 +45,14 @@ class CallbackPollSchedulerInstrumentedTest {
 
     @Test
     fun continuationWaitsForItsPredecessorWithoutCancellingIt() {
-        CallbackPollScheduler.schedule(context, campaignId, delay).result.get(10, TimeUnit.SECONDS)
+        context.callbackPollScheduler().schedule(campaignId, delay).result.get(10, TimeUnit.SECONDS)
         val first = awaitCount(1).single()
-        CallbackPollScheduler.continuePolling(context, campaignId, delay).result.get(10, TimeUnit.SECONDS)
+        context.callbackPollScheduler().continuePolling(campaignId, delay).result.get(10, TimeUnit.SECONDS)
         val chain = awaitCount(2)
         assertEquals(WorkInfo.State.ENQUEUED, chain.single { it.id == first.id }.state)
         assertEquals(WorkInfo.State.BLOCKED, chain.single { it.id != first.id }.state)
         manager.cancelUniqueWork(name).result.get(10, TimeUnit.SECONDS)
-        CallbackPollScheduler.continuePolling(context, campaignId, delay).result.get(10, TimeUnit.SECONDS)
+        context.callbackPollScheduler().continuePolling(campaignId, delay).result.get(10, TimeUnit.SECONDS)
         repeat(100) {
             if (work().any { !it.state.isFinished }) return@repeat
             Thread.sleep(20)

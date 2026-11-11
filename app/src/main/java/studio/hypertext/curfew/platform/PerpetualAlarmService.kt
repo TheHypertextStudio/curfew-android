@@ -19,6 +19,8 @@ import android.os.Looper
 import android.os.SystemClock
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -40,7 +42,9 @@ import studio.hypertext.curfew.sync.ForegroundWakeSocket
 import studio.hypertext.curfew.sync.WakeStatusPollScheduler
 import java.time.Instant
 
+@AndroidEntryPoint
 class PerpetualAlarmService : Service() {
+    @Inject internal lateinit var callbackPolling: CallbackPollScheduler
     private val alarmSound by lazy { AndroidAlarmSound(this) }
     private var audioFocusRequest: AudioFocusRequest? = null
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -222,7 +226,7 @@ class PerpetualAlarmService : Service() {
         pollRunnable =
             object : Runnable {
                 override fun run() {
-                    CallbackPollScheduler.schedule(this@PerpetualAlarmService, campaignId)
+                    callbackPolling.schedule(campaignId)
                     WakeStatusPollScheduler.schedule(this@PerpetualAlarmService, campaignId)
                     mainHandler.postDelayed(this, 15_000)
                 }

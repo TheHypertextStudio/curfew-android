@@ -8,15 +8,23 @@ import androidx.work.Operation
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.EntryPointAccessors
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
 import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
+import javax.inject.Singleton
 import studio.hypertext.curfew.alarm.AlarmCampaignEngine
 import studio.hypertext.curfew.alarm.AlarmCampaignState
 import studio.hypertext.curfew.alarm.campaignStartedAt
 import studio.hypertext.curfew.account.NativeDeviceProofAuthenticator
 import studio.hypertext.curfew.platform.AlarmRuntimeRepository
 import studio.hypertext.curfew.platform.SunriseScheduler
+import studio.hypertext.curfew.platform.createAndroidPlaceCheckInRepository
 import studio.hypertext.curfew.protocols.ReceiptStatus
 import studio.hypertext.curfew.protocols.Result as ProtocolResult
 import studio.hypertext.curfew.protocols.WakeOutcome as ProtocolWakeOutcome
@@ -28,6 +36,8 @@ class CallbackPollWorker(
     appContext: Context,
     workerParameters: WorkerParameters,
 ) : CoroutineWorker(appContext, workerParameters) {
+    private val polling by lazy { applicationContext.callbackPollScheduler() }
+
     override suspend fun doWork(): Result {
         val campaignId = inputData.getString(KEY_CAMPAIGN_ID) ?: return Result.failure()
         val failureCount = inputData.getInt(KEY_FAILURE_COUNT, 0)
@@ -42,7 +52,7 @@ class CallbackPollWorker(
                 .fold(onSuccess = { Result.success() }, onFailure = { Result.retry() })
         }
         val callbackId = runtime.callbackId(campaignId) ?: return Result.success()
-        if (studio.hypertext.curfew.checkin.PlaceCheckInRepository(applicationContext).find(callbackId) != null) {
+        if (createAndroidPlaceCheckInRepository(applicationContext).find(callbackId) != null) {
             return Result.success() // Local camera approval never polls an HTTPS service.
         }
         val definition = CallbackConfigurationRepository(applicationContext).find(callbackId)
@@ -55,8 +65,7 @@ class CallbackPollWorker(
                 now = now,
             )
         }.getOrElse {
-            CallbackPollScheduler.continuePolling(
-                applicationContext,
+            polling.continuePolling(
                 campaignId,
                 CallbackBackoff(definition.pollPolicy).afterFailure(failureCount),
                 failureCount = (failureCount + 1).coerceAtMost(30),
@@ -92,8 +101,7 @@ class CallbackPollWorker(
             return if (completion.isSuccess) Result.success() else Result.retry()
         }
 
-        CallbackPollScheduler.continuePolling(
-            applicationContext,
+        polling.continuePolling(
             campaignId,
             CallbackBackoff(definition.pollPolicy).afterSuccess(),
             failureCount = 0,
@@ -107,23 +115,30 @@ class CallbackPollWorker(
     }
 }
 
-object CallbackPollScheduler {
+/**
+ * Owns WorkManager requests for verifier polling and terminal alarm recovery.
+ * Work is unique per campaign: a first request keeps existing work, and a
+ * continuation appends after the worker that scheduled it.
+ */
+@Singleton
+class CallbackPollScheduler @Inject constructor(@ApplicationContext private val context: Context) {
+    private val manager get() = WorkManager.getInstance(context)
+
+    /** Schedule the first poll or a recovery attempt without replacing pending work. */
     fun schedule(
-        context: Context,
         campaignId: String,
         delay: Duration = Duration.ZERO,
         failureCount: Int = 0,
-    ): Operation = enqueue(context, campaignId, delay, failureCount, ExistingWorkPolicy.KEEP)
+    ): Operation = enqueue(campaignId, delay, failureCount, ExistingWorkPolicy.KEEP)
 
+    /** Append a poll after the currently running one, or replace a failed chain. */
     fun continuePolling(
-        context: Context,
         campaignId: String,
         delay: Duration,
         failureCount: Int = 0,
-    ): Operation = enqueue(context, campaignId, delay, failureCount, ExistingWorkPolicy.APPEND_OR_REPLACE)
+    ): Operation = enqueue(campaignId, delay, failureCount, ExistingWorkPolicy.APPEND_OR_REPLACE)
 
     private fun enqueue(
-        context: Context,
         campaignId: String,
         delay: Duration,
         failureCount: Int,
@@ -137,16 +152,32 @@ object CallbackPollScheduler {
             .setInputData(input)
             .setInitialDelay(delay.toMillis(), TimeUnit.MILLISECONDS)
             .build()
-        return WorkManager.getInstance(context).enqueueUniqueWork(
+        return manager.enqueueUniqueWork(
             workName(campaignId),
             policy,
             request,
         )
     }
 
-    fun cancel(context: Context, campaignId: String) {
-        WorkManager.getInstance(context).cancelUniqueWork(workName(campaignId))
+    /** Cancel this campaign's chain when it no longer needs a verifier. */
+    fun cancel(campaignId: String) {
+        manager.cancelUniqueWork(workName(campaignId))
     }
 
-    private fun workName(campaignId: String) = "curfew-callback-$campaignId"
+    private fun workName(campaignId: String) = "$WORK_NAME_PREFIX$campaignId"
+
+    private companion object {
+        const val WORK_NAME_PREFIX = "curfew-callback-"
+    }
 }
+
+/** Gives framework-created workers access to the application-scoped polling scheduler. */
+@EntryPoint
+@InstallIn(SingletonComponent::class)
+internal interface CallbackPollDependencies {
+    fun callbackPollScheduler(): CallbackPollScheduler
+}
+
+/** Resolves the shared scheduler at Android entry points that Hilt does not construct. */
+internal fun Context.callbackPollScheduler(): CallbackPollScheduler =
+    EntryPointAccessors.fromApplication(this, CallbackPollDependencies::class.java).callbackPollScheduler()

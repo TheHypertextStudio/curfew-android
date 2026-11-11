@@ -1,5 +1,6 @@
 package studio.hypertext.curfew.callback
 
+import studio.hypertext.curfew.platform.createAndroidPlaceCheckInRepository
 import android.app.NotificationManager
 import android.content.Context
 import android.media.AudioAttributes
@@ -74,6 +75,7 @@ class SunriseReleaseJourneyInstrumentedTest {
     @Test
     fun scheduleRingsPendingAndInvalidApprovalStayActiveAndValidApprovalStopsPlayback() =
         runBlocking {
+            PerpetualAlarmService.ensureChannels(context)
             shell("pm grant ${context.packageName} android.permission.POST_NOTIFICATIONS")
             shell("appops set ${context.packageName} SCHEDULE_EXACT_ALARM allow")
             if (android.os.Build.VERSION.SDK_INT >= 34) {
@@ -168,7 +170,7 @@ class SunriseReleaseJourneyInstrumentedTest {
                             scheduler.save(it.schedule.copy(enabled = false))
                         }
                         AndroidAlarmClockGateway(context).cancel(id)
-                        CallbackPollScheduler.cancel(context, id)
+                        context.callbackPollScheduler().cancel(id)
                         context.stopService(
                             android.content.Intent(context, studio.hypertext.curfew.platform.PerpetualAlarmService::class.java),
                         )
@@ -187,6 +189,7 @@ class SunriseReleaseJourneyInstrumentedTest {
                 studio.hypertext.curfew.security
                     .AndroidKeystoreSecretStore(context)
             org.junit.Assert.assertNull("This fixture must not use a live account", secrets.get(ProductionServices.ACCESS_TOKEN_KEY))
+            PerpetualAlarmService.ensureChannels(context)
             shell("pm grant ${context.packageName} android.permission.POST_NOTIFICATIONS")
             shell("pm grant ${context.packageName} android.permission.CAMERA")
             shell("appops set ${context.packageName} SCHEDULE_EXACT_ALARM allow")
@@ -196,8 +199,7 @@ class SunriseReleaseJourneyInstrumentedTest {
             preferences.acknowledgeLimitations()
             preferences.setTestSoundConfirmed(true)
             val places =
-                studio.hypertext.curfew.checkin
-                    .PlaceCheckInRepository(context)
+                createAndroidPlaceCheckInRepository(context)
             org.junit.Assert.assertNull("Do not replace a printable draft", places.draft())
             val draft = places.begin("Fixture bathroom")
             var campaignId: String? = null
@@ -258,7 +260,7 @@ class SunriseReleaseJourneyInstrumentedTest {
                     }
                     scheduler.consume(id)
                     AndroidAlarmClockGateway(context).cancel(id)
-                    CallbackPollScheduler.cancel(context, id)
+                    context.callbackPollScheduler().cancel(id)
                     context.stopService(android.content.Intent(context, studio.hypertext.curfew.platform.PerpetualAlarmService::class.java))
                     CurfewDatabase.open(context).alarmCampaignDao().delete(id)
                 }

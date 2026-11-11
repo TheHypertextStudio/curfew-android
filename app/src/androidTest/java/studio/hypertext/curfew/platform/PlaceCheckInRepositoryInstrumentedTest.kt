@@ -11,7 +11,7 @@ import org.junit.Assert.fail
 import org.junit.Test
 import studio.hypertext.curfew.alarm.AlarmCampaignState
 import studio.hypertext.curfew.alarm.AlarmRecurrencePolicy
-import studio.hypertext.curfew.checkin.PlaceCheckInRepository
+import studio.hypertext.curfew.platform.createAndroidPlaceCheckInRepository
 import studio.hypertext.curfew.config.ProductionServices
 import studio.hypertext.curfew.persistence.CurfewDatabase
 import studio.hypertext.curfew.persistence.CurfewPreferences
@@ -23,13 +23,13 @@ class PlaceCheckInRepositoryInstrumentedTest {
     @Test fun enrollmentAndRevocationPersistWithoutAService(): Unit =
         runBlocking {
             val context = InstrumentationRegistry.getInstrumentation().targetContext
-            val places = PlaceCheckInRepository(context)
+            val places = createAndroidPlaceCheckInRepository(context)
             val prefs = CurfewPreferences(context)
             val previous = prefs.state.first()
             assertNull("Do not replace an existing code draft", places.draft())
             val draft = places.begin("Fixture bathroom")
             try {
-                assertEquals(draft, PlaceCheckInRepository(context).draft())
+                assertEquals(draft, createAndroidPlaceCheckInRepository(context).draft())
                 try {
                     places.enroll(draft.enrollment.id, "not-your-code")
                     fail("Wrong scan enrolled")
@@ -37,7 +37,7 @@ class PlaceCheckInRepositoryInstrumentedTest {
                 }
                 assertEquals(previous.selectedCallbackId, prefs.state.first().selectedCallbackId)
                 val saved = places.enroll(draft.enrollment.id, draft.payload)
-                assertEquals(saved, PlaceCheckInRepository(context).find(saved.id))
+                assertEquals(saved, createAndroidPlaceCheckInRepository(context).find(saved.id))
                 assertTrue(prefs.state.first().isCallbackReady(saved.id))
                 assertNull(CurfewDatabase.open(context).callbackDefinitionDao().find(saved.id))
                 places.remove(saved.id)
@@ -66,7 +66,7 @@ class PlaceCheckInRepositoryInstrumentedTest {
             )
             val runtime = AlarmRuntimeRepository(context)
             assertTrue("Do not mutate a device with an active alarm", runtime.pending().isEmpty())
-            val places = PlaceCheckInRepository(context)
+            val places = createAndroidPlaceCheckInRepository(context)
             val prefs = CurfewPreferences(context)
             val previous = prefs.state.first()
             assertNull("Do not replace an existing code draft", places.draft())

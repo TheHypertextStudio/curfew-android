@@ -1,55 +1,53 @@
 package studio.hypertext.curfew.checkin
 
-import android.content.Context
 import java.time.Instant
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import studio.hypertext.curfew.alarm.AlarmCampaignState
 import studio.hypertext.curfew.alarm.SunriseScheduleLock
 import studio.hypertext.curfew.di.IoDispatcher
-import studio.hypertext.curfew.platform.AndroidPlaceCheckInEffects
 import studio.hypertext.curfew.persistence.CurfewPreferences
 import studio.hypertext.curfew.platform.AlarmRuntimeRepository
-import studio.hypertext.curfew.security.AndroidKeystoreSecretStore
 import studio.hypertext.curfew.security.SecretStore
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/** Reports whether the local alarm stopped and whether the next alarm needs attention. */
 enum class PlaceApprovalResult { CHECKED_IN, NOT_ACTIVE, NEXT_ALARM_UNAVAILABLE }
 
-internal interface PlaceCheckInEffects {
+/** Status of future scheduling after today's check-in has already committed. */
+internal enum class PlaceAlarmCompletion { COMPLETE, NEXT_ALARM_UNAVAILABLE }
+
+/** Coordinates place-code changes with the alarm schedule and its recovery path. */
+internal interface PlaceCheckInAlarmLifecycle {
+    /** Disable any future alarm bound to the code before running the revocation. */
     suspend fun revokeCondition(id: String, revoke: suspend () -> Unit)
-    suspend fun completeOccurrence(campaignId: String)
-    fun retryCompletion(campaignId: String)
-    suspend fun publishWakeOutcome(terminal: AlarmCampaignState.Satisfied)
+
+    /** Finish a committed occurrence and arrange a retry if the next alarm cannot be restored. */
+    suspend fun finishOccurrence(campaignId: String): PlaceAlarmCompletion
 }
 
+/** Optionally publishes a local success to the account's other devices. */
+internal fun interface PlaceCheckInPublisher {
+    suspend fun publish(terminal: AlarmCampaignState.Satisfied)
+}
+
+/**
+ * Stores place-code drafts and enrollments, and validates scans against the
+ * code bound to an active alarm. The local terminal write happens before
+ * schedule completion or optional account sync.
+ */
 @Singleton
 class PlaceCheckInRepository @Inject internal constructor(
     private val secrets: SecretStore,
     private val preferences: CurfewPreferences,
     private val cameraChecker: CameraAvailabilityChecker,
     private val runtime: AlarmRuntimeRepository,
-    private val effects: PlaceCheckInEffects,
+    private val alarms: PlaceCheckInAlarmLifecycle,
+    private val publisher: PlaceCheckInPublisher,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : PlaceCheckInSetupAccess {
-    constructor(context: Context) : this(
-        secrets = AndroidKeystoreSecretStore(context),
-        preferences = CurfewPreferences(context),
-        cameraChecker = CameraAvailabilityChecker {
-            androidx.core.content.ContextCompat.checkSelfPermission(
-                context,
-                android.Manifest.permission.CAMERA,
-            ) == android.content.pm.PackageManager.PERMISSION_GRANTED &&
-                context.packageManager.hasSystemFeature(android.content.pm.PackageManager.FEATURE_CAMERA_ANY)
-        },
-        runtime = AlarmRuntimeRepository(context),
-        effects = AndroidPlaceCheckInEffects(context),
-        ioDispatcher = Dispatchers.IO,
-    )
-
     override fun cameraReady(): Boolean = cameraChecker.isCameraReady()
 
     override suspend fun draft(): PlaceDraft? = withContext(ioDispatcher) {
@@ -98,7 +96,7 @@ class PlaceCheckInRepository @Inject internal constructor(
 
     override suspend fun remove(id: String) = withContext(ioDispatcher) {
         // Disable future delivery before revoking. The scheduler preserves a ringing gate.
-        effects.revokeCondition(id) {
+        alarms.revokeCondition(id) {
             secrets.delete(key(id))
             // Selecting a different connection must never be cleared by a late removal.
             preferences.clearCallbackIfSelected(id)
@@ -124,17 +122,12 @@ class PlaceCheckInRepository @Inject internal constructor(
         // Once committed, a scanner disappearing must not cancel local completion.
         withContext(kotlinx.coroutines.NonCancellable) {
             // The terminal Room write precedes all scheduling and network side effects.
-            val completed = try {
-                effects.completeOccurrence(campaignId)
-                true
-            } catch (cancelled: kotlinx.coroutines.CancellationException) {
-                throw cancelled
-            } catch (_: Exception) {
-                effects.retryCompletion(campaignId)
-                false
+            val completion = alarms.finishOccurrence(campaignId)
+            publisher.publish(terminal)
+            when (completion) {
+                PlaceAlarmCompletion.COMPLETE -> PlaceApprovalResult.CHECKED_IN
+                PlaceAlarmCompletion.NEXT_ALARM_UNAVAILABLE -> PlaceApprovalResult.NEXT_ALARM_UNAVAILABLE
             }
-            effects.publishWakeOutcome(terminal)
-            if (completed) PlaceApprovalResult.CHECKED_IN else PlaceApprovalResult.NEXT_ALARM_UNAVAILABLE
         }
     }
 

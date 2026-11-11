@@ -4,6 +4,7 @@ import android.content.Context
 import javax.inject.Inject
 import javax.inject.Singleton
 import studio.hypertext.curfew.callback.CallbackConfigurationRepository
+import studio.hypertext.curfew.platform.createAndroidPlaceCheckInRepository
 
 data class CheckInDescription(val callbackId: String, val displayLabel: String, val actionUrl: String?, val placeCode: Boolean, val available: Boolean = true)
 
@@ -13,7 +14,7 @@ class CheckInCatalog @Inject constructor(
     private val services: CallbackConfigurationRepository,
 ) {
     constructor(context: Context) : this(
-        places = PlaceCheckInRepository(context),
+        places = createAndroidPlaceCheckInRepository(context),
         services = CallbackConfigurationRepository(context),
     )
 

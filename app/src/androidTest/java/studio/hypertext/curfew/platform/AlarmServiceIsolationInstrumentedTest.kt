@@ -22,7 +22,7 @@ import studio.hypertext.curfew.MainActivity
 import studio.hypertext.curfew.alarm.AlarmCampaignEngine
 import studio.hypertext.curfew.alarm.AlarmCampaignState
 import studio.hypertext.curfew.alarm.AlarmRecurrencePolicy
-import studio.hypertext.curfew.callback.CallbackPollScheduler
+import studio.hypertext.curfew.callback.callbackPollScheduler
 import studio.hypertext.curfew.persistence.CurfewDatabase
 import studio.hypertext.curfew.sync.WakeStatusPollWorker
 import java.time.Instant
@@ -43,7 +43,7 @@ class AlarmServiceIsolationInstrumentedTest {
             context.stopService(Intent(context, PerpetualAlarmService::class.java))
             for (id in listOf(currentId, oldId)) {
                 AndroidAlarmClockGateway(context).cancel(id)
-                CallbackPollScheduler.cancel(context, id)
+                context.callbackPollScheduler().cancel(id)
                 CurfewDatabase.open(context).alarmCampaignDao().delete(id)
             }
         }

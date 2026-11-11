@@ -26,7 +26,7 @@ import studio.hypertext.curfew.alarm.AlarmCampaignState
 import studio.hypertext.curfew.alarm.SunriseSchedule
 import studio.hypertext.curfew.callback.AndroidWakeConditionSetup
 import studio.hypertext.curfew.callback.CallbackConfigurationRepository
-import studio.hypertext.curfew.callback.CallbackPollScheduler
+import studio.hypertext.curfew.callback.callbackPollScheduler
 import studio.hypertext.curfew.callback.CallbackPollWorker
 import studio.hypertext.curfew.callback.LocalHttpsVerifier
 import studio.hypertext.curfew.persistence.CurfewDatabase
@@ -87,6 +87,7 @@ class PersistentCadenceJourneyInstrumentedTest {
         assertTrue("The fixture must not replace a pending alarm", runtime.pending().isEmpty())
         val previous = scheduler.state.first()
         assertTrue("The fixture must not replace a saved upcoming alarm", previous?.occurrence == null || !previous.schedule.enabled)
+        PerpetualAlarmService.ensureChannels(context)
         shell("pm grant ${context.packageName} android.permission.POST_NOTIFICATIONS")
         shell("appops set ${context.packageName} SCHEDULE_EXACT_ALARM allow")
         val preferences = CurfewPreferences(context)
@@ -148,6 +149,7 @@ class PersistentCadenceJourneyInstrumentedTest {
         assertTrue("The fixture must not replace a pending alarm", runtime.pending().isEmpty())
         val previous = scheduler.state.first()
         assertTrue("The fixture must not replace a saved upcoming alarm", previous?.occurrence == null || !previous.schedule.enabled)
+        PerpetualAlarmService.ensureChannels(context)
         shell("pm grant ${context.packageName} android.permission.POST_NOTIFICATIONS")
         shell("appops set ${context.packageName} SCHEDULE_EXACT_ALARM allow")
         CurfewPreferences(context).apply { acknowledgeLimitations(); setTestSoundConfirmed(true) }
@@ -217,7 +219,7 @@ class PersistentCadenceJourneyInstrumentedTest {
             scheduler.consume(id)
             scheduler.state.first()?.takeIf { it.schedule.id.startsWith("cadence-") }?.let { scheduler.save(it.schedule.copy(enabled = false)) }
             AndroidAlarmClockGateway(context).cancel(id)
-            CallbackPollScheduler.cancel(context, id)
+            context.callbackPollScheduler().cancel(id)
             context.stopService(Intent(context, PerpetualAlarmService::class.java))
             CurfewDatabase.open(context).alarmCampaignDao().delete(id)
         }
