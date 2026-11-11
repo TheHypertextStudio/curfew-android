@@ -14,19 +14,35 @@ import studio.hypertext.curfew.platform.SunriseScheduler
 import studio.hypertext.curfew.protocols.Result
 import studio.hypertext.curfew.protocols.WakeOutcome
 import studio.hypertext.curfew.security.AndroidKeystoreSecretStore
+import studio.hypertext.curfew.security.SecretStore
 import studio.hypertext.curfew.sync.WakeOutboxPublisher
 import studio.hypertext.curfew.sync.WakeSyncScheduler
+import javax.inject.Inject
+import javax.inject.Singleton
 
 enum class PlaceApprovalResult { CHECKED_IN, NOT_ACTIVE, NEXT_ALARM_UNAVAILABLE }
 
-class PlaceCheckInRepository(context: Context) {
-    private val context = context.applicationContext
-    private val secrets = AndroidKeystoreSecretStore(this.context)
-    private val preferences = CurfewPreferences(this.context)
+@Singleton
+class PlaceCheckInRepository @Inject constructor(
+    private val secrets: SecretStore,
+    private val preferences: CurfewPreferences,
+    private val cameraChecker: CameraAvailabilityChecker,
+    private val context: Context,
+) {
+    constructor(context: Context) : this(
+        secrets = AndroidKeystoreSecretStore(context),
+        preferences = CurfewPreferences(context),
+        cameraChecker = CameraAvailabilityChecker {
+            androidx.core.content.ContextCompat.checkSelfPermission(
+                context,
+                android.Manifest.permission.CAMERA,
+            ) == android.content.pm.PackageManager.PERMISSION_GRANTED &&
+                context.packageManager.hasSystemFeature(android.content.pm.PackageManager.FEATURE_CAMERA_ANY)
+        },
+        context = context.applicationContext,
+    )
 
-    fun cameraReady(): Boolean = androidx.core.content.ContextCompat.checkSelfPermission(context,
-        android.Manifest.permission.CAMERA) == android.content.pm.PackageManager.PERMISSION_GRANTED &&
-        context.packageManager.hasSystemFeature(android.content.pm.PackageManager.FEATURE_CAMERA_ANY)
+    fun cameraReady(): Boolean = cameraChecker.isCameraReady()
 
     suspend fun draft(): PlaceDraft? = withContext(Dispatchers.IO) {
         secrets.get(DRAFT)?.let { bytes ->

@@ -6,15 +6,25 @@ import java.util.Base64
 import java.util.UUID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import studio.hypertext.curfew.persistence.CallbackDefinitionDao
 import studio.hypertext.curfew.persistence.CallbackDefinitionEntity
 import studio.hypertext.curfew.persistence.CurfewDatabase
 import studio.hypertext.curfew.protocols.CallbackDefinition
 import studio.hypertext.curfew.protocols.CallbackPollPolicy
 import studio.hypertext.curfew.security.AndroidKeystoreSecretStore
+import studio.hypertext.curfew.security.SecretStore
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class CallbackConfigurationRepository(context: Context) {
-    private val dao = CurfewDatabase.open(context).callbackDefinitionDao()
-    private val secrets = AndroidKeystoreSecretStore(context)
+@Singleton
+class CallbackConfigurationRepository @Inject constructor(
+    private val dao: CallbackDefinitionDao,
+    private val secrets: SecretStore,
+) {
+    constructor(context: Context) : this(
+        dao = CurfewDatabase.open(context).callbackDefinitionDao(),
+        secrets = AndroidKeystoreSecretStore(context),
+    )
 
     suspend fun save(
         displayLabel: String,

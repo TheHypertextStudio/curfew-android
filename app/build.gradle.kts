@@ -11,6 +11,7 @@ plugins {
     id("com.google.devtools.ksp")
     id("androidx.room")
     id("com.github.jk1.dependency-license-report")
+    id("com.google.dagger.hilt.android")
 }
 
 group = "studio.hypertext.curfew"
@@ -122,6 +123,8 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material3.adaptive)
     implementation(libs.androidx.compose.material3.adaptive.layout)
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.datastore.preferences)

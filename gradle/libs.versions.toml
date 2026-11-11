@@ -20,8 +20,11 @@ browser = '1.10.0'
 firebaseMessaging = '26.0.2'
 fragment = '1.9.1'
 okhttp = '5.5.1'
+hilt = '2.59.2'
 
 [libraries]
+hilt-android = { group = 'com.google.dagger', name = 'hilt-android', version.ref = 'hilt' }
+hilt-compiler = { group = 'com.google.dagger', name = 'hilt-compiler', version.ref = 'hilt' }
 androidx-fragment = { group = 'androidx.fragment', name = 'fragment', version.ref = 'fragment' }
 androidx-core-ktx = { group = 'androidx.core', name = 'core-ktx', version.ref = 'coreKtx' }
 junit = { group = 'junit', name = 'junit', version.ref = 'junit' }

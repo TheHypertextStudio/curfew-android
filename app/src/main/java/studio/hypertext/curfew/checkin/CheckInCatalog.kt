@@ -1,13 +1,22 @@
 package studio.hypertext.curfew.checkin
 
 import android.content.Context
+import javax.inject.Inject
+import javax.inject.Singleton
 import studio.hypertext.curfew.callback.CallbackConfigurationRepository
 
 data class CheckInDescription(val callbackId: String, val displayLabel: String, val actionUrl: String?, val placeCode: Boolean, val available: Boolean = true)
 
-class CheckInCatalog(context: Context) {
-    private val places = PlaceCheckInRepository(context)
-    private val services = CallbackConfigurationRepository(context)
+@Singleton
+class CheckInCatalog @Inject constructor(
+    private val places: PlaceCheckInRepository,
+    private val services: CallbackConfigurationRepository,
+) {
+    constructor(context: Context) : this(
+        places = PlaceCheckInRepository(context),
+        services = CallbackConfigurationRepository(context),
+    )
+
     suspend fun find(id: String): CheckInDescription? {
         try {
             places.find(id)?.let { return CheckInDescription(it.id, it.label, null, true) }
