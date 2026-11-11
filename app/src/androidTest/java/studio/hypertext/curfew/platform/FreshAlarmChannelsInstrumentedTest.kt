@@ -9,6 +9,11 @@ import org.junit.Assert.assertNull
 import org.junit.Assume.assumeTrue
 import org.junit.Test
 
+/**
+ * Checks a fresh disposable install: startup and readiness reads leave the channel absent, and
+ * explicit setup creates it. The test is opt-in because existing channel preferences must not
+ * be reset.
+ */
 class FreshAlarmChannelsInstrumentedTest {
     @Test
     fun startupAndReadinessReadsDoNotCreateTheAlarmChannel() {

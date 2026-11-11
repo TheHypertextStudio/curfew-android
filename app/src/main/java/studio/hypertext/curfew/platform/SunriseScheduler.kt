@@ -26,8 +26,17 @@ import studio.hypertext.curfew.persistence.CurfewDatabase
 import studio.hypertext.curfew.persistence.CurfewPreferences
 import studio.hypertext.curfew.persistence.SunriseAlarmPreferences
 
+/**
+ * Single DataStore delegate for the Sunrise schedule journal. Reusing it keeps Activity,
+ * service, and worker readers on the same saved schedule.
+ */
 private val Context.sunriseAlarmDataStore by preferencesDataStore(name = "sunrise_alarm")
 
+/**
+ * Owns Android scheduling for Sunrise. It adapts the schedule controller to alarm-clock
+ * delivery and the alarm journal, and uses the injected polling scheduler to retry an
+ * interrupted completion.
+ */
 internal class SunriseScheduler(
     context: Context,
     injectedCallbackPolling: CallbackPollScheduler? = null,

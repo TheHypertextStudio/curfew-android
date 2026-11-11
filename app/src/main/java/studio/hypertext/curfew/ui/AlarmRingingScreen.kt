@@ -36,6 +36,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import studio.hypertext.curfew.R
 
+/**
+ * Displays the active alarm or quiet interval. The caller provides the localized times and
+ * available check-in action; owner recovery remains available in either phase.
+ */
 @Composable
 fun AlarmRingingScreen(
     time: String,

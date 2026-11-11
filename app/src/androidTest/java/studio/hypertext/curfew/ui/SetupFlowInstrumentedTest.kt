@@ -15,6 +15,10 @@ import java.time.LocalDate
 import java.time.LocalTime
 import kotlinx.coroutines.CompletableDeferred
 
+/**
+ * Exercises setup navigation and activation with in-memory feature state, independent of
+ * Android scheduling permissions.
+ */
 class SetupFlowInstrumentedTest {
     @get:Rule val compose = createComposeRule()
     private val required = mutableStateOf<Set<ReadinessAction>>(emptySet())

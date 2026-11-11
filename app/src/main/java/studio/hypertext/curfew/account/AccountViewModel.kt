@@ -20,17 +20,29 @@ import studio.hypertext.curfew.R
 import studio.hypertext.curfew.di.IoDispatcher
 import studio.hypertext.curfew.persistence.CurfewPreferences
 
+/**
+ * Exchanges a validated browser return for account recovery state. The account model depends
+ * on this port so it does not need Android networking or OAuth parsing.
+ */
 internal fun interface AccountSignIn {
     suspend fun exchange(callbackUrl: String): AccountRecoveryState
 }
 
+/**
+ * State for the account destination. Signed in means the session exists; enrolled means setup
+ * and any recovery-key step are complete. [recoveryState] describes any outstanding key step.
+ */
 internal data class AccountUiState(
     val accountEnrolled: Boolean = false,
     val accountSignedIn: Boolean = false,
     val recoveryState: AccountRecoveryState? = null,
 )
 
-/** Activity lifetime so browser sign-in and recovery survive route changes. */
+/**
+ * Owns browser sign-in completion, account recovery, and account feedback. It has Activity
+ * lifetime because the browser can return before the Account destination exists or while
+ * another destination is visible.
+ */
 @HiltViewModel
 internal class AccountViewModel @Inject constructor(
     private val accountRecovery: AndroidAccountRecovery,

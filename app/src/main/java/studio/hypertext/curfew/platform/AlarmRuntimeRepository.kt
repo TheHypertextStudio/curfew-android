@@ -25,6 +25,10 @@ import studio.hypertext.curfew.persistence.CurfewDatabase
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * Persists alarm campaign states and their clock checkpoints in Room. It exposes a live
+ * snapshot flow for presentation and prevents older writes from undoing a terminal result.
+ */
 @Singleton
 class AlarmRuntimeRepository @Inject constructor(
     private val database: CurfewDatabase,

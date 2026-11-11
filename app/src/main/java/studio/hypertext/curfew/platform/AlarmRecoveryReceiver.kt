@@ -11,6 +11,10 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import studio.hypertext.curfew.alarm.AlarmCampaignState
 
+/**
+ * Reconciles saved alarms after foreground recovery and relevant Android broadcasts. It
+ * restores scheduling before rebuilding missing platform alarm-clock transitions.
+ */
 class AlarmRecoveryReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val supported = intent.action in SUPPORTED_ACTIONS

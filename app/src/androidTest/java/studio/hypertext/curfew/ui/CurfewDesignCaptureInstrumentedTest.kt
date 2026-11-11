@@ -65,7 +65,10 @@ import studio.hypertext.curfew.readiness.AlarmReadiness
 import studio.hypertext.curfew.readiness.ReadinessAction
 import studio.hypertext.curfew.ui.theme.CurfewTheme
 
-/** Synthetic visual fixtures exercise the native UI; captures do not prove alarm or design acceptance. */
+/**
+ * Renders synthetic fixtures across the requested Android windows and themes.
+ * The captures show layout and copy but do not establish design or live alarm acceptance.
+ */
 class CurfewDesignCaptureInstrumentedTest {
     @get:Rule val compose = createComposeRule()
     private data class Frame(val generation: Int = 0, val dark: Boolean = false, val width: Int = 390, val scale: Float = 1f)

@@ -27,6 +27,10 @@ import studio.hypertext.curfew.enforcement.EnforcementPurpose
 import studio.hypertext.curfew.enforcement.EnforcementSession
 import studio.hypertext.curfew.enforcement.EnforcementSessionState
 
+/**
+ * Displays opt-in protection, chosen apps, and the active session. It uses the supplied
+ * controls for start and emergency stop rather than issuing platform commands itself.
+ */
 @Composable
 internal fun BedtimeProtectionScreen(
     isAccessibilityReady: Boolean,

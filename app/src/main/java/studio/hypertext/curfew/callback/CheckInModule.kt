@@ -17,6 +17,11 @@ import studio.hypertext.curfew.platform.SunriseScheduler
 import studio.hypertext.curfew.sync.AccountPlaceCheckInPublisher
 import javax.inject.Singleton
 
+/**
+ * Binds the check-in setup and approval interfaces, camera readiness, Sunrise lifecycle, and
+ * optional account publisher. UI consumers receive the interface they need rather than a
+ * Context.
+ */
 @Module
 @InstallIn(SingletonComponent::class)
 object CheckInModule {

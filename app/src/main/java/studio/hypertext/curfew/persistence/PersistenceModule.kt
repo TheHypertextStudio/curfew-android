@@ -8,6 +8,10 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
+/**
+ * Binds the single Curfew Room database, its DAOs, and the preference adapters in the
+ * application component.
+ */
 @Module
 @InstallIn(SingletonComponent::class)
 object PersistenceModule {

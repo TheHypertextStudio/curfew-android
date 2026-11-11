@@ -23,11 +23,19 @@ import studio.hypertext.curfew.checkin.PlaceCheckInApprover
 import studio.hypertext.curfew.platform.AlarmRuntimeRepository
 import studio.hypertext.curfew.platform.SunriseScheduler
 
+/**
+ * Computes the next display time from a persisted snapshot using current wall, elapsed, and
+ * boot clocks supplied at the platform edge.
+ */
 internal fun interface NextAlarmTransition {
     fun at(snapshot: AlarmRuntimeSnapshot): Instant?
 }
 
-/** Activity lifetime: an alarm can be presented from any destination, including the keyguard. */
+/**
+ * Observes the requested occurrence, falling back to the saved schedule when none is
+ * requested. It has Activity lifetime so an alarm can replace any destination, and it never
+ * waits for onboarding or settings reads.
+ */
 @HiltViewModel
 internal class RingingAlarmViewModel @Inject constructor(
     private val runtime: AlarmRuntimeRepository,

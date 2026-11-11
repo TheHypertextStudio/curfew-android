@@ -5,6 +5,10 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
+/**
+ * Checks debounce, in-memory disarm, and allowed versus intercepted events without an
+ * accessibility service.
+ */
 class EnforcementEngineTest {
 
     private val safetyContext = SafetyContext(

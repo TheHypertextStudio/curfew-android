@@ -2,6 +2,14 @@
 
 Commit messages use one of these scopes: `account`, `alarm`, `callback`, `ci`, `dx`, `sync`, or `ui`.
 
+## Kotlin documentation
+
+Add or update KDoc for every top-level Kotlin declaration you introduce or
+change, including private helpers and test fixtures. Explain what owns it,
+when it runs, and any input, lifetime, or side-effect constraints a junior
+developer needs to use it safely. Document stable identifiers where changing
+them would break persisted state or an Android contract.
+
 ## Worktree preparation
 
 Run `./bootstrap worktree prepare` for a fresh worktree. Keep native shared

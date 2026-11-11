@@ -5,6 +5,10 @@ import android.view.WindowManager
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 
+/**
+ * Applies show-when-locked, turn-screen-on, and keep-screen-on to the active alarm window.
+ * Disposal clears the flags when the alarm ends or its composition is removed.
+ */
 @Composable
 internal fun ShowOverKeyguardEffect(activity: Activity, active: Boolean) {
     if (!active) return

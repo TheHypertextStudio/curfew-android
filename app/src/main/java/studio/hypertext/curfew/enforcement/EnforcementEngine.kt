@@ -1,8 +1,8 @@
 package studio.hypertext.curfew.enforcement
 
 /**
- * Deterministic engine that processes window state events and coordinates
- * interception actions, debounce timing, and in-memory disarm state.
+ * Applies the pure protection policy to foreground events and adds runtime disarm and
+ * debounce. The engine invokes interception only after the safety policy permits it.
  */
 class EnforcementEngine(
     private val cooldownMs: Long = DEFAULT_COOLDOWN_MS,

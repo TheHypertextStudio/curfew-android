@@ -15,6 +15,12 @@ import studio.hypertext.curfew.platform.SystemSettingsLauncher
 import studio.hypertext.curfew.ui.CurfewRoot
 import studio.hypertext.curfew.ui.RingingAlarmViewModel
 
+/**
+ * Owns Android activity entry and intent delivery. It translates each Intent at the boundary,
+ * sends account and alarm commands to their owners, and exposes protection navigation to the
+ * composition. OAuth callback data is cleared once consumed so its code is not retained in the
+ * Activity.
+ */
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @Inject internal lateinit var systemSettings: SystemSettingsLauncher

@@ -16,6 +16,10 @@ import studio.hypertext.curfew.security.SecretStore
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * Persists verifier configuration in Room and stores its shared secret separately in secure
+ * storage. Reads return a definition only when both the metadata and the secret are present.
+ */
 @Singleton
 class CallbackConfigurationRepository @Inject constructor(
     private val dao: CallbackDefinitionDao,

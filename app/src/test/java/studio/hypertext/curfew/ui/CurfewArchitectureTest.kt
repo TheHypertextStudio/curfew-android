@@ -9,6 +9,10 @@ import studio.hypertext.curfew.alarm.AlarmSetupUiState
 import studio.hypertext.curfew.readiness.AlarmPresentation
 import studio.hypertext.curfew.readiness.AlarmReadiness
 
+/**
+ * Checks pure navigation and alarm readiness invariants and the resource-backed primary
+ * navigation specification.
+ */
 class CurfewArchitectureTest {
 
     @Test

@@ -18,6 +18,10 @@ import studio.hypertext.curfew.callback.CallbackPollScheduler
 import studio.hypertext.curfew.sync.WakeStatusPublisher
 import studio.hypertext.curfew.sync.WakeSyncScheduler
 
+/**
+ * Handles scheduled Android alarm transitions. It applies local campaign state and playback
+ * changes before attempting optional wake-status publication.
+ */
 @AndroidEntryPoint
 class AlarmTransitionReceiver : BroadcastReceiver() {
     @Inject internal lateinit var callbackPolling: CallbackPollScheduler

@@ -18,6 +18,10 @@ import studio.hypertext.curfew.account.AccountViewModel
 import studio.hypertext.curfew.alarm.AlarmSetupUiState
 import studio.hypertext.curfew.platform.SystemSettingsLauncher
 
+/**
+ * Resolves the settings model for the current NavEntry and refreshes capability summaries when
+ * that screen resumes.
+ */
 @Composable
 internal fun SettingsEntry(journey: AlarmSetupJourney, alarm: AlarmSetupUiState) {
     val model: SettingsViewModel = hiltViewModel()
@@ -26,6 +30,10 @@ internal fun SettingsEntry(journey: AlarmSetupJourney, alarm: AlarmSetupUiState)
     SettingsRoute(journey, alarm, settings)
 }
 
+/**
+ * Combines alarm setup status with the settings entry's account and protection summaries. It
+ * delegates navigation to the shared shell.
+ */
 @Composable
 internal fun SettingsRoute(
     journey: AlarmSetupJourney,
@@ -51,6 +59,10 @@ internal fun SettingsRoute(
     )
 }
 
+/**
+ * Binds the Activity-owned account model to the account screen and browser launcher. The model
+ * outlives the route because Android may deliver the browser result elsewhere.
+ */
 @Composable
 internal fun AccountEntry(model: AccountViewModel, systemSettings: SystemSettingsLauncher) {
     val state by model.state.collectAsStateWithLifecycle()
@@ -75,6 +87,10 @@ internal fun AccountEntry(model: AccountViewModel, systemSettings: SystemSetting
     )
 }
 
+/**
+ * Renders account state with supplied actions. It can be used with fixture state without
+ * starting account services.
+ */
 @Composable
 internal fun AccountRoute(
     state: AccountUiState,

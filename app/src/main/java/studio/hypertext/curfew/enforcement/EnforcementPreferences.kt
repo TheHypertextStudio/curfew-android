@@ -13,8 +13,16 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
+/**
+ * The single DataStore delegate for protection preferences in this process. All readers and
+ * writers share it to avoid multiple stores for the same file.
+ */
 val Context.enforcementDataStore by preferencesDataStore(name = "curfew_enforcement")
 
+/**
+ * Stores the protection session and the list of apps selected for future sessions. Session
+ * state and the next session's configuration are separate keys.
+ */
 class EnforcementPreferences(
     private val dataStore: DataStore<Preferences>,
 ) {

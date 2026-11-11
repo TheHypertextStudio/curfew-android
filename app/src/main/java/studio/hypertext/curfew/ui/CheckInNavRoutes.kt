@@ -10,6 +10,10 @@ import studio.hypertext.curfew.alarm.AlarmSetupUiState
 import studio.hypertext.curfew.callback.CheckInViewModel
 import studio.hypertext.curfew.platform.rememberVerifierSetupExport
 
+/**
+ * Resolves the check-in model and document picker within the current NavEntry. It passes the
+ * selected check-in and the entry's own operation state to the route.
+ */
 @Composable
 internal fun CheckInEntry(
     journey: AlarmSetupJourney,
@@ -43,6 +47,10 @@ internal fun CheckInEntry(
     )
 }
 
+/**
+ * Owns check-in form state and the local Back behavior for editing and the advanced flow. The
+ * shared setup journey receives only completion and navigation events.
+ */
 @Composable
 internal fun CheckInRoute(
     journey: AlarmSetupJourney,

@@ -24,6 +24,10 @@ import studio.hypertext.curfew.platform.AlarmRuntimeRepository
 import studio.hypertext.curfew.platform.AndroidAlarmClockGateway
 import studio.hypertext.curfew.platform.cleanupAlarmFixture
 
+/**
+ * Checks that the Activity renders the occurrence's check-in, updates to quiet, and clears
+ * presentation after the same occurrence is satisfied.
+ */
 class LiveAlarmPresentationInstrumentedTest {
     @get:Rule val compose = createEmptyComposeRule()
 

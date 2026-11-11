@@ -37,9 +37,8 @@ import androidx.compose.ui.unit.dp
 import studio.hypertext.curfew.R
 
 /**
- * MD3 Expressive Navigation Rail for large screens (tablets, unfolded foldables).
- * Features vertically centered navigation items, rounded container styling, and an
- * expressive pill action button.
+ * Primary navigation for wide windows with enough height. It also exposes the edit-alarm
+ * action without requiring the user to switch screens first.
  */
 @Composable
 fun CurfewNavigationRail(

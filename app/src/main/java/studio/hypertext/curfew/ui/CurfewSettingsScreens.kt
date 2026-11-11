@@ -38,6 +38,10 @@ import studio.hypertext.curfew.readiness.AlarmReadiness
 import studio.hypertext.curfew.readiness.AlarmSoundCheckState
 import studio.hypertext.curfew.readiness.ReadinessAction
 
+/**
+ * Displays status and links to the alarm, check-in, account, and protection settings. The
+ * owning route provides each status and destination callback.
+ */
 @Composable
 internal fun CurfewSettingsScreen(
     conditionLabel: String?,
@@ -76,6 +80,10 @@ internal fun CurfewSettingsScreen(
     }
 }
 
+/**
+ * Explains outstanding alarm prerequisites and presents their repair actions. The route
+ * supplies permission, settings, and sound-test callbacks.
+ */
 @Composable
 internal fun AlarmReadinessScreen(
     readiness: AlarmReadiness,
@@ -213,6 +221,10 @@ internal fun AlarmReadinessScreen(
     }
 }
 
+/**
+ * Shows the signed-out, enrolled, and recovery-key states. It delegates browser enrollment and
+ * durable recovery actions to its caller.
+ */
 @Composable
 internal fun CurfewAccountScreen(
     enrolled: Boolean,
@@ -294,6 +306,10 @@ internal fun CurfewAccountScreen(
     }
 }
 
+/**
+ * Shows the current rehearsal step and its actions. Hearing confirmation is explicit and
+ * distinct from successful playback.
+ */
 @Composable
 internal fun AlarmSoundTestContent(
     state: AlarmSoundCheckState,

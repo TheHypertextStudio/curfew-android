@@ -42,6 +42,10 @@ import studio.hypertext.curfew.sync.ForegroundWakeSocket
 import studio.hypertext.curfew.sync.WakeStatusPollScheduler
 import java.time.Instant
 
+/**
+ * Maintains foreground playback for an active alarm and stops it during quiet or terminal
+ * states. It owns alarm notifications and ensures channels when it has to present playback.
+ */
 @AndroidEntryPoint
 class PerpetualAlarmService : Service() {
     @Inject internal lateinit var callbackPolling: CallbackPollScheduler

@@ -23,6 +23,10 @@ import studio.hypertext.curfew.callback.LocalHttpsVerifier
 import studio.hypertext.curfew.persistence.CurfewDatabase
 import studio.hypertext.curfew.persistence.CurfewPreferences
 
+/**
+ * Checks that a terminal occurrence left by an interrupted recovery can finish and schedule
+ * the following morning.
+ */
 class RecoveryCompletionResumeInstrumentedTest {
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private val runtime = AlarmRuntimeRepository(context)

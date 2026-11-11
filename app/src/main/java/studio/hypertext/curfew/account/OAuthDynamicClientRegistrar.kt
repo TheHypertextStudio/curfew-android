@@ -15,6 +15,11 @@ import studio.hypertext.curfew.security.AndroidKeystoreSecretStore
 import java.net.HttpURLConnection
 import java.net.URI
 
+/**
+ * Registers this installation's public OAuth client with the Curfew account service and caches
+ * its client ID. Registration supplies the exact redirect and does not require an embedded
+ * client secret.
+ */
 class OAuthDynamicClientRegistrar(
     context: Context,
 ) {

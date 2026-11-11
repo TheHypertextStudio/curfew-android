@@ -8,6 +8,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
+/**
+ * Handles the notification's emergency stop action. It disarms in memory and persists the stop
+ * without requiring the app's screens to be open.
+ */
 class EnforcementEmergencyReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {

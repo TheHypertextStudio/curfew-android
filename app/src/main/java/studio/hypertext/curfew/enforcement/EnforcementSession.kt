@@ -1,10 +1,18 @@
 package studio.hypertext.curfew.enforcement
 
+/**
+ * The reason selected when starting a protection session. It drives the session label and
+ * notification copy.
+ */
 enum class EnforcementPurpose {
     BEDTIME,
     PROTECTED_WORK,
 }
 
+/**
+ * Persisted lifecycle of a protection session. Only active sessions may intercept; emergency
+ * stop and reboot disarm are distinct outcomes.
+ */
 enum class EnforcementSessionState {
     ACTIVE,
     CANCELLED_EMERGENCY,
@@ -12,6 +20,10 @@ enum class EnforcementSessionState {
     DISARMED_AFTER_REBOOT,
 }
 
+/**
+ * A time-bounded protection session with a snapshot of the selected apps and consent revision.
+ * Wall time and elapsed time both constrain expiry.
+ */
 data class EnforcementSession(
     val sessionId: String,
     val purpose: EnforcementPurpose,

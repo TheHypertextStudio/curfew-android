@@ -29,7 +29,10 @@ import studio.hypertext.curfew.alarm.AlarmRecurrencePolicy
 import studio.hypertext.curfew.callback.callbackPollScheduler
 import studio.hypertext.curfew.persistence.CurfewDatabase
 
-/** Requires an explicitly provisioned disposable emulator. Never supplies a real owner's credential. */
+/**
+ * Exercises owner recovery with the native credential prompt on a guarded disposable emulator.
+ * The opt-in driver supplies a fixture credential; this test never supplies a real owner's credential.
+ */
 class OwnerRecoveryJourneyInstrumentedTest {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context = ApplicationProvider.getApplicationContext<Context>()

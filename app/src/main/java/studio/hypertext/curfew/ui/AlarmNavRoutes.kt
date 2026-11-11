@@ -7,6 +7,10 @@ import studio.hypertext.curfew.R
 import studio.hypertext.curfew.alarm.AlarmSetupUiState
 import studio.hypertext.curfew.readiness.AlarmSoundCheckState
 
+/**
+ * Binds the saved alarm and readiness to the daily screen. User actions enter the relevant
+ * setup destination instead of changing the alarm implicitly.
+ */
 @Composable
 internal fun DailyRoute(
     appState: AlarmSetupJourney,
@@ -47,6 +51,10 @@ internal fun DailyRoute(
     )
 }
 
+/**
+ * Binds the schedule editor to the shared setup draft. Draft writes finish before navigation
+ * continues; existing schedules use the alarm save operation.
+ */
 @Composable
 internal fun EditRoute(
     appState: AlarmSetupJourney,
@@ -74,6 +82,10 @@ internal fun EditRoute(
     )
 }
 
+/**
+ * Callbacks for readiness UI. Platform settings, permission requests, and preview playback are
+ * supplied by the entry rather than created by the screen.
+ */
 internal data class ReadinessActions(
     val onEnter: () -> Unit = {},
     val onGrantExactAlarm: () -> Unit = {},
@@ -87,6 +99,10 @@ internal data class ReadinessActions(
     val onCancelSound: () -> Unit = {},
 )
 
+/**
+ * Renders the current alarm prerequisites and advances the setup journey when the user
+ * finishes. Its entry callback is where alarm notification channels are prepared.
+ */
 @Composable
 internal fun ReadinessRoute(
     appState: AlarmSetupJourney,
@@ -119,6 +135,10 @@ internal fun ReadinessRoute(
     )
 }
 
+/**
+ * Shows the shared setup draft before activation. It requires a verified check-in and a future
+ * occurrence, then asks the alarm model to persist the schedule.
+ */
 @Composable
 internal fun ReviewRoute(
     appState: AlarmSetupJourney,

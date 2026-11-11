@@ -9,6 +9,10 @@ import studio.hypertext.curfew.config.ProductionServices
 import studio.hypertext.curfew.security.AndroidKeystoreSecretStore
 import java.net.URI
 
+/**
+ * Starts the native account sign-in in a browser tab. It stores the PKCE verifier under the
+ * request state and removes it when the matching callback consumes it.
+ */
 class BrowserOAuthEnrollment(
     context: Context,
 ) {

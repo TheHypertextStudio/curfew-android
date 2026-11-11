@@ -8,6 +8,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 
+/**
+ * Owns the ordered destinations in the app's back stack. Navigating to an existing destination
+ * removes entries above it so each destination has one active back-stack identity.
+ */
 @Stable
 class CurfewNavigationState(
     val backStack: SnapshotStateList<CurfewDestination>,
@@ -51,6 +55,10 @@ class CurfewNavigationState(
     }
 }
 
+/**
+ * Creates or restores the navigation back stack. On first use it inserts the editor when a
+ * later setup task needs a meaningful Back destination.
+ */
 @Composable
 fun rememberCurfewNavigationState(
     initialDestination: CurfewDestination = CurfewDestination.Daily,

@@ -13,13 +13,21 @@ import kotlinx.serialization.json.Json
 import studio.hypertext.curfew.R
 import studio.hypertext.curfew.checkin.PlaceCheckInSetupAccess
 
+/**
+ * Transient work state for one check-in destination. The exported ID is tracked separately
+ * from the selected ID so a late picker result cannot mark a replacement check-in as exported.
+ */
 internal data class CheckInUiState(
     val busy: Boolean = false,
     val message: Int? = null,
     val exportedId: String? = null,
 )
 
-/** Owned by the check-in navigation entry. */
+/**
+ * Owns save, verification, and setup-file export for the check-in navigation entry. The
+ * document picker and URI stay at the platform boundary; this model supplies only the file
+ * contents to the writer.
+ */
 @HiltViewModel
 internal class CheckInViewModel @Inject constructor(
     private val setup: AndroidWakeConditionSetup,

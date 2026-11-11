@@ -29,8 +29,17 @@ import studio.hypertext.curfew.alarm.AlarmSetupUiState
 import studio.hypertext.curfew.platform.SystemSettingsLauncher
 import studio.hypertext.curfew.ui.theme.CurfewTheme
 
+/**
+ * Stable saveable-state slot for the normal app shell while an active alarm temporarily
+ * replaces it.
+ */
 private const val APP_SHELL_KEY = "app-shell"
 
+/**
+ * Compose entry for the Activity. It resolves Hilt models whose work crosses destinations,
+ * attaches window and lifecycle effects, and chooses alarm presentation or the normal
+ * navigation shell.
+ */
 @Composable
 internal fun CurfewRoot(
     systemSettings: SystemSettingsLauncher,
@@ -110,6 +119,10 @@ internal fun CurfewRoot(
     }
 }
 
+/**
+ * Opens Account when a browser sign-in leaves a recovery-key step that needs the user's
+ * attention.
+ */
 @Composable
 private fun AccountRecoveryNavigation(account: AccountViewModel, navigation: CurfewNavigationState) {
     val recovery by account.needsRecovery.collectAsStateWithLifecycle(initialValue = false)
@@ -118,6 +131,10 @@ private fun AccountRecoveryNavigation(account: AccountViewModel, navigation: Cur
     }
 }
 
+/**
+ * Opens the protection route when the Activity receives a protection entry. The destination
+ * consumes the request once it has saved the intercepted package.
+ */
 @Composable
 private fun ProtectionNavigation(
     entries: StateFlow<LaunchRequest.Enforcement?>,
@@ -129,6 +146,10 @@ private fun ProtectionNavigation(
     }
 }
 
+/**
+ * Displays one-shot account outcomes while the Activity is visible. The account model supplies
+ * resource IDs, never callback details or recovery-key text.
+ */
 @Composable
 private fun AccountFeedback(account: AccountViewModel) {
     val context = LocalContext.current
@@ -142,6 +163,10 @@ private fun AccountFeedback(account: AccountViewModel) {
     }
 }
 
+/**
+ * Displays progress while persisted setup loads, before the navigation shell chooses a first
+ * screen.
+ */
 @Composable
 private fun SetupLoading() {
     Surface(Modifier.fillMaxSize()) {

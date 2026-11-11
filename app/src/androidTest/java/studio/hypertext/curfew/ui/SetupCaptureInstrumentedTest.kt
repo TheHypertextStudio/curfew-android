@@ -17,6 +17,10 @@ import org.junit.Test
 import studio.hypertext.curfew.readiness.*
 import studio.hypertext.curfew.ui.theme.CurfewTheme
 
+/**
+ * Captures the setup journey with deterministic state and actions so visual differences are
+ * attributable to presentation.
+ */
 class SetupCaptureInstrumentedTest {
     @get:Rule val compose = createAndroidComposeRule<ComponentActivity>(effectContext = object : MotionDurationScale { override val scaleFactor = 1f })
     private var saves = 0
