@@ -31,6 +31,7 @@ import studio.hypertext.curfew.enforcement.EnforcementPreferences
 import studio.hypertext.curfew.enforcement.EnforcementPurpose
 import studio.hypertext.curfew.enforcement.EnforcementSession
 import studio.hypertext.curfew.enforcement.EnforcementSessionState
+import studio.hypertext.curfew.persistence.CurfewPreferenceState
 import studio.hypertext.curfew.persistence.CurfewPreferences
 import studio.hypertext.curfew.persistence.FirstUseChoice
 import studio.hypertext.curfew.persistence.FirstUseLoadState
@@ -39,24 +40,46 @@ import studio.hypertext.curfew.platform.AlarmRuntimeRepository
 import studio.hypertext.curfew.platform.AndroidAlarmReadiness
 import studio.hypertext.curfew.platform.AndroidAlarmSoundPreview
 import studio.hypertext.curfew.platform.SunriseScheduler
+import studio.hypertext.curfew.readiness.AlarmReadiness
 import studio.hypertext.curfew.readiness.AlarmSoundCheck
 
 /**
- * Production ViewModel with constructor dependency injection and automatic closeable cleanup.
+ * Production ViewModel with inverted dependencies, constructor injection, and automatic closeable cleanup.
+ * Free of direct framework references in its primary constructor for pure JVM unit testability.
  */
 class CurfewViewModel(
-    private val application: Application,
+    private val preferences: CurfewPreferences,
+    private val enforcementPreferences: EnforcementPreferences,
+    private val firstUsePreferences: FirstUsePreferences,
+    private val sunriseScheduler: SunriseScheduler,
+    private val runtimeRepository: AlarmRuntimeRepository,
+    private val wakeConditionSetup: AndroidWakeConditionSetup,
+    private val accountRecovery: AndroidAccountRecovery,
+    private val checkInCatalog: CheckInCatalog,
+    private val alarmReadinessEvaluator: (CurfewPreferenceState) -> AlarmReadiness,
+    private val isAccessibilityEnabled: () -> Boolean,
+    private val soundPreview: AndroidAlarmSoundPreview,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
-    private val preferences: CurfewPreferences = CurfewPreferences(application),
-    private val enforcementPreferences: EnforcementPreferences = EnforcementPreferences(application),
-    private val firstUsePreferences: FirstUsePreferences = FirstUsePreferences(application),
-    private val sunriseScheduler: SunriseScheduler = SunriseScheduler(application),
-    private val runtimeRepository: AlarmRuntimeRepository = AlarmRuntimeRepository(application),
-    private val wakeConditionSetup: AndroidWakeConditionSetup = AndroidWakeConditionSetup(application),
-    private val accountRecovery: AndroidAccountRecovery = AndroidAccountRecovery(application),
 ) : ViewModel() {
 
-    private val soundPreview by lazy { AndroidAlarmSoundPreview(application) }
+    constructor(
+        application: Application,
+        ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    ) : this(
+        preferences = CurfewPreferences(application),
+        enforcementPreferences = EnforcementPreferences(application),
+        firstUsePreferences = FirstUsePreferences(application),
+        sunriseScheduler = SunriseScheduler(application),
+        runtimeRepository = AlarmRuntimeRepository(application),
+        wakeConditionSetup = AndroidWakeConditionSetup(application),
+        accountRecovery = AndroidAccountRecovery(application),
+        checkInCatalog = CheckInCatalog(application),
+        alarmReadinessEvaluator = { AndroidAlarmReadiness(application).evaluate(it) },
+        isAccessibilityEnabled = { AccessibilityServiceStatus.isEnabled(application) },
+        soundPreview = AndroidAlarmSoundPreview(application),
+        ioDispatcher = ioDispatcher,
+    )
+
     private val soundCheck by lazy {
         AlarmSoundCheck(soundPreview::play, soundPreview::stop) {
             viewModelScope.launch { preferences.setTestSoundConfirmed(true) }
@@ -111,11 +134,10 @@ class CurfewViewModel(
         enforcementStateFlow,
         alarmStatusFlow,
     ) { (prefState, savedAlarm, firstUseLoad), (session, chosenApps), (soundCheckState, alarmBusy, alarmError) ->
-        val catalog = CheckInCatalog(application)
-        val selectedCheckIn = prefState.selectedCallbackId?.let { catalog.find(it) }
-        val alarmCheckIn = savedAlarm?.let { catalog.find(it.schedule.callbackId) }
-        val readiness = AndroidAlarmReadiness(application).evaluate(prefState)
-        val isAccessibilityReady = AccessibilityServiceStatus.isEnabled(application)
+        val selectedCheckIn = prefState.selectedCallbackId?.let { checkInCatalog.find(it) }
+        val alarmCheckIn = savedAlarm?.let { checkInCatalog.find(it.schedule.callbackId) }
+        val readiness = alarmReadinessEvaluator(prefState)
+        val isAccessibilityReady = isAccessibilityEnabled()
         val firstUseState = (firstUseLoad as? FirstUseLoadState.Ready)?.state
 
         val conditionVerified = selectedCheckIn?.available == true &&
