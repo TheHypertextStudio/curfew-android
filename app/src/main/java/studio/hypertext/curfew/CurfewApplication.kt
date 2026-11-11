@@ -2,9 +2,14 @@ package studio.hypertext.curfew
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
+import studio.hypertext.curfew.platform.PerpetualAlarmService
+import studio.hypertext.curfew.sync.WakeSyncScheduler
 
-/**
- * Application class initializing Hilt dependency injection.
- */
 @HiltAndroidApp
-class CurfewApplication : Application()
+class CurfewApplication : Application() {
+    override fun onCreate() {
+        super.onCreate()
+        PerpetualAlarmService.ensureChannels(this)
+        WakeSyncScheduler.install(this)
+    }
+}

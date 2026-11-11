@@ -20,7 +20,6 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import studio.hypertext.curfew.platform.PerpetualAlarmService
 import studio.hypertext.curfew.platform.SystemSettingsLauncher
-import studio.hypertext.curfew.sync.WakeSyncScheduler
 import studio.hypertext.curfew.ui.CurfewApp
 import studio.hypertext.curfew.ui.CurfewViewModel
 import studio.hypertext.curfew.ui.PlaceCheckInHost
@@ -44,9 +43,6 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
-        PerpetualAlarmService.ensureChannels(this)
-        WakeSyncScheduler.install(this)
 
         forwardLaunch(intent)
 
