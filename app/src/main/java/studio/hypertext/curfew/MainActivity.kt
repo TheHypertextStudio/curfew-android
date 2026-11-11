@@ -1,14 +1,11 @@
 package studio.hypertext.curfew
 
-import android.Manifest
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -28,6 +25,7 @@ import studio.hypertext.curfew.ui.CurfewApp
 import studio.hypertext.curfew.ui.CurfewViewModel
 import studio.hypertext.curfew.ui.PlaceCheckInHost
 import studio.hypertext.curfew.ui.ShowOverKeyguardEffect
+import studio.hypertext.curfew.ui.rememberRequestNotifications
 import studio.hypertext.curfew.ui.theme.CurfewTheme
 
 /**
@@ -42,9 +40,6 @@ class MainActivity : ComponentActivity() {
 
     private val viewModel: CurfewViewModel by viewModels()
 
-    private val notificationPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { /* system managed */ }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
@@ -58,6 +53,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             CurfewTheme {
                 val state by viewModel.uiState.collectAsStateWithLifecycle()
+                val requestNotifications = rememberRequestNotifications(viewModel::refreshCapabilities)
 
                 LaunchedEffect(viewModel) {
                     lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -72,7 +68,7 @@ class MainActivity : ComponentActivity() {
                 CurfewApp(
                     viewModel = viewModel,
                     onGrantExactAlarm = systemSettings::requestExactAlarmAccess,
-                    onGrantNotifications = ::requestNotifications,
+                    onGrantNotifications = requestNotifications,
                     onGrantFullScreen = systemSettings::requestFullScreenAccess,
                     onRepairAlarmChannel = systemSettings::openAlarmChannel,
                     onRaiseAlarmVolume = systemSettings::openSoundSettings,
@@ -107,12 +103,6 @@ class MainActivity : ComponentActivity() {
         val request = intent.toLaunchRequest()
         setIntent(if (request is LaunchRequest.OAuthCallback) Intent() else intent)
         viewModel.onLaunchRequest(request)
-    }
-
-    private fun requestNotifications() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-        }
     }
 
     private fun openOAuthEnrollment() {

@@ -118,6 +118,7 @@ class CurfewViewModel @Inject constructor(
     private val requestedCampaignId = MutableStateFlow<String?>(null)
     private val _accountRecoveryState = MutableStateFlow<AccountRecoveryState?>(null)
     private val _exportedVerifierId = MutableStateFlow<String?>(null)
+    private val capabilitiesEpoch = MutableStateFlow(0)
     private val accountMessageChannel = Channel<Int>(Channel.BUFFERED)
     internal val accountMessages = accountMessageChannel.receiveAsFlow()
 
@@ -193,7 +194,8 @@ class CurfewViewModel @Inject constructor(
         alarmAndPrefsFlow,
         enforcementStateFlow,
         alarmStatusFlow,
-    ) { (prefState, savedAlarm, firstUseLoad), (session, chosenApps), (soundCheckState, alarmBusy, alarmError) ->
+        capabilitiesEpoch,
+    ) { (prefState, savedAlarm, firstUseLoad), (session, chosenApps), (soundCheckState, alarmBusy, alarmError), _ ->
         val selectedCheckIn = prefState.selectedCallbackId?.let { checkInCatalog.find(it) }
         val alarmCheckIn = savedAlarm?.let { checkInCatalog.find(it.schedule.callbackId) }
         val readiness = alarmReadiness.evaluate(prefState)
@@ -249,6 +251,10 @@ class CurfewViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = CurfewUiState(),
     )
+
+    fun refreshCapabilities() {
+        capabilitiesEpoch.update { it + 1 }
+    }
 
     fun onForegroundResume() {
         viewModelScope.launch(ioDispatcher) {
