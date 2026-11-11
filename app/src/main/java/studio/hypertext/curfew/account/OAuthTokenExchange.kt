@@ -20,8 +20,9 @@ import java.util.Base64
 class OAuthTokenExchange(
     private val context: Context,
 ) {
-    suspend fun exchange(callback: Uri): AccountRecoveryState =
+    internal suspend fun exchange(callbackUrl: String): AccountRecoveryState =
         withContext(Dispatchers.IO) {
+            val callback = Uri.parse(callbackUrl)
             require(callback.scheme == "studio.hypertext.curfew")
             require(callback.host == "oauth" && callback.path == "/callback")
             val state =

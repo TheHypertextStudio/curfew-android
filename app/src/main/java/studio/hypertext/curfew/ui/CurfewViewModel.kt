@@ -1,7 +1,6 @@
 package studio.hypertext.curfew.ui
 
 import android.app.Application
-import android.net.Uri
 import android.os.SystemClock
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -25,8 +24,10 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import studio.hypertext.curfew.LaunchRequest
 import studio.hypertext.curfew.R
 import studio.hypertext.curfew.account.AccountRecoveryState
 import studio.hypertext.curfew.account.AndroidAccountRecovery
@@ -106,12 +107,14 @@ class CurfewViewModel @Inject constructor(
     }
     private var testSoundJob: Job? = null
 
+    private data class EnforcementEntry(val interceptedPackage: String? = null, val open: Boolean = false)
+
     // Transient UI states
     private val _alarmBusy = MutableStateFlow(false)
     private val _alarmError = MutableStateFlow<String?>(null)
     private val _conditionBusy = MutableStateFlow(false)
     private val _conditionMessage = MutableStateFlow<String?>(null)
-    private val _interceptedPackage = MutableStateFlow<String?>(null)
+    private val enforcementEntry = MutableStateFlow(EnforcementEntry())
     private val requestedCampaignId = MutableStateFlow<String?>(null)
     private val _accountRecoveryState = MutableStateFlow<AccountRecoveryState?>(null)
     private val _exportedVerifierId = MutableStateFlow<String?>(null)
@@ -223,7 +226,6 @@ class CurfewViewModel @Inject constructor(
             enforcementSession = session,
             enforcementChosenApps = chosenApps,
             isAccessibilityReady = isAccessibilityReady,
-            interceptedPackage = _interceptedPackage.value,
             initialDataReady = firstUseLoad !is FirstUseLoadState.Loading,
             firstUseLoadError = firstUseLoad is FirstUseLoadState.Error && savedAlarm == null,
         )
@@ -233,11 +235,14 @@ class CurfewViewModel @Inject constructor(
         baseUiState,
         _accountRecoveryState,
         ringingAlarmFlow,
-    ) { base, recovery, ringing ->
+        enforcementEntry,
+    ) { base, recovery, ringing, enforcement ->
         base.copy(
             accountRecoveryState = recovery.takeIf { base.accountSignedIn },
             ringingSnapshot = ringing?.first,
             ringingCondition = ringing?.second,
+            interceptedPackage = enforcement.interceptedPackage,
+            openEnforcement = enforcement.open,
         )
     }.stateIn(
         scope = viewModelScope,
@@ -251,17 +256,19 @@ class CurfewViewModel @Inject constructor(
         }
     }
 
-    fun loadRequestedAlarm(campaignId: String) {
-        requestedCampaignId.value = campaignId
+    internal fun onLaunchRequest(request: LaunchRequest) {
+        when (request) {
+            is LaunchRequest.OAuthCallback -> handleOAuthCallback(request.url)
+            is LaunchRequest.ShowAlarm -> requestedCampaignId.value = request.campaignId
+            is LaunchRequest.Enforcement -> enforcementEntry.value = EnforcementEntry(request.interceptedPackage, open = true)
+            LaunchRequest.None -> Unit
+        }
     }
 
-    fun handleOAuthCallback(uri: Uri): Boolean {
-        if (uri.scheme != "studio.hypertext.curfew" || uri.host != "oauth" || uri.path != "/callback") {
-            return false
-        }
+    private fun handleOAuthCallback(url: String) {
         viewModelScope.launch(ioDispatcher) {
             val message = try {
-                val state = oauthTokenExchange.exchange(uri)
+                val state = oauthTokenExchange.exchange(url)
                 _accountRecoveryState.value = state
                 if (state == AccountRecoveryState.Ready) {
                     preferences.setAccountEnrolled(true)
@@ -278,7 +285,6 @@ class CurfewViewModel @Inject constructor(
             }
             accountMessageChannel.send(message)
         }
-        return true
     }
 
     fun setAccountRecoveryState(state: AccountRecoveryState) {
@@ -288,12 +294,12 @@ class CurfewViewModel @Inject constructor(
         }
     }
 
-    fun setInterceptedPackage(packageName: String?) {
-        _interceptedPackage.value = packageName
+    fun onEnforcementOpened() {
+        enforcementEntry.update { it.copy(open = false) }
     }
 
     fun dismissInterceptionBanner() {
-        _interceptedPackage.value = null
+        enforcementEntry.update { it.copy(interceptedPackage = null) }
     }
 
     fun saveAlarm(schedule: SunriseSchedule) {

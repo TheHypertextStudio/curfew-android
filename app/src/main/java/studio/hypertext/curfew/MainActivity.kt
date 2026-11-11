@@ -25,8 +25,6 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import studio.hypertext.curfew.account.BrowserOAuthEnrollment
 import studio.hypertext.curfew.config.ProductionServices
-import studio.hypertext.curfew.enforcement.CurfewAccessibilityService
-import studio.hypertext.curfew.platform.AndroidAlarmClockGateway
 import studio.hypertext.curfew.platform.PerpetualAlarmService
 import studio.hypertext.curfew.sync.WakeSyncScheduler
 import studio.hypertext.curfew.ui.CurfewApp
@@ -55,7 +53,7 @@ class MainActivity : ComponentActivity() {
         PerpetualAlarmService.ensureChannels(this)
         WakeSyncScheduler.install(this)
 
-        handleIntent(intent)
+        forwardLaunch(intent)
 
         setContent {
             CurfewTheme {
@@ -108,25 +106,13 @@ class MainActivity : ComponentActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        setIntent(intent)
-        handleIntent(intent)
+        forwardLaunch(intent)
     }
 
-    private fun handleIntent(intent: Intent) {
-        intent.data?.let { uri ->
-            if (viewModel.handleOAuthCallback(uri)) {
-                setIntent(Intent(this, MainActivity::class.java))
-                return
-            }
-        }
-        if (intent.action == CurfewAccessibilityService.ACTION_SHOW_ENFORCEMENT) {
-            val intercepted = intent.getStringExtra(CurfewAccessibilityService.EXTRA_INTERCEPTED_PACKAGE)
-            viewModel.setInterceptedPackage(intercepted)
-        }
-        val requestedId = intent.getStringExtra(AndroidAlarmClockGateway.EXTRA_CAMPAIGN_ID)
-        if (intent.getBooleanExtra(EXTRA_SHOW_ALARM, false) && requestedId != null) {
-            viewModel.loadRequestedAlarm(requestedId)
-        }
+    private fun forwardLaunch(intent: Intent) {
+        val request = intent.toLaunchRequest()
+        setIntent(if (request is LaunchRequest.OAuthCallback) Intent() else intent)
+        viewModel.onLaunchRequest(request)
     }
 
     private fun presentOverKeyguard() {
