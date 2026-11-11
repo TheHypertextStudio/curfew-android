@@ -38,7 +38,7 @@ class OAuthDynamicClientRegistrar(
                         put("client_name", "Curfew for Android")
                         put("token_endpoint_auth_method", "none")
                         put("application_type", "native")
-                        put("redirect_uris", buildJsonArray { add("studio.hypertext.curfew://oauth/callback") })
+                        put("redirect_uris", buildJsonArray { add(AccountOAuthRedirect.URL) })
                         put(
                             "grant_types",
                             buildJsonArray {

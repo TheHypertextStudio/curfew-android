@@ -22,9 +22,8 @@ class OAuthTokenExchange(
 ) {
     internal suspend fun exchange(callbackUrl: String): AccountRecoveryState =
         withContext(Dispatchers.IO) {
+            require(AccountOAuthRedirect.matches(URI(callbackUrl)))
             val callback = Uri.parse(callbackUrl)
-            require(callback.scheme == "studio.hypertext.curfew")
-            require(callback.host == "oauth" && callback.path == "/callback")
             val state =
                 callback.getQueryParameter("state")?.takeIf(String::isNotBlank)
                     ?: error("OAuth callback omitted state")
@@ -43,7 +42,7 @@ class OAuthTokenExchange(
                     "client_id" to clientId,
                     "code" to code,
                     "code_verifier" to verifier,
-                    "redirect_uri" to "studio.hypertext.curfew://oauth/callback",
+                    "redirect_uri" to AccountOAuthRedirect.URL,
                 ).entries.joinToString("&") { (key, value) ->
                     "${encode(key)}=${encode(value)}"
                 }

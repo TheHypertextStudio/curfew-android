@@ -2,6 +2,7 @@ package studio.hypertext.curfew
 
 import java.net.URI
 import java.net.URISyntaxException
+import studio.hypertext.curfew.account.AccountOAuthRedirect
 
 internal const val ACTION_SHOW_ENFORCEMENT = "studio.hypertext.curfew.action.SHOW_ENFORCEMENT"
 
@@ -27,7 +28,7 @@ internal fun parseLaunchRequest(
         null
     }
     return when {
-        uri?.scheme == "studio.hypertext.curfew" && uri.rawAuthority == "oauth" && uri.rawPath == "/callback" ->
+        uri != null && AccountOAuthRedirect.matches(uri) ->
             LaunchRequest.OAuthCallback(requireNotNull(data))
         showAlarm && !campaignId.isNullOrBlank() -> LaunchRequest.ShowAlarm(campaignId)
         action == ACTION_SHOW_ENFORCEMENT -> LaunchRequest.Enforcement(interceptedPackage?.takeUnless(String::isBlank))

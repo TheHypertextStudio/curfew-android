@@ -9,7 +9,6 @@ import java.security.MessageDigest
 import java.security.SecureRandom
 import java.util.Base64
 
-private const val CURFEW_ANDROID_REDIRECT = "studio.hypertext.curfew://oauth/callback"
 internal val CURFEW_ANDROID_SCOPES: String =
     (listOf("openid", "offline_access") + CurfewFirstPartyOAuthScope.entries.map { it.value })
         .joinToString(" ")
@@ -34,7 +33,7 @@ data class OAuthEnrollmentRequest(
             require(clientId.isNotBlank())
             require(state.isNotBlank())
             require(codeVerifier.length in 43..128) { "PKCE verifier must be 43-128 characters" }
-            require(redirectUri.toASCIIString() == CURFEW_ANDROID_REDIRECT) {
+            require(redirectUri.toASCIIString() == AccountOAuthRedirect.URL) {
                 "OAuth redirect must be Curfew's registered native callback"
             }
 
