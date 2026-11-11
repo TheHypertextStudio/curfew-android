@@ -18,11 +18,11 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
-import studio.hypertext.curfew.platform.PerpetualAlarmService
 import studio.hypertext.curfew.platform.SystemSettingsLauncher
 import studio.hypertext.curfew.ui.CurfewApp
 import studio.hypertext.curfew.ui.CurfewViewModel
 import studio.hypertext.curfew.ui.PlaceCheckInHost
+import studio.hypertext.curfew.ui.RestoreOnResumeEffect
 import studio.hypertext.curfew.ui.ShowOverKeyguardEffect
 import studio.hypertext.curfew.ui.rememberRequestNotifications
 import studio.hypertext.curfew.ui.theme.CurfewTheme
@@ -48,6 +48,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             CurfewTheme {
+                RestoreOnResumeEffect(viewModel::onForegroundResume)
                 val state by viewModel.uiState.collectAsStateWithLifecycle()
                 val requestNotifications = rememberRequestNotifications(viewModel::refreshCapabilities)
 
@@ -82,12 +83,6 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        viewModel.onForegroundResume()
-        PerpetualAlarmService.restoreAfterForegroundEntry(this)
     }
 
     override fun onNewIntent(intent: Intent) {
