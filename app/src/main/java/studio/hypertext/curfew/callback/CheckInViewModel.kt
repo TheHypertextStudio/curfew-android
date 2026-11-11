@@ -3,74 +3,73 @@ package studio.hypertext.curfew.callback
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
-import studio.hypertext.curfew.checkin.CheckInCatalog
-import studio.hypertext.curfew.di.IoDispatcher
-import studio.hypertext.curfew.persistence.CurfewPreferences
 import javax.inject.Inject
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
+import studio.hypertext.curfew.R
+import studio.hypertext.curfew.checkin.PlaceCheckInRepository
+import studio.hypertext.curfew.checkin.PlaceCheckInSetupAccess
 
-data class CheckInUiState(
-    val conditionBusy: Boolean = false,
-    val conditionMessage: String? = null,
-    val exportedVerifierId: String? = null,
+internal data class CheckInUiState(
+    val busy: Boolean = false,
+    val message: Int? = null,
+    val exportedId: String? = null,
 )
 
-/**
- * Screen-level ViewModel for the Check-In and Verification feature.
- * Owns connection verification state locally, preventing root-level recomposition churn.
- */
+/** Owned by the check-in navigation entry. */
 @HiltViewModel
-class CheckInViewModel @Inject constructor(
-    private val wakeConditionSetup: AndroidWakeConditionSetup,
-    private val preferences: CurfewPreferences,
-    private val checkInCatalog: CheckInCatalog,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+internal class CheckInViewModel @Inject constructor(
+    private val setup: AndroidWakeConditionSetup,
+    places: PlaceCheckInRepository,
 ) : ViewModel() {
-
-    private val _conditionBusy = MutableStateFlow(false)
-    val conditionBusy: StateFlow<Boolean> = _conditionBusy.asStateFlow()
-
-    private val _conditionMessage = MutableStateFlow<String?>(null)
-    val conditionMessage: StateFlow<String?> = _conditionMessage.asStateFlow()
-
-    private val _exportedVerifierId = MutableStateFlow<String?>(null)
-    val exportedVerifierId: StateFlow<String?> = _exportedVerifierId.asStateFlow()
+    val placeSetup: PlaceCheckInSetupAccess = places
+    private val mutableState = MutableStateFlow(CheckInUiState())
+    val state = mutableState.asStateFlow()
 
     suspend fun saveCallback(label: String, endpoint: String, actionUrl: String?): String {
-        _conditionBusy.value = true
-        _conditionMessage.value = null
+        mutableState.update { it.copy(busy = true, message = null) }
         return try {
-            wakeConditionSetup.save(label, endpoint, actionUrl).callbackId
+            setup.save(label, endpoint, actionUrl).callbackId
         } finally {
-            _conditionBusy.value = false
+            mutableState.update { it.copy(busy = false) }
         }
     }
 
     fun verifyCondition(callbackId: String?) {
-        if (callbackId == null || _conditionBusy.value) return
-        viewModelScope.launch(ioDispatcher) {
-            _conditionBusy.value = true
-            _conditionMessage.value = "Testing the connection…"
+        if (callbackId == null || state.value.busy) return
+        mutableState.update { it.copy(busy = true, message = R.string.check_in_testing) }
+        viewModelScope.launch {
             try {
-                _conditionMessage.value = if (wakeConditionSetup.verify(callbackId)) {
-                    null
-                } else {
-                    "Your check-in changed. Test the connection again."
-                }
+                val verified = setup.verify(callbackId)
+                mutableState.update { it.copy(message = R.string.check_in_selection_changed.takeUnless { verified }) }
+            } catch (cancelled: CancellationException) {
+                throw cancelled
             } catch (_: Exception) {
-                _conditionMessage.value =
-                    "Couldn’t connect. Ask the person running your service to check its setup, then try again."
+                mutableState.update { it.copy(message = R.string.check_in_test_failed) }
             } finally {
-                _conditionBusy.value = false
+                mutableState.update { it.copy(busy = false) }
             }
         }
     }
 
-    fun markConditionExported(callbackId: String) {
-        _exportedVerifierId.value = callbackId
+    fun exportSetupFile(callbackId: String, write: suspend (String) -> Unit) {
+        if (state.value.busy) return
+        mutableState.update { it.copy(busy = true, message = null) }
+        viewModelScope.launch {
+            try {
+                write(Json.encodeToString(setup.provision(callbackId)))
+                mutableState.update { it.copy(exportedId = callbackId, message = R.string.check_in_setup_file_saved) }
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                mutableState.update { it.copy(message = R.string.check_in_setup_file_failed) }
+            } finally {
+                mutableState.update { it.copy(busy = false) }
+            }
+        }
     }
 }

@@ -17,6 +17,8 @@ class CheckInCatalog @Inject constructor(
         services = CallbackConfigurationRepository(context),
     )
 
+    fun placeCameraReady(): Boolean = places.cameraReady()
+
     suspend fun find(id: String): CheckInDescription? {
         try {
             places.find(id)?.let { return CheckInDescription(it.id, it.label, null, true) }

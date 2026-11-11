@@ -5,6 +5,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import studio.hypertext.curfew.alarm.AlarmSetupUiState
 import studio.hypertext.curfew.readiness.AlarmPresentation
 import studio.hypertext.curfew.readiness.AlarmReadiness
 
@@ -73,8 +74,8 @@ class CurfewArchitectureTest {
     }
 
     @Test
-    fun `CurfewUiState evaluates canArm strictly`() {
-        val notReady = CurfewUiState(
+    fun `AlarmSetupUiState evaluates canArm strictly`() {
+        val notReady = AlarmSetupUiState(
             readiness = AlarmReadiness(
                 canArm = false,
                 requiredActions = emptySet(),
@@ -87,7 +88,7 @@ class CurfewArchitectureTest {
         )
         assertFalse(notReady.canArm)
 
-        val missingConnection = CurfewUiState(
+        val missingConnection = AlarmSetupUiState(
             readiness = AlarmReadiness(
                 canArm = true,
                 requiredActions = emptySet(),
@@ -100,7 +101,7 @@ class CurfewArchitectureTest {
         )
         assertFalse(missingConnection.canArm)
 
-        val unverifiedConnection = CurfewUiState(
+        val unverifiedConnection = AlarmSetupUiState(
             readiness = AlarmReadiness(
                 canArm = true,
                 requiredActions = emptySet(),
@@ -113,7 +114,7 @@ class CurfewArchitectureTest {
         )
         assertFalse(unverifiedConnection.canArm)
 
-        val readyState = CurfewUiState(
+        val readyState = AlarmSetupUiState(
             readiness = AlarmReadiness(
                 canArm = true,
                 requiredActions = emptySet(),

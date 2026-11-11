@@ -69,6 +69,13 @@ class EnforcementPreferences(
         dataStore.edit { it[CONFIG_CHOSEN_APPS] = apps }
     }
 
+    suspend fun setChosenAppEnabled(packageName: String, enabled: Boolean) {
+        dataStore.edit { prefs ->
+            val apps = prefs[CONFIG_CHOSEN_APPS].orEmpty()
+            prefs[CONFIG_CHOSEN_APPS] = if (enabled) apps + packageName else apps - packageName
+        }
+    }
+
     private fun decodeSession(prefs: Preferences): EnforcementSession? {
         val id = prefs[SESSION_ID] ?: return null
         val purposeStr = prefs[PURPOSE] ?: return null

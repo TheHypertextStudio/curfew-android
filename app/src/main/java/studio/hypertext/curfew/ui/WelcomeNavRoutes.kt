@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 
 @Composable
 internal fun WelcomeRoute(
-    appState: CurfewAppState,
+    appState: AlarmSetupJourney,
 ) {
     CurfewWelcomeScreen(
         onContinue = {

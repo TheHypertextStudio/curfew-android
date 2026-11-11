@@ -7,7 +7,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import studio.hypertext.curfew.R
@@ -15,12 +14,10 @@ import studio.hypertext.curfew.checkin.*
 
 @Composable
 internal fun PlaceCheckInDestination(
-    selectedId: String?, refresh: Int, externalBusy: Boolean = false, externalError: String? = null,
+    selectedId: String?, repository: PlaceCheckInSetupAccess, refresh: Int, externalBusy: Boolean = false, externalError: String? = null,
     onExport: (PlaceDraft) -> Unit, onPrint: (PlaceDraft) -> Unit, onScan: (PlaceDraft?, PlaceEnrollment?) -> Unit,
     onAdvanced: () -> Unit, onDone: () -> Unit, onUseForAlarm: (() -> Unit)?,
 ) {
-    val context = LocalContext.current
-    val repository = remember { PlaceCheckInRepository(context) }
     var draft by remember { mutableStateOf<PlaceDraft?>(null) }
     var enrollment by remember { mutableStateOf<PlaceEnrollment?>(null) }
     var busy by remember { mutableStateOf(false) }

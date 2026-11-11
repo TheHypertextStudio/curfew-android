@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import android.widget.Toast
+import androidx.annotation.StringRes
 import dagger.hilt.android.scopes.ActivityScoped
 import javax.inject.Inject
 import studio.hypertext.curfew.R
@@ -38,23 +39,27 @@ internal class SystemSettingsLauncher @Inject constructor(private val activity: 
 
     fun openAccessibilitySettings() = open(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
 
+    fun openSecuritySettings() = open(Intent(Settings.ACTION_SECURITY_SETTINGS))
+
     fun openAccountPortal() = open(Intent(Intent.ACTION_VIEW, Uri.parse(ProductionServices.ACCOUNT_PORTAL)))
+
+    fun openCheckIn(url: String) = open(Intent(Intent.ACTION_VIEW, Uri.parse(url)), R.string.check_in_link_failed)
 
     suspend fun enrollAccount() {
         BrowserOAuthEnrollment(activity).begin()
     }
 
-    private fun open(intent: Intent) {
+    private fun open(intent: Intent, @StringRes failure: Int = R.string.system_destination_unavailable) {
         try {
             activity.startActivity(intent)
         } catch (_: ActivityNotFoundException) {
-            showUnavailable()
+            showUnavailable(failure)
         } catch (_: SecurityException) {
-            showUnavailable()
+            showUnavailable(failure)
         }
     }
 
-    private fun showUnavailable() {
-        Toast.makeText(activity, R.string.system_destination_unavailable, Toast.LENGTH_LONG).show()
+    private fun showUnavailable(@StringRes message: Int) {
+        Toast.makeText(activity, message, Toast.LENGTH_LONG).show()
     }
 }

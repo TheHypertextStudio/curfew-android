@@ -10,7 +10,7 @@ class AlarmSoundCheck(
     private val play: suspend () -> Boolean,
     private val stop: () -> Unit,
     private val saveConfirmation: suspend () -> Unit,
-) {
+) : AutoCloseable {
     private val mutableState = MutableStateFlow(AlarmSoundCheckState.CLOSED)
     val state = mutableState.asStateFlow()
     private var generation = 0L
@@ -52,7 +52,7 @@ class AlarmSoundCheck(
         }
     }
 
-    fun close() {
+    override fun close() {
         generation++
         stop()
         mutableState.value = AlarmSoundCheckState.CLOSED

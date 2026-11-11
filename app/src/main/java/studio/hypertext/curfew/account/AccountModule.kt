@@ -20,7 +20,7 @@ object AccountModule {
 
     @Provides
     @Singleton
-    fun provideOAuthTokenExchange(
+    internal fun provideAccountSignIn(
         @ApplicationContext context: Context,
-    ): OAuthTokenExchange = OAuthTokenExchange(context)
+    ): AccountSignIn = AccountSignIn(OAuthTokenExchange(context)::exchange)
 }

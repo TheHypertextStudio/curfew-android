@@ -9,33 +9,47 @@ import androidx.activity.viewModels
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.flow.MutableStateFlow
+import studio.hypertext.curfew.account.AccountViewModel
 import studio.hypertext.curfew.platform.SystemSettingsLauncher
 import studio.hypertext.curfew.ui.CurfewRoot
-import studio.hypertext.curfew.ui.CurfewViewModel
+import studio.hypertext.curfew.ui.RingingAlarmViewModel
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @Inject internal lateinit var systemSettings: SystemSettingsLauncher
 
-    private val viewModel: CurfewViewModel by viewModels()
+    private val account by viewModels<AccountViewModel>()
+    private val ringing by viewModels<RingingAlarmViewModel>()
+    private val protectionEntry = MutableStateFlow<LaunchRequest.Enforcement?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        forwardLaunch(intent)
-        setContent { CurfewRoot(viewModel, systemSettings) }
+        dispatchIntent(intent, allowOAuth = savedInstanceState == null)
+        setContent {
+            CurfewRoot(systemSettings, protectionEntry) { entry -> protectionEntry.compareAndSet(entry, null) }
+        }
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        forwardLaunch(intent)
+        dispatchIntent(intent)
     }
 
-    private fun forwardLaunch(intent: Intent) {
+    private fun dispatchIntent(intent: Intent, allowOAuth: Boolean = true) {
         val request = intent.toLaunchRequest()
-        setIntent(if (request is LaunchRequest.OAuthCallback) Intent() else intent)
-        viewModel.onLaunchRequest(request)
+        // Consumed callbacks and route requests should not be replayed on recreation.
+        setIntent(if (request is LaunchRequest.OAuthCallback || request is LaunchRequest.Enforcement) Intent() else intent)
+        when (request) {
+            is LaunchRequest.OAuthCallback -> {
+                if (allowOAuth) account.completeSignIn(request.url)
+            }
+            is LaunchRequest.ShowAlarm -> ringing.present(request.campaignId)
+            is LaunchRequest.Enforcement -> protectionEntry.value = request
+            LaunchRequest.None -> Unit
+        }
     }
 
     companion object {

@@ -56,15 +56,16 @@ class SetupColdStartInstrumentedTest {
                 compose.onNodeWithText("Check-in").performClick()
                 val initialAction = compose.onNodeWithText("Save setup file").performScrollTo().captureToImage().toPixelMap()
                 val primaryColor = initialAction[initialAction.width / 2, 8]
+                compose.onNodeWithText("Save setup file").performScrollTo().performClick()
+                compose.waitUntil(5_000) { monitor.hits > 0 }
                 var requestCode = 0
                 scenario.onActivity { activity ->
                     val saved = android.os.Bundle()
                     activity.activityResultRegistry.onSaveInstanceState(saved)
+                    val launched = requireNotNull(saved.getStringArrayList("KEY_COMPONENT_ACTIVITY_LAUNCHED_KEYS")).single()
                     val keys = requireNotNull(saved.getStringArrayList("KEY_COMPONENT_ACTIVITY_REGISTERED_KEYS"))
-                    requestCode = requireNotNull(saved.getIntegerArrayList("KEY_COMPONENT_ACTIVITY_REGISTERED_RCS"))[keys.indexOf("activity_rq#0")]
+                    requestCode = requireNotNull(saved.getIntegerArrayList("KEY_COMPONENT_ACTIVITY_REGISTERED_RCS"))[keys.indexOf(launched)]
                 }
-                compose.onNodeWithText("Save setup file").performScrollTo().performClick()
-                compose.waitUntil(5_000) { monitor.hits > 0 }
                 scenario.recreate()
                 scenario.onActivity { activity ->
                     activity.activityResultRegistry.dispatchResult(requestCode, android.app.Activity.RESULT_OK, android.content.Intent().setData(uri))
