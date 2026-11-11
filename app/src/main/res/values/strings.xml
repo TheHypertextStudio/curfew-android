@@ -6,4 +6,12 @@
     <string name="alarm_notification_title">Time to get up.</string>
     <string name="alarm_notification_body">Waiting for your check-in</string>
     <string name="alarm_notification_named_check_in">Waiting for %1$s</string>
+    <string name="accessibility_service_description">Interrupts chosen entertainment apps during active bedtime and focus sessions to protect your rest and work boundaries. Only observes foreground package names when a session is active. Never reads screen contents, collects keystrokes, or transmits activity.</string>
+    <string name="enforcement_channel_name">Bedtime &amp; Focus Protection</string>
+    <string name="enforcement_channel_description">Ongoing status and emergency stop for active bedtime and focus protection sessions</string>
+    <string name="enforcement_notification_bedtime_title">Bedtime protection active</string>
+    <string name="enforcement_notification_work_title">Protected work active</string>
+    <string name="enforcement_notification_body">Chosen apps are interrupted. Emergency stop is always available.</string>
+    <string name="enforcement_emergency_stop">Emergency stop</string>
+    <string name="enforcement_notification_action_stop">Stop protection</string>
 </resources>

@@ -18,6 +18,12 @@ class AlarmRecoveryReceiver : BroadcastReceiver() {
         val pendingResult = goAsync()
         CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             try {
+                if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
+                    runCatching {
+                        studio.hypertext.curfew.enforcement.EnforcementPreferences(context.applicationContext)
+                            .disarmOnReboot()
+                    }
+                }
                 restorePending(context.applicationContext)
             } finally {
                 pendingResult.finish()

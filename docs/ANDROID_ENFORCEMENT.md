@@ -1,8 +1,10 @@
 # Android bedtime and protected work time
 
-Status: design for the next opt-in implementation. No app-blocking service or
-sensitive permission is added by the origin migration. The installable test
-build still provides Sunrise alarms only.
+Status: initial opt-in implementation added. Local app-interruption service,
+safety policy allowlist, in-memory & ongoing notification emergency stops,
+elapsed duration bounds, reboot disarming, and disclosure UI are implemented.
+Until physical-device testing matrix is complete, the launch claim remains
+"Sunrise alarm companion; Android app interruption experimental/opt-in."
 
 ## Supported scope
 
