@@ -58,6 +58,10 @@ The local alarm acceptance record is [Sunrise P1](docs/SUNRISE_P1.md).
 
 See [Security](docs/SECURITY.md), [Privacy](docs/PRIVACY.md), [Design](docs/DESIGN.md), [Play policy](docs/PLAY_POLICY.md), and [Testing](docs/TESTING.md).
 
+## License
+
+MIT. See [`LICENSE`](LICENSE).
+
 ## Worktree setup
 
 Run `./bootstrap worktree prepare` after creating a checkout. Codex runs this
