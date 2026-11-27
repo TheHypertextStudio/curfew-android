@@ -19,7 +19,9 @@ internal fun DailyRoute(
 ) {
     SunriseDailyScreen(
         state.sunriseAlarm,
-        state.alarmConditionLabel ?: state.conditionLabel,
+        // A saved alarm keeps naming its own check-in; a newly selected one applies only
+        // after an explicit save.
+        if (state.sunriseAlarm != null) state.alarmConditionLabel else state.conditionLabel,
         state.conditionVerified && state.sunriseAlarm?.schedule?.callbackId == state.callbackId,
         state.canArm && (state.sunriseAlarm == null || state.sunriseAlarm.schedule.callbackId == state.callbackId),
         state.alarmBusy,
@@ -147,7 +149,13 @@ internal fun ReviewRoute(
 ) {
     val prepared = appState.draft
     if (prepared == null) {
-        LaunchedEffect(Unit) { appState.navigate(CurfewDestination.Edit) }
+        // Activation clears the draft while this screen is still animating out; only a
+        // review that is still current should fall back to the editor.
+        LaunchedEffect(Unit) {
+            if (appState.navigation.currentDestination == CurfewDestination.Review) {
+                appState.navigate(CurfewDestination.Edit)
+            }
+        }
     } else {
         AlarmSetupReview(
             prepared,

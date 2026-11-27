@@ -100,7 +100,7 @@
     "app/src/main/java/studio/hypertext/curfew/platform/OwnerRecoveryEffect.kt": "9b0f03f5700f08dda8edeceacdddac3cfae64767f390049933693a3af207bd54",
     "app/src/main/java/studio/hypertext/curfew/platform/VerifierSetupExport.kt": "c8ca28ea80f94d8a9cc20b8664ce4b00d33d50436a90d35f5f0a5d8960d63e05",
     "app/src/main/java/studio/hypertext/curfew/readiness/AlarmReadinessEvaluator.kt": "9b315e2178f91f40749d856d55acc7c86f3b4f3dc6567bfe8ba32d8c6906f120",
-    "app/src/main/java/studio/hypertext/curfew/ui/AlarmNavRoutes.kt": "1670a6a0c711d58673a126fe60a391898f717bbc08cdab45def724e4fcecbb42",
+    "app/src/main/java/studio/hypertext/curfew/ui/AlarmNavRoutes.kt": "3db35e407925f666af305672ed823a62d512856f84771e644f09aa6f4b685e2d",
     "app/src/main/java/studio/hypertext/curfew/ui/AlarmPickers.kt": "56846d165442d0b8d808ebbd837bbc344a8c558057b0c12f10256cee0fa2502a",
     "app/src/main/java/studio/hypertext/curfew/ui/AlarmRecoveryScreen.kt": "471bc939c17b34343bc6fce76561260a64d2d52bfa72ddc26404c32aa1370e35",
     "app/src/main/java/studio/hypertext/curfew/ui/AlarmRingingHost.kt": "ee2565ee94c576963e1d6816f11215aff4e4fbe3111fa82467bfcdad594fc835",
