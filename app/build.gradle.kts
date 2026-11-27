@@ -133,7 +133,7 @@ dependencies {
     implementation(libs.androidx.work.runtime)
     implementation(libs.androidx.browser)
     implementation(libs.okhttp)
-    implementation("studio.hypertext.curfew:curfew-protocols:0.0.13")
+    implementation("studio.hypertext.curfew:curfew-protocols:0.0.16")
     ksp(libs.androidx.room.compiler)
     "gmsImplementation"(libs.firebase.messaging)
     testImplementation(libs.junit)
