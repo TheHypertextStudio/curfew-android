@@ -36,7 +36,12 @@ class ManifestSecurityInstrumentedTest {
             }
         packageInfo.services.orEmpty()
             .forEach { service ->
-                if (service.name.startsWith(context.packageName)) {
+                if (service.name == "studio.hypertext.curfew.enforcement.CurfewAccessibilityService") {
+                    // Android binds accessibility services through an exported component, so
+                    // the system-only bind permission is what keeps other apps out.
+                    assertEquals(Manifest.permission.BIND_ACCESSIBILITY_SERVICE, service.permission)
+                    assertSignaturePermission(service.name, service.permission)
+                } else if (service.name.startsWith(context.packageName)) {
                     assertFalse("${service.name} must not be exported", service.exported)
                 } else if (service.exported) {
                     assertSignaturePermission(service.name, service.permission)
