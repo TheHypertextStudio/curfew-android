@@ -6,7 +6,7 @@ plugins {
     id("com.google.devtools.ksp") version "2.3.14" apply false
     id("androidx.room") version "2.8.5" apply false
     id("com.github.jk1.dependency-license-report") version "3.1.5" apply false
-    id("com.google.dagger.hilt.android") version "2.59.2" apply false
+    id("com.google.dagger.hilt.android") version "2.60.1" apply false
 }
 
 allprojects {
