@@ -15,6 +15,9 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onLast
@@ -96,13 +99,19 @@ class CurfewAppNavigationInstrumentedTest {
         }
     }
 
+    /**
+     * Runs on every window profile of the native capture matrix. The rail repeats Edit alarm and
+     * the rail and landscape bar repeat Account, so screen actions are found inside the current
+     * destination's pane rather than in the navigation chrome.
+     */
     @Test
     fun scaledWindowKeepsDailyAndEditorActionsReachable() {
         show()
+        val inDestination = hasAnyAncestor(SemanticsMatcher.keyIsDefined(SemanticsProperties.PaneTitle))
         compose.onNodeWithContentDescription("Settings").assertIsDisplayed()
-        compose.onNodeWithContentDescription("Edit alarm").assertIsDisplayed()
+        compose.onNode(hasContentDescription("Edit alarm") and inDestination).assertIsDisplayed()
         captureResponsiveWindow("daily")
-        compose.onNodeWithContentDescription("Edit alarm").performClick()
+        compose.onNode(hasContentDescription("Edit alarm") and inDestination).performClick()
         compose.onNodeWithText("Repeat").performScrollTo().assertIsDisplayed().performClick()
         compose.onNodeWithContentDescription("Repeat on Sunday").performScrollTo().assertIsDisplayed()
         captureResponsiveWindow("editor")
@@ -110,7 +119,7 @@ class CurfewAppNavigationInstrumentedTest {
         compose.onNodeWithContentDescription("Back").performClick()
         compose.onNodeWithContentDescription("Settings").performClick()
         captureResponsiveWindow("settings")
-        compose.onAllNodesWithText("Account").onLast().performScrollTo().performClick()
+        compose.onAllNodes(hasText("Account") and inDestination).onLast().performScrollTo().performClick()
         compose.onNodeWithText("Sign in").performScrollTo().assertIsDisplayed()
         captureResponsiveWindow("account")
         compose.onNodeWithContentDescription("Back").performClick()
