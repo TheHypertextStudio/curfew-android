@@ -17,7 +17,9 @@ redirect, unrelated and malformed URLs, incomplete alarm intents, and
 protection notifications with or without an intercepted app.
 
 `SetupColdStartInstrumentedTest` verifies that a fresh launch reaches Welcome
-after setup preferences load. `RingingAlarmPresentationTest` checks the alarm
+after setup preferences load. `SavedAlarmReadTest` covers the cold-launch
+choice on the JVM: an unreadable saved alarm shows the retry screen instead of
+resuming setup. `RingingAlarmPresentationTest` checks the alarm
 projection separately, including recovery when the bound check-in cannot be
 loaded. The alarm observer does not wait for onboarding or settings reads.
 

@@ -130,24 +130,6 @@ class SetupColdStartInstrumentedTest {
         FirstUsePreferences(context).clearDraft()
     }
 
-    @Test fun alarmReadFailureShowsRetryInsteadOfAnotherSetup(): Unit = runBlocking {
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
-        FirstUsePreferences(context).chooseNotNow()
-        ActivityScenario.launch(MainActivity::class.java).use { scenario ->
-            compose.waitUntil(10_000) { compose.onAllNodesWithContentDescription("Settings").fetchSemanticsNodes().isNotEmpty() }
-            scenario.onActivity { activity ->
-                val field = MainActivity::class.java.getDeclaredField("sunriseReadFailed\$delegate").apply { isAccessible = true }
-                @Suppress("UNCHECKED_CAST")
-                val state = field.get(activity) as androidx.compose.runtime.MutableState<Boolean>
-                state.value = true
-            }
-            compose.onNodeWithText("Couldn’t load setup").assertExists()
-            compose.onNodeWithContentDescription("Settings").assertDoesNotExist()
-            compose.onNodeWithText("Try again").performScrollTo().performClick()
-            compose.waitUntil(5_000) { compose.onAllNodesWithContentDescription("Settings").fetchSemanticsNodes().isNotEmpty() }
-        }
-    }
-
     @Test fun verifiedDraftStartsAtPermissionsInsteadOfConnectionSetup(): Unit = runBlocking {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val preferences = CurfewPreferences(context)
