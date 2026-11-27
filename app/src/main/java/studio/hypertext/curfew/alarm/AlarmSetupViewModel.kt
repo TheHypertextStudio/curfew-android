@@ -8,18 +8,17 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import studio.hypertext.curfew.checkin.CheckInCatalog
 import studio.hypertext.curfew.persistence.CurfewPreferenceState
 import studio.hypertext.curfew.persistence.CurfewPreferences
-import studio.hypertext.curfew.persistence.FirstUseChoice
-import studio.hypertext.curfew.persistence.FirstUseLoadState
 import studio.hypertext.curfew.persistence.FirstUsePreferences
 import studio.hypertext.curfew.platform.SunriseScheduler
 import studio.hypertext.curfew.readiness.AlarmReadiness
@@ -50,22 +49,20 @@ internal class AlarmSetupViewModel @Inject constructor(
     private val save = MutableStateFlow(SaveState())
     private val capabilityRevision = MutableStateFlow(0)
     private val firstUseRevision = MutableStateFlow(0)
-    private val savedAlarm = scheduler.state.catch { emit(null) }
+
+    // Retrying setup re-reads the saved alarm too, because a failed alarm read is what keeps
+    // the retry screen up in place of a second setup.
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val savedAlarmRead = firstUseRevision
+        .flatMapLatest { scheduler.state.asSavedAlarmRead() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+    private val savedAlarm = savedAlarmRead.filterNotNull().map { (it as? SavedAlarmRead.Loaded)?.alarm }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val entry = combine(
-        savedAlarm,
+        savedAlarmRead.filterNotNull(),
         firstUseRevision.flatMapLatest { firstUsePreferences.loadState },
-    ) { alarm, load ->
-        val firstUse = (load as? FirstUseLoadState.Ready)?.state
-        AlarmSetupEntry(
-            loaded = load !is FirstUseLoadState.Loading,
-            loadError = load is FirstUseLoadState.Error && alarm == null,
-            showWelcome = firstUse?.needsWelcome(alarm != null) == true,
-            startSetup = alarm == null && firstUse?.choice == FirstUseChoice.STARTED,
-            draft = firstUse?.draft.takeIf { alarm == null },
-        )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AlarmSetupEntry())
+    ) { read, load -> alarmSetupEntry(read, load) }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AlarmSetupEntry())
 
     private val setupInputs = combine(savedAlarm, preferences.state, capabilityRevision) { alarm, prefs, _ ->
         val selected = prefs.selectedCallbackId?.let { checkIns.find(it) }
@@ -118,7 +115,9 @@ internal class AlarmSetupViewModel @Inject constructor(
     }
 
     private fun runSave(operation: suspend () -> Unit) {
-        if (save.value.busy) return
+        // Writing a schedule while the saved one is unreadable could replace an alarm the
+        // person still relies on.
+        if (save.value.busy || savedAlarmRead.value == SavedAlarmRead.Failed) return
         save.value = SaveState(busy = true)
         viewModelScope.launch {
             try {
