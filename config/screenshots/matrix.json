@@ -758,6 +758,42 @@
         "top",
         "bottom"
       ]
+    },
+    {
+      "id": "bedtime_access_required",
+      "title": "Accessibility access needed",
+      "screen": "Bedtime protection",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "bedtime_ready",
+      "title": "Ready to start a session",
+      "screen": "Bedtime protection",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "bedtime_active",
+      "title": "Bedtime session running",
+      "screen": "Bedtime protection",
+      "positions": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "id": "bedtime_interrupted",
+      "title": "Chosen app interrupted",
+      "screen": "Bedtime protection",
+      "positions": [
+        "top",
+        "bottom"
+      ]
     }
   ],
   "devices": [
