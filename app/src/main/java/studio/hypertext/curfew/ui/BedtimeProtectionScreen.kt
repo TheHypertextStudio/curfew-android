@@ -59,13 +59,13 @@ internal fun BedtimeProtectionScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     Text(
-                        text = "App Interrupted",
+                        text = "App interrupted",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.semantics { heading() },
                     )
                     Text(
-                        text = "An entertainment app ($interceptedPackage) was closed because an active protection boundary is running.",
+                        text = "Curfew sent you to the Home screen when ${chosenAppName(interceptedPackage)} opened because a protection session is running.",
                         style = MaterialTheme.typography.bodyMedium,
                     )
                     Row(
@@ -140,7 +140,7 @@ internal fun BedtimeProtectionScreen(
                         modifier = Modifier.semantics { heading() },
                     )
                     Text(
-                        text = "Duration: ${activeSession.durationMinutes} minutes. Chosen entertainment apps are currently interrupted to protect your boundary.",
+                        text = "Runs for ${sessionLengthLabel(activeSession.durationMinutes)}. Curfew interrupts your chosen apps until it ends.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onPrimaryContainer,
                     )
@@ -232,17 +232,11 @@ internal fun BedtimeProtectionScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = app.displayName,
-                                style = MaterialTheme.typography.bodyLarge,
-                            )
-                            Text(
-                                text = app.packageName,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
+                        Text(
+                            text = app.displayName,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.weight(1f),
+                        )
                         Switch(
                             checked = isChecked,
                             onCheckedChange = { checked ->
@@ -254,4 +248,23 @@ internal fun BedtimeProtectionScreen(
             }
         }
     }
+}
+
+/**
+ * Names an interrupted package for the Bedtime screen. The service only interrupts packages
+ * from the reviewed list, so an unknown package means stale state and gets a generic name
+ * rather than its raw package identifier.
+ */
+private fun chosenAppName(packageName: String): String =
+    CuratedEntertainmentApps.ALL.firstOrNull { it.packageName == packageName }?.displayName ?: "a chosen app"
+
+/**
+ * Describes a session length in whole hours when it divides evenly, as the start buttons
+ * offer, and in minutes otherwise.
+ */
+private fun sessionLengthLabel(durationMinutes: Int): String = when {
+    durationMinutes == 60 -> "1 hour"
+    durationMinutes % 60 == 0 -> "${durationMinutes / 60} hours"
+    durationMinutes == 1 -> "1 minute"
+    else -> "$durationMinutes minutes"
 }
