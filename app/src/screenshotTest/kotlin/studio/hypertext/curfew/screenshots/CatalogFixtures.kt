@@ -11,6 +11,9 @@ import studio.hypertext.curfew.ui.theme.CurfewTheme
 import studio.hypertext.curfew.alarm.*
 import studio.hypertext.curfew.checkin.*
 import studio.hypertext.curfew.account.AccountRecoveryState
+import studio.hypertext.curfew.enforcement.EnforcementPurpose
+import studio.hypertext.curfew.enforcement.EnforcementSession
+import studio.hypertext.curfew.enforcement.EnforcementSessionState
 import studio.hypertext.curfew.readiness.*
 
 enum class CatalogState {
@@ -97,6 +100,10 @@ enum class CatalogState {
     RECOVERY_BUSY,
     RECOVERY_ERROR,
     LOAD_ERROR,
+    BEDTIME_ACCESS_REQUIRED,
+    BEDTIME_READY,
+    BEDTIME_ACTIVE,
+    BEDTIME_INTERRUPTED,
 }
 
 private val fixedDate = LocalDate.of(2030, 10, 23)
@@ -106,6 +113,16 @@ private fun draft(weekly: Boolean) = AlarmSetupDraft("example-alarm", fixedTime,
 private fun alarm(weekly: Boolean = false, enabled: Boolean = true, complete: Boolean = false) = SavedSunriseAlarm(
     SunriseSchedule("example-alarm", fixedTime, if (weekly) null else fixedDate, if (weekly) weekdays else emptySet(), enabled, "example-checkin"),
     null, if (complete) fixedDate else null,
+)
+
+/** Two catalog apps chosen for the bedtime fixtures; both are entries in the reviewed list. */
+private val chosenEntertainmentApps = setOf("com.zhiliaoapp.musically", "com.google.android.youtube")
+
+/** An active eight-hour bedtime session; the catalog never evaluates its expiry. */
+private val bedtimeSession = EnforcementSession(
+    sessionId = "example-session", purpose = EnforcementPurpose.BEDTIME, startEpochMs = 0, elapsedRealtimeStartMs = 0,
+    durationMinutes = 480, wallClockExpiryEpochMs = 480L * 60 * 1000, chosenAppPackages = chosenEntertainmentApps,
+    consentRevision = 1, state = EnforcementSessionState.ACTIVE,
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -179,7 +196,10 @@ fun CatalogFixture(state: CatalogState, position: String, dark: Boolean) {
                     if (id == "daily_empty") null else "Morning check-in", id != "daily_unverified", id != "daily_attention", id == "daily_busy",
                     if (id == "daily_error") "Couldn’t update alarm. Try again." else null, {}, {}, {}, {},
                 )
-                id.startsWith("settings_") -> CurfewSettingsScreen(if (id == "settings_ready") "Morning check-in" else null, id == "settings_ready", id == "settings_ready", id == "settings_ready", {}, {}, {})
+                id.startsWith("settings_") -> CurfewSettingsScreen(
+                    if (id == "settings_ready") "Morning check-in" else null, id == "settings_ready", id == "settings_ready", id == "settings_ready",
+                    onCheckIn = {}, onReadiness = {}, onAccount = {},
+                )
                 id.startsWith("account_") || id in setOf("recovery_empty", "recovery_entered", "recovery_save") -> CurfewAccountScreen(
                     id == "account_enrolled", id != "account_local",
                     when(id) { "recovery_empty", "recovery_entered" -> AccountRecoveryState.EnterRecoveryKey; "recovery_save" -> AccountRecoveryState.SaveRecoveryKey("EXAMPLE-NOT-A-REAL-RECOVERY-KEY"); else -> null },
@@ -191,6 +211,13 @@ fun CatalogFixture(state: CatalogState, position: String, dark: Boolean) {
                 id.startsWith("ringing_") -> AlarmRingingScreen("07:00", if (id == "ringing_long") "Complete your morning check-in with the service you connected" else "Morning check-in", if (id == "ringing_no_action") null else "Open check-in", {}, {}, if (id == "ringing_quiet") "07:03" else null)
                 id.startsWith("recovery_") -> AlarmRecoveryScreen("Morning check-in", id != "recovery_no_lock", id == "recovery_busy", if (id == "recovery_error") "Couldn’t confirm recovery. Try again." else null, {}, {}, {}, {}, {}, initialReason = when(id) { "recovery_reason_short" -> "My service is unavailable."; "recovery_reason_ready", "recovery_busy", "recovery_error" -> "My check-in service is unavailable this morning, and I need to recover this alarm."; else -> "" })
                 id == "load_error" -> FirstUseLoadErrorScreen({})
+                id.startsWith("bedtime_") -> BedtimeProtectionScreen(
+                    isAccessibilityReady = id != "bedtime_access_required",
+                    activeSession = bedtimeSession.takeIf { id in setOf("bedtime_active", "bedtime_interrupted") },
+                    chosenApps = chosenEntertainmentApps, onToggleChosenApp = { _, _ -> }, onOpenAccessibilitySettings = {},
+                    onStartSession = { _, _ -> }, onEmergencyStop = {},
+                    interceptedPackage = "com.zhiliaoapp.musically".takeIf { id == "bedtime_interrupted" },
+                )
             }
         }
     }
